@@ -1,0 +1,90 @@
+# Copyright © 2020 Interplanetary Database Association e.V.,
+# Planetmint and IPDB software contributors.
+# SPDX-License-Identifier: (Apache-2.0 AND CC-BY-4.0)
+# Code is Apache-2.0 and docs are CC-BY-4.0
+
+---
+- name: Building Tendermint Docker
+  docker_image:
+    name: "{{ tendermint_image_name }}"
+    state: build
+    tag: "{{tendermint_image_tag }}"
+    dockerfile: Dockerfile
+    path: "{{ home_dir }}/bigchaindb/pkg/configuration/roles/tendermint/files"
+    buildargs:
+      tm_version: "{{ tm_version }}"
+    nocache: yes
+  when: stack_type|lower == "docker" or stack_type|lower == "cloud"
+  tags: [tendermint]
+
+- name: Configuring Tendermint Containers
+  docker_container:
+    name: "tm_config_gen"
+    image: "{{ tendermint_image_name }}:{{ tendermint_image_tag }}"
+    detach: true
+    env:
+      STACK_SIZE: "{{ stack_size }}"
+      TM_DOCKER_NAME: "{{ tendermint_docker_name }}"
+    volumes:
+      - "{{ tendermint_host_mount_config_dir }}{{ tendermint_home }}:{{ tendermint_home }}"
+      - "../scripts:/scripts"
+    entrypoint: ''
+    command: /usr/bin/env bash -c "/scripts/tm_config_gen"
+  when: stack_type|lower == "docker" or stack_type|lower == "cloud"
+  tags: [tendermint]
+
+- name: Starting Tendermint Containers
+  docker_container:
+    name: "{{ tendermint_docker_name }}{{ item }}"
+    hostname: "{{ tendermint_docker_name }}{{ item }}"
+    image: "{{ tendermint_image_name }}:{{ tendermint_image_tag }}"
+    detach: true
+    network_mode: bridge
+    networks:
+      - name: "{{ bigchaindb_docker_net }}"
+    published_ports:
+      - "{{ tendermint_p2p_port }}"
+      - "{{ tendermint_rpc_port }}"
+    volumes:
+      - "{{ tendermint_host_mount_dir }}{{ item|string }}{{ tendermint_home }}:{{ tendermint_home }}"
+      - "{{ tendermint_host_mount_dir }}{{ item|string }}{{ tendermint_data }}:{{ tendermint_data }}"
+      - "{{ tendermint_host_mount_config_dir }}{{ tendermint_home }}:/tendermint_config"
+      - "../scripts:/scripts"
+    entrypoint: ''
+    command: bash -c "/scripts/tm_start"
+    env:
+      STACK_SIZE: "{{ stack_size|string }}"
+      TM_DOCKER_NAME: "{{ tendermint_docker_name|string }}"
+      TM_P2P_PORT: "{{ tendermint_p2p_port|string }}"
+      PLANETMINT_DOCKER_NAME: "{{ bigchaindb_docker_name|string }}"
+      _ITEM: "{{ item|string }}"
+    state: started
+    keep_volumes: true
+  with_sequence: start=1 end="{{ stack_size|int }}" stride=1
+  when: stack_type|lower == "docker" or stack_type|lower == "cloud"
+  tags: [tendermint]
+
+- name: Creating directories
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: 0700
+  with_items: "{{ directories }}"
+  when: stack_type|lower == "local"
+  tags: [tendermint]
+
+- import_tasks: debian.yml
+  when: stack_type|lower == "local" and (distribution_name == "debian" or distribution_name == "ubuntu")
+  tags: [tendermint]
+
+- import_tasks: centos.yml
+  when: stack_type|lower == "local" and (distribution_name == "centos" or distribution_name == "red hat enterprise linux")
+  tags: [tendermint]
+
+- import_tasks: fedora.yml
+  when: stack_type|lower == "local" and (distribution_name == "fedora")
+  tags: [tendermint]
+
+- import_tasks: common.yml
+  when: stack_type|lower == "local"
+  tags: [tendermint]

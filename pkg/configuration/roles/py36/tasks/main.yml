@@ -1,0 +1,16 @@
+# Copyright © 2020 Interplanetary Database Association e.V.,
+# Planetmint and IPDB software contributors.
+# SPDX-License-Identifier: (Apache-2.0 AND CC-BY-4.0)
+# Code is Apache-2.0 and docs are CC-BY-4.0
+
+---
+- import_tasks: debian.yml
+  when: stack_type|lower == "local" and (ansible_distribution|lower == "debian" or ansible_distribution|lower == "ubuntu")
+  tags: [py36]
+
+- import_tasks: centos.yml
+  when: stack_type|lower == "local" and (ansible_distribution|lower == "centos" or ansible_distribution|lower == "red hat enterprise linux")
+  tags: [py36]
+
+- import_tasks: fedora.yml
+  when: stack_type|lower == "local" and (ansible_distribution|lower == "fedora")
