@@ -131,7 +131,7 @@ def test_post_create_transaction_with_invalid_key(b, client, field, value,
 
 
 @pytest.mark.abci
-@patch('bigchaindb.web.views.base.logger')
+@patch('planetmint.web.views.base.logger')
 def test_post_create_transaction_with_invalid_id(mock_logger, b, client):
     from planetmint.common.exceptions import InvalidHash
     from planetmint.models import Transaction
@@ -166,7 +166,7 @@ def test_post_create_transaction_with_invalid_id(mock_logger, b, client):
 
 
 @pytest.mark.abci
-@patch('bigchaindb.web.views.base.logger')
+@patch('planetmint.web.views.base.logger')
 def test_post_create_transaction_with_invalid_signature(mock_logger,
                                                         b,
                                                         client):
@@ -216,7 +216,7 @@ def test_post_create_transaction_with_invalid_structure(client):
 
 
 @pytest.mark.abci
-@patch('bigchaindb.web.views.base.logger')
+@patch('planetmint.web.views.base.logger')
 def test_post_create_transaction_with_invalid_schema(mock_logger, client):
     from planetmint.models import Transaction
     user_priv, user_pub = crypto.generate_key_pair()
@@ -272,7 +272,7 @@ def test_post_create_transaction_with_invalid_schema(mock_logger, client):
     ('TransactionOwnerError', 'Not yours!'),
     ('ValidationError', '?'),
 ))
-@patch('bigchaindb.web.views.base.logger')
+@patch('planetmint.web.views.base.logger')
 def test_post_invalid_transaction(mock_logger, client, exc, msg, monkeypatch,):
     from planetmint.common import exceptions
     exc_cls = getattr(exceptions, exc)
@@ -283,7 +283,7 @@ def test_post_invalid_transaction(mock_logger, client, exc, msg, monkeypatch,):
     TransactionMock = Mock(validate=mock_validation)
 
     monkeypatch.setattr(
-        'bigchaindb.models.Transaction.from_dict', lambda tx: TransactionMock)
+        'planetmint.models.Transaction.from_dict', lambda tx: TransactionMock)
     res = client.post(TX_ENDPOINT, data=json.dumps({}))
     expected_status_code = 400
     expected_error_message = 'Invalid transaction ({}): {}'.format(exc, msg)
@@ -379,7 +379,7 @@ def test_transactions_get_list_good(client):
 
     asset_id = '1' * 64
 
-    with patch('bigchaindb.Planetmint.get_transactions_filtered', get_txs_patched):
+    with patch('planetmint.BigchainDB.get_transactions_filtered', get_txs_patched):
         url = TX_ENDPOINT + '?asset_id=' + asset_id
         assert client.get(url).json == [
             ['asset_id', asset_id],
@@ -403,7 +403,7 @@ def test_transactions_get_list_good(client):
 def test_transactions_get_list_bad(client):
     def should_not_be_called():
         assert False
-    with patch('bigchaindb.Planetmint.get_transactions_filtered',
+    with patch('planetmint.BigchainDB.get_transactions_filtered',
                lambda *_, **__: should_not_be_called()):
         # Test asset id validated
         url = TX_ENDPOINT + '?asset_id=' + '1' * 63

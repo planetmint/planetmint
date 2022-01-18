@@ -75,8 +75,8 @@ def test_get_latest_block(b):
 
 
 @pytest.mark.bdb
-@patch('bigchaindb.backend.query.get_block', return_value=None)
-@patch('bigchaindb.Planetmint.get_latest_block', return_value={'height': 10})
+@patch('planetmint.backend.query.get_block', return_value=None)
+@patch('planetmint.BigchainDB.get_latest_block', return_value={'height': 10})
 def test_get_empty_block(_0, _1, b):
     assert b.get_block(5) == {'height': 5, 'transactions': []}
 
@@ -171,11 +171,11 @@ def test_update_utxoset(b, signed_create_tx, signed_transfer_tx, db_context):
 @pytest.mark.bdb
 def test_store_transaction(mocker, b, signed_create_tx,
                            signed_transfer_tx, db_context):
-    mocked_store_asset = mocker.patch('bigchaindb.backend.query.store_assets')
+    mocked_store_asset = mocker.patch('planetmint.backend.query.store_assets')
     mocked_store_metadata = mocker.patch(
-        'bigchaindb.backend.query.store_metadatas')
+        'planetmint.backend.query.store_metadatas')
     mocked_store_transaction = mocker.patch(
-        'bigchaindb.backend.query.store_transactions')
+        'planetmint.backend.query.store_transactions')
     b.store_bulk_transactions([signed_create_tx])
     # mongo_client = MongoClient(host=db_context.host, port=db_context.port)
     # utxoset = mongo_client[db_context.name]['utxos']
@@ -221,11 +221,11 @@ def test_store_transaction(mocker, b, signed_create_tx,
 def test_store_bulk_transaction(mocker, b, signed_create_tx,
                                 signed_transfer_tx, db_context):
     mocked_store_assets = mocker.patch(
-        'bigchaindb.backend.query.store_assets')
+        'planetmint.backend.query.store_assets')
     mocked_store_metadata = mocker.patch(
-        'bigchaindb.backend.query.store_metadatas')
+        'planetmint.backend.query.store_metadatas')
     mocked_store_transactions = mocker.patch(
-        'bigchaindb.backend.query.store_transactions')
+        'planetmint.backend.query.store_transactions')
     b.store_bulk_transactions((signed_create_tx,))
     # mongo_client = MongoClient(host=db_context.host, port=db_context.port)
     # utxoset = mongo_client[db_context.name]['utxos']

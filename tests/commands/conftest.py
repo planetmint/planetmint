@@ -34,7 +34,7 @@ def mock_processes_start(monkeypatch):
 
 @pytest.fixture
 def mock_generate_key_pair(monkeypatch):
-    monkeypatch.setattr('bigchaindb.common.crypto.generate_key_pair', lambda: ('privkey', 'pubkey'))
+    monkeypatch.setattr('planetmint.common.crypto.generate_key_pair', lambda: ('privkey', 'pubkey'))
 
 
 @pytest.fixture
@@ -42,7 +42,7 @@ def mock_bigchaindb_backup_config(monkeypatch):
     config = {
         'database': {'host': 'host', 'port': 12345, 'name': 'adbname'},
     }
-    monkeypatch.setattr('bigchaindb._config', config)
+    monkeypatch.setattr('planetmint._config', config)
 
 
 @pytest.fixture
@@ -57,7 +57,7 @@ def run_start_args(request):
 @pytest.fixture
 def mocked_setup_logging(mocker):
     return mocker.patch(
-        'bigchaindb.log.setup_logging',
+        'planetmint.log.setup_logging',
         autospec=True,
         spec_set=True,
     )

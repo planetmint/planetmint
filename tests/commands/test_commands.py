@@ -41,7 +41,7 @@ def test_make_sure_we_dont_remove_any_command():
     assert parser.parse_args(['tendermint-version']).command
 
 
-@patch('bigchaindb.commands.utils.start')
+@patch('planetmint.commands.utils.start')
 def test_main_entrypoint(mock_start):
     from planetmint.commands.planetmint import main
     main()
@@ -49,9 +49,9 @@ def test_main_entrypoint(mock_start):
     assert mock_start.called
 
 
-@patch('bigchaindb.log.setup_logging')
-@patch('bigchaindb.commands.bigchaindb._run_init')
-@patch('bigchaindb.config_utils.autoconfigure')
+@patch('planetmint.log.setup_logging')
+@patch('planetmint.commands.planetmint._run_init')
+@patch('planetmint.config_utils.autoconfigure')
 def test_bigchain_run_start(mock_setup_logging, mock_run_init,
                             mock_autoconfigure, mock_processes_start):
     from planetmint.commands.planetmint import run_start
@@ -78,7 +78,7 @@ def test_bigchain_show_config(capsys):
     # PLANETMINT_SERVER_BIND, PLANETMINT_WSSERVER_HOST, PLANETMINT_WSSERVER_ADVERTISED_HOST
     # the default comparison fails i.e. when config is imported at the beginning the
     # dict returned is different that what is expected after run_show_config
-    # and run_show_config updates the bigchaindb.config
+    # and run_show_config updates the planetmint.config
     from planetmint import config
     del config['CONFIGURED']
     assert output_config == config
@@ -87,9 +87,9 @@ def test_bigchain_show_config(capsys):
 def test__run_init(mocker):
     from planetmint.commands.planetmint import _run_init
     bigchain_mock = mocker.patch(
-        'bigchaindb.commands.bigchaindb.bigchaindb.Planetmint')
+        'planetmint.commands.planetmint.planetmint.BigchainDB')
     init_db_mock = mocker.patch(
-        'bigchaindb.commands.bigchaindb.schema.init_database',
+        'planetmint.commands.planetmint.schema.init_database',
         autospec=True,
         spec_set=True,
     )
@@ -99,7 +99,7 @@ def test__run_init(mocker):
         connection=bigchain_mock.return_value.connection)
 
 
-@patch('bigchaindb.backend.schema.drop_database')
+@patch('planetmint.backend.schema.drop_database')
 def test_drop_db_when_assumed_yes(mock_db_drop):
     from planetmint.commands.planetmint import run_drop
     args = Namespace(config=None, yes=True)
@@ -108,18 +108,18 @@ def test_drop_db_when_assumed_yes(mock_db_drop):
     assert mock_db_drop.called
 
 
-@patch('bigchaindb.backend.schema.drop_database')
+@patch('planetmint.backend.schema.drop_database')
 def test_drop_db_when_interactive_yes(mock_db_drop, monkeypatch):
     from planetmint.commands.planetmint import run_drop
     args = Namespace(config=None, yes=False)
     monkeypatch.setattr(
-        'bigchaindb.commands.bigchaindb.input_on_stderr', lambda x: 'y')
+        'planetmint.commands.planetmint.input_on_stderr', lambda x: 'y')
 
     run_drop(args)
     assert mock_db_drop.called
 
 
-@patch('bigchaindb.backend.schema.drop_database')
+@patch('planetmint.backend.schema.drop_database')
 def test_drop_db_when_db_does_not_exist(mock_db_drop, capsys):
     from planetmint import config
     from planetmint.commands.planetmint import run_drop
@@ -133,12 +133,12 @@ def test_drop_db_when_db_does_not_exist(mock_db_drop, capsys):
         name=config['database']['name'])
 
 
-@patch('bigchaindb.backend.schema.drop_database')
+@patch('planetmint.backend.schema.drop_database')
 def test_drop_db_does_not_drop_when_interactive_no(mock_db_drop, monkeypatch):
     from planetmint.commands.planetmint import run_drop
     args = Namespace(config=None, yes=False)
     monkeypatch.setattr(
-        'bigchaindb.commands.bigchaindb.input_on_stderr', lambda x: 'n')
+        'planetmint.commands.planetmint.input_on_stderr', lambda x: 'n')
 
     run_drop(args)
     assert not mock_db_drop.called
@@ -172,7 +172,7 @@ def test_run_configure_when_config_does_exist(monkeypatch,
     monkeypatch.setattr('os.path.exists', lambda path: True)
     monkeypatch.setattr('builtins.input', lambda: '\n')
     monkeypatch.setattr(
-        'bigchaindb.config_utils.write_config', mock_write_config)
+        'planetmint.config_utils.write_config', mock_write_config)
 
     args = Namespace(config=None, yes=None)
     run_configure(args)
@@ -194,7 +194,7 @@ def test_run_configure_with_backend(backend, monkeypatch, mock_write_config):
 
     monkeypatch.setattr('os.path.exists', lambda path: False)
     monkeypatch.setattr('builtins.input', lambda: '\n')
-    monkeypatch.setattr('bigchaindb.config_utils.write_config',
+    monkeypatch.setattr('planetmint.config_utils.write_config',
                         mock_write_config)
 
     args = Namespace(config=None, backend=backend, yes=True)
@@ -209,7 +209,7 @@ def test_run_configure_with_backend(backend, monkeypatch, mock_write_config):
     assert value['return'] == expected_config
 
 
-@patch('bigchaindb.commands.utils.start')
+@patch('planetmint.commands.utils.start')
 def test_calling_main(start_mock, monkeypatch):
     from planetmint.commands.planetmint import main
 
@@ -242,8 +242,8 @@ def test_calling_main(start_mock, monkeypatch):
     assert start_mock.called is True
 
 
-@patch('bigchaindb.commands.bigchaindb.run_recover')
-@patch('bigchaindb.start.start')
+@patch('planetmint.commands.planetmint.run_recover')
+@patch('planetmint.start.start')
 def test_recover_db_on_start(mock_run_recover,
                              mock_start,
                              mocked_setup_logging):

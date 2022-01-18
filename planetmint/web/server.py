@@ -50,7 +50,7 @@ class StandaloneApplication(gunicorn.app.base.BaseApplication):
         config = dict((key, value) for key, value in self.options.items()
                       if key in self.cfg.settings and value is not None)
 
-        config['default_proc_name'] = 'bigchaindb_gunicorn'
+        config['default_proc_name'] = 'planetmint_gunicorn'
         for key, value in config.items():
             # not sure if we need the `key.lower` here, will just keep
             # keep it for now.
@@ -72,7 +72,7 @@ def create_app(*, debug=False, threads=1, bigchaindb_factory=None):
     """
 
     if not bigchaindb_factory:
-        bigchaindb_factory = Planetmint
+        bigchaindb_factory = BigchainDB
 
     app = Flask(__name__)
     app.wsgi_app = StripContentTypeMiddleware(app.wsgi_app)

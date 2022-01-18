@@ -32,7 +32,7 @@ from planetmint.common.exceptions import DatabaseDoesNotExist
 from planetmint.lib import Block
 from tests.utils import gen_vote
 
-TEST_DB_NAME = 'bigchain_test'
+TEST_DB_NAME = 'planetmint_test'
 
 USER2_SK, USER2_PK = crypto.generate_key_pair()
 
@@ -157,7 +157,7 @@ def ignore_local_config_file(monkeypatch):
     def mock_file_config(filename=None):
         return {}
 
-    monkeypatch.setattr('bigchaindb.config_utils.file_config',
+    monkeypatch.setattr('planetmint.config_utils.file_config',
                         mock_file_config)
 
 
@@ -243,7 +243,7 @@ def a():
 @pytest.fixture
 def b():
     from planetmint import BigchainDB
-    return BigchainDB)
+    return BigchainDB()
 
 
 @pytest.fixture

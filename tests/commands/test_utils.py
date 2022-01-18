@@ -15,7 +15,7 @@ from unittest.mock import patch
 @pytest.fixture
 def reset_bigchaindb_config(monkeypatch):
     import planetmint
-    monkeypatch.setattr('bigchaindb.config', planetmint._config)
+    monkeypatch.setattr('planetmint.config', planetmint._config)
 
 
 def test_input_on_stderr():

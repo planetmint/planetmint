@@ -15,8 +15,8 @@ def test_get_connection_raises_a_configuration_error(monkeypatch):
 
     with pytest.raises(ConfigurationError):
         # We need to force a misconfiguration here
-        monkeypatch.setattr('bigchaindb.backend.connection.BACKENDS',
+        monkeypatch.setattr('planetmint.backend.connection.BACKENDS',
                             {'catsandra':
-                             'bigchaindb.backend.meowmeow.Catsandra'})
+                             'planetmint.backend.meowmeow.Catsandra'})
 
         connect('catsandra', 'localhost', '1337', 'mydb')

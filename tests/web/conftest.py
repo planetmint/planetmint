@@ -12,7 +12,7 @@ def app(request):
     from planetmint.lib import BigchainDB
 
     if request.config.getoption('--database-backend') == 'localmongodb':
-        app = server.create_app(debug=True, bigchaindb_factory=Planetmint)
+        app = server.create_app(debug=True, bigchaindb_factory=BigchainDB)
     else:
         app = server.create_app(debug=True)
 

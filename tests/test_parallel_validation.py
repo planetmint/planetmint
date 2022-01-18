@@ -90,7 +90,7 @@ def test_parallel_validator_routes_transactions_correctly(b, monkeypatch):
         return dict_transaction
 
     monkeypatch.setattr(
-        'bigchaindb.parallel_validation.ValidationWorker.validate',
+        'planetmint.parallel_validation.ValidationWorker.validate',
         validate)
 
     # Transaction routing uses the `id` of the transaction. This test strips

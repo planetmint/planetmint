@@ -74,7 +74,7 @@ def test_upsert_validator_invalid_inputs_election(b_mock, new_validator, node_ke
         election.validate(b_mock)
 
 
-@patch('bigchaindb.elections.election.uuid4', lambda: 'mock_uuid4')
+@patch('planetmint.elections.election.uuid4', lambda: 'mock_uuid4')
 def test_upsert_validator_invalid_election(b_mock, new_validator, node_key, fixed_seed_election):
     voters = ValidatorElection.recipients(b_mock)
     duplicate_election = ValidatorElection.generate([node_key.public_key],

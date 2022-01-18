@@ -19,7 +19,7 @@ def clean_config(monkeypatch, request):
     original_config = copy.deepcopy(ORIGINAL_CONFIG)
     backend = request.config.getoption('--database-backend')
     original_config['database'] = planetmint._database_map[backend]
-    monkeypatch.setattr('bigchaindb.config', original_config)
+    monkeypatch.setattr('planetmint.config', original_config)
 
 
 def test_bigchain_instance_is_initialized_when_conf_provided():
@@ -156,7 +156,7 @@ def test_autoconfigure_read_both_from_file_and_env(monkeypatch, request):
         },
     }
 
-    monkeypatch.setattr('bigchaindb.config_utils.file_config',
+    monkeypatch.setattr('planetmint.config_utils.file_config',
                         lambda *args, **kwargs: file_config)
 
     monkeypatch.setattr('os.environ', {
@@ -240,9 +240,9 @@ def test_autoconfigure_read_both_from_file_and_env(monkeypatch, request):
 
 def test_autoconfigure_env_precedence(monkeypatch):
     file_config = {
-        'database': {'host': 'test-host', 'name': 'bigchaindb', 'port': 28015}
+        'database': {'host': 'test-host', 'name': 'planetmint', 'port': 28015}
     }
-    monkeypatch.setattr('bigchaindb.config_utils.file_config', lambda *args, **kwargs: file_config)
+    monkeypatch.setattr('planetmint.config_utils.file_config', lambda *args, **kwargs: file_config)
     monkeypatch.setattr('os.environ', {'PLANETMINT_DATABASE_NAME': 'test-dbname',
                                        'PLANETMINT_DATABASE_PORT': '4242',
                                        'PLANETMINT_SERVER_BIND': 'localhost:9985'})
@@ -264,7 +264,7 @@ def test_autoconfigure_explicit_file(monkeypatch):
     def file_config(*args, **kwargs):
         raise FileNotFoundError()
 
-    monkeypatch.setattr('bigchaindb.config_utils.file_config', file_config)
+    monkeypatch.setattr('planetmint.config_utils.file_config', file_config)
 
     with pytest.raises(FileNotFoundError):
         config_utils.autoconfigure(filename='autoexec.bat')
@@ -275,16 +275,16 @@ def test_update_config(monkeypatch):
     from planetmint import config_utils
 
     file_config = {
-        'database': {'host': 'test-host', 'name': 'bigchaindb', 'port': 28015}
+        'database': {'host': 'test-host', 'name': 'planetmint', 'port': 28015}
     }
-    monkeypatch.setattr('bigchaindb.config_utils.file_config', lambda *args, **kwargs: file_config)
+    monkeypatch.setattr('planetmint.config_utils.file_config', lambda *args, **kwargs: file_config)
     config_utils.autoconfigure(config=file_config)
 
     # update configuration, retaining previous changes
-    config_utils.update_config({'database': {'port': 28016, 'name': 'bigchaindb_other'}})
+    config_utils.update_config({'database': {'port': 28016, 'name': 'planetmint_other'}})
 
     assert planetmint.config['database']['host'] == 'test-host'
-    assert planetmint.config['database']['name'] == 'bigchaindb_other'
+    assert planetmint.config['database']['name'] == 'planetmint_other'
     assert planetmint.config['database']['port'] == 28016
 
 

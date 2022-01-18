@@ -75,7 +75,7 @@ class TestBigchainApi(object):
         b.store_bulk_transactions([tx1, tx2, tx3])
 
         # get the assets through text search
-        assets = list(b.text_search('bigchaindb'))
+        assets = list(b.text_search('planetmint'))
         assert len(assets) == 3
 
     @pytest.mark.usefixtures('inputs')
@@ -448,14 +448,14 @@ def test_get_outputs_filtered_only_unspent():
     from planetmint.common.transaction import TransactionLink
     from planetmint.lib import BigchainDB
 
-    go = 'bigchaindb.fastquery.FastQuery.get_outputs_by_public_key'
+    go = 'planetmint.fastquery.FastQuery.get_outputs_by_public_key'
     with patch(go) as get_outputs:
         get_outputs.return_value = [TransactionLink('a', 1),
                                     TransactionLink('b', 2)]
-        fs = 'bigchaindb.fastquery.FastQuery.filter_spent_outputs'
+        fs = 'planetmint.fastquery.FastQuery.filter_spent_outputs'
         with patch(fs) as filter_spent:
             filter_spent.return_value = [TransactionLink('b', 2)]
-            out = BigchainDB).get_outputs_filtered('abc', spent=False)
+            out = BigchainDB().get_outputs_filtered('abc', spent=False)
     get_outputs.assert_called_once_with('abc')
     assert out == [TransactionLink('b', 2)]
 
@@ -463,29 +463,29 @@ def test_get_outputs_filtered_only_unspent():
 def test_get_outputs_filtered_only_spent():
     from planetmint.common.transaction import TransactionLink
     from planetmint.lib import BigchainDB
-    go = 'bigchaindb.fastquery.FastQuery.get_outputs_by_public_key'
+    go = 'planetmint.fastquery.FastQuery.get_outputs_by_public_key'
     with patch(go) as get_outputs:
         get_outputs.return_value = [TransactionLink('a', 1),
                                     TransactionLink('b', 2)]
-        fs = 'bigchaindb.fastquery.FastQuery.filter_unspent_outputs'
+        fs = 'planetmint.fastquery.FastQuery.filter_unspent_outputs'
         with patch(fs) as filter_spent:
             filter_spent.return_value = [TransactionLink('b', 2)]
-            out = BigchainDB).get_outputs_filtered('abc', spent=True)
+            out = BigchainDB().get_outputs_filtered('abc', spent=True)
     get_outputs.assert_called_once_with('abc')
     assert out == [TransactionLink('b', 2)]
 
 
-@patch('bigchaindb.fastquery.FastQuery.filter_unspent_outputs')
-@patch('bigchaindb.fastquery.FastQuery.filter_spent_outputs')
+@patch('planetmint.fastquery.FastQuery.filter_unspent_outputs')
+@patch('planetmint.fastquery.FastQuery.filter_spent_outputs')
 def test_get_outputs_filtered(filter_spent, filter_unspent):
     from planetmint.common.transaction import TransactionLink
     from planetmint.lib import BigchainDB
 
-    go = 'bigchaindb.fastquery.FastQuery.get_outputs_by_public_key'
+    go = 'planetmint.fastquery.FastQuery.get_outputs_by_public_key'
     with patch(go) as get_outputs:
         get_outputs.return_value = [TransactionLink('a', 1),
                                     TransactionLink('b', 2)]
-        out = BigchainDB).get_outputs_filtered('abc')
+        out = BigchainDB().get_outputs_filtered('abc')
     get_outputs.assert_called_once_with('abc')
     filter_spent.assert_not_called()
     filter_unspent.assert_not_called()
