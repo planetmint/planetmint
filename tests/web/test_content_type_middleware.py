@@ -9,7 +9,7 @@ OUTPUTS_ENDPOINT = '/api/v1/outputs/'
 
 
 def test_middleware_does_nothing_when_no_content_type_is_provided():
-    from bigchaindb.web.strip_content_type_middleware import StripContentTypeMiddleware
+    from planetmint.web.strip_content_type_middleware import StripContentTypeMiddleware
     mock = Mock()
     middleware = StripContentTypeMiddleware(mock)
     middleware({'REQUEST_METHOD': 'GET'}, None)
@@ -18,7 +18,7 @@ def test_middleware_does_nothing_when_no_content_type_is_provided():
 
 
 def test_middleware_strips_content_type_from_gets():
-    from bigchaindb.web.strip_content_type_middleware import StripContentTypeMiddleware
+    from planetmint.web.strip_content_type_middleware import StripContentTypeMiddleware
     mock = Mock()
     middleware = StripContentTypeMiddleware(mock)
     middleware({'REQUEST_METHOD': 'GET',
@@ -29,7 +29,7 @@ def test_middleware_strips_content_type_from_gets():
 
 
 def test_middleware_does_notstrip_content_type_from_other_methods():
-    from bigchaindb.web.strip_content_type_middleware import StripContentTypeMiddleware
+    from planetmint.web.strip_content_type_middleware import StripContentTypeMiddleware
     mock = Mock()
     middleware = StripContentTypeMiddleware(mock)
     middleware({'REQUEST_METHOD': 'POST',

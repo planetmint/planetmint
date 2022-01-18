@@ -21,9 +21,9 @@ class MockWebSocket:
 
 
 def test_eventify_block_works_with_any_transaction():
-    from bigchaindb.web.websocket_server import eventify_block
-    from bigchaindb.common.crypto import generate_key_pair
-    from bigchaindb.lib import Transaction
+    from planetmint.web.websocket_server import eventify_block
+    from planetmint.common.crypto import generate_key_pair
+    from planetmint.lib import Transaction
 
     alice = generate_key_pair()
 
@@ -53,7 +53,7 @@ def test_eventify_block_works_with_any_transaction():
 
 
 async def test_bridge_sync_async_queue(loop):
-    from bigchaindb.web.websocket_server import _multiprocessing_to_asyncio
+    from planetmint.web.websocket_server import _multiprocessing_to_asyncio
 
     sync_queue = queue.Queue()
     async_queue = asyncio.Queue(loop=loop)
@@ -91,8 +91,8 @@ async def test_bridge_sync_async_queue(loop):
 def test_start_creates_an_event_loop(queue_mock, get_event_loop_mock,
                                      init_app_mock, run_app_mock,
                                      thread_mock):
-    from bigchaindb import config
-    from bigchaindb.web.websocket_server import start, _multiprocessing_to_asyncio
+    from planetmint import config
+    from planetmint.web.websocket_server import start, _multiprocessing_to_asyncio
 
     start(None)
     thread_mock.assert_called_once_with(
@@ -110,7 +110,7 @@ def test_start_creates_an_event_loop(queue_mock, get_event_loop_mock,
 
 
 async def test_websocket_string_event(test_client, loop):
-    from bigchaindb.web.websocket_server import init_app, POISON_PILL, EVENTS_ENDPOINT
+    from planetmint.web.websocket_server import init_app, POISON_PILL, EVENTS_ENDPOINT
 
     event_source = asyncio.Queue(loop=loop)
     app = init_app(event_source, loop=loop)
@@ -134,10 +134,10 @@ async def test_websocket_string_event(test_client, loop):
 
 
 async def test_websocket_block_event(b, test_client, loop):
-    from bigchaindb import events
-    from bigchaindb.web.websocket_server import init_app, POISON_PILL, EVENTS_ENDPOINT
-    from bigchaindb.models import Transaction
-    from bigchaindb.common import crypto
+    from planetmint import events
+    from planetmint.web.websocket_server import init_app, POISON_PILL, EVENTS_ENDPOINT
+    from planetmint.models import Transaction
+    from planetmint.common import crypto
 
     user_priv, user_pub = crypto.generate_key_pair()
     tx = Transaction.create([user_pub], [([user_pub], 1)])
@@ -178,11 +178,11 @@ def test_integration_from_webapi_to_websocket(monkeypatch, client, loop):
     import random
     import aiohttp
 
-    from bigchaindb.common import crypto
+    from planetmint.common import crypto
     # TODO processes does not exist anymore, when reactivating this test it
     # will fail because of this
-    from bigchaindb import processes
-    from bigchaindb.models import Transaction
+    from planetmint import processes
+    from planetmint.models import Transaction
 
     # Start Planetmint
     processes.start()

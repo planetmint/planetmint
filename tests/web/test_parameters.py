@@ -7,7 +7,7 @@ import pytest
 
 
 def test_valid_txid():
-    from bigchaindb.web.views.parameters import valid_txid
+    from planetmint.web.views.parameters import valid_txid
 
     valid = ['18ac3e7343f016890c510e93f935261169d9e3f565436429830faf0934f4f8e4',
              '18AC3E7343F016890C510E93F935261169D9E3F565436429830FAF0934F4F8E4']
@@ -25,7 +25,7 @@ def test_valid_txid():
 
 
 def test_valid_bool():
-    from bigchaindb.web.views.parameters import valid_bool
+    from planetmint.web.views.parameters import valid_bool
 
     assert valid_bool('true') is True
     assert valid_bool('false') is False
@@ -43,7 +43,7 @@ def test_valid_bool():
 
 
 def test_valid_ed25519():
-    from bigchaindb.web.views.parameters import valid_ed25519
+    from planetmint.web.views.parameters import valid_ed25519
 
     valid = ['123456789abcdefghijkmnopqrstuvwxyz1111111111',
              '123456789ABCDEFGHJKLMNPQRSTUVWXYZ1111111111']
@@ -65,7 +65,7 @@ def test_valid_ed25519():
 
 
 def test_valid_operation():
-    from bigchaindb.web.views.parameters import valid_operation
+    from planetmint.web.views.parameters import valid_operation
 
     assert valid_operation('create') == 'CREATE'
     assert valid_operation('transfer') == 'TRANSFER'

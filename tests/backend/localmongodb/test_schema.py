@@ -5,12 +5,12 @@
 
 
 def test_init_database_is_graceful_if_db_exists():
-    import bigchaindb
-    from bigchaindb import backend
-    from bigchaindb.backend.schema import init_database
+    import planetmint
+    from planetmint import backend
+    from planetmint.backend.schema import init_database
 
     conn = backend.connect()
-    dbname = bigchaindb.config['database']['name']
+    dbname = planetmint.config['database']['name']
 
     # The db is set up by the fixtures
     assert dbname in conn.conn.list_database_names()
@@ -19,12 +19,12 @@ def test_init_database_is_graceful_if_db_exists():
 
 
 def test_create_tables():
-    import bigchaindb
-    from bigchaindb import backend
-    from bigchaindb.backend import schema
+    import planetmint
+    from planetmint import backend
+    from planetmint.backend import schema
 
     conn = backend.connect()
-    dbname = bigchaindb.config['database']['name']
+    dbname = planetmint.config['database']['name']
 
     # The db is set up by the fixtures so we need to remove it
     conn.conn.drop_database(dbname)
@@ -67,8 +67,8 @@ def test_create_tables():
 
 
 def test_drop(dummy_db):
-    from bigchaindb import backend
-    from bigchaindb.backend import schema
+    from planetmint import backend
+    from planetmint.backend import schema
 
     conn = backend.connect()
     assert dummy_db in conn.conn.list_database_names()

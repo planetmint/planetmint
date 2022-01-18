@@ -6,7 +6,7 @@
 import pytest
 import random
 
-from bigchaindb.common.exceptions import DoubleSpend
+from planetmint.common.exceptions import DoubleSpend
 
 
 # CREATE divisible asset
@@ -15,7 +15,7 @@ from bigchaindb.common.exceptions import DoubleSpend
 # Single output
 # Single owners_after
 def test_single_in_single_own_single_out_single_own_create(alice, user_pk, b):
-    from bigchaindb.models import Transaction
+    from planetmint.models import Transaction
 
     tx = Transaction.create([alice.public_key], [([user_pk], 100)], asset={'name': random.random()})
     tx_signed = tx.sign([alice.private_key])
@@ -32,7 +32,7 @@ def test_single_in_single_own_single_out_single_own_create(alice, user_pk, b):
 # Multiple outputs
 # Single owners_after per output
 def test_single_in_single_own_multiple_out_single_own_create(alice, user_pk, b):
-    from bigchaindb.models import Transaction
+    from planetmint.models import Transaction
 
     tx = Transaction.create([alice.public_key], [([user_pk], 50), ([user_pk], 50)],
                             asset={'name': random.random()})
@@ -51,7 +51,7 @@ def test_single_in_single_own_multiple_out_single_own_create(alice, user_pk, b):
 # Single output
 # Multiple owners_after
 def test_single_in_single_own_single_out_multiple_own_create(alice, user_pk, b):
-    from bigchaindb.models import Transaction
+    from planetmint.models import Transaction
 
     tx = Transaction.create([alice.public_key], [([user_pk, user_pk], 100)], asset={'name': random.random()})
     tx_signed = tx.sign([alice.private_key])
@@ -74,7 +74,7 @@ def test_single_in_single_own_single_out_multiple_own_create(alice, user_pk, b):
 # Mix: one output with a single owners_after, one output with multiple
 #      owners_after
 def test_single_in_single_own_multiple_out_mix_own_create(alice, user_pk, b):
-    from bigchaindb.models import Transaction
+    from planetmint.models import Transaction
 
     tx = Transaction.create([alice.public_key], [([user_pk], 50), ([user_pk, user_pk], 50)],
                             asset={'name': random.random()})
@@ -98,8 +98,8 @@ def test_single_in_single_own_multiple_out_mix_own_create(alice, user_pk, b):
 # Output combinations already tested above
 def test_single_in_multiple_own_single_out_single_own_create(alice, b, user_pk,
                                                              user_sk):
-    from bigchaindb.models import Transaction
-    from bigchaindb.common.transaction import _fulfillment_to_details
+    from planetmint.models import Transaction
+    from planetmint.common.transaction import _fulfillment_to_details
 
     tx = Transaction.create([alice.public_key, user_pk], [([user_pk], 100)], asset={'name': random.random()})
     tx_signed = tx.sign([alice.private_key, user_sk])
@@ -120,7 +120,7 @@ def test_single_in_multiple_own_single_out_single_own_create(alice, b, user_pk,
 # Single owners_after
 def test_single_in_single_own_single_out_single_own_transfer(alice, b, user_pk,
                                                              user_sk):
-    from bigchaindb.models import Transaction
+    from planetmint.models import Transaction
 
     # CREATE divisible asset
     tx_create = Transaction.create([alice.public_key], [([user_pk], 100)], asset={'name': random.random()})
@@ -146,7 +146,7 @@ def test_single_in_single_own_single_out_single_own_transfer(alice, b, user_pk,
 # Single owners_after
 def test_single_in_single_own_multiple_out_single_own_transfer(alice, b, user_pk,
                                                                user_sk):
-    from bigchaindb.models import Transaction
+    from planetmint.models import Transaction
 
     # CREATE divisible asset
     tx_create = Transaction.create([alice.public_key], [([user_pk], 100)], asset={'name': random.random()})
@@ -174,7 +174,7 @@ def test_single_in_single_own_multiple_out_single_own_transfer(alice, b, user_pk
 # Multiple owners_after
 def test_single_in_single_own_single_out_multiple_own_transfer(alice, b, user_pk,
                                                                user_sk):
-    from bigchaindb.models import Transaction
+    from planetmint.models import Transaction
 
     # CREATE divisible asset
     tx_create = Transaction.create([alice.public_key], [([user_pk], 100)], asset={'name': random.random()})
@@ -211,7 +211,7 @@ def test_single_in_single_own_single_out_multiple_own_transfer(alice, b, user_pk
 #      owners_after
 def test_single_in_single_own_multiple_out_mix_own_transfer(alice, b, user_pk,
                                                             user_sk):
-    from bigchaindb.models import Transaction
+    from planetmint.models import Transaction
 
     # CREATE divisible asset
     tx_create = Transaction.create([alice.public_key], [([user_pk], 100)], asset={'name': random.random()})
@@ -248,8 +248,8 @@ def test_single_in_single_own_multiple_out_mix_own_transfer(alice, b, user_pk,
 # Single owners_after
 def test_single_in_multiple_own_single_out_single_own_transfer(alice, b, user_pk,
                                                                user_sk):
-    from bigchaindb.models import Transaction
-    from bigchaindb.common.transaction import _fulfillment_to_details
+    from planetmint.models import Transaction
+    from planetmint.common.transaction import _fulfillment_to_details
 
     # CREATE divisible asset
     tx_create = Transaction.create([alice.public_key], [([alice.public_key, user_pk], 100)],
@@ -284,7 +284,7 @@ def test_single_in_multiple_own_single_out_single_own_transfer(alice, b, user_pk
 # Single owners_after
 def test_multiple_in_single_own_single_out_single_own_transfer(alice, b, user_pk,
                                                                user_sk):
-    from bigchaindb.models import Transaction
+    from planetmint.models import Transaction
 
     # CREATE divisible asset
     tx_create = Transaction.create([alice.public_key], [([user_pk], 50), ([user_pk], 50)],
@@ -315,8 +315,8 @@ def test_multiple_in_single_own_single_out_single_own_transfer(alice, b, user_pk
 # Single owners_after
 def test_multiple_in_multiple_own_single_out_single_own_transfer(alice, b, user_pk,
                                                                  user_sk):
-    from bigchaindb.models import Transaction
-    from bigchaindb.common.transaction import _fulfillment_to_details
+    from planetmint.models import Transaction
+    from planetmint.common.transaction import _fulfillment_to_details
 
     # CREATE divisible asset
     tx_create = Transaction.create([alice.public_key], [([user_pk, alice.public_key], 50),
@@ -356,8 +356,8 @@ def test_multiple_in_multiple_own_single_out_single_own_transfer(alice, b, user_
 # Single owners_after
 def test_muiltiple_in_mix_own_multiple_out_single_own_transfer(alice, b, user_pk,
                                                                user_sk):
-    from bigchaindb.models import Transaction
-    from bigchaindb.common.transaction import _fulfillment_to_details
+    from planetmint.models import Transaction
+    from planetmint.common.transaction import _fulfillment_to_details
 
     # CREATE divisible asset
     tx_create = Transaction.create([alice.public_key], [([user_pk], 50), ([user_pk, alice.public_key], 50)],
@@ -396,8 +396,8 @@ def test_muiltiple_in_mix_own_multiple_out_single_own_transfer(alice, b, user_pk
 #      owners_after
 def test_muiltiple_in_mix_own_multiple_out_mix_own_transfer(alice, b, user_pk,
                                                             user_sk):
-    from bigchaindb.models import Transaction
-    from bigchaindb.common.transaction import _fulfillment_to_details
+    from planetmint.models import Transaction
+    from planetmint.common.transaction import _fulfillment_to_details
 
     # CREATE divisible asset
     tx_create = Transaction.create([alice.public_key], [([user_pk], 50), ([user_pk, alice.public_key], 50)],
@@ -441,7 +441,7 @@ def test_muiltiple_in_mix_own_multiple_out_mix_own_transfer(alice, b, user_pk,
 # Single output
 # Single owners_after
 def test_multiple_in_different_transactions(alice, b, user_pk, user_sk):
-    from bigchaindb.models import Transaction
+    from planetmint.models import Transaction
 
     # CREATE divisible asset
     # `b` creates a divisible asset and assigns 50 shares to `b` and
@@ -485,8 +485,8 @@ def test_multiple_in_different_transactions(alice, b, user_pk, user_sk):
 # inputs needs to match the amount being sent in the outputs.
 # In other words `amount_in_inputs - amount_in_outputs == 0`
 def test_amount_error_transfer(alice, b, user_pk, user_sk):
-    from bigchaindb.models import Transaction
-    from bigchaindb.common.exceptions import AmountError
+    from planetmint.models import Transaction
+    from planetmint.common.exceptions import AmountError
 
     # CREATE divisible asset
     tx_create = Transaction.create([alice.public_key], [([user_pk], 100)], asset={'name': random.random()})
@@ -521,7 +521,7 @@ def test_threshold_same_public_key(alice, b, user_pk, user_sk):
     # Creating threshold conditions with the same key does not make sense but
     # that does not mean that the code shouldn't work.
 
-    from bigchaindb.models import Transaction
+    from planetmint.models import Transaction
 
     # CREATE divisible asset
     tx_create = Transaction.create([alice.public_key], [([user_pk, user_pk], 100)],
@@ -543,7 +543,7 @@ def test_threshold_same_public_key(alice, b, user_pk, user_sk):
 
 
 def test_sum_amount(alice, b, user_pk, user_sk):
-    from bigchaindb.models import Transaction
+    from planetmint.models import Transaction
 
     # CREATE divisible asset with 3 outputs with amount 1
     tx_create = Transaction.create([alice.public_key], [([user_pk], 1), ([user_pk], 1), ([user_pk], 1)],
@@ -568,7 +568,7 @@ def test_sum_amount(alice, b, user_pk, user_sk):
 
 
 def test_divide(alice, b, user_pk, user_sk):
-    from bigchaindb.models import Transaction
+    from planetmint.models import Transaction
 
     # CREATE divisible asset with 1 output with amount 3
     tx_create = Transaction.create([alice.public_key], [([user_pk], 3)], asset={'name': random.random()})

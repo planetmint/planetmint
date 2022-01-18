@@ -6,8 +6,8 @@ from unittest.mock import patch
 
 import pytest
 
-from bigchaindb.backend.localmongodb import query
-from bigchaindb.upsert_validator import ValidatorElection
+from planetmint.backend.localmongodb import query
+from planetmint.upsert_validator import ValidatorElection
 
 
 @pytest.fixture

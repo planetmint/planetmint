@@ -12,7 +12,7 @@ import pytest
 
 @pytest.fixture
 def txlist(b, user_pk, user2_pk, user_sk, user2_sk):
-    from bigchaindb.models import Transaction
+    from planetmint.models import Transaction
 
     # Create two CREATE transactions
     create1 = Transaction.create([user_pk], [([user2_pk], 6)]) \

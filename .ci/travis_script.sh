@@ -10,9 +10,9 @@ set -e -x
 if [[ -n ${TOXENV} ]]; then
   tox -e ${TOXENV}
 elif [[ ${PLANETMINT_CI_ABCI} == 'enable' ]]; then
-  docker-compose exec bigchaindb pytest -v -m abci
+  docker-compose exec planetmint pytest -v -m abci
 elif [[ ${PLANETMINT_ACCEPTANCE_TEST} == 'enable' ]]; then
     ./run-acceptance-test.sh
 else
-  docker-compose exec bigchaindb pytest -v --cov=bigchaindb --cov-report xml:htmlcov/coverage.xml
+  docker-compose exec planetmint pytest -v --cov=planetmint --cov-report xml:htmlcov/coverage.xml
 fi

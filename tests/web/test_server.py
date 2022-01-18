@@ -5,11 +5,11 @@
 
 
 def test_settings():
-    import bigchaindb
-    from bigchaindb.web import server
+    import planetmint
+    from planetmint.web import server
 
-    s = server.create_server(bigchaindb.config['server'])
+    s = server.create_server(planetmint.config['server'])
 
     # for whatever reason the value is wrapped in a list
     # needs further investigation
-    assert s.cfg.bind[0] == bigchaindb.config['server']['bind']
+    assert s.cfg.bind[0] == planetmint.config['server']['bind']

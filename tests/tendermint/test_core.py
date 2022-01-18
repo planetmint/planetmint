@@ -9,19 +9,19 @@ import random
 
 from abci import types_v0_31_5 as types
 
-from bigchaindb import App
-from bigchaindb.backend.localmongodb import query
-from bigchaindb.common.crypto import generate_key_pair
-from bigchaindb.core import (CodeTypeOk,
+from planetmint import App
+from planetmint.backend.localmongodb import query
+from planetmint.common.crypto import generate_key_pair
+from planetmint.core import (CodeTypeOk,
                              CodeTypeError,
                              rollback)
-from bigchaindb.elections.election import Election
-from bigchaindb.lib import Block
-from bigchaindb.migrations.chain_migration_election import ChainMigrationElection
-from bigchaindb.upsert_validator.validator_election import ValidatorElection
-from bigchaindb.upsert_validator.validator_utils import new_validator_set
-from bigchaindb.tendermint_utils import public_key_to_base64
-from bigchaindb.version import __tm_supported_versions__
+from planetmint.elections.election import Election
+from planetmint.lib import Block
+from planetmint.migrations.chain_migration_election import ChainMigrationElection
+from planetmint.upsert_validator.validator_election import ValidatorElection
+from planetmint.upsert_validator.validator_utils import new_validator_set
+from planetmint.tendermint_utils import public_key_to_base64
+from planetmint.version import __tm_supported_versions__
 
 from tests.utils import generate_election, generate_validators
 
@@ -200,9 +200,9 @@ def test_info(a, b):
 
 
 def test_check_tx__signed_create_is_ok(a, b):
-    from bigchaindb import App
-    from bigchaindb.models import Transaction
-    from bigchaindb.common.crypto import generate_key_pair
+    from planetmint import App
+    from planetmint.models import Transaction
+    from planetmint.common.crypto import generate_key_pair
 
     alice = generate_key_pair()
     bob = generate_key_pair()
@@ -217,9 +217,9 @@ def test_check_tx__signed_create_is_ok(a, b):
 
 
 def test_check_tx__unsigned_create_is_error(a, b):
-    from bigchaindb import App
-    from bigchaindb.models import Transaction
-    from bigchaindb.common.crypto import generate_key_pair
+    from planetmint import App
+    from planetmint.models import Transaction
+    from planetmint.common.crypto import generate_key_pair
 
     alice = generate_key_pair()
     bob = generate_key_pair()
@@ -234,9 +234,9 @@ def test_check_tx__unsigned_create_is_error(a, b):
 
 def test_deliver_tx__valid_create_updates_db_and_emits_event(a, b, init_chain_request):
     import multiprocessing as mp
-    from bigchaindb import App
-    from bigchaindb.models import Transaction
-    from bigchaindb.common.crypto import generate_key_pair
+    from planetmint import App
+    from planetmint.models import Transaction
+    from planetmint.common.crypto import generate_key_pair
 
     alice = generate_key_pair()
     bob = generate_key_pair()
@@ -271,9 +271,9 @@ def test_deliver_tx__valid_create_updates_db_and_emits_event(a, b, init_chain_re
 
 
 def test_deliver_tx__double_spend_fails(a, b, init_chain_request):
-    from bigchaindb import App
-    from bigchaindb.models import Transaction
-    from bigchaindb.common.crypto import generate_key_pair
+    from planetmint import App
+    from planetmint.models import Transaction
+    from planetmint.common.crypto import generate_key_pair
 
     alice = generate_key_pair()
     bob = generate_key_pair()
@@ -300,9 +300,9 @@ def test_deliver_tx__double_spend_fails(a, b, init_chain_request):
 
 
 def test_deliver_transfer_tx__double_spend_fails(a, b, init_chain_request):
-    from bigchaindb import App
-    from bigchaindb.models import Transaction
-    from bigchaindb.common.crypto import generate_key_pair
+    from planetmint import App
+    from planetmint.models import Transaction
+    from planetmint.common.crypto import generate_key_pair
 
     app = App(a, b)
     app.init_chain(init_chain_request)
@@ -379,9 +379,9 @@ def test_end_block_return_validator_updates(a, b, init_chain_request):
 
 
 def test_store_pre_commit_state_in_end_block(a, b, alice, init_chain_request):
-    from bigchaindb import App
-    from bigchaindb.backend import query
-    from bigchaindb.models import Transaction
+    from planetmint import App
+    from planetmint.backend import query
+    from planetmint.models import Transaction
 
     tx = Transaction.create([alice.public_key],
                             [([alice.public_key], 1)],

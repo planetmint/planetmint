@@ -16,18 +16,18 @@ except ImportError:
 import pytest
 from pymongo import MongoClient
 
-from bigchaindb import backend
-from bigchaindb.common.transaction_mode_types import (BROADCAST_TX_COMMIT,
+from planetmint import backend
+from planetmint.common.transaction_mode_types import (BROADCAST_TX_COMMIT,
                                                       BROADCAST_TX_ASYNC,
                                                       BROADCAST_TX_SYNC)
-from bigchaindb.lib import Block
+from planetmint.lib import Block
 
 
 @pytest.mark.bdb
 def test_asset_is_separated_from_transaciton(b):
     import copy
-    from bigchaindb.models import Transaction
-    from bigchaindb.common.crypto import generate_key_pair
+    from planetmint.models import Transaction
+    from planetmint.common.crypto import generate_key_pair
 
     alice = generate_key_pair()
     bob = generate_key_pair()
@@ -61,7 +61,7 @@ def test_asset_is_separated_from_transaciton(b):
 
 @pytest.mark.bdb
 def test_get_latest_block(b):
-    from bigchaindb.lib import Block
+    from planetmint.lib import Block
 
     for i in range(10):
         app_hash = os.urandom(16).hex()
@@ -82,8 +82,8 @@ def test_get_empty_block(_0, _1, b):
 
 
 def test_validation_error(b):
-    from bigchaindb.models import Transaction
-    from bigchaindb.common.crypto import generate_key_pair
+    from planetmint.models import Transaction
+    from planetmint.common.crypto import generate_key_pair
 
     alice = generate_key_pair()
     tx = Transaction.create([alice.public_key],
@@ -97,9 +97,9 @@ def test_validation_error(b):
 
 @patch('requests.post')
 def test_write_and_post_transaction(mock_post, b):
-    from bigchaindb.models import Transaction
-    from bigchaindb.common.crypto import generate_key_pair
-    from bigchaindb.tendermint_utils import encode_transaction
+    from planetmint.models import Transaction
+    from planetmint.common.crypto import generate_key_pair
+    from planetmint.tendermint_utils import encode_transaction
 
     alice = generate_key_pair()
     tx = Transaction.create([alice.public_key],
@@ -124,8 +124,8 @@ def test_write_and_post_transaction(mock_post, b):
     BROADCAST_TX_COMMIT
 ])
 def test_post_transaction_valid_modes(mock_post, b, mode):
-    from bigchaindb.models import Transaction
-    from bigchaindb.common.crypto import generate_key_pair
+    from planetmint.models import Transaction
+    from planetmint.common.crypto import generate_key_pair
     alice = generate_key_pair()
     tx = Transaction.create([alice.public_key],
                             [([alice.public_key], 1)],
@@ -139,9 +139,9 @@ def test_post_transaction_valid_modes(mock_post, b, mode):
 
 
 def test_post_transaction_invalid_mode(b):
-    from bigchaindb.models import Transaction
-    from bigchaindb.common.crypto import generate_key_pair
-    from bigchaindb.common.exceptions import ValidationError
+    from planetmint.models import Transaction
+    from planetmint.common.crypto import generate_key_pair
+    from planetmint.common.exceptions import ValidationError
     alice = generate_key_pair()
     tx = Transaction.create([alice.public_key],
                             [([alice.public_key], 1)],
@@ -355,9 +355,9 @@ def test_get_utxoset_merkle_root(b, utxoset):
 
 @pytest.mark.bdb
 def test_get_spent_transaction_critical_double_spend(b, alice, bob, carol):
-    from bigchaindb.models import Transaction
-    from bigchaindb.exceptions import CriticalDoubleSpend
-    from bigchaindb.common.exceptions import DoubleSpend
+    from planetmint.models import Transaction
+    from planetmint.exceptions import CriticalDoubleSpend
+    from planetmint.common.exceptions import DoubleSpend
 
     asset = {'test': 'asset'}
 
@@ -404,8 +404,8 @@ def test_get_spent_transaction_critical_double_spend(b, alice, bob, carol):
 
 
 def test_validation_with_transaction_buffer(b):
-    from bigchaindb.common.crypto import generate_key_pair
-    from bigchaindb.models import Transaction
+    from planetmint.common.crypto import generate_key_pair
+    from planetmint.models import Transaction
 
     priv_key, pub_key = generate_key_pair()
 
@@ -459,10 +459,10 @@ def test_migrate_abci_chain_generates_new_chains(b, chain, block_height,
 
 @pytest.mark.bdb
 def test_get_spent_key_order(b, user_pk, user_sk, user2_pk, user2_sk):
-    from bigchaindb import backend
-    from bigchaindb.models import Transaction
-    from bigchaindb.common.crypto import generate_key_pair
-    from bigchaindb.common.exceptions import DoubleSpend
+    from planetmint import backend
+    from planetmint.models import Transaction
+    from planetmint.common.crypto import generate_key_pair
+    from planetmint.common.exceptions import DoubleSpend
 
     alice = generate_key_pair()
     bob = generate_key_pair()

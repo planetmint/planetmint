@@ -12,10 +12,10 @@ pip install --upgrade pip
 if [[ -n ${TOXENV} ]]; then
     pip install --upgrade tox
 elif [[ ${PLANETMINT_CI_ABCI} == 'enable' ]]; then
-    docker-compose build --no-cache --build-arg abci_status=enable bigchaindb
+    docker-compose build --no-cache --build-arg abci_status=enable planetmint
 elif [[ $PLANETMINT_INTEGRATION_TEST == 'enable' ]]; then
-    docker-compose build bigchaindb python-driver
+    docker-compose build planetmint python-driver
 else
-    docker-compose build --no-cache bigchaindb
+    docker-compose build --no-cache planetmint
     pip install --upgrade codecov
 fi

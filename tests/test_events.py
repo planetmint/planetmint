@@ -7,7 +7,7 @@ import pytest
 
 
 def test_event_handler():
-    from bigchaindb.events import EventTypes, Event, Exchange
+    from planetmint.events import EventTypes, Event, Exchange
 
     # create and event
     event_data = {'msg': 'some data'}
@@ -44,7 +44,7 @@ def test_event_handler():
 
 
 def test_event_handler_raises_when_called_after_start():
-    from bigchaindb.events import Exchange, POISON_PILL
+    from planetmint.events import Exchange, POISON_PILL
 
     exchange = Exchange()
     publisher_queue = exchange.get_publisher_queue()
@@ -56,7 +56,7 @@ def test_event_handler_raises_when_called_after_start():
 
 
 def test_exchange_stops_with_poison_pill():
-    from bigchaindb.events import EventTypes, Event, Exchange, POISON_PILL
+    from planetmint.events import EventTypes, Event, Exchange, POISON_PILL
 
     # create and event
     event_data = {'msg': 'some data'}

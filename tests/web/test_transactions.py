@@ -14,8 +14,8 @@ try:
 except ImportError:
     from sha3 import sha3_256
 
-from bigchaindb.common import crypto
-from bigchaindb.common.transaction_mode_types import (BROADCAST_TX_COMMIT,
+from planetmint.common import crypto
+from planetmint.common.transaction_mode_types import (BROADCAST_TX_COMMIT,
                                                       BROADCAST_TX_ASYNC,
                                                       BROADCAST_TX_SYNC)
 
@@ -39,7 +39,7 @@ def test_get_transaction_returns_404_if_not_found(client):
 
 @pytest.mark.abci
 def test_post_create_transaction_endpoint(b, client):
-    from bigchaindb.models import Transaction
+    from planetmint.models import Transaction
     user_priv, user_pub = crypto.generate_key_pair()
 
     tx = Transaction.create([user_pub], [([user_pub], 1)])
@@ -68,8 +68,8 @@ def test_post_create_transaction_endpoint(b, client):
 @pytest.mark.language
 def test_post_create_transaction_with_language(b, client, nested, language,
                                                expected_status_code):
-    from bigchaindb.models import Transaction
-    from bigchaindb.backend.localmongodb.connection import LocalMongoDBConnection
+    from planetmint.models import Transaction
+    from planetmint.backend.localmongodb.connection import LocalMongoDBConnection
 
     if isinstance(b.connection, LocalMongoDBConnection):
         user_priv, user_pub = crypto.generate_key_pair()
@@ -106,8 +106,8 @@ def test_post_create_transaction_with_language(b, client, nested, language,
 ])
 def test_post_create_transaction_with_invalid_key(b, client, field, value,
                                                   err_key, expected_status_code):
-    from bigchaindb.models import Transaction
-    from bigchaindb.backend.localmongodb.connection import LocalMongoDBConnection
+    from planetmint.models import Transaction
+    from planetmint.backend.localmongodb.connection import LocalMongoDBConnection
     user_priv, user_pub = crypto.generate_key_pair()
 
     if isinstance(b.connection, LocalMongoDBConnection):
@@ -133,8 +133,8 @@ def test_post_create_transaction_with_invalid_key(b, client, field, value,
 @pytest.mark.abci
 @patch('bigchaindb.web.views.base.logger')
 def test_post_create_transaction_with_invalid_id(mock_logger, b, client):
-    from bigchaindb.common.exceptions import InvalidHash
-    from bigchaindb.models import Transaction
+    from planetmint.common.exceptions import InvalidHash
+    from planetmint.models import Transaction
     user_priv, user_pub = crypto.generate_key_pair()
 
     tx = Transaction.create([user_pub], [([user_pub], 1)])
@@ -170,8 +170,8 @@ def test_post_create_transaction_with_invalid_id(mock_logger, b, client):
 def test_post_create_transaction_with_invalid_signature(mock_logger,
                                                         b,
                                                         client):
-    from bigchaindb.common.exceptions import InvalidSignature
-    from bigchaindb.models import Transaction
+    from planetmint.common.exceptions import InvalidSignature
+    from planetmint.models import Transaction
     user_priv, user_pub = crypto.generate_key_pair()
 
     tx = Transaction.create([user_pub], [([user_pub], 1)]).to_dict()
@@ -218,7 +218,7 @@ def test_post_create_transaction_with_invalid_structure(client):
 @pytest.mark.abci
 @patch('bigchaindb.web.views.base.logger')
 def test_post_create_transaction_with_invalid_schema(mock_logger, client):
-    from bigchaindb.models import Transaction
+    from planetmint.models import Transaction
     user_priv, user_pub = crypto.generate_key_pair()
     tx = Transaction.create([user_pub], [([user_pub], 1)]).to_dict()
     del tx['version']
@@ -274,7 +274,7 @@ def test_post_create_transaction_with_invalid_schema(mock_logger, client):
 ))
 @patch('bigchaindb.web.views.base.logger')
 def test_post_invalid_transaction(mock_logger, client, exc, msg, monkeypatch,):
-    from bigchaindb.common import exceptions
+    from planetmint.common import exceptions
     exc_cls = getattr(exceptions, exc)
 
     def mock_validation(self_, tx):
@@ -308,7 +308,7 @@ def test_post_invalid_transaction(mock_logger, client, exc, msg, monkeypatch,):
 
 @pytest.mark.abci
 def test_post_transfer_transaction_endpoint(client, user_pk, user_sk, posted_create_tx):
-    from bigchaindb.models import Transaction
+    from planetmint.models import Transaction
 
     transfer_tx = Transaction.transfer(posted_create_tx.to_inputs(),
                                        [([user_pk], 1)],
@@ -325,8 +325,8 @@ def test_post_transfer_transaction_endpoint(client, user_pk, user_sk, posted_cre
 
 @pytest.mark.abci
 def test_post_invalid_transfer_transaction_returns_400(client, user_pk, posted_create_tx):
-    from bigchaindb.models import Transaction
-    from bigchaindb.common.exceptions import InvalidSignature
+    from planetmint.models import Transaction
+    from planetmint.common.exceptions import InvalidSignature
 
     transfer_tx = Transaction.transfer(posted_create_tx.to_inputs(),
                                        [([user_pk], 1)],
@@ -343,8 +343,8 @@ def test_post_invalid_transfer_transaction_returns_400(client, user_pk, posted_c
 
 @pytest.mark.abci
 def test_post_wrong_asset_division_transfer_returns_400(b, client, user_pk):
-    from bigchaindb.models import Transaction
-    from bigchaindb.common.exceptions import AmountError
+    from planetmint.models import Transaction
+    from planetmint.common.exceptions import AmountError
 
     priv_key, pub_key = crypto.generate_key_pair()
 
@@ -424,8 +424,8 @@ def test_transactions_get_list_bad(client):
     ('?mode=commit', BROADCAST_TX_COMMIT),
 ])
 def test_post_transaction_valid_modes(mock_post, client, mode):
-    from bigchaindb.models import Transaction
-    from bigchaindb.common.crypto import generate_key_pair
+    from planetmint.models import Transaction
+    from planetmint.common.crypto import generate_key_pair
 
     def _mock_post(*args, **kwargs):
         return Mock(json=Mock(return_value={'result': {'code': 0}}))
@@ -445,8 +445,8 @@ def test_post_transaction_valid_modes(mock_post, client, mode):
 
 @pytest.mark.abci
 def test_post_transaction_invalid_mode(client):
-    from bigchaindb.models import Transaction
-    from bigchaindb.common.crypto import generate_key_pair
+    from planetmint.models import Transaction
+    from planetmint.common.crypto import generate_key_pair
     alice = generate_key_pair()
     tx = Transaction.create([alice.public_key],
                             [([alice.public_key], 1)],

@@ -11,18 +11,18 @@ from argparse import Namespace
 
 import pytest
 
-from bigchaindb import ValidatorElection
-from bigchaindb.commands.bigchaindb import run_election_show
-from bigchaindb.elections.election import Election
-from bigchaindb.lib import Block
-from bigchaindb.migrations.chain_migration_election import ChainMigrationElection
+from planetmint import ValidatorElection
+from planetmint.commands.planetmint import run_election_show
+from planetmint.elections.election import Election
+from planetmint.lib import Block
+from planetmint.migrations.chain_migration_election import ChainMigrationElection
 
 from tests.utils import generate_election, generate_validators
 
 
 def test_make_sure_we_dont_remove_any_command():
     # thanks to: http://stackoverflow.com/a/18161115/597097
-    from bigchaindb.commands.bigchaindb import create_parser
+    from planetmint.commands.planetmint import create_parser
 
     parser = create_parser()
 
@@ -43,7 +43,7 @@ def test_make_sure_we_dont_remove_any_command():
 
 @patch('bigchaindb.commands.utils.start')
 def test_main_entrypoint(mock_start):
-    from bigchaindb.commands.bigchaindb import main
+    from planetmint.commands.planetmint import main
     main()
 
     assert mock_start.called
@@ -54,7 +54,7 @@ def test_main_entrypoint(mock_start):
 @patch('bigchaindb.config_utils.autoconfigure')
 def test_bigchain_run_start(mock_setup_logging, mock_run_init,
                             mock_autoconfigure, mock_processes_start):
-    from bigchaindb.commands.bigchaindb import run_start
+    from planetmint.commands.planetmint import run_start
     args = Namespace(config=None, yes=True,
                      skip_initialize_database=False)
     run_start(args)
@@ -66,7 +66,7 @@ def test_bigchain_run_start(mock_setup_logging, mock_run_init,
 # See related issue: https://github.com/pytest-dev/pytest/issues/128
 @pytest.mark.usefixtures('ignore_local_config_file')
 def test_bigchain_show_config(capsys):
-    from bigchaindb.commands.bigchaindb import run_show_config
+    from planetmint.commands.planetmint import run_show_config
 
     args = Namespace(config=None)
     _, _ = capsys.readouterr()
@@ -79,13 +79,13 @@ def test_bigchain_show_config(capsys):
     # the default comparison fails i.e. when config is imported at the beginning the
     # dict returned is different that what is expected after run_show_config
     # and run_show_config updates the bigchaindb.config
-    from bigchaindb import config
+    from planetmint import config
     del config['CONFIGURED']
     assert output_config == config
 
 
 def test__run_init(mocker):
-    from bigchaindb.commands.bigchaindb import _run_init
+    from planetmint.commands.planetmint import _run_init
     bigchain_mock = mocker.patch(
         'bigchaindb.commands.bigchaindb.bigchaindb.Planetmint')
     init_db_mock = mocker.patch(
@@ -101,7 +101,7 @@ def test__run_init(mocker):
 
 @patch('bigchaindb.backend.schema.drop_database')
 def test_drop_db_when_assumed_yes(mock_db_drop):
-    from bigchaindb.commands.bigchaindb import run_drop
+    from planetmint.commands.planetmint import run_drop
     args = Namespace(config=None, yes=True)
 
     run_drop(args)
@@ -110,7 +110,7 @@ def test_drop_db_when_assumed_yes(mock_db_drop):
 
 @patch('bigchaindb.backend.schema.drop_database')
 def test_drop_db_when_interactive_yes(mock_db_drop, monkeypatch):
-    from bigchaindb.commands.bigchaindb import run_drop
+    from planetmint.commands.planetmint import run_drop
     args = Namespace(config=None, yes=False)
     monkeypatch.setattr(
         'bigchaindb.commands.bigchaindb.input_on_stderr', lambda x: 'y')
@@ -121,9 +121,9 @@ def test_drop_db_when_interactive_yes(mock_db_drop, monkeypatch):
 
 @patch('bigchaindb.backend.schema.drop_database')
 def test_drop_db_when_db_does_not_exist(mock_db_drop, capsys):
-    from bigchaindb import config
-    from bigchaindb.commands.bigchaindb import run_drop
-    from bigchaindb.common.exceptions import DatabaseDoesNotExist
+    from planetmint import config
+    from planetmint.commands.planetmint import run_drop
+    from planetmint.common.exceptions import DatabaseDoesNotExist
     args = Namespace(config=None, yes=True)
     mock_db_drop.side_effect = DatabaseDoesNotExist
 
@@ -135,7 +135,7 @@ def test_drop_db_when_db_does_not_exist(mock_db_drop, capsys):
 
 @patch('bigchaindb.backend.schema.drop_database')
 def test_drop_db_does_not_drop_when_interactive_no(mock_db_drop, monkeypatch):
-    from bigchaindb.commands.bigchaindb import run_drop
+    from planetmint.commands.planetmint import run_drop
     args = Namespace(config=None, yes=False)
     monkeypatch.setattr(
         'bigchaindb.commands.bigchaindb.input_on_stderr', lambda x: 'n')
@@ -151,7 +151,7 @@ def test_run_configure_when_config_does_not_exist(monkeypatch,
                                                   mock_write_config,
                                                   mock_generate_key_pair,
                                                   mock_bigchaindb_backup_config):
-    from bigchaindb.commands.bigchaindb import run_configure
+    from planetmint.commands.planetmint import run_configure
     monkeypatch.setattr('os.path.exists', lambda path: False)
     monkeypatch.setattr('builtins.input', lambda: '\n')
     args = Namespace(config=None, backend='localmongodb', yes=True)
@@ -168,7 +168,7 @@ def test_run_configure_when_config_does_exist(monkeypatch,
     def mock_write_config(newconfig):
         value['return'] = newconfig
 
-    from bigchaindb.commands.bigchaindb import run_configure
+    from planetmint.commands.planetmint import run_configure
     monkeypatch.setattr('os.path.exists', lambda path: True)
     monkeypatch.setattr('builtins.input', lambda: '\n')
     monkeypatch.setattr(
@@ -184,8 +184,8 @@ def test_run_configure_when_config_does_exist(monkeypatch,
     'localmongodb',
 ))
 def test_run_configure_with_backend(backend, monkeypatch, mock_write_config):
-    import bigchaindb
-    from bigchaindb.commands.bigchaindb import run_configure
+    import planetmint
+    from planetmint.commands.planetmint import run_configure
 
     value = {}
 
@@ -198,11 +198,11 @@ def test_run_configure_with_backend(backend, monkeypatch, mock_write_config):
                         mock_write_config)
 
     args = Namespace(config=None, backend=backend, yes=True)
-    expected_config = bigchaindb.config
+    expected_config = planetmint.config
     run_configure(args)
 
     # update the expected config with the correct backend and keypair
-    backend_conf = getattr(bigchaindb, '_database_' + backend)
+    backend_conf = getattr(planetmint, '_database_' + backend)
     expected_config.update({'database': backend_conf,
                             'keypair': value['return']['keypair']})
 
@@ -211,7 +211,7 @@ def test_run_configure_with_backend(backend, monkeypatch, mock_write_config):
 
 @patch('bigchaindb.commands.utils.start')
 def test_calling_main(start_mock, monkeypatch):
-    from bigchaindb.commands.bigchaindb import main
+    from planetmint.commands.planetmint import main
 
     argparser_mock = Mock()
     parser = Mock()
@@ -247,7 +247,7 @@ def test_calling_main(start_mock, monkeypatch):
 def test_recover_db_on_start(mock_run_recover,
                              mock_start,
                              mocked_setup_logging):
-    from bigchaindb.commands.bigchaindb import run_start
+    from planetmint.commands.planetmint import run_start
     args = Namespace(config=None, yes=True,
                      skip_initialize_database=False)
     run_start(args)
@@ -258,10 +258,10 @@ def test_recover_db_on_start(mock_run_recover,
 
 @pytest.mark.bdb
 def test_run_recover(b, alice, bob):
-    from bigchaindb.commands.bigchaindb import run_recover
-    from bigchaindb.models import Transaction
-    from bigchaindb.lib import Block
-    from bigchaindb.backend import query
+    from planetmint.commands.planetmint import run_recover
+    from planetmint.models import Transaction
+    from planetmint.lib import Block
+    from planetmint.backend import query
 
     tx1 = Transaction.create([alice.public_key],
                              [([alice.public_key], 1)],
@@ -308,7 +308,7 @@ class MockResponse():
 
 @pytest.mark.abci
 def test_election_new_upsert_validator_with_tendermint(b, priv_validator_path, user_sk, validators):
-    from bigchaindb.commands.bigchaindb import run_election_new_upsert_validator
+    from planetmint.commands.planetmint import run_election_new_upsert_validator
 
     new_args = Namespace(action='new',
                          election_type='upsert-validator',
@@ -325,7 +325,7 @@ def test_election_new_upsert_validator_with_tendermint(b, priv_validator_path, u
 
 @pytest.mark.bdb
 def test_election_new_upsert_validator_without_tendermint(caplog, b, priv_validator_path, user_sk):
-    from bigchaindb.commands.bigchaindb import run_election_new_upsert_validator
+    from planetmint.commands.planetmint import run_election_new_upsert_validator
 
     def mock_write(tx, mode):
         b.store_bulk_transactions([tx])
@@ -350,7 +350,7 @@ def test_election_new_upsert_validator_without_tendermint(caplog, b, priv_valida
 
 @pytest.mark.abci
 def test_election_new_chain_migration_with_tendermint(b, priv_validator_path, user_sk, validators):
-    from bigchaindb.commands.bigchaindb import run_election_new_chain_migration
+    from planetmint.commands.planetmint import run_election_new_chain_migration
 
     new_args = Namespace(action='new',
                          election_type='migration',
@@ -364,7 +364,7 @@ def test_election_new_chain_migration_with_tendermint(b, priv_validator_path, us
 
 @pytest.mark.bdb
 def test_election_new_chain_migration_without_tendermint(caplog, b, priv_validator_path, user_sk):
-    from bigchaindb.commands.bigchaindb import run_election_new_chain_migration
+    from planetmint.commands.planetmint import run_election_new_chain_migration
 
     def mock_write(tx, mode):
         b.store_bulk_transactions([tx])
@@ -386,7 +386,7 @@ def test_election_new_chain_migration_without_tendermint(caplog, b, priv_validat
 
 @pytest.mark.bdb
 def test_election_new_upsert_validator_invalid_election(caplog, b, priv_validator_path, user_sk):
-    from bigchaindb.commands.bigchaindb import run_election_new_upsert_validator
+    from planetmint.commands.planetmint import run_election_new_upsert_validator
 
     args = Namespace(action='new',
                      election_type='upsert-validator',
@@ -403,8 +403,8 @@ def test_election_new_upsert_validator_invalid_election(caplog, b, priv_validato
 
 @pytest.mark.bdb
 def test_election_new_upsert_validator_invalid_power(caplog, b, priv_validator_path, user_sk):
-    from bigchaindb.commands.bigchaindb import run_election_new_upsert_validator
-    from bigchaindb.common.exceptions import InvalidPowerChange
+    from planetmint.commands.planetmint import run_election_new_upsert_validator
+    from planetmint.common.exceptions import InvalidPowerChange
 
     def mock_write(tx, mode):
         b.store_bulk_transactions([tx])
@@ -427,7 +427,7 @@ def test_election_new_upsert_validator_invalid_power(caplog, b, priv_validator_p
 
 @pytest.mark.abci
 def test_election_approve_with_tendermint(b, priv_validator_path, user_sk, validators):
-    from bigchaindb.commands.bigchaindb import (run_election_new_upsert_validator,
+    from planetmint.commands.planetmint import (run_election_new_upsert_validator,
                                                 run_election_approve)
 
     public_key = 'CJxdItf4lz2PwEf4SmYNAu/c/VpmX39JEgC5YpH7fxg='
@@ -453,7 +453,7 @@ def test_election_approve_with_tendermint(b, priv_validator_path, user_sk, valid
 
 @pytest.mark.bdb
 def test_election_approve_without_tendermint(caplog, b, priv_validator_path, new_validator, node_key):
-    from bigchaindb.commands.bigchaindb import run_election_approve
+    from planetmint.commands.planetmint import run_election_approve
     from argparse import Namespace
 
     b, election_id = call_election(b, new_validator, node_key)
@@ -473,7 +473,7 @@ def test_election_approve_without_tendermint(caplog, b, priv_validator_path, new
 
 @pytest.mark.bdb
 def test_election_approve_failure(caplog, b, priv_validator_path, new_validator, node_key):
-    from bigchaindb.commands.bigchaindb import run_election_approve
+    from planetmint.commands.planetmint import run_election_approve
     from argparse import Namespace
 
     b, election_id = call_election(b, new_validator, node_key)
@@ -497,7 +497,7 @@ def test_election_approve_failure(caplog, b, priv_validator_path, new_validator,
 
 @pytest.mark.bdb
 def test_election_approve_called_with_bad_key(caplog, b, bad_validator_path, new_validator, node_key):
-    from bigchaindb.commands.bigchaindb import run_election_approve
+    from planetmint.commands.planetmint import run_election_approve
     from argparse import Namespace
 
     b, election_id = call_election(b, new_validator, node_key)
@@ -595,13 +595,13 @@ validators=[{''.join([f"""
 
 
 def test_bigchain_tendermint_version(capsys):
-    from bigchaindb.commands.bigchaindb import run_tendermint_version
+    from planetmint.commands.planetmint import run_tendermint_version
 
     args = Namespace(config=None)
     _, _ = capsys.readouterr()
     run_tendermint_version(args)
     output_config = json.loads(capsys.readouterr()[0])
-    from bigchaindb.version import __tm_supported_versions__
+    from planetmint.version import __tm_supported_versions__
     assert len(output_config["tendermint"]) == len(__tm_supported_versions__)
     assert sorted(output_config["tendermint"]) == sorted(__tm_supported_versions__)
 

@@ -10,25 +10,25 @@ import pytest
 
 @pytest.fixture
 def mock_run_configure(monkeypatch):
-    from bigchaindb.commands import bigchaindb
-    monkeypatch.setattr(bigchaindb, 'run_configure', lambda *args, **kwargs: None)
+    from planetmint.commands import planetmint
+    monkeypatch.setattr(planetmint, 'run_configure', lambda *args, **kwargs: None)
 
 
 @pytest.fixture
 def mock_write_config(monkeypatch):
-    from bigchaindb import config_utils
+    from planetmint import config_utils
     monkeypatch.setattr(config_utils, 'write_config', lambda *args: None)
 
 
 @pytest.fixture
 def mock_db_init_with_existing_db(monkeypatch):
-    from bigchaindb.commands import bigchaindb
-    monkeypatch.setattr(bigchaindb, '_run_init', lambda: None)
+    from planetmint.commands import planetmint
+    monkeypatch.setattr(planetmint, '_run_init', lambda: None)
 
 
 @pytest.fixture
 def mock_processes_start(monkeypatch):
-    from bigchaindb import start
+    from planetmint import start
     monkeypatch.setattr(start, 'start', lambda *args: None)
 
 

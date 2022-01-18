@@ -12,7 +12,7 @@ from pytest import mark, raises
     ('drop_database', 1),
 ))
 def test_schema(schema_func_name, args_qty):
-    from bigchaindb.backend import schema
+    from planetmint.backend import schema
     schema_func = getattr(schema, schema_func_name)
     with raises(NotImplementedError):
         schema_func(None, *range(args_qty))
@@ -31,7 +31,7 @@ def test_schema(schema_func_name, args_qty):
     ('get_metadata', 1),
 ))
 def test_query(query_func_name, args_qty):
-    from bigchaindb.backend import query
+    from planetmint.backend import query
     query_func = getattr(query, query_func_name)
     with raises(NotImplementedError):
         query_func(None, *range(args_qty))

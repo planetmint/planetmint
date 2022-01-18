@@ -35,9 +35,9 @@ def config(request, monkeypatch):
 
 
 def test_bigchain_class_default_initialization(config):
-    from bigchaindb import BigchainDB
-    from bigchaindb.validation import BaseValidationRules
-    from bigchaindb.backend.connection import Connection
+    from planetmint import BigchainDB
+    from planetmint.validation import BaseValidationRules
+    from planetmint.backend.connection import Connection
     bigchain = BigchainDB)
     assert isinstance(bigchain.connection, Connection)
     assert bigchain.connection.host == config['database']['host']
@@ -47,9 +47,9 @@ def test_bigchain_class_default_initialization(config):
 
 
 def test_bigchain_class_initialization_with_parameters():
-    from bigchaindb import BigchainDB
-    from bigchaindb.backend import connect
-    from bigchaindb.validation import BaseValidationRules
+    from planetmint import BigchainDB
+    from planetmint.backend import connect
+    from planetmint.validation import BaseValidationRules
     init_db_kwargs = {
         'backend': 'localmongodb',
         'host': 'this_is_the_db_host',
@@ -67,7 +67,7 @@ def test_bigchain_class_initialization_with_parameters():
 
 @pytest.mark.bdb
 def test_get_spent_issue_1271(b, alice, bob, carol):
-    from bigchaindb.models import Transaction
+    from planetmint.models import Transaction
 
     tx_1 = Transaction.create(
         [carol.public_key],

@@ -6,14 +6,14 @@
 import pytest
 import codecs
 
-from bigchaindb.elections.election import Election
-from bigchaindb.tendermint_utils import public_key_to_base64
-from bigchaindb.upsert_validator import ValidatorElection
-from bigchaindb.common.exceptions import AmountError
-from bigchaindb.common.crypto import generate_key_pair
-from bigchaindb.common.exceptions import ValidationError
-from bigchaindb.common.transaction_mode_types import BROADCAST_TX_COMMIT
-from bigchaindb.elections.vote import Vote
+from planetmint.elections.election import Election
+from planetmint.tendermint_utils import public_key_to_base64
+from planetmint.upsert_validator import ValidatorElection
+from planetmint.common.exceptions import AmountError
+from planetmint.common.crypto import generate_key_pair
+from planetmint.common.exceptions import ValidationError
+from planetmint.common.transaction_mode_types import BROADCAST_TX_COMMIT
+from planetmint.elections.vote import Vote
 from tests.utils import generate_block, gen_vote
 
 pytestmark = [pytest.mark.execute]

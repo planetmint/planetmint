@@ -5,8 +5,8 @@
 
 import pytest
 
-from bigchaindb.common.crypto import generate_key_pair
-from bigchaindb.models import Transaction
+from planetmint.common.crypto import generate_key_pair
+from planetmint.models import Transaction
 
 
 pytestmark = pytest.mark.tendermint
@@ -26,7 +26,7 @@ def generate_create_and_transfer(keypair=None):
 
 def test_validation_worker_process_multiple_transactions(b):
     import multiprocessing as mp
-    from bigchaindb.parallel_validation import ValidationWorker, RESET, EXIT
+    from planetmint.parallel_validation import ValidationWorker, RESET, EXIT
 
     keypair = generate_key_pair()
     create_tx, transfer_tx = generate_create_and_transfer(keypair)
@@ -75,7 +75,7 @@ def test_parallel_validator_routes_transactions_correctly(b, monkeypatch):
     from collections import defaultdict
     import multiprocessing as mp
     from json import dumps
-    from bigchaindb.parallel_validation import ParallelValidator
+    from planetmint.parallel_validation import ParallelValidator
 
     # We want to make sure that the load is distributed across all workers.
     # Since introspection on an object running on a different process is

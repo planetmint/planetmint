@@ -7,9 +7,9 @@ from unittest.mock import patch
 
 import pytest
 
-from bigchaindb.tendermint_utils import public_key_to_base64
-from bigchaindb.upsert_validator import ValidatorElection
-from bigchaindb.common.exceptions import (DuplicateTransaction,
+from planetmint.tendermint_utils import public_key_to_base64
+from planetmint.upsert_validator import ValidatorElection
+from planetmint.common.exceptions import (DuplicateTransaction,
                                           UnequalValidatorSet,
                                           InvalidProposer,
                                           MultipleInputsError,
@@ -27,7 +27,7 @@ def test_upsert_validator_valid_election(b_mock, new_validator, node_key):
 
 
 def test_upsert_validator_invalid_election_public_key(b_mock, new_validator, node_key):
-    from bigchaindb.common.exceptions import InvalidPublicKey
+    from planetmint.common.exceptions import InvalidPublicKey
 
     for iv in ['ed25519-base32', 'ed25519-base64']:
         new_validator['public_key']['type'] = iv
@@ -51,7 +51,7 @@ def test_upsert_validator_invalid_power_election(b_mock, new_validator, node_key
 
 
 def test_upsert_validator_invalid_proposed_election(b_mock, new_validator, node_key):
-    from bigchaindb.common.crypto import generate_key_pair
+    from planetmint.common.crypto import generate_key_pair
 
     alice = generate_key_pair()
     voters = ValidatorElection.recipients(b_mock)
@@ -63,7 +63,7 @@ def test_upsert_validator_invalid_proposed_election(b_mock, new_validator, node_
 
 
 def test_upsert_validator_invalid_inputs_election(b_mock, new_validator, node_key):
-    from bigchaindb.common.crypto import generate_key_pair
+    from planetmint.common.crypto import generate_key_pair
 
     alice = generate_key_pair()
     voters = ValidatorElection.recipients(b_mock)
@@ -164,7 +164,7 @@ def test_get_status_inconclusive(b, inconclusive_election, new_validator):
 
 
 def test_upsert_validator_show(caplog, ongoing_validator_election, b):
-    from bigchaindb.commands.bigchaindb import run_election_show
+    from planetmint.commands.planetmint import run_election_show
 
     election_id = ongoing_validator_election.id
     public_key = public_key_to_base64(ongoing_validator_election.asset['data']['public_key']['value'])

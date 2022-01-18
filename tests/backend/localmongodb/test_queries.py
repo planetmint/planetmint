@@ -8,15 +8,15 @@ from copy import deepcopy
 import pytest
 import pymongo
 
-from bigchaindb.backend import connect, query
+from planetmint.backend import connect, query
 
 
 pytestmark = pytest.mark.bdb
 
 
 def test_get_txids_filtered(signed_create_tx, signed_transfer_tx):
-    from bigchaindb.backend import connect, query
-    from bigchaindb.models import Transaction
+    from planetmint.backend import connect, query
+    from planetmint.models import Transaction
     conn = connect()
 
     # create and insert two blocks, one for the create and one for the
@@ -40,7 +40,7 @@ def test_get_txids_filtered(signed_create_tx, signed_transfer_tx):
 
 
 def test_write_assets():
-    from bigchaindb.backend import connect, query
+    from planetmint.backend import connect, query
     conn = connect()
 
     assets = [
@@ -64,7 +64,7 @@ def test_write_assets():
 
 
 def test_get_assets():
-    from bigchaindb.backend import connect, query
+    from planetmint.backend import connect, query
     conn = connect()
 
     assets = [
@@ -81,7 +81,7 @@ def test_get_assets():
 
 @pytest.mark.parametrize('table', ['assets', 'metadata'])
 def test_text_search(table):
-    from bigchaindb.backend import connect, query
+    from planetmint.backend import connect, query
     conn = connect()
 
     # Example data and tests cases taken from the mongodb documentation
@@ -165,7 +165,7 @@ def test_text_search(table):
 
 
 def test_write_metadata():
-    from bigchaindb.backend import connect, query
+    from planetmint.backend import connect, query
     conn = connect()
 
     metadata = [
@@ -186,7 +186,7 @@ def test_write_metadata():
 
 
 def test_get_metadata():
-    from bigchaindb.backend import connect, query
+    from planetmint.backend import connect, query
     conn = connect()
 
     metadata = [
@@ -202,7 +202,7 @@ def test_get_metadata():
 
 
 def test_get_owned_ids(signed_create_tx, user_pk):
-    from bigchaindb.backend import connect, query
+    from planetmint.backend import connect, query
     conn = connect()
 
     # insert a transaction
@@ -214,8 +214,8 @@ def test_get_owned_ids(signed_create_tx, user_pk):
 
 
 def test_get_spending_transactions(user_pk, user_sk):
-    from bigchaindb.backend import connect, query
-    from bigchaindb.models import Transaction
+    from planetmint.backend import connect, query
+    from planetmint.models import Transaction
     conn = connect()
 
     out = [([user_pk], 1)]
@@ -236,9 +236,9 @@ def test_get_spending_transactions(user_pk, user_sk):
 
 
 def test_get_spending_transactions_multiple_inputs():
-    from bigchaindb.backend import connect, query
-    from bigchaindb.models import Transaction
-    from bigchaindb.common.crypto import generate_key_pair
+    from planetmint.backend import connect, query
+    from planetmint.models import Transaction
+    from planetmint.common.crypto import generate_key_pair
     conn = connect()
     (alice_sk, alice_pk) = generate_key_pair()
     (bob_sk, bob_pk) = generate_key_pair()
@@ -279,8 +279,8 @@ def test_get_spending_transactions_multiple_inputs():
 
 
 def test_store_block():
-    from bigchaindb.backend import connect, query
-    from bigchaindb.lib import Block
+    from planetmint.backend import connect, query
+    from planetmint.lib import Block
     conn = connect()
 
     block = Block(app_hash='random_utxo',
@@ -292,8 +292,8 @@ def test_store_block():
 
 
 def test_get_block():
-    from bigchaindb.backend import connect, query
-    from bigchaindb.lib import Block
+    from planetmint.backend import connect, query
+    from planetmint.lib import Block
     conn = connect()
 
     block = Block(app_hash='random_utxo',
@@ -307,7 +307,7 @@ def test_get_block():
 
 
 def test_delete_zero_unspent_outputs(db_context, utxoset):
-    from bigchaindb.backend import query
+    from planetmint.backend import query
     unspent_outputs, utxo_collection = utxoset
     delete_res = query.delete_unspent_outputs(db_context.conn)
     assert delete_res is None
@@ -322,7 +322,7 @@ def test_delete_zero_unspent_outputs(db_context, utxoset):
 
 
 def test_delete_one_unspent_outputs(db_context, utxoset):
-    from bigchaindb.backend import query
+    from planetmint.backend import query
     unspent_outputs, utxo_collection = utxoset
     delete_res = query.delete_unspent_outputs(db_context.conn,
                                               unspent_outputs[0])
@@ -338,7 +338,7 @@ def test_delete_one_unspent_outputs(db_context, utxoset):
 
 
 def test_delete_many_unspent_outputs(db_context, utxoset):
-    from bigchaindb.backend import query
+    from planetmint.backend import query
     unspent_outputs, utxo_collection = utxoset
     delete_res = query.delete_unspent_outputs(db_context.conn,
                                               *unspent_outputs[::2])
@@ -354,7 +354,7 @@ def test_delete_many_unspent_outputs(db_context, utxoset):
 
 
 def test_store_zero_unspent_output(db_context, utxo_collection):
-    from bigchaindb.backend import query
+    from planetmint.backend import query
     res = query.store_unspent_outputs(db_context.conn)
     assert res is None
     assert utxo_collection.count_documents({}) == 0
@@ -362,7 +362,7 @@ def test_store_zero_unspent_output(db_context, utxo_collection):
 
 def test_store_one_unspent_output(db_context,
                                   unspent_output_1, utxo_collection):
-    from bigchaindb.backend import query
+    from planetmint.backend import query
     res = query.store_unspent_outputs(db_context.conn, unspent_output_1)
     assert res.acknowledged
     assert len(res.inserted_ids) == 1
@@ -374,7 +374,7 @@ def test_store_one_unspent_output(db_context,
 
 def test_store_many_unspent_outputs(db_context,
                                     unspent_outputs, utxo_collection):
-    from bigchaindb.backend import query
+    from planetmint.backend import query
     res = query.store_unspent_outputs(db_context.conn, *unspent_outputs)
     assert res.acknowledged
     assert len(res.inserted_ids) == 3
@@ -384,7 +384,7 @@ def test_store_many_unspent_outputs(db_context,
 
 
 def test_get_unspent_outputs(db_context, utxoset):
-    from bigchaindb.backend import query
+    from planetmint.backend import query
     cursor = query.get_unspent_outputs(db_context.conn)
     assert cursor.collection.count_documents({}) == 3
     retrieved_utxoset = list(cursor)
@@ -395,7 +395,7 @@ def test_get_unspent_outputs(db_context, utxoset):
 
 
 def test_store_pre_commit_state(db_context):
-    from bigchaindb.backend import query
+    from planetmint.backend import query
 
     state = dict(height=3, transactions=[])
 
@@ -406,7 +406,7 @@ def test_store_pre_commit_state(db_context):
 
 
 def test_get_pre_commit_state(db_context):
-    from bigchaindb.backend import query
+    from planetmint.backend import query
 
     state = dict(height=3, transactions=[])
     db_context.conn.db.pre_commit.insert_one(state)
@@ -415,7 +415,7 @@ def test_get_pre_commit_state(db_context):
 
 
 def test_validator_update():
-    from bigchaindb.backend import connect, query
+    from planetmint.backend import connect, query
 
     conn = connect()
 

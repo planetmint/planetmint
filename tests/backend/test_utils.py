@@ -15,7 +15,7 @@ def mock_module():
 
 
 def test_module_dispatch_registers(mock_module):
-    from bigchaindb.backend.utils import module_dispatch_registrar
+    from planetmint.backend.utils import module_dispatch_registrar
 
     @singledispatch
     def dispatcher(t):
@@ -31,7 +31,7 @@ def test_module_dispatch_registers(mock_module):
 
 
 def test_module_dispatch_dispatches(mock_module):
-    from bigchaindb.backend.utils import module_dispatch_registrar
+    from planetmint.backend.utils import module_dispatch_registrar
 
     @singledispatch
     def dispatcher(t):
@@ -48,7 +48,7 @@ def test_module_dispatch_dispatches(mock_module):
 
 
 def test_module_dispatch_errors_on_missing_func(mock_module):
-    from bigchaindb.backend.utils import (
+    from planetmint.backend.utils import (
         module_dispatch_registrar,
         ModuleDispatchRegistrationError,
     )
@@ -61,7 +61,7 @@ def test_module_dispatch_errors_on_missing_func(mock_module):
 
 
 def test_module_dispatch_errors_on_non_dispatchable_func(mock_module):
-    from bigchaindb.backend.utils import (
+    from planetmint.backend.utils import (
         module_dispatch_registrar,
         ModuleDispatchRegistrationError,
     )

@@ -13,8 +13,8 @@ from hypothesis import given
 from hypothesis.strategies import from_regex as regex
 from pytest import raises
 
-from bigchaindb.common.exceptions import SchemaValidationError
-from bigchaindb.common.schema import (
+from planetmint.common.exceptions import SchemaValidationError
+from planetmint.common.schema import (
     TX_SCHEMA_COMMON,
     validate_transaction_schema,
 )

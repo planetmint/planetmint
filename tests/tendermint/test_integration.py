@@ -13,17 +13,17 @@ import pytest
 from abci.server import ProtocolHandler
 from abci.encoding import read_messages
 
-from bigchaindb.common.transaction_mode_types import BROADCAST_TX_COMMIT, BROADCAST_TX_SYNC
-from bigchaindb.version import __tm_supported_versions__
+from planetmint.common.transaction_mode_types import BROADCAST_TX_COMMIT, BROADCAST_TX_SYNC
+from planetmint.version import __tm_supported_versions__
 from io import BytesIO
 
 
 @pytest.mark.bdb
 def test_app(a, b, init_chain_request):
-    from bigchaindb import App
-    from bigchaindb.tendermint_utils import calculate_hash
-    from bigchaindb.common.crypto import generate_key_pair
-    from bigchaindb.models import Transaction
+    from planetmint import App
+    from planetmint.tendermint_utils import calculate_hash
+    from planetmint.common.crypto import generate_key_pair
+    from planetmint.models import Transaction
 
     app = App(a, b)
     p = ProtocolHandler(app)
@@ -113,8 +113,8 @@ def test_app(a, b, init_chain_request):
 
 @pytest.mark.abci
 def test_post_transaction_responses(tendermint_ws_url, b):
-    from bigchaindb.common.crypto import generate_key_pair
-    from bigchaindb.models import Transaction
+    from planetmint.common.crypto import generate_key_pair
+    from planetmint.models import Transaction
 
     alice = generate_key_pair()
     bob = generate_key_pair()
@@ -148,7 +148,7 @@ def test_post_transaction_responses(tendermint_ws_url, b):
 
 @pytest.mark.bdb
 def test_exit_when_tm_ver_not_supported(a, b):
-    from bigchaindb import App
+    from planetmint import App
 
     app = App(a, b)
     p = ProtocolHandler(app)

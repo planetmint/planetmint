@@ -56,34 +56,34 @@ help: ## Show this help
 	@$(HELP) < $(MAKEFILE_LIST)
 
 run: check-deps ## Run Planetmint from source (stop it with ctrl+c)
-	# although bigchaindb has tendermint and mongodb in depends_on,
+	# although planetmint has tendermint and mongodb in depends_on,
 	# launch them first otherwise tendermint will get stuck upon sending yet another log
 	# due to some docker-compose issue; does not happen when containers are run as daemons
-	@$(DC) up --no-deps mongodb tendermint bigchaindb
+	@$(DC) up --no-deps mongodb tendermint planetmint
 
 start: check-deps ## Run Planetmint from source and daemonize it (stop with `make stop`)
-	@$(DC) up -d bigchaindb
+	@$(DC) up -d planetmint
 
 stop: check-deps ## Stop Planetmint
 	@$(DC) stop
 
 logs: check-deps ## Attach to the logs
-	@$(DC) logs -f bigchaindb
+	@$(DC) logs -f planetmint
 
 test: check-deps test-unit test-acceptance ## Run unit and acceptance tests
 
 test-unit: check-deps ## Run all tests once
 	@$(DC) up -d bdb
-	@$(DC) exec bigchaindb pytest
+	@$(DC) exec planetmint pytest
 
 test-unit-watch: check-deps ## Run all tests and wait. Every time you change code, tests will be run again
-	@$(DC) run --rm --no-deps bigchaindb pytest -f
+	@$(DC) run --rm --no-deps planetmint pytest -f
 
 test-acceptance: check-deps ## Run all acceptance tests
 	@./run-acceptance-test.sh
 
 cov: check-deps ## Check code coverage and open the result in the browser
-	@$(DC) run --rm bigchaindb pytest -v --cov=bigchaindb --cov-report html
+	@$(DC) run --rm planetmint pytest -v --cov=planetmint --cov-report html
 	$(BROWSER) htmlcov/index.html
 
 doc: check-deps ## Generate HTML documentation and open it in the browser

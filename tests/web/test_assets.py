@@ -22,7 +22,7 @@ def test_get_assets_with_missing_text_search(client):
 
 @pytest.mark.bdb
 def test_get_assets_tendermint(client, b, alice):
-    from bigchaindb.models import Transaction
+    from planetmint.models import Transaction
 
     # test returns empty list when no assets are found
     res = client.get(ASSETS_ENDPOINT + '?search=abc')
@@ -48,7 +48,7 @@ def test_get_assets_tendermint(client, b, alice):
 
 @pytest.mark.bdb
 def test_get_assets_limit_tendermint(client, b, alice):
-    from bigchaindb.models import Transaction
+    from planetmint.models import Transaction
 
     # create two assets
     asset1 = {'msg': 'abc 1'}

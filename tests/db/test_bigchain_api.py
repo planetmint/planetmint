@@ -14,9 +14,9 @@ pytestmark = pytest.mark.bdb
 class TestBigchainApi(object):
 
     def test_get_spent_with_double_spend_detected(self, b, alice):
-        from bigchaindb.models import Transaction
-        from bigchaindb.common.exceptions import DoubleSpend
-        from bigchaindb.exceptions import CriticalDoubleSpend
+        from planetmint.models import Transaction
+        from planetmint.common.exceptions import DoubleSpend
+        from planetmint.exceptions import CriticalDoubleSpend
 
         tx = Transaction.create([alice.public_key], [([alice.public_key], 1)])
         tx = tx.sign([alice.private_key])
@@ -44,8 +44,8 @@ class TestBigchainApi(object):
             b.get_spent(tx.id, 0)
 
     def test_double_inclusion(self, b, alice):
-        from bigchaindb.models import Transaction
-        from bigchaindb.backend.exceptions import OperationError
+        from planetmint.models import Transaction
+        from planetmint.backend.exceptions import OperationError
 
         tx = Transaction.create([alice.public_key], [([alice.public_key], 1)])
         tx = tx.sign([alice.private_key])
@@ -56,7 +56,7 @@ class TestBigchainApi(object):
             b.store_bulk_transactions([tx])
 
     def test_text_search(self, b, alice):
-        from bigchaindb.models import Transaction
+        from planetmint.models import Transaction
 
         # define the assets
         asset1 = {'msg': 'Planetmint 1'}
@@ -81,9 +81,9 @@ class TestBigchainApi(object):
     @pytest.mark.usefixtures('inputs')
     def test_non_create_input_not_found(self, b, user_pk):
         from cryptoconditions import Ed25519Sha256
-        from bigchaindb.common.exceptions import InputDoesNotExist
-        from bigchaindb.common.transaction import Input, TransactionLink
-        from bigchaindb.models import Transaction
+        from planetmint.common.exceptions import InputDoesNotExist
+        from planetmint.common.transaction import Input, TransactionLink
+        from planetmint.models import Transaction
 
         # Create an input for a non existing transaction
         input = Input(Ed25519Sha256(public_key=b58decode(user_pk)),
@@ -95,7 +95,7 @@ class TestBigchainApi(object):
             tx.validate(b)
 
     def test_write_transaction(self, b, user_sk, user_pk, alice, create_tx):
-        from bigchaindb.models import Transaction
+        from planetmint.models import Transaction
 
         asset1 = {'msg': 'Planetmint 1'}
 
@@ -117,8 +117,8 @@ class TestBigchainApi(object):
 class TestTransactionValidation(object):
 
     def test_non_create_input_not_found(self, b, signed_transfer_tx):
-        from bigchaindb.common.exceptions import InputDoesNotExist
-        from bigchaindb.common.transaction import TransactionLink
+        from planetmint.common.exceptions import InputDoesNotExist
+        from planetmint.common.transaction import TransactionLink
 
         signed_transfer_tx.inputs[0].fulfills = TransactionLink('c', 0)
         with pytest.raises(InputDoesNotExist):
@@ -126,9 +126,9 @@ class TestTransactionValidation(object):
 
     @pytest.mark.usefixtures('inputs')
     def test_non_create_valid_input_wrong_owner(self, b, user_pk):
-        from bigchaindb.common.crypto import generate_key_pair
-        from bigchaindb.common.exceptions import InvalidSignature
-        from bigchaindb.models import Transaction
+        from planetmint.common.crypto import generate_key_pair
+        from planetmint.common.exceptions import InvalidSignature
+        from planetmint.models import Transaction
 
         input_tx = b.fastquery.get_outputs_by_public_key(user_pk).pop()
         input_transaction = b.get_transaction(input_tx.txid)
@@ -144,7 +144,7 @@ class TestTransactionValidation(object):
     @pytest.mark.usefixtures('inputs')
     def test_non_create_double_spend(self, b, signed_create_tx,
                                      signed_transfer_tx, double_spend_tx):
-        from bigchaindb.common.exceptions import DoubleSpend
+        from planetmint.common.exceptions import DoubleSpend
 
         b.store_bulk_transactions([signed_create_tx, signed_transfer_tx])
 
@@ -156,8 +156,8 @@ class TestMultipleInputs(object):
 
     def test_transfer_single_owner_single_input(self, b, inputs, user_pk,
                                                 user_sk):
-        from bigchaindb.common import crypto
-        from bigchaindb.models import Transaction
+        from planetmint.common import crypto
+        from planetmint.models import Transaction
 
         user2_sk, user2_pk = crypto.generate_key_pair()
 
@@ -177,8 +177,8 @@ class TestMultipleInputs(object):
                                                                     user_sk,
                                                                     user_pk,
                                                                     inputs):
-        from bigchaindb.common import crypto
-        from bigchaindb.models import Transaction
+        from planetmint.common import crypto
+        from planetmint.models import Transaction
 
         user2_sk, user2_pk = crypto.generate_key_pair()
         user3_sk, user3_pk = crypto.generate_key_pair()
@@ -199,8 +199,8 @@ class TestMultipleInputs(object):
                                                                     user_sk,
                                                                     user_pk,
                                                                     alice):
-        from bigchaindb.common import crypto
-        from bigchaindb.models import Transaction
+        from planetmint.common import crypto
+        from planetmint.models import Transaction
 
         user2_sk, user2_pk = crypto.generate_key_pair()
         user3_sk, user3_pk = crypto.generate_key_pair()
@@ -227,8 +227,8 @@ class TestMultipleInputs(object):
                                                                        user_sk,
                                                                        user_pk,
                                                                        alice):
-        from bigchaindb.common import crypto
-        from bigchaindb.models import Transaction
+        from planetmint.common import crypto
+        from planetmint.models import Transaction
 
         user2_sk, user2_pk = crypto.generate_key_pair()
         user3_sk, user3_pk = crypto.generate_key_pair()
@@ -252,9 +252,9 @@ class TestMultipleInputs(object):
         assert len(tx.outputs) == 1
 
     def test_get_owned_ids_single_tx_single_output(self, b, user_sk, user_pk, alice):
-        from bigchaindb.common import crypto
-        from bigchaindb.common.transaction import TransactionLink
-        from bigchaindb.models import Transaction
+        from planetmint.common import crypto
+        from planetmint.common.transaction import TransactionLink
+        from planetmint.models import Transaction
 
         user2_sk, user2_pk = crypto.generate_key_pair()
 
@@ -280,9 +280,9 @@ class TestMultipleInputs(object):
 
     def test_get_owned_ids_single_tx_multiple_outputs(self, b, user_sk,
                                                       user_pk, alice):
-        from bigchaindb.common import crypto
-        from bigchaindb.common.transaction import TransactionLink
-        from bigchaindb.models import Transaction
+        from planetmint.common import crypto
+        from planetmint.common.transaction import TransactionLink
+        from planetmint.models import Transaction
 
         user2_sk, user2_pk = crypto.generate_key_pair()
 
@@ -314,9 +314,9 @@ class TestMultipleInputs(object):
                                       TransactionLink(tx_transfer.id, 1)]
 
     def test_get_owned_ids_multiple_owners(self, b, user_sk, user_pk, alice):
-        from bigchaindb.common import crypto
-        from bigchaindb.common.transaction import TransactionLink
-        from bigchaindb.models import Transaction
+        from planetmint.common import crypto
+        from planetmint.common.transaction import TransactionLink
+        from planetmint.models import Transaction
 
         user2_sk, user2_pk = crypto.generate_key_pair()
         user3_sk, user3_pk = crypto.generate_key_pair()
@@ -346,8 +346,8 @@ class TestMultipleInputs(object):
         assert not spent_user1
 
     def test_get_spent_single_tx_single_output(self, b, user_sk, user_pk, alice):
-        from bigchaindb.common import crypto
-        from bigchaindb.models import Transaction
+        from planetmint.common import crypto
+        from planetmint.models import Transaction
 
         user2_sk, user2_pk = crypto.generate_key_pair()
 
@@ -372,8 +372,8 @@ class TestMultipleInputs(object):
         assert spent_inputs_user1 == tx
 
     def test_get_spent_single_tx_multiple_outputs(self, b, user_sk, user_pk, alice):
-        from bigchaindb.common import crypto
-        from bigchaindb.models import Transaction
+        from planetmint.common import crypto
+        from planetmint.models import Transaction
 
         # create a new users
         user2_sk, user2_pk = crypto.generate_key_pair()
@@ -409,8 +409,8 @@ class TestMultipleInputs(object):
         assert b.get_spent(tx_create.to_inputs()[2].fulfills.txid, 2) is None
 
     def test_get_spent_multiple_owners(self, b, user_sk, user_pk, alice):
-        from bigchaindb.common import crypto
-        from bigchaindb.models import Transaction
+        from planetmint.common import crypto
+        from planetmint.models import Transaction
 
         user2_sk, user2_pk = crypto.generate_key_pair()
         user3_sk, user3_pk = crypto.generate_key_pair()
@@ -445,8 +445,8 @@ class TestMultipleInputs(object):
 
 
 def test_get_outputs_filtered_only_unspent():
-    from bigchaindb.common.transaction import TransactionLink
-    from bigchaindb.lib import BigchainDB
+    from planetmint.common.transaction import TransactionLink
+    from planetmint.lib import BigchainDB
 
     go = 'bigchaindb.fastquery.FastQuery.get_outputs_by_public_key'
     with patch(go) as get_outputs:
@@ -461,8 +461,8 @@ def test_get_outputs_filtered_only_unspent():
 
 
 def test_get_outputs_filtered_only_spent():
-    from bigchaindb.common.transaction import TransactionLink
-    from bigchaindb.lib import BigchainDB
+    from planetmint.common.transaction import TransactionLink
+    from planetmint.lib import BigchainDB
     go = 'bigchaindb.fastquery.FastQuery.get_outputs_by_public_key'
     with patch(go) as get_outputs:
         get_outputs.return_value = [TransactionLink('a', 1),
@@ -478,8 +478,8 @@ def test_get_outputs_filtered_only_spent():
 @patch('bigchaindb.fastquery.FastQuery.filter_unspent_outputs')
 @patch('bigchaindb.fastquery.FastQuery.filter_spent_outputs')
 def test_get_outputs_filtered(filter_spent, filter_unspent):
-    from bigchaindb.common.transaction import TransactionLink
-    from bigchaindb.lib import BigchainDB
+    from planetmint.common.transaction import TransactionLink
+    from planetmint.lib import BigchainDB
 
     go = 'bigchaindb.fastquery.FastQuery.get_outputs_by_public_key'
     with patch(go) as get_outputs:
@@ -496,8 +496,8 @@ def test_cant_spend_same_input_twice_in_tx(b, alice):
     """Recreate duplicated fulfillments bug
     https://github.com/bigchaindb/bigchaindb/issues/1099
     """
-    from bigchaindb.models import Transaction
-    from bigchaindb.common.exceptions import DoubleSpend
+    from planetmint.models import Transaction
+    from planetmint.common.exceptions import DoubleSpend
 
     # create a divisible asset
     tx_create = Transaction.create([alice.public_key], [([alice.public_key], 100)])
@@ -517,8 +517,8 @@ def test_cant_spend_same_input_twice_in_tx(b, alice):
 
 def test_transaction_unicode(b, alice):
     import copy
-    from bigchaindb.common.utils import serialize
-    from bigchaindb.models import Transaction
+    from planetmint.common.utils import serialize
+    from planetmint.models import Transaction
 
     # http://www.fileformat.info/info/unicode/char/1f37a/index.htm
     beer_python = {'beer': '\N{BEER MUG}'}

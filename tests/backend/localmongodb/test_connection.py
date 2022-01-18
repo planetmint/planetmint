@@ -31,15 +31,15 @@ def mock_config_opts():
 
 @pytest.fixture
 def mongodb_connection():
-    import bigchaindb
-    return MongoClient(host=bigchaindb.config['database']['host'],
-                       port=bigchaindb.config['database']['port'])
+    import planetmint
+    return MongoClient(host=planetmint.config['database']['host'],
+                       port=planetmint.config['database']['port'])
 
 
 def test_get_connection_returns_the_correct_instance(db_host, db_port):
-    from bigchaindb.backend import connect
-    from bigchaindb.backend.connection import Connection
-    from bigchaindb.backend.localmongodb.connection import LocalMongoDBConnection
+    from planetmint.backend import connect
+    from planetmint.backend.connection import Connection
+    from planetmint.backend.localmongodb.connection import LocalMongoDBConnection
 
     config = {
         'backend': 'localmongodb',
@@ -57,8 +57,8 @@ def test_get_connection_returns_the_correct_instance(db_host, db_port):
 
 @mock.patch('pymongo.MongoClient.__init__')
 def test_connection_error(mock_client):
-    from bigchaindb.backend import connect
-    from bigchaindb.backend.exceptions import ConnectionError
+    from planetmint.backend import connect
+    from planetmint.backend.exceptions import ConnectionError
 
     # force the driver to throw ConnectionFailure
     # the mock on time.sleep is to prevent the actual sleep when running
@@ -73,8 +73,8 @@ def test_connection_error(mock_client):
 
 
 def test_connection_run_errors():
-    from bigchaindb.backend import connect
-    from bigchaindb.backend.exceptions import (DuplicateKeyError,
+    from planetmint.backend import connect
+    from planetmint.backend.exceptions import (DuplicateKeyError,
                                                OperationError,
                                                ConnectionError)
 
@@ -101,10 +101,10 @@ def test_connection_run_errors():
 
 @mock.patch('pymongo.database.Database.authenticate')
 def test_connection_with_credentials(mock_authenticate):
-    import bigchaindb
-    from bigchaindb.backend.localmongodb.connection import LocalMongoDBConnection
-    conn = LocalMongoDBConnection(host=bigchaindb.config['database']['host'],
-                                  port=bigchaindb.config['database']['port'],
+    import planetmint
+    from planetmint.backend.localmongodb.connection import LocalMongoDBConnection
+    conn = LocalMongoDBConnection(host=planetmint.config['database']['host'],
+                                  port=planetmint.config['database']['port'],
                                   login='theplague',
                                   password='secret')
     conn.connect()

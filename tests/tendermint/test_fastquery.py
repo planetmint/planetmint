@@ -5,8 +5,8 @@
 
 import pytest
 
-from bigchaindb.common.transaction import TransactionLink
-from bigchaindb.models import Transaction
+from planetmint.common.transaction import TransactionLink
+from planetmint.models import Transaction
 
 
 pytestmark = pytest.mark.bdb
@@ -77,8 +77,8 @@ def test_filter_unspent_outputs(b, user_pk, user_sk):
 
 
 def test_outputs_query_key_order(b, user_pk, user_sk, user2_pk, user2_sk):
-    from bigchaindb import backend
-    from bigchaindb.backend import connect
+    from planetmint import backend
+    from planetmint.backend import connect
 
     tx1 = Transaction.create([user_pk],
                              [([user_pk], 3), ([user_pk], 2), ([user_pk], 1)])\

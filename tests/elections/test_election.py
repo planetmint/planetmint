@@ -2,10 +2,10 @@ import pytest
 
 from tests.utils import generate_election, generate_validators
 
-from bigchaindb.lib import Block
-from bigchaindb.elections.election import Election
-from bigchaindb.migrations.chain_migration_election import ChainMigrationElection
-from bigchaindb.upsert_validator.validator_election import ValidatorElection
+from planetmint.lib import Block
+from planetmint.elections.election import Election
+from planetmint.migrations.chain_migration_election import ChainMigrationElection
+from planetmint.upsert_validator.validator_election import ValidatorElection
 
 
 @pytest.mark.bdb

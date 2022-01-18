@@ -10,7 +10,7 @@ set -e -x
 if [[ -z ${TOXENV} ]]; then
 
   if [[ ${PLANETMINT_CI_ABCI} == 'enable' ]]; then
-      docker-compose up -d bigchaindb
+      docker-compose up -d planetmint
   else
       docker-compose up -d bdb
   fi

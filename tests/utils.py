@@ -9,12 +9,12 @@ import random
 
 from functools import singledispatch
 
-from bigchaindb.backend.localmongodb.connection import LocalMongoDBConnection
-from bigchaindb.backend.schema import TABLES
-from bigchaindb.common import crypto
-from bigchaindb.common.transaction_mode_types import BROADCAST_TX_COMMIT
-from bigchaindb.elections.election import Election, Vote
-from bigchaindb.tendermint_utils import key_to_base64
+from planetmint.backend.localmongodb.connection import LocalMongoDBConnection
+from planetmint.backend.schema import TABLES
+from planetmint.common import crypto
+from planetmint.common.transaction_mode_types import BROADCAST_TX_COMMIT
+from planetmint.elections.election import Election, Vote
+from planetmint.tendermint_utils import key_to_base64
 
 
 @singledispatch
@@ -29,8 +29,8 @@ def flush_localmongo_db(connection, dbname):
 
 
 def generate_block(bigchain):
-    from bigchaindb.common.crypto import generate_key_pair
-    from bigchaindb.models import Transaction
+    from planetmint.common.crypto import generate_key_pair
+    from planetmint.models import Transaction
 
     alice = generate_key_pair()
     tx = Transaction.create([alice.public_key],

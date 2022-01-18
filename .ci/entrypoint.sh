@@ -10,5 +10,5 @@ set -e -x
 if [[ ${PLANETMINT_CI_ABCI} == 'enable' ]]; then
     sleep 3600
 else
-    bigchaindb -l DEBUG start
+    planetmint -l DEBUG start
 fi

@@ -100,31 +100,31 @@ def user2_Ed25519(user2_pub):
 
 @pytest.fixture
 def user_input(user_Ed25519, user_pub):
-    from bigchaindb.common.transaction import Input
+    from planetmint.common.transaction import Input
     return Input(user_Ed25519, [user_pub])
 
 
 @pytest.fixture
 def user_user2_threshold_output(user_user2_threshold, user_pub, user2_pub):
-    from bigchaindb.common.transaction import Output
+    from planetmint.common.transaction import Output
     return Output(user_user2_threshold, [user_pub, user2_pub])
 
 
 @pytest.fixture
 def user_user2_threshold_input(user_user2_threshold, user_pub, user2_pub):
-    from bigchaindb.common.transaction import Input
+    from planetmint.common.transaction import Input
     return Input(user_user2_threshold, [user_pub, user2_pub])
 
 
 @pytest.fixture
 def user_output(user_Ed25519, user_pub):
-    from bigchaindb.common.transaction import Output
+    from planetmint.common.transaction import Output
     return Output(user_Ed25519, [user_pub])
 
 
 @pytest.fixture
 def user2_output(user2_Ed25519, user2_pub):
-    from bigchaindb.common.transaction import Output
+    from planetmint.common.transaction import Output
     return Output(user2_Ed25519, [user2_pub])
 
 
@@ -140,7 +140,7 @@ def data():
 
 @pytest.fixture
 def utx(user_input, user_output):
-    from bigchaindb.common.transaction import Transaction
+    from planetmint.common.transaction import Transaction
     return Transaction(Transaction.CREATE, {'data': None}, [user_input],
                        [user_output])
 
@@ -152,7 +152,7 @@ def tx(utx, user_priv):
 
 @pytest.fixture
 def transfer_utx(user_output, user2_output, utx):
-    from bigchaindb.common.transaction import (Input, TransactionLink,
+    from planetmint.common.transaction import (Input, TransactionLink,
                                                Transaction)
     user_output = user_output.to_dict()
     input = Input(utx.outputs[0].fulfillment,

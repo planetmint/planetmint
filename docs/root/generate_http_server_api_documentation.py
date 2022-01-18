@@ -9,9 +9,9 @@ import json
 import os
 import os.path
 
-from bigchaindb.common.transaction import Transaction, Input, TransactionLink
-from bigchaindb import lib
-from bigchaindb.web import server
+from planetmint.common.transaction import Transaction, Input, TransactionLink
+from planetmint import lib
+from planetmint.web import server
 
 
 TPLS = {}

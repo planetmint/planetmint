@@ -21,15 +21,15 @@ from logging.config import dictConfig
 import pytest
 from pymongo import MongoClient
 
-from bigchaindb import ValidatorElection
-from bigchaindb.common import crypto
-from bigchaindb.common.transaction_mode_types import BROADCAST_TX_COMMIT
-from bigchaindb.tendermint_utils import key_from_base64
-from bigchaindb.backend import schema, query
-from bigchaindb.common.crypto import (key_pair_from_ed25519_key,
+from planetmint import ValidatorElection
+from planetmint.common import crypto
+from planetmint.common.transaction_mode_types import BROADCAST_TX_COMMIT
+from planetmint.tendermint_utils import key_from_base64
+from planetmint.backend import schema, query
+from planetmint.common.crypto import (key_pair_from_ed25519_key,
                                       public_key_from_ed25519_key)
-from bigchaindb.common.exceptions import DatabaseDoesNotExist
-from bigchaindb.lib import Block
+from planetmint.common.exceptions import DatabaseDoesNotExist
+from planetmint.lib import Block
 from tests.utils import gen_vote
 
 TEST_DB_NAME = 'bigchain_test'
@@ -42,7 +42,7 @@ USER_PUBLIC_KEY = 'JEAkEJqLbbgDRAtMm8YAjGp759Aq2qTn9eaEHUj2XePE'
 
 
 def pytest_addoption(parser):
-    from bigchaindb.backend.connection import BACKENDS
+    from planetmint.backend.connection import BACKENDS
 
     backends = ', '.join(BACKENDS.keys())
     parser.addoption(
@@ -80,7 +80,7 @@ def _bdb_marker(request):
 
 @pytest.fixture(autouse=True)
 def _restore_config(_configure_bigchaindb):
-    from bigchaindb import config, config_utils
+    from planetmint import config, config_utils
     config_before_test = copy.deepcopy(config)
     yield
     config_utils.set_config(config_before_test)
@@ -88,8 +88,8 @@ def _restore_config(_configure_bigchaindb):
 
 @pytest.fixture(scope='session')
 def _configure_bigchaindb(request):
-    import bigchaindb
-    from bigchaindb import config_utils
+    import planetmint
+    from planetmint import config_utils
     test_db_name = TEST_DB_NAME
     # Put a suffix like _gw0, _gw1 etc on xdist processes
     xdist_suffix = getattr(request.config, 'slaveinput', {}).get('slaveid')
@@ -99,7 +99,7 @@ def _configure_bigchaindb(request):
     backend = request.config.getoption('--database-backend')
 
     config = {
-        'database': bigchaindb._database_map[backend],
+        'database': planetmint._database_map[backend],
         'tendermint': {
             'host': 'localhost',
             'port': 26657,
@@ -112,8 +112,8 @@ def _configure_bigchaindb(request):
 
 @pytest.fixture(scope='session')
 def _setup_database(_configure_bigchaindb):
-    from bigchaindb import config
-    from bigchaindb.backend import connect
+    from planetmint import config
+    from planetmint.backend import connect
     print('Initializing test db')
     dbname = config['database']['name']
     conn = connect()
@@ -133,11 +133,11 @@ def _setup_database(_configure_bigchaindb):
 
 @pytest.fixture
 def _bdb(_setup_database, _configure_bigchaindb):
-    from bigchaindb import config
-    from bigchaindb.backend import connect
+    from planetmint import config
+    from planetmint.backend import connect
     from .utils import flush_db
-    from bigchaindb.common.memoize import to_dict, from_dict
-    from bigchaindb.models import Transaction
+    from planetmint.common.memoize import to_dict, from_dict
+    from planetmint.models import Transaction
     conn = connect()
     yield
     dbname = config['database']['name']
@@ -192,13 +192,13 @@ def user2_pk():
 
 @pytest.fixture
 def alice():
-    from bigchaindb.common.crypto import generate_key_pair
+    from planetmint.common.crypto import generate_key_pair
     return generate_key_pair()
 
 
 @pytest.fixture
 def bob():
-    from bigchaindb.common.crypto import generate_key_pair
+    from planetmint.common.crypto import generate_key_pair
     return generate_key_pair()
 
 
@@ -214,7 +214,7 @@ def bob_pubkey(carol):
 
 @pytest.fixture
 def carol():
-    from bigchaindb.common.crypto import generate_key_pair
+    from planetmint.common.crypto import generate_key_pair
     return generate_key_pair()
 
 
@@ -230,7 +230,7 @@ def carol_pubkey(carol):
 
 @pytest.fixture
 def merlin():
-    from bigchaindb.common.crypto import generate_key_pair
+    from planetmint.common.crypto import generate_key_pair
     return generate_key_pair()
 
 
@@ -242,7 +242,7 @@ def a():
 
 @pytest.fixture
 def b():
-    from bigchaindb import BigchainDB
+    from planetmint import BigchainDB
     return BigchainDB)
 
 
@@ -268,7 +268,7 @@ def mock_get_validators(network_validators):
 
 @pytest.fixture
 def create_tx(alice, user_pk):
-    from bigchaindb.models import Transaction
+    from planetmint.models import Transaction
     name = f'I am created by the create_tx fixture. My random identifier is {random.random()}.'
     return Transaction.create([alice.public_key], [([user_pk], 1)], asset={'name': name})
 
@@ -287,7 +287,7 @@ def posted_create_tx(b, signed_create_tx):
 
 @pytest.fixture
 def signed_transfer_tx(signed_create_tx, user_pk, user_sk):
-    from bigchaindb.models import Transaction
+    from planetmint.models import Transaction
     inputs = signed_create_tx.to_inputs()
     tx = Transaction.transfer(inputs, [([user_pk], 1)], asset_id=signed_create_tx.id)
     return tx.sign([user_sk])
@@ -295,7 +295,7 @@ def signed_transfer_tx(signed_create_tx, user_pk, user_sk):
 
 @pytest.fixture
 def double_spend_tx(signed_create_tx, carol_pubkey, user_sk):
-    from bigchaindb.models import Transaction
+    from planetmint.models import Transaction
     inputs = signed_create_tx.to_inputs()
     tx = Transaction.transfer(
         inputs, [([carol_pubkey], 1)], asset_id=signed_create_tx.id)
@@ -309,7 +309,7 @@ def _get_height(b):
 
 @pytest.fixture
 def inputs(user_pk, b, alice):
-    from bigchaindb.models import Transaction
+    from planetmint.models import Transaction
     # create blocks with transactions for `USER` to spend
     for height in range(1, 4):
         transactions = [
@@ -328,7 +328,7 @@ def inputs(user_pk, b, alice):
 
 @pytest.fixture
 def dummy_db(request):
-    from bigchaindb.backend import connect
+    from planetmint.backend import connect
 
     conn = connect()
     dbname = request.fixturename
@@ -352,7 +352,7 @@ def _drop_db(conn, dbname):
 
 @pytest.fixture
 def db_config():
-    from bigchaindb import config
+    from planetmint import config
     return config['database']
 
 
@@ -373,7 +373,7 @@ def db_name(db_config):
 
 @pytest.fixture
 def db_conn():
-    from bigchaindb.backend import connect
+    from planetmint.backend import connect
     return connect()
 
 
@@ -443,8 +443,8 @@ def event_loop():
 def abci_server():
     from abci.server import ABCIServer
     from abci import types_v0_31_5
-    from bigchaindb.core import App
-    from bigchaindb.utils import Process
+    from planetmint.core import App
+    from planetmint.utils import Process
 
     app = ABCIServer(app=App(types_v0_31_5))
     abci_proxy = Process(name='ABCI', target=app.run)
@@ -454,7 +454,7 @@ def abci_server():
 
 @pytest.fixture
 def wsserver_config():
-    from bigchaindb import config
+    from planetmint import config
     return config['wsserver']
 
 
@@ -645,7 +645,7 @@ def bad_validator_path(node_keys):
 
 @pytest.fixture
 def validators(b, node_keys):
-    from bigchaindb.backend import query
+    from planetmint.backend import query
     import time
 
     def timestamp():  # we need this to force unique election_ids for setup and teardown of fixtures

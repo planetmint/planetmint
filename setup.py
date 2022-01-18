@@ -18,7 +18,7 @@ if sys.version_info < (3, 6):
 
 # get the version
 version = {}
-with open('bigchaindb/version.py') as fp:
+with open('planetmint/version.py') as fp:
     exec(fp.read(), version)
 
 def check_setuptools_features():
@@ -134,7 +134,7 @@ setup(
 
     entry_points={
         'console_scripts': [
-            'bigchaindb=bigchaindb.commands.bigchaindb:main'
+            'planetmint=planetmint.commands.planetmint:main'
         ],
     },
     install_requires=install_requires,
@@ -145,5 +145,5 @@ setup(
         'dev': dev_require + tests_require + docs_require,
         'docs': docs_require,
     },
-    package_data={'bigchaindb.common.schema': ['*.yaml']},
+    package_data={'planetmint.common.schema': ['*.yaml']},
 )
