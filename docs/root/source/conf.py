@@ -33,7 +33,7 @@ from recommonmark.parser import CommonMarkParser
 
 # get version
 _version = {}
-with open('../../../bigchaindb/version.py') as fp:
+with open('../../../planetmint/version.py') as fp:
     exec(fp.read(), _version)
 
 

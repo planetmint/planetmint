@@ -85,7 +85,7 @@ async def test_bridge_sync_async_queue(loop):
 
 @patch('threading.Thread')
 @patch('aiohttp.web.run_app')
-@patch('bigchaindb.web.websocket_server.init_app')
+@patch('planetmint.web.websocket_server.init_app')
 @patch('asyncio.get_event_loop', return_value='event-loop')
 @patch('asyncio.Queue', return_value='event-queue')
 def test_start_creates_an_event_loop(queue_mock, get_event_loop_mock,
