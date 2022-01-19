@@ -1,0 +1,9 @@
+.cache/
+.coverage
+.eggs/
+.git/
+.gitignore
+.ropeproject/
+.travis.yml
+Planetmint.egg-info/
+dist/

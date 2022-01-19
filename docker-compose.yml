@@ -1,0 +1,105 @@
+# Copyright © 2020 Interplanetary Database Association e.V.,
+# Planetmint and IPDB software contributors.
+# SPDX-License-Identifier: (Apache-2.0 AND CC-BY-4.0)
+# Code is Apache-2.0 and docs are CC-BY-4.0
+
+version: '2.2'
+
+services:
+  # Build: docker-compose build -d planetmint
+  # Run: docker-compose run -d bdb
+  mongodb:
+    image: mongo:3.6
+    ports:
+      - "27017:27017"
+    command: mongod
+    restart: always
+  planetmint:
+    depends_on:
+      - mongodb
+      - tendermint
+    build:
+      context: .
+      dockerfile: Dockerfile-dev
+    volumes:
+      - ./planetmint:/usr/src/app/planetmint
+      - ./tests:/usr/src/app/tests
+      - ./docs:/usr/src/app/docs
+      - ./htmlcov:/usr/src/app/htmlcov
+      - ./setup.py:/usr/src/app/setup.py
+      - ./setup.cfg:/usr/src/app/setup.cfg
+      - ./pytest.ini:/usr/src/app/pytest.ini
+      - ./tox.ini:/usr/src/app/tox.ini
+    environment:
+      PLANETMINT_DATABASE_BACKEND: localmongodb
+      PLANETMINT_DATABASE_HOST: mongodb
+      PLANETMINT_DATABASE_PORT: 27017
+      PLANETMINT_SERVER_BIND: 0.0.0.0:9984
+      PLANETMINT_WSSERVER_HOST: 0.0.0.0
+      PLANETMINT_WSSERVER_ADVERTISED_HOST: planetmint
+      PLANETMINT_TENDERMINT_HOST: tendermint
+      PLANETMINT_TENDERMINT_PORT: 26657
+    ports:
+      - "9984:9984"
+      - "9985:9985"
+      - "26658"
+    healthcheck:
+      test: ["CMD", "bash", "-c", "curl http://planetmint:9984 && curl http://tendermint:26657/abci_query"]
+      interval: 3s
+      timeout: 5s
+      retries: 3
+    command: '.ci/entrypoint.sh'
+    restart: always
+  tendermint:
+    image: tendermint/tendermint:v0.31.5
+    # volumes:
+    #   - ./tmdata:/tendermint
+    entrypoint: ''
+    ports:
+      - "26656:26656"
+      - "26657:26657"
+    command: sh -c "tendermint init && tendermint node --consensus.create_empty_blocks=false --proxy_app=tcp://planetmint:26658"
+    restart: always
+  bdb:
+    image: busybox
+    depends_on:
+      planetmint:
+        condition: service_healthy
+
+
+  # curl client to check the health of development env
+  curl-client:
+    image: appropriate/curl
+    command: /bin/sh -c "curl -s http://planetmint:9984/ > /dev/null && curl -s http://tendermint:26657/ > /dev/null"
+
+  # Planetmint setup to do acceptance testing with Python
+  python-acceptance:
+    build:
+      context: .
+      dockerfile: ./acceptance/python/Dockerfile
+    volumes:
+      - ./acceptance/python/docs:/docs
+      - ./acceptance/python/src:/src
+    environment:
+      - PLANETMINT_ENDPOINT=planetmint
+
+  # Build docs only
+  # docker-compose build bdocs
+  # docker-compose up -d bdocs
+  bdocs:
+    depends_on:
+      - vdocs
+    build:
+      context: .
+      dockerfile: Dockerfile-dev
+      args:
+        backend: localmongodb
+    volumes:
+      - .:/usr/src/app/
+    command: make -C docs/root html
+  vdocs:
+    image: nginx
+    ports:
+      - '33333:80'
+    volumes:
+      - ./docs/root/build/html:/usr/share/nginx/html
