@@ -9,7 +9,7 @@ from itertools import repeat
 
 import planetmint
 from planetmint.backend.exceptions import ConnectionError
-from planetmint.backend.utils import get_bigchaindb_config_value, get_bigchaindb_config_value_or_key_error
+from planetmint.backend.utils import get_planetmint_config_value, get_planetmint_config_value_or_key_error
 from planetmint.common.exceptions import ConfigurationError
 
 BACKENDS = {
@@ -48,10 +48,10 @@ def connect(backend=None, host=None, port=None, name=None, max_tries=None,
             Authentication failure after connecting to the database.
     """
 
-    backend = backend or get_bigchaindb_config_value_or_key_error('backend')
-    host = host or get_bigchaindb_config_value_or_key_error('host')
-    port = port or get_bigchaindb_config_value_or_key_error('port')
-    dbname = name or get_bigchaindb_config_value_or_key_error('name')
+    backend = backend or get_planetmint_config_value_or_key_error('backend')
+    host = host or get_planetmint_config_value_or_key_error('host')
+    port = port or get_planetmint_config_value_or_key_error('port')
+    dbname = name or get_planetmint_config_value_or_key_error('name')
     # Not sure how to handle this here. This setting is only relevant for
     # mongodb.
     # I added **kwargs for both RethinkDBConnection and MongoDBConnection
@@ -61,15 +61,15 @@ def connect(backend=None, host=None, port=None, name=None, max_tries=None,
     # UPD: RethinkDBConnection is not here anymore cause we no longer support RethinkDB.
     # The problem described above might be reconsidered next time we introduce a backend,
     # if it ever happens.
-    replicaset = replicaset or get_bigchaindb_config_value('replicaset')
-    ssl = ssl if ssl is not None else get_bigchaindb_config_value('ssl', False)
-    login = login or get_bigchaindb_config_value('login')
-    password = password or get_bigchaindb_config_value('password')
-    ca_cert = ca_cert or get_bigchaindb_config_value('ca_cert')
-    certfile = certfile or get_bigchaindb_config_value('certfile')
-    keyfile = keyfile or get_bigchaindb_config_value('keyfile')
-    keyfile_passphrase = keyfile_passphrase or get_bigchaindb_config_value('keyfile_passphrase', None)
-    crlfile = crlfile or get_bigchaindb_config_value('crlfile')
+    replicaset = replicaset or get_planetmint_config_value('replicaset')
+    ssl = ssl if ssl is not None else get_planetmint_config_value('ssl', False)
+    login = login or get_planetmint_config_value('login')
+    password = password or get_planetmint_config_value('password')
+    ca_cert = ca_cert or get_planetmint_config_value('ca_cert')
+    certfile = certfile or get_planetmint_config_value('certfile')
+    keyfile = keyfile or get_planetmint_config_value('keyfile')
+    keyfile_passphrase = keyfile_passphrase or get_planetmint_config_value('keyfile_passphrase', None)
+    crlfile = crlfile or get_planetmint_config_value('crlfile')
 
     try:
         module_name, _, class_name = BACKENDS[backend].rpartition('.')

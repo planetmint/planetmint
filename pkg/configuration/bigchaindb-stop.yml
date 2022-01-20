@@ -15,6 +15,6 @@
       setup: #aka gather_facts
   roles:
     - tendermint
-    - bigchaindb
+    - planetmint
     - mongodb
     - { role: docker, when: stack_type|lower == "docker" or stack_type|lower == "cloud" }

@@ -6,7 +6,7 @@
 """
 Planetmint: The Blockchain Database
 
-For full docs visit https://docs.bigchaindb.com
+For full docs visit https://docs.planetmint.com
 
 """
 
@@ -106,7 +106,7 @@ setup(
         "built-in asset support, Planetmint is like a database with blockchain "
         "characteristics."
         ),
-    url='https://github.com/Planetmint/bigchaindb/',
+    url='https://github.com/Planetmint/planetmint/',
     author='Planetmint Contributors',
     author_email='contact@ipdb.global',
     license='Apache Software License 2.0',
@@ -130,7 +130,7 @@ setup(
 
     packages=find_packages(exclude=['tests*']),
 
-    scripts=['pkg/scripts/bigchaindb-monit-config'],
+    scripts=['pkg/scripts/planetmint-monit-config'],
 
     entry_points={
         'console_scripts': [

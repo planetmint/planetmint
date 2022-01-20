@@ -24,7 +24,7 @@ from blns import blns
 import pytest
 
 # For this test case we import and use the Python Driver.
-from bigchaindb_driver import BigchainDB
+from bigchaindb_driver import Planetmint
 from bigchaindb_driver.crypto import generate_keypair
 from bigchaindb_driver.exceptions import BadRequest
 
@@ -36,7 +36,7 @@ def send_naughty_tx(asset, metadata):
     # ## Set up a connection to Planetmint
     # Check [test_basic.py](./test_basic.html) to get some more details
     # about the endpoint.
-    bdb = BigchainDB(os.environ.get('PLANETMINT_ENDPOINT'))
+    bdb = Planetmint(os.environ.get('PLANETMINT_ENDPOINT'))
 
     # Here's Alice.
     alice = generate_keypair()

@@ -38,7 +38,7 @@ from planetmint.validation import BaseValidationRules
 logger = logging.getLogger(__name__)
 
 
-class BigchainDB(object):
+class Planetmint(object):
     """Bigchain API
 
     Create, read, sign, write transactions to the database
@@ -54,10 +54,10 @@ class BigchainDB(object):
         If that environment variable isn't set, then the value
         will come from the local configuration file. And if that variable
         isn't in the local configuration file, then the parameter will have
-        its default value (defined in bigchaindb.__init__).
+        its default value (defined in planetmint.__init__).
 
         Args:
-            connection (:class:`~bigchaindb.backend.connection.Connection`):
+            connection (:class:`~planetmint.backend.connection.Connection`):
                 A connection to the database.
         """
         config_utils.autoconfigure()
@@ -157,7 +157,7 @@ class BigchainDB(object):
         outputs that the given ``transaction`` creates.
 
         Args:
-            transaction (:obj:`~bigchaindb.models.Transaction`): A new
+            transaction (:obj:`~planetmint.models.Transaction`): A new
                 transaction incoming into the system for which the UTXO
                 set needs to be updated.
         """

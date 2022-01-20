@@ -70,7 +70,7 @@ def init_database(connection=None, dbname=None):
     and supporting indexes.
 
     Args:
-        connection (:class:`~bigchaindb.backend.connection.Connection`): an
+        connection (:class:`~planetmint.backend.connection.Connection`): an
             existing connection to use to initialize the database.
             Creates one if not given.
         dbname (str): the name of the database to create.

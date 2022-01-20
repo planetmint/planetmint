@@ -10,7 +10,7 @@ To get the relevant NGINX logs:
 2. Create a new Log Search
 3. Use a search string such as:
 
-Type=ContainerLog Image="bigchaindb/nginx_3scale:1.3" GET NOT("Go-http-client") NOT(runscope)
+Type=ContainerLog Image="planetmint/nginx_3scale:1.3" GET NOT("Go-http-client") NOT(runscope)
 
 (This gets all logs from the NGINX container, only those with the word "GET",
 excluding those with the string "Go-http-client" [internal Kubernetes traffic],

@@ -27,8 +27,8 @@ and [log rotation](https://docs.mongodb.com/v3.6/tutorial/rotate-log-files/).
 
 Planetmint Server writes its logs to two files: normal logs and error logs. The names of those files, and their locations, are set as part of the Planetmint configuration settings. The default names and locations are:
 
-- `~/bigchaindb.log`
-- `~/bigchaindb-errors.log`
+- `~/planetmint.log`
+- `~/planetmint-errors.log`
 
 Log rotation is baked into Planetmint Server using Python's `logging` module. The logs for Planetmint Server are rotated when any of the above mentioned files exceeds 209715200 bytes (i.e. approximately 209 MB).
 
@@ -43,7 +43,7 @@ Tendermint writes its logs to the files:
 
 If you started Planetmint Server and Tendermint using Monit, as suggested by our guide on
 [How to Set Up a Planetmint Network](../network-setup/network-setup),
-then the logs will be written to `$HOME/.bigchaindb-monit/logs/`.
+then the logs will be written to `$HOME/.planetmint-monit/logs/`.
 
 Moreover, if you started Planetmint Server and Tendermint using Monit,
 then Monit monitors the Tendermint log files.

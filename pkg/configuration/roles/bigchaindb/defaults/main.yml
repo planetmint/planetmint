@@ -33,16 +33,16 @@ directories:
 
 backend_db: localmongodb #[localmongodb]
 
-bigchaindb_server_bind: "0.0.0.0:9984"
+planetmint_server_bind: "0.0.0.0:9984"
 
 # Docker configuration
-bigchaindb_image_name: "bigchaindb/bigchaindb"
-bigchaindb_image_tag: "develop"
-bigchaindb_docker_name: "bigchaindb"
+planetmint_image_name: "planetmint/planetmint"
+planetmint_image_tag: "develop"
+planetmint_docker_name: "planetmint"
 mongodb_docker_name: "mongodb"
 tendermint_docker_name: "tendermint"
-bigchaindb_default_server_port: 9984
-bigchaindb_default_ws_port: 9985
-bigchaindb_tendermint_port: 26657
+planetmint_default_server_port: 9984
+planetmint_default_ws_port: 9985
+planetmint_tendermint_port: 26657
 tendermint_abci_port: 45558
-bigchaindb_docker_net: "bigchaindb_docker_net"
+planetmint_docker_net: "planetmint_docker_net"

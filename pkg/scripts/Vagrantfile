@@ -16,9 +16,9 @@ required_plugins.each do |plugin|
 end
 
 # Configuration files
-CONFIGURATION_FILE = 'bigchaindb/pkg/configuration/vars/stack-config.yml'
-HOSTS_FILE = 'bigchaindb/pkg/configuration/hosts/all'
-HOST_VARS_PATH = 'bigchaindb/pkg/configuration/host_vars'
+CONFIGURATION_FILE = 'planetmint/pkg/configuration/vars/stack-config.yml'
+HOSTS_FILE = 'planetmint/pkg/configuration/hosts/all'
+HOST_VARS_PATH = 'planetmint/pkg/configuration/host_vars'
 
 # Read configuration file(s)
 instances_config = YAML.load_file(File.join(File.dirname(__FILE__), CONFIGURATION_FILE))
@@ -75,7 +75,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
           config.vbguest.no_remote = true
         end
       end
-      node.vm.synced_folder  "bigchaindb", "/opt/stack/bigchaindb" 
+      node.vm.synced_folder  "planetmint", "/opt/stack/planetmint" 
       node.vm.hostname = instance
       node.vm.provision :hosts, :sync_hosts => true
       node.ssh.insert_key = true

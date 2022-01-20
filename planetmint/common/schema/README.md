@@ -20,7 +20,7 @@ The aim is to provide:
 ## Sources
 
 The files defining the JSON Schema for transactions (`transaction_*.yaml`)
-are based on the [Planetmint Transactions Specs](https://github.com/bigchaindb/BEPs/tree/master/tx-specs).
+are based on the [Planetmint Transactions Specs](https://github.com/planetmint/BEPs/tree/master/tx-specs).
 If you want to add a new transaction version,
 you must write a spec for it first.
 (You can't change the JSON Schema files for old versions.
@@ -31,7 +31,7 @@ There used to be a file defining the JSON Schema for votes, named `vote.yaml`.
 It was used by Planetmint version 1.3.0 and earlier.
 If you want a copy of the latest `vote.yaml` file,
 then you can get it from the version 1.3.0 release on GitHub, at
-[https://github.com/bigchaindb/bigchaindb/blob/v1.3.0/bigchaindb/common/schema/vote.yaml](https://github.com/bigchaindb/bigchaindb/blob/v1.3.0/bigchaindb/common/schema/vote.yaml).
+[https://github.com/planetmint/planetmint/blob/v1.3.0/planetmint/common/schema/vote.yaml](https://github.com/planetmint/planetmint/blob/v1.3.0/planetmint/common/schema/vote.yaml).
 
 ## Learn about JSON Schema
 

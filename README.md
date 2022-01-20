@@ -10,12 +10,12 @@ Code is Apache-2.0 and docs are CC-BY-4.0
 so show the latest GitHub release instead.
 --->
 
-[![Codecov branch](https://img.shields.io/codecov/c/github/bigchaindb/bigchaindb/master.svg)](https://codecov.io/github/bigchaindb/bigchaindb?branch=master)
-[![Latest release](https://img.shields.io/github/release/bigchaindb/bigchaindb/all.svg)](https://github.com/bigchaindb/bigchaindb/releases)
-[![Status on PyPI](https://img.shields.io/pypi/status/bigchaindb.svg)](https://pypi.org/project/Planetmint/)
-[![Travis branch](https://img.shields.io/travis/bigchaindb/bigchaindb/master.svg)](https://travis-ci.com/bigchaindb/bigchaindb)
-[![Documentation Status](https://readthedocs.org/projects/bigchaindb-server/badge/?version=latest)](https://docs.bigchaindb.com/projects/server/en/latest/)
-[![Join the chat at https://gitter.im/bigchaindb/bigchaindb](https://badges.gitter.im/bigchaindb/bigchaindb.svg)](https://gitter.im/bigchaindb/bigchaindb?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Codecov branch](https://img.shields.io/codecov/c/github/planetmint/planetmint/master.svg)](https://codecov.io/github/planetmint/planetmint?branch=master)
+[![Latest release](https://img.shields.io/github/release/planetmint/planetmint/all.svg)](https://github.com/planetmint/planetmint/releases)
+[![Status on PyPI](https://img.shields.io/pypi/status/planetmint.svg)](https://pypi.org/project/Planetmint/)
+[![Travis branch](https://img.shields.io/travis/planetmint/planetmint/master.svg)](https://travis-ci.com/planetmint/planetmint)
+[![Documentation Status](https://readthedocs.org/projects/planetmint-server/badge/?version=latest)](https://docs.planetmint.com/projects/server/en/latest/)
+[![Join the chat at https://gitter.im/planetmint/planetmint](https://badges.gitter.im/planetmint/planetmint.svg)](https://gitter.im/planetmint/planetmint?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 # Planetmint Server
 
@@ -23,17 +23,17 @@ Planetmint is the blockchain database. This repository is for _BigchainDB Server
 
 ## The Basics
 
-* [Try the Quickstart](https://docs.bigchaindb.com/projects/server/en/latest/quickstart.html)
-* [Read the Planetmint 2.0 whitepaper](https://www.bigchaindb.com/whitepaper/)
-* [Check out the _Hitchiker's Guide to BigchainDB_](https://www.bigchaindb.com/developers/guide/)
+* [Try the Quickstart](https://docs.planetmint.com/projects/server/en/latest/quickstart.html)
+* [Read the Planetmint 2.0 whitepaper](https://www.planetmint.com/whitepaper/)
+* [Check out the _Hitchiker's Guide to BigchainDB_](https://www.planetmint.com/developers/guide/)
 
 ## Run and Test Planetmint Server from the `master` Branch
 
 Running and testing the latest version of Planetmint Server is easy. Make sure you have a recent version of [Docker Compose](https://docs.docker.com/compose/install/) installed. When you are ready, fire up a terminal and run:
 
 ```text
-git clone https://github.com/bigchaindb/bigchaindb.git
-cd bigchaindb
+git clone https://github.com/planetmint/planetmint.git
+cd planetmint
 make run
 ```
 
@@ -55,23 +55,23 @@ To view all commands available, run `make`.
 
 ## Links for Everyone
 
-* [Planetmint.com](https://www.bigchaindb.com/) - the main Planetmint website, including newsletter signup
-* [Roadmap](https://github.com/bigchaindb/org/blob/master/ROADMAP.md)
-* [Blog](https://medium.com/the-bigchaindb-blog)
+* [Planetmint.com](https://www.planetmint.com/) - the main Planetmint website, including newsletter signup
+* [Roadmap](https://github.com/planetmint/org/blob/master/ROADMAP.md)
+* [Blog](https://medium.com/the-planetmint-blog)
 * [Twitter](https://twitter.com/Planetmint)
 
 ## Links for Developers
 
-* [All Planetmint Documentation](https://docs.bigchaindb.com/en/latest/)
-* [Planetmint Server Documentation](https://docs.bigchaindb.com/projects/server/en/latest/index.html)
+* [All Planetmint Documentation](https://docs.planetmint.com/en/latest/)
+* [Planetmint Server Documentation](https://docs.planetmint.com/projects/server/en/latest/index.html)
 * [CONTRIBUTING.md](.github/CONTRIBUTING.md) - how to contribute
 * [Community guidelines](CODE_OF_CONDUCT.md)
-* [Open issues](https://github.com/bigchaindb/bigchaindb/issues)
-* [Open pull requests](https://github.com/bigchaindb/bigchaindb/pulls)
-* [Gitter chatroom](https://gitter.im/bigchaindb/bigchaindb)
+* [Open issues](https://github.com/planetmint/planetmint/issues)
+* [Open pull requests](https://github.com/planetmint/planetmint/pulls)
+* [Gitter chatroom](https://gitter.im/planetmint/planetmint)
 
 ## Legal
 
 * [Licenses](LICENSES.md) - open source & open content
-* [Imprint](https://www.bigchaindb.com/imprint/)
-* [Contact Us](https://www.bigchaindb.com/contact/)
+* [Imprint](https://www.planetmint.com/imprint/)
+* [Contact Us](https://www.planetmint.com/contact/)

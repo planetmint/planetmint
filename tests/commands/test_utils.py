@@ -13,7 +13,7 @@ from unittest.mock import patch
 
 
 @pytest.fixture
-def reset_bigchaindb_config(monkeypatch):
+def reset_planetmint_config(monkeypatch):
     import planetmint
     monkeypatch.setattr('planetmint.config', planetmint._config)
 
@@ -45,13 +45,13 @@ def test_input_on_stderr():
         assert _convert('ಠ_ಠ', convert=int)
 
 
-@pytest.mark.usefixtures('ignore_local_config_file', 'reset_bigchaindb_config')
-def test_configure_bigchaindb_configures_bigchaindb():
-    from planetmint.commands.utils import configure_bigchaindb
+@pytest.mark.usefixtures('ignore_local_config_file', 'reset_planetmint_config')
+def test_configure_planetmint_configures_planetmint():
+    from planetmint.commands.utils import configure_planetmint
     from planetmint.config_utils import is_configured
     assert not is_configured()
 
-    @configure_bigchaindb
+    @configure_planetmint
     def test_configure(args):
         assert is_configured()
 
@@ -60,7 +60,7 @@ def test_configure_bigchaindb_configures_bigchaindb():
 
 
 @pytest.mark.usefixtures('ignore_local_config_file',
-                         'reset_bigchaindb_config',
+                         'reset_planetmint_config',
                          'reset_logging_config')
 @pytest.mark.parametrize('log_level', tuple(map(
     logging.getLevelName,
@@ -70,16 +70,16 @@ def test_configure_bigchaindb_configures_bigchaindb():
      logging.ERROR,
      logging.CRITICAL)
 )))
-def test_configure_bigchaindb_logging(log_level):
+def test_configure_planetmint_logging(log_level):
     # TODO: See following comment:
     # This is a dirty test. If a test *preceding* this test makes use of the logger, and then another test *after* this
     # test also makes use of the logger, somehow we get logger.disabled == True, and the later test fails. We need to
     # either engineer this somehow to leave the test env in the same state as it finds it, or make an assessment
     # whether or not we even need this test, and potentially just remove it.
 
-    from planetmint.commands.utils import configure_bigchaindb
+    from planetmint.commands.utils import configure_planetmint
 
-    @configure_bigchaindb
+    @configure_planetmint
     def test_configure_logger(args):
         pass
 

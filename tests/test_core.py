@@ -35,10 +35,10 @@ def config(request, monkeypatch):
 
 
 def test_bigchain_class_default_initialization(config):
-    from planetmint import BigchainDB
+    from planetmint import Planetmint
     from planetmint.validation import BaseValidationRules
     from planetmint.backend.connection import Connection
-    bigchain = BigchainDB()
+    bigchain = Planetmint()
     assert isinstance(bigchain.connection, Connection)
     assert bigchain.connection.host == config['database']['host']
     assert bigchain.connection.port == config['database']['port']
@@ -47,7 +47,7 @@ def test_bigchain_class_default_initialization(config):
 
 
 def test_bigchain_class_initialization_with_parameters():
-    from planetmint import BigchainDB
+    from planetmint import Planetmint
     from planetmint.backend import connect
     from planetmint.validation import BaseValidationRules
     init_db_kwargs = {
@@ -57,7 +57,7 @@ def test_bigchain_class_initialization_with_parameters():
         'name': 'this_is_the_db_name',
     }
     connection = connect(**init_db_kwargs)
-    bigchain = BigchainDB(connection=connection)
+    bigchain = Planetmint(connection=connection)
     assert bigchain.connection == connection
     assert bigchain.connection.host == init_db_kwargs['host']
     assert bigchain.connection.port == init_db_kwargs['port']

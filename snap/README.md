@@ -13,7 +13,7 @@ in most Linux distributions. For more information, go to https://snapcraft.io/
 To build and install this snap in Ubuntu 16.04:
 
     $ sudo apt install git snapcraft
-    $ git clone https://github.com/bigchaindb/bigchaindb
-    $ cd bigchaindb
+    $ git clone https://github.com/planetmint/planetmint
+    $ cd planetmint
     $ snapcraft
     $ sudo snap install *.snap --dangerous --devmode

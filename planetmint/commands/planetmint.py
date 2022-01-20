@@ -23,10 +23,10 @@ from planetmint.common.exceptions import (DatabaseDoesNotExist,
 from planetmint.elections.vote import Vote
 import planetmint
 from planetmint import (backend, ValidatorElection,
-                        BigchainDB)
+                        Planetmint)
 from planetmint.backend import schema
 from planetmint.commands import utils
-from planetmint.commands.utils import (configure_bigchaindb,
+from planetmint.commands.utils import (configure_planetmint,
                                        input_on_stderr)
 from planetmint.log import setup_logging
 from planetmint.tendermint_utils import public_key_from_base64
@@ -43,7 +43,7 @@ logger = logging.getLogger(__name__)
 #   should be printed to stderr.
 
 
-@configure_bigchaindb
+@configure_planetmint
 def run_show_config(args):
     """Show the current configuration"""
     # TODO Proposal: remove the "hidden" configuration. Only show config. If
@@ -54,7 +54,7 @@ def run_show_config(args):
     print(json.dumps(config, indent=4, sort_keys=True))
 
 
-@configure_bigchaindb
+@configure_planetmint
 def run_configure(args):
     """Run a script to configure the current node."""
     config_path = args.config or planetmint.config_utils.CONFIG_DEFAULT_PATH
@@ -103,11 +103,11 @@ def run_configure(args):
     print('Ready to go!', file=sys.stderr)
 
 
-@configure_bigchaindb
+@configure_planetmint
 def run_election(args):
     """Initiate and manage elections"""
 
-    b = BigchainDB()
+    b = Planetmint()
 
     # Call the function specified by args.action, as defined above
     globals()[f'run_election_{args.action}'](args, b)
@@ -241,18 +241,18 @@ def run_election_show(args, bigchain):
 
 
 def _run_init():
-    bdb = planetmint.BigchainDB()
+    bdb = planetmint.Planetmint()
 
     schema.init_database(connection=bdb.connection)
 
 
-@configure_bigchaindb
+@configure_planetmint
 def run_init(args):
     """Initialize the database"""
     _run_init()
 
 
-@configure_bigchaindb
+@configure_planetmint
 def run_drop(args):
     """Drop the database"""
     dbname = planetmint.config['database']['name']
@@ -273,7 +273,7 @@ def run_recover(b):
     rollback(b)
 
 
-@configure_bigchaindb
+@configure_planetmint
 def run_start(args):
     """Start the processes to run the node"""
 
@@ -281,7 +281,7 @@ def run_start(args):
     setup_logging()
 
     logger.info('Planetmint Version %s', planetmint.__version__)
-    run_recover(planetmint.lib.BigchainDB())
+    run_recover(planetmint.lib.Planetmint())
 
     if not args.skip_initialize_database:
         logger.info('Initializing database')

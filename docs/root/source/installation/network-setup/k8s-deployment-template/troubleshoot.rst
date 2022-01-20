@@ -31,7 +31,7 @@ container and looking at the syslog (the ``journalctl`` command should usually
 work).
 
 This issue is resolved in
-`PR #1757 <https://github.com/bigchaindb/bigchaindb/pull/1757>`_.
+`PR #1757 <https://github.com/planetmint/planetmint/pull/1757>`_.
 
 2. 502 Bad Gateway Error on Runscope Tests
 ------------------------------------------

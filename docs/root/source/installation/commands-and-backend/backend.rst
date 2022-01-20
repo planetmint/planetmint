@@ -8,46 +8,46 @@
 Database Backend Interfaces
 ###########################
 
-.. automodule:: bigchaindb.backend
+.. automodule:: planetmint.backend
     :special-members: __init__
 
 
 Generic Interfaces
 ==================
 
-:mod:`bigchaindb.backend.connection`
+:mod:`planetmint.backend.connection`
 ------------------------------------
 
-.. automodule:: bigchaindb.backend.connection
+.. automodule:: planetmint.backend.connection
     :special-members: __init__
 
-:mod:`bigchaindb.backend.query`
+:mod:`planetmint.backend.query`
 -------------------------------
-.. automodule:: bigchaindb.backend.query
+.. automodule:: planetmint.backend.query
 
-:mod:`bigchaindb.backend.schema`
+:mod:`planetmint.backend.schema`
 --------------------------------
-.. automodule:: bigchaindb.backend.schema
+.. automodule:: planetmint.backend.schema
 
-:mod:`bigchaindb.backend.utils`
+:mod:`planetmint.backend.utils`
 -------------------------------
-.. automodule:: bigchaindb.backend.utils
+.. automodule:: planetmint.backend.utils
 
 
 MongoDB Backend
 ===============
 
-.. automodule:: bigchaindb.backend.localmongodb
+.. automodule:: planetmint.backend.localmongodb
     :special-members: __init__
 
-:mod:`bigchaindb.backend.localmongodb.connection`
+:mod:`planetmint.backend.localmongodb.connection`
 -------------------------------------------------
-.. automodule:: bigchaindb.backend.localmongodb.connection
+.. automodule:: planetmint.backend.localmongodb.connection
 
-:mod:`bigchaindb.backend.localmongodb.query`
+:mod:`planetmint.backend.localmongodb.query`
 --------------------------------------------
-.. automodule:: bigchaindb.backend.localmongodb.query
+.. automodule:: planetmint.backend.localmongodb.query
 
-:mod:`bigchaindb.backend.localmongodb.schema`
+:mod:`planetmint.backend.localmongodb.schema`
 ---------------------------------------------
-.. automodule:: bigchaindb.backend.localmongodb.schema
+.. automodule:: planetmint.backend.localmongodb.schema

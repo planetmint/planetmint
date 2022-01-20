@@ -19,7 +19,7 @@ class ValidatorElection(Election):
     TX_SCHEMA_CUSTOM = TX_SCHEMA_VALIDATOR_ELECTION
 
     def validate(self, bigchain, current_transactions=[]):
-        """For more details refer BEP-21: https://github.com/bigchaindb/BEPs/tree/master/21
+        """For more details refer BEP-21: https://github.com/planetmint/BEPs/tree/master/21
         """
 
         current_validators = self.get_validators(bigchain)
@@ -63,6 +63,6 @@ class ValidatorElection(Election):
         bigchain.store_validator_set(new_height + 1, updated_validator_set)
         return encode_validator(self.asset['data'])
 
-    def on_rollback(self, bigchaindb, new_height):
+    def on_rollback(self, planetmint, new_height):
         # TODO change to `new_height + 2` when upgrading to Tendermint 0.24.0.
-        bigchaindb.delete_validator_set(new_height + 1)
+        planetmint.delete_validator_set(new_height + 1)

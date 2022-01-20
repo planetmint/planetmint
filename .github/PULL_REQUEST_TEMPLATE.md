@@ -15,4 +15,4 @@ Resolves #MMMM
 
 ## BEPs Implemented
 
-What [BEPs](https://github.com/bigchaindb/beps) does this pull request implement, if any?
+What [BEPs](https://github.com/planetmint/beps) does this pull request implement, if any?

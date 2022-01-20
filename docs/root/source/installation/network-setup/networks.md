@@ -7,7 +7,7 @@ Code is Apache-2.0 and docs are CC-BY-4.0
 
 # Planetmint Networks
 
-A **Planetmint network** is a set of connected **Planetmint nodes**, managed by a **Planetmint consortium** (i.e. an organization). Those terms are defined in the [Planetmint Terminology page](https://docs.bigchaindb.com/en/latest/terminology.html).
+A **Planetmint network** is a set of connected **Planetmint nodes**, managed by a **Planetmint consortium** (i.e. an organization). Those terms are defined in the [Planetmint Terminology page](https://docs.planetmint.com/en/latest/terminology.html).
 
 ## Consortium Structure & Governance
 
@@ -17,7 +17,7 @@ A governance process is required to make those decisions, and therefore one of t
 This documentation doesn't explain how to create a consortium, nor does it outline the possible governance processes.
 
 It's worth noting that the decentralization of a Planetmint network depends,
-to some extent, on the decentralization of the associated consortium. See the pages about [decentralization](https://docs.bigchaindb.com/en/latest/decentralized.html) and [node diversity](https://docs.bigchaindb.com/en/latest/diversity.html).
+to some extent, on the decentralization of the associated consortium. See the pages about [decentralization](https://docs.planetmint.com/en/latest/decentralized.html) and [node diversity](https://docs.planetmint.com/en/latest/diversity.html).
 
 ## DNS Records and SSL Certificates
 

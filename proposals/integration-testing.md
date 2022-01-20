@@ -113,5 +113,5 @@ Planetmint 2.0
 N/A
 
 ## Reference(s)
-* [Fixture for acceptance tests](https://github.com/bigchaindb/bigchaindb/pull/1384)
-* [Test network Deployment: 4 nodes](https://github.com/bigchaindb/bigchaindb/issues/1922)
+* [Fixture for acceptance tests](https://github.com/planetmint/planetmint/pull/1384)
+* [Test network Deployment: 4 nodes](https://github.com/planetmint/planetmint/issues/1922)

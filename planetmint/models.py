@@ -19,7 +19,7 @@ class Transaction(Transaction):
     def validate(self, bigchain, current_transactions=[]):
         """Validate transaction spend
         Args:
-            bigchain (Planetmint): an instantiated bigchaindb.Planetmint object.
+            bigchain (Planetmint): an instantiated planetmint.Planetmint object.
         Returns:
             The transaction (Transaction) if the transaction is valid else it
             raises an exception describing the reason why the transaction is

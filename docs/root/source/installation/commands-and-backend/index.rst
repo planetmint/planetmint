@@ -20,7 +20,7 @@ in the Planetmint Server code, based on Python docstrings in the code itself.
    :maxdepth: 1
 
    commands
-   the-bigchaindb-class
+   the-planetmint-class
    backend
    
    

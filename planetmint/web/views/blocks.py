@@ -5,7 +5,7 @@
 
 """This module provides the blueprint for the blocks API endpoints.
 
-For more information please refer to the documentation: http://bigchaindb.com/http-api
+For more information please refer to the documentation: http://planetmint.com/http-api
 """
 from flask import current_app
 from flask_restful import Resource, reqparse

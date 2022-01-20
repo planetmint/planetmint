@@ -61,10 +61,10 @@ data:
 
   # expected-http-referer is the expected regex expression of the Referer
   # header in the HTTP requests to the proxy.
-  # The default below accepts the referrer value to be *.bigchaindb.com
-  expected-http-referer: "^https://(.*)bigchaindb\\.com/(.*)"
+  # The default below accepts the referrer value to be *.planetmint.com
+  expected-http-referer: "^https://(.*)planetmint\\.com/(.*)"
 
   # expected-http-origin is the expected regex expression of the Origin
   # header in the HTTP requests to the proxy.
-  # The default below accepts the origin value to be *.bigchaindb.com
-  expected-http-origin: "^https://(.*)bigchaindb\\.com"
+  # The default below accepts the origin value to be *.planetmint.com
+  expected-http-origin: "^https://(.*)planetmint\\.com"

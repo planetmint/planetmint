@@ -204,7 +204,7 @@ def unfulfilled_transaction():
         'id': None,
         'inputs': [{
             # XXX This could be None, see #1925
-            # https://github.com/bigchaindb/bigchaindb/issues/1925
+            # https://github.com/planetmint/planetmint/issues/1925
             'fulfillment': {
                 'public_key': 'JEAkEJqLbbgDRAtMm8YAjGp759Aq2qTn9eaEHUj2XePE',
                 'type': 'ed25519-sha-256'

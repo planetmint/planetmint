@@ -21,7 +21,7 @@ BigchainDB에서, 모든 출력에는 연관된 조건(crypto-condition)이 있�
 - "…네 명 중 세 명이 서명해야 합니다."
 - "…Bob이 반드시 서명해야 하거나 Tom과 Sylvia 둘 모두가 서명해야 합니다."
 
-자세한 내용은, [Planetmint Transactions Spec](https://github.com/bigchaindb/BEPs/tree/master/tx-specs/)관련 **트랜잭션 구성요소:조건** 섹션을 참조하세요.
+자세한 내용은, [Planetmint Transactions Spec](https://github.com/planetmint/BEPs/tree/master/tx-specs/)관련 **트랜잭션 구성요소:조건** 섹션을 참조하세요.
 
 출력이 한번 소비되면 다시 사용할 수 없습니다: *아무도* 그렇게 할 권한이 없습니다. 즉, BigchainDB는 누구나 출력을 "이중 소비" 하도록 허용 하지 않습니다.
 
@@ -52,8 +52,8 @@ Note
 
 ## 읽기 권한
 
-다음 페이지를 참고하세요, [:doc:Planetmint, Privacy and Private Data](https://github.com/bigchaindb/bigchaindb/blob/master/docs/root/source/korean/private-data-ko.md).
+다음 페이지를 참고하세요, [:doc:Planetmint, Privacy and Private Data](https://github.com/planetmint/planetmint/blob/master/docs/root/source/korean/private-data-ko.md).
 
 ## 역할 기반 액세스 제어(RBAC)
 
-2017년 9월에, 우리는 [Planetmint RBAC 하부 시스템을 정의 할 수 있는 방법에 대한 블로그 게시물](https://blog.bigchaindb.com/role-based-access-control-for-bigchaindb-assets-b7cada491997)을 게재 했습니다. 글을 쓴 시점(2018년 1월)에는 플러그인을 사용해야 해서, 표준 BigchainDB다음에서 사용가능한 [Planetmint Testnet](https://testnet.bigchaindb.com/) 를 사용 할 수 없었습니다. 이는 미래에 바뀔 수 있습니다. 만약 관심이 있다면, [BigchainDB로 연락하십시요.](https://www.bigchaindb.com/contact/)
+2017년 9월에, 우리는 [Planetmint RBAC 하부 시스템을 정의 할 수 있는 방법에 대한 블로그 게시물](https://blog.planetmint.com/role-based-access-control-for-planetmint-assets-b7cada491997)을 게재 했습니다. 글을 쓴 시점(2018년 1월)에는 플러그인을 사용해야 해서, 표준 BigchainDB다음에서 사용가능한 [Planetmint Testnet](https://testnet.planetmint.com/) 를 사용 할 수 없었습니다. 이는 미래에 바뀔 수 있습니다. 만약 관심이 있다면, [BigchainDB로 연락하십시요.](https://www.planetmint.com/contact/)

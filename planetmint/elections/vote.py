@@ -25,10 +25,10 @@ class Vote(Transaction):
         NOTE: There are no additional validity conditions on casting votes i.e.
         a vote is just a valid TRANFER transaction
 
-        For more details refer BEP-21: https://github.com/bigchaindb/BEPs/tree/master/21
+        For more details refer BEP-21: https://github.com/planetmint/BEPs/tree/master/21
 
         Args:
-            bigchain (Planetmint): an instantiated bigchaindb.lib.BigchainDB object.
+            bigchain (Planetmint): an instantiated planetmint.lib.Planetmint object.
 
         Returns:
             Vote: a Vote object

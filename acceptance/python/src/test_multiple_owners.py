@@ -17,7 +17,7 @@
 # of a given transaction.
 #
 # This integration test is a rip-off of our
-# [tutorial](https://docs.bigchaindb.com/projects/py-driver/en/latest/usage.html).
+# [tutorial](https://docs.planetmint.com/projects/py-driver/en/latest/usage.html).
 
 # ## Imports
 # We need some utils from the `os` package, we will interact with
@@ -25,7 +25,7 @@
 import os
 
 # For this test case we import and use the Python Driver.
-from bigchaindb_driver import BigchainDB
+from bigchaindb_driver import Planetmint
 from bigchaindb_driver.crypto import generate_keypair
 
 
@@ -33,7 +33,7 @@ def test_multiple_owners():
     # ## Set up a connection to Planetmint
     # Check [test_basic.py](./test_basic.html) to get some more details
     # about the endpoint.
-    bdb = BigchainDB(os.environ.get('PLANETMINT_ENDPOINT'))
+    bdb = Planetmint(os.environ.get('PLANETMINT_ENDPOINT'))
 
     # Hey Alice and Bob, nice to see you again!
     alice, bob = generate_keypair(), generate_keypair()

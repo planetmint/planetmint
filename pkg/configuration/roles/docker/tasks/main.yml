@@ -58,21 +58,21 @@
   tags: [docker]
 
 - name: Check if Planetmint Docker network exists
-  shell: docker inspect "{{ bigchaindb_docker_net }}"
+  shell: docker inspect "{{ planetmint_docker_net }}"
   register: network_ls
   ignore_errors: True
   tags: [docker]
 
 
 - name: Create Planetmint Docker network
-  shell: docker network create "{{ bigchaindb_docker_net }}" --attachable
+  shell: docker network create "{{ planetmint_docker_net }}" --attachable
   register: docker_net_create
   when: (stack_type|lower == "docker" or stack_type == "cloud") and network_ls.rc != 0 and action|lower == 'start'
   failed_when: "'FAILED' in docker_net_create.stderr or docker_net_create.rc != 0"
   tags: [docker]
 
 - name: Delete Planetmint Docker network
-  shell: docker network rm "{{ bigchaindb_docker_net }}"
+  shell: docker network rm "{{ planetmint_docker_net }}"
   register: docker_net_delete
   failed_when: "'FAILED' in docker_net_delete.stderr or docker_net_delete.rc != 0"
   when: (stack_type|lower == "docker" or stack_type == "cloud") and network_ls.rc != 0 and action|lower == 'stop'

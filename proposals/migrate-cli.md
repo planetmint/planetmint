@@ -17,30 +17,30 @@ With Tendermint integration some of the cli sub-commands have been rendered obso
 ## Proposed Change
 Following sub-commands should be updated/removed:
 
-- `bigchaindb --help`: list the relevant sub-commands for `localmongodb` backend.
+- `planetmint --help`: list the relevant sub-commands for `localmongodb` backend.
 `mongodb` and `rethinkdb` will be deprecated.
 In case the backend is not configured then the default backend `localmongodb` should be assumed.
 
 Following sub-commands should be deprecated for `localmongodb` backend.
 
-- `bigchaindb export-my-pubkey`
+- `planetmint export-my-pubkey`
   - A Planetmint node still has a public key but that is not Planetmint concern. It is handled by Tendermint.
-- `bigchaindb set-shards`
+- `planetmint set-shards`
   - This was only required for `rethinkdb`.
-- `bigchaindb set-replicas`
+- `planetmint set-replicas`
   - This was only required for `rethinkdb`.
-- `bigchaindb add-replicas`
+- `planetmint add-replicas`
   - This was only required for `mongodb` backend to add nodes to the MongoDB Replica Set, which is not required anymore,
     because we are using standalone MongoDB instances i.e. `localmongodb`.
-- `bigchaindb remove-replicas`
+- `planetmint remove-replicas`
   - This was only required for backend to remove nodes from the MongoDB Replica Set, which is not required anymore.
 
 ### Usage example
-**bigchaindb**
+**planetmint**
 
 ```
-$ bigchaindb --help
-usage: bigchaindb [-h] [-c CONFIG] [-l {DEBUG,INFO,WARNING,ERROR,CRITICAL}]
+$ planetmint --help
+usage: planetmint [-h] [-c CONFIG] [-l {DEBUG,INFO,WARNING,ERROR,CRITICAL}]
                   [-y] [-v]
                   {configure,show-config,init,drop,start}
                   ...
@@ -68,11 +68,11 @@ Commands:
     start               Start Planetmint
 ```
 
-**bigchaindb configure**
+**planetmint configure**
 
 ```
-$ bigchaindb configure --help
-usage: bigchaindb configure [-h] {localmongodb}
+$ planetmint configure --help
+usage: planetmint configure [-h] {localmongodb}
 
 positional arguments:
   {localmongodb}  The backend to use. It can be only be `localmongodb`.
@@ -81,41 +81,41 @@ optional arguments:
   -h, --help           show this help message and exit
 ```
 
-**bigchaindb show-config**
+**planetmint show-config**
 
 ```
-$ bigchaindb show-config --help
-usage: bigchaindb show-config [-h]
+$ planetmint show-config --help
+usage: planetmint show-config [-h]
 
 optional arguments:
   -h, --help  show this help message and exit
 ```
 
-**bigchaindb init**
+**planetmint init**
 
 ```
-$ bigchaindb init --help
-usage: bigchaindb init [-h]
+$ planetmint init --help
+usage: planetmint init [-h]
 
 optional arguments:
   -h, --help  show this help message and exit
 ```
 
-**bigchaindb drop**
+**planetmint drop**
 
 ```
-$ bigchaindb drop --help
-usage: bigchaindb drop [-h]
+$ planetmint drop --help
+usage: planetmint drop [-h]
 
 optional arguments:
   -h, --help  show this help message and exit
 ```
 
-**bigchaindb start**
+**planetmint start**
 
 ```
-$ bigchaindb start --help
-usage: bigchaindb start [-h]
+$ planetmint start --help
+usage: planetmint start [-h]
 optional arguments:
   -h, --help            show this help message and exit
 ```
@@ -146,7 +146,7 @@ Document the commands and sub-commands along with usage.
 Following test cases should be added
 - Set a backend other than `localmongodb` and see of it results in a valid unsupported
   result.
-- Set `localmongodb` as backend and execute `bigchaindb --help` and validate that only the above
+- Set `localmongodb` as backend and execute `planetmint --help` and validate that only the above
   mentioned sub-commands are displayed.
 
 
@@ -166,4 +166,4 @@ N/A
 
 
 ## Reference(s)
-* [Bigchaindb CLI](https://docs.bigchaindb.com/projects/server/en/latest/server-reference/bigchaindb-cli.html)
+* [Bigchaindb CLI](https://docs.planetmint.com/projects/server/en/latest/server-reference/planetmint-cli.html)

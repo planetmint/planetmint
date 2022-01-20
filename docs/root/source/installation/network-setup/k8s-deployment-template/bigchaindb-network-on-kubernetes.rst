@@ -4,7 +4,7 @@
    SPDX-License-Identifier: (Apache-2.0 AND CC-BY-4.0)
    Code is Apache-2.0 and docs are CC-BY-4.0
 
-.. _kubernetes-template-deploy-bigchaindb-network:
+.. _kubernetes-template-deploy-planetmint-network:
 
 Kubernetes Template: Deploying a Planetmint network
 ===================================================
@@ -44,9 +44,9 @@ to form a network.
 
 
 Below, we refer to multiple files by their directory and filename,
-such as ``bigchaindb/bigchaindb-ext-conn-svc.yaml``. Those files are located in the
-`bigchaindb/bigchaindb repository on GitHub
-<https://github.com/bigchaindb/bigchaindb/>`_ in the ``k8s/`` directory.
+such as ``planetmint/planetmint-ext-conn-svc.yaml``. Those files are located in the
+`planetmint/planetmint repository on GitHub
+<https://github.com/planetmint/planetmint/>`_ in the ``k8s/`` directory.
 Make sure you're getting those files from the appropriate Git branch on
 GitHub, i.e. the branch for the version of Planetmint that your Planetmint
 cluster is using.
@@ -62,7 +62,7 @@ cluster is using.
   Once a Planetmint network is started with a certain number of validators
   and a genesis file. Users cannot add new validator nodes dynamically.
   You can track the progress of this funtionality on our
-  `github repository <https://github.com/bigchaindb/bigchaindb/milestones>`_.
+  `github repository <https://github.com/planetmint/planetmint/milestones>`_.
 
 
 .. _pre-reqs-bdb-network:
@@ -229,7 +229,7 @@ the :doc:`deployment steps for each node <node-on-kubernetes>` N number of times
 the number of participants in the network.
 
 In our Kubernetes deployment template for a single Planetmint node, we covered the basic configurations
-settings :ref:`here <how-to-configure-a-bigchaindb-node>`.
+settings :ref:`here <how-to-configure-a-planetmint-node>`.
 
 Since, we index the ConfigMap and Secret Keys for the single site deployment, we need to update
 all the Kubernetes components to reflect the corresponding changes i.e. For each Kubernetes Service,
@@ -267,7 +267,7 @@ the ``mongo-node-1-ss.yaml`` and update the corresponding ConfigMapKeyRef.name o
         terminationGracePeriodSeconds: 10
         containers:
         - name: mongodb
-          image: bigchaindb/mongodb:3.2
+          image: planetmint/mongodb:3.2
           imagePullPolicy: IfNotPresent
           env:
           - name: MONGODB_FQDN
@@ -366,13 +366,13 @@ The above example is meant to be repeated for all the Kubernetes components of a
 
 * ``mongodb/mongodb-node-X-ss.yaml``
 
-* ``bigchaindb/bigchaindb-node-X-svc.yaml``
+* ``planetmint/planetmint-node-X-svc.yaml``
 
-* ``bigchaindb/bigchaindb-node-X-sc.yaml``
+* ``planetmint/planetmint-node-X-sc.yaml``
 
-* ``bigchaindb/bigchaindb-node-X-pvc.yaml``
+* ``planetmint/planetmint-node-X-pvc.yaml``
 
-* ``bigchaindb/bigchaindb-node-X-ss.yaml``
+* ``planetmint/planetmint-node-X-ss.yaml``
 
 * ``nginx-openresty/nginx-openresty-node-X-svc.yaml``
 
@@ -408,7 +408,7 @@ described :ref:`above <pre-reqs-bdb-network>`:
 
 * :ref:`Start the MongoDB Kubernetes Service <start-the-mongodb-kubernetes-service>`.
 
-* :ref:`Start the Planetmint Kubernetes Service <start-the-bigchaindb-kubernetes-service>`.
+* :ref:`Start the Planetmint Kubernetes Service <start-the-planetmint-kubernetes-service>`.
 
 * :ref:`Start the OpenResty Kubernetes Service <start-the-openresty-kubernetes-service>`.
 
@@ -421,22 +421,22 @@ to talk to each other i.e. specifically the communication between the
 Planetmint peers. Set up networking between the clusters using
 `Kubernetes Services <https://kubernetes.io/docs/concepts/services-networking/service/>`_.
 
-Assuming we have a Planetmint instance ``bigchaindb-instance-1`` residing in Azure data center location ``westeurope`` and we
-want to connect to ``bigchaindb-instance-2``, ``bigchaindb-instance-3``, and ``bigchaindb-instance-4`` located in Azure data centers
+Assuming we have a Planetmint instance ``planetmint-instance-1`` residing in Azure data center location ``westeurope`` and we
+want to connect to ``planetmint-instance-2``, ``planetmint-instance-3``, and ``planetmint-instance-4`` located in Azure data centers
 ``eastus``, ``centralus`` and ``westus``, respectively. Unless you already have explicitly set up networking for
-``bigchaindb-instance-1`` to communicate with ``bigchaindb-instance-2/3/4`` and
+``planetmint-instance-1`` to communicate with ``planetmint-instance-2/3/4`` and
 vice versa, we will have to add a Kubernetes Service in each cluster to accomplish this goal in order to set up a
 Planetmint P2P network.
 It is similar to ensuring that there is a ``CNAME`` record in the DNS
-infrastructure to resolve ``bigchaindb-instance-X`` to the host where it is actually available.
+infrastructure to resolve ``planetmint-instance-X`` to the host where it is actually available.
 We can do this in Kubernetes using a Kubernetes Service of ``type``
 ``ExternalName``.
 
-* This configuration is located in the file ``bigchaindb/bigchaindb-ext-conn-svc.yaml``.
+* This configuration is located in the file ``planetmint/planetmint-ext-conn-svc.yaml``.
 
 * Set the name of the ``metadata.name`` to the host name of the Planetmint instance you are trying to connect to.
-  For instance if you are configuring this service on cluster with ``bigchaindb-instance-1`` then the ``metadata.name`` will
-  be ``bigchaindb-instance-2`` and vice versa.
+  For instance if you are configuring this service on cluster with ``planetmint-instance-1`` then the ``metadata.name`` will
+  be ``planetmint-instance-2`` and vice versa.
 
 * Set ``spec.ports.port[0]`` to the ``tm-p2p-port`` from the ConfigMap for the other cluster.
 
@@ -452,7 +452,7 @@ We can do this in Kubernetes using a Kubernetes Service of ``type``
 
    If you are not the system administrator of the cluster, you have to get in
    touch with the system administrator/s of the other ``n-1`` clusters and
-   share with them your instance name (``bigchaindb-instance-name`` in the ConfigMap)
+   share with them your instance name (``planetmint-instance-name`` in the ConfigMap)
    and the FQDN of the NGINX instance acting as Gateway(set in: :ref:`Assign DNS name to NGINX
    Public IP <assign-dns-name-to-nginx-public-ip>`).
 

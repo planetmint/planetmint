@@ -1,5 +1,5 @@
-# DNS name of the bigchaindb node
-NODE_FQDN="test.bigchaindb.com"
+# DNS name of the planetmint node
+NODE_FQDN="test.planetmint.com"
 
 # NODE_FRONTEND_PORT is the port number on which this node's services
 # are available to external clients. Default is 443(https)
@@ -9,7 +9,7 @@ NODE_FRONTEND_PORT="443"
 AUTH_MODE="secret-token"
 
 # Secret token used for authorization of
-# POST requests to the bigchaindb node
+# POST requests to the planetmint node
 # Only required when AUTH_MODE=secret-token
 SECRET_TOKEN="test-secret"
 

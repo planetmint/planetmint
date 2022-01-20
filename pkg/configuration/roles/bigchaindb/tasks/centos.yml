@@ -10,7 +10,7 @@
     state: directory
     mode: 0700
   with_items: "{{ directories }}"
-  tags: [bigchaindb]
+  tags: [planetmint]
 
 - name: Install dependencies | yum
   yum:
@@ -18,7 +18,7 @@
     state: present
     update_cache: yes
   with_items: "{{ dependencies_yum }}"
-  tags: [bigchaindb]
+  tags: [planetmint]
 
 - name: Install pip
   shell: "easy_install-3.5 pip"

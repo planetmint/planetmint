@@ -102,7 +102,7 @@ class Election(Transaction):
           allocated according to the voting power of each validator node.
 
         Args:
-            :param bigchain: (Planetmint) an instantiated bigchaindb.lib.BigchainDB object.
+            :param bigchain: (Planetmint) an instantiated planetmint.lib.Planetmint object.
             :param current_transactions: (list) A list of transactions to be validated along with the election
 
         Returns:

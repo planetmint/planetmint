@@ -47,7 +47,7 @@
 - name: Tendermint Process Check
   shell: pgrep tendermint | wc -l
   register: tm_pchk
-  tags: [bigchaindb]
+  tags: [planetmint]
 
 - name: Run tendermint
   shell: nohup /bin/bash /home/vagrant/test.sh > /tmp/tendermint_log_$(date +%Y%m%d_%H%M%S) 2>&1 &

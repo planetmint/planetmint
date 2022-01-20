@@ -17,7 +17,7 @@ spec:
       terminationGracePeriodSeconds: 10
       containers:
       - name: nginx
-        image: bigchaindb/nginx_https:2.2.2
+        image: planetmint/nginx_https:2.2.2
         imagePullPolicy: Always
         env:
         - name: NODE_FRONTEND_PORT
@@ -69,12 +69,12 @@ spec:
           valueFrom:
             configMapKeyRef:
               name: vars
-              key: bigchaindb-api-port
+              key: planetmint-api-port
         - name: PLANETMINT_WS_PORT
           valueFrom:
             configMapKeyRef:
               name: vars
-              key: bigchaindb-ws-port
+              key: planetmint-ws-port
         - name: TM_PUB_KEY_ACCESS_PORT
           valueFrom:
             configMapKeyRef:

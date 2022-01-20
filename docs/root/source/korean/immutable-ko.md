@@ -24,4 +24,4 @@ Code is Apache-2.0 and docs are CC-BY-4.0
 1. **암호화폐의 표식**은 종종 메시지(예: 트랜잭션)가 도중에 손상되었는지 확인하고 메시지에 서명한 사용자를 확인하는 방법으로 사용됩니다. BigchainDB에서는 각 트랜잭션에 한 명 이상의 당사자가 서명해야 합니다
 1. **전체 또는 부분적 백업**은 때때로 자기 테이프 저장소, 기타 블록체인, 인쇄물 등에 기록될 수 있습니다.
 1. **강력한 보안** 노드 소유자는 강력한 보안 정책을 채택하고 적용할 수 있습니다.
-1. **노드 다양성.** 다양성으로 인해서 한 가지 요소(예: 자연 재해 또는 운영 체제 버그)가 상당 수의 노드를 손상시킬 수 없도록 합니다. [노드 다양성의 종류에 대한 섹션](https://github.com/bigchaindb/bigchaindb/blob/master/docs/root/source/korean/diversity-ko.md)을 참조하세요.
+1. **노드 다양성.** 다양성으로 인해서 한 가지 요소(예: 자연 재해 또는 운영 체제 버그)가 상당 수의 노드를 손상시킬 수 없도록 합니다. [노드 다양성의 종류에 대한 섹션](https://github.com/planetmint/planetmint/blob/master/docs/root/source/korean/diversity-ko.md)을 참조하세요.

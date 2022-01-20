@@ -13,13 +13,13 @@ class BaseValidationRules():
     """
 
     @staticmethod
-    def validate_transaction(bigchaindb, transaction):
-        """See :meth:`bigchaindb.models.Transaction.validate`
+    def validate_transaction(planetmint, transaction):
+        """See :meth:`planetmint.models.Transaction.validate`
         for documentation.
         """
-        return transaction.validate(bigchaindb)
+        return transaction.validate(planetmint)
 
     @staticmethod
-    def validate_block(bigchaindb, block):
-        """See :meth:`bigchaindb.models.Block.validate` for documentation."""
-        return block.validate(bigchaindb)
+    def validate_block(planetmint, block):
+        """See :meth:`planetmint.models.Block.validate` for documentation."""
+        return block.validate(planetmint)

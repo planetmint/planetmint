@@ -27,4 +27,4 @@ ENV PLANETMINT_WSSERVER_ADVERTISED_SCHEME ws
 
 ENV PLANETMINT_TENDERMINT_PORT 26657
 ARG backend
-RUN bigchaindb -y configure "$backend"
+RUN planetmint -y configure "$backend"

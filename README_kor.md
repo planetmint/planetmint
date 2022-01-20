@@ -1,9 +1,9 @@
-[![Codecov branch](https://img.shields.io/codecov/c/github/bigchaindb/bigchaindb/master.svg)](https://codecov.io/github/bigchaindb/bigchaindb?branch=master)
-[![Latest release](https://img.shields.io/github/release/bigchaindb/bigchaindb/all.svg)](https://github.com/bigchaindb/bigchaindb/releases)
-[![Status on PyPI](https://img.shields.io/pypi/status/bigchaindb.svg)](https://pypi.org/project/Planetmint/)
-[![Travis branch](https://img.shields.io/travis/bigchaindb/bigchaindb/master.svg)](https://travis-ci.org/bigchaindb/bigchaindb)
-[![Documentation Status](https://readthedocs.org/projects/bigchaindb-server/badge/?version=latest)](https://docs.bigchaindb.com/projects/server/en/latest/)
-[![Join the chat at https://gitter.im/bigchaindb/bigchaindb](https://badges.gitter.im/bigchaindb/bigchaindb.svg)](https://gitter.im/bigchaindb/bigchaindb?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Codecov branch](https://img.shields.io/codecov/c/github/planetmint/planetmint/master.svg)](https://codecov.io/github/planetmint/planetmint?branch=master)
+[![Latest release](https://img.shields.io/github/release/planetmint/planetmint/all.svg)](https://github.com/planetmint/planetmint/releases)
+[![Status on PyPI](https://img.shields.io/pypi/status/planetmint.svg)](https://pypi.org/project/Planetmint/)
+[![Travis branch](https://img.shields.io/travis/planetmint/planetmint/master.svg)](https://travis-ci.org/planetmint/planetmint)
+[![Documentation Status](https://readthedocs.org/projects/planetmint-server/badge/?version=latest)](https://docs.planetmint.com/projects/server/en/latest/)
+[![Join the chat at https://gitter.im/planetmint/planetmint](https://badges.gitter.im/planetmint/planetmint.svg)](https://gitter.im/planetmint/planetmint?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 # Planetmint 서버
 
@@ -11,17 +11,17 @@ BigchaingDB는 블록체인 데이터베이스입니다. 이 저장소는 _Bigch
 
 ### 기본 사항
 
-* [빠른 시작 사용해보기](https://docs.bigchaindb.com/projects/server/en/latest/quickstart.html)
-* [Planetmint 2.0 백서 읽기](https://www.bigchaindb.com/whitepaper/)
-* [BigchainDB에 대한 _Hitchiker's Guide_를 확인십시오.](https://www.bigchaindb.com/developers/guide/)
+* [빠른 시작 사용해보기](https://docs.planetmint.com/projects/server/en/latest/quickstart.html)
+* [Planetmint 2.0 백서 읽기](https://www.planetmint.com/whitepaper/)
+* [BigchainDB에 대한 _Hitchiker's Guide_를 확인십시오.](https://www.planetmint.com/developers/guide/)
 
 ### `master` Branch에서 Planetmint 서버 실행 및 테스트
 
 BigchaingDB 서버의 최신 버전을 실행하고 테스트하는 것은 어렵지 않습니다. [Docker Compose](https://docs.docker.com/compose/install/)의 최신 버전이 설치되어 있는지 확인하십시오. 준비가 되었다면,  터미널에서 다음을 실행하십시오.
 
 ```text
-git clone https://github.com/bigchaindb/bigchaindb.git
-cd bigchaindb
+git clone https://github.com/planetmint/planetmint.git
+cd planetmint
 make run
 ```
 
@@ -43,23 +43,23 @@ make run
 
 ### 모두를 위한 링크들
 
-* [Planetmint.com ](https://www.bigchaindb.com/)- 뉴스 레터 가입을 포함하는 Planetmint 주요 웹 사이트
-* [로드맵](https://github.com/bigchaindb/org/blob/master/ROADMAP.md)
-* [블로그](https://medium.com/the-bigchaindb-blog)
+* [Planetmint.com ](https://www.planetmint.com/)- 뉴스 레터 가입을 포함하는 Planetmint 주요 웹 사이트
+* [로드맵](https://github.com/planetmint/org/blob/master/ROADMAP.md)
+* [블로그](https://medium.com/the-planetmint-blog)
 * [트위터](https://twitter.com/Planetmint)
 
 ### 개발자들을 위한 링크들
 
-* [모든 Planetmint 문서](https://docs.bigchaindb.com/en/latest/)
-* [Planetmint 서버 문서](https://docs.bigchaindb.com/projects/server/en/latest/index.html)
-* [CONTRIBUTING.md](https://github.com/bigchaindb/bigchaindb/blob/master/.github/CONTRIBUTING.md) - 기여를 하는 방법
-* [커뮤니티 가이드라인](https://github.com/bigchaindb/bigchaindb/blob/master/CODE_OF_CONDUCT.md)
-* [이슈 작성](https://github.com/bigchaindb/bigchaindb/issues)
-* [pull request 하기](https://github.com/bigchaindb/bigchaindb/pulls)
-* [Gitter 채팅방](https://gitter.im/bigchaindb/bigchaindb)
+* [모든 Planetmint 문서](https://docs.planetmint.com/en/latest/)
+* [Planetmint 서버 문서](https://docs.planetmint.com/projects/server/en/latest/index.html)
+* [CONTRIBUTING.md](https://github.com/planetmint/planetmint/blob/master/.github/CONTRIBUTING.md) - 기여를 하는 방법
+* [커뮤니티 가이드라인](https://github.com/planetmint/planetmint/blob/master/CODE_OF_CONDUCT.md)
+* [이슈 작성](https://github.com/planetmint/planetmint/issues)
+* [pull request 하기](https://github.com/planetmint/planetmint/pulls)
+* [Gitter 채팅방](https://gitter.im/planetmint/planetmint)
 
 ### 합법
 
-* [라이선스](https://github.com/bigchaindb/bigchaindb/blob/master/LICENSES.md) - 오픈 소스 & 오픈 콘텐츠
-* [발행](https://www.bigchaindb.com/imprint/)
-* [연락처](https://www.bigchaindb.com/contact/)
+* [라이선스](https://github.com/planetmint/planetmint/blob/master/LICENSES.md) - 오픈 소스 & 오픈 콘텐츠
+* [발행](https://www.planetmint.com/imprint/)
+* [연락처](https://www.planetmint.com/contact/)

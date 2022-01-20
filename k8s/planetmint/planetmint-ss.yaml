@@ -40,12 +40,12 @@ spec:
           secretName: ca-auth
           defaultMode: 0400
       containers:
-      # Treating bigchaindb+ nginx + tendermint as a POD because they should not
+      # Treating planetmint+ nginx + tendermint as a POD because they should not
       # exist without each other
       # Nginx container for hosting public key of this ndoe
       - name: nginx
         imagePullPolicy: Always
-        image: bigchaindb/nginx_pub_key_access:2.2.2
+        image: planetmint/nginx_pub_key_access:2.2.2
         env:
         - name: TM_PUB_KEY_ACCESS_PORT
           valueFrom:
@@ -62,7 +62,7 @@ spec:
       #Tendermint container
       - name: tendermint
         imagePullPolicy: Always
-        image: bigchaindb/tendermint:2.2.2
+        image: planetmint/tendermint:2.2.2
         env:
         - name: TM_PERSISTENT_PEERS
           valueFrom:
@@ -158,8 +158,8 @@ spec:
           failureThreshold: 3
           timeoutSeconds: 15
       # Planetmint container
-      - name: bigchaindb
-        image: bigchaindb/bigchaindb:2.2.2
+      - name: planetmint
+        image: planetmint/planetmint:2.2.2
         imagePullPolicy: Always
         args:
         - start
@@ -180,17 +180,17 @@ spec:
           valueFrom:
             configMapKeyRef:
               name: vars
-              key: bigchaindb-database-name
+              key: planetmint-database-name
         - name: PLANETMINT_SERVER_BIND
           valueFrom:
             configMapKeyRef:
               name: vars
-              key: bigchaindb-server-bind
+              key: planetmint-server-bind
         - name: PLANETMINT_WSSERVER_HOST
           valueFrom:
             configMapKeyRef:
               name: vars
-              key: bigchaindb-ws-interface
+              key: planetmint-ws-interface
         - name: PLANETMINT_WSSERVER_ADVERTISED_HOST
           valueFrom:
             configMapKeyRef:
@@ -200,7 +200,7 @@ spec:
           valueFrom:
             configMapKeyRef:
               name: vars
-              key: bigchaindb-ws-port
+              key: planetmint-ws-port
         - name: PLANETMINT_WSSERVER_ADVERTISED_PORT
           valueFrom:
             configMapKeyRef:
@@ -210,32 +210,32 @@ spec:
           valueFrom:
             configMapKeyRef:
               name: vars
-              key: bigchaindb-wsserver-advertised-scheme
+              key: planetmint-wsserver-advertised-scheme
         - name: PLANETMINT_DATABASE_MAXTRIES
           valueFrom:
             configMapKeyRef:
               name: bdb-config
-              key: bigchaindb-database-maxtries
+              key: planetmint-database-maxtries
         - name: PLANETMINT_DATABASE_CONNECTION_TIMEOUT
           valueFrom:
             configMapKeyRef:
               name: bdb-config
-              key: bigchaindb-database-connection-timeout
+              key: planetmint-database-connection-timeout
         - name: PLANETMINT_LOG_LEVEL_CONSOLE
           valueFrom:
             configMapKeyRef:
               name: bdb-config
-              key: bigchaindb-log-level
+              key: planetmint-log-level
         - name: PLANETMINT_DATABASE_SSL
           value: "true"
         - name: PLANETMINT_DATABASE_CA_CERT
-          value: /etc/bigchaindb/ca/ca.pem
+          value: /etc/planetmint/ca/ca.pem
         - name: PLANETMINT_DATABASE_CRLFILE
-          value: /etc/bigchaindb/ca/crl.pem
+          value: /etc/planetmint/ca/crl.pem
         - name: PLANETMINT_DATABASE_CERTFILE
-          value: /etc/bigchaindb/ssl/bdb-instance.pem
+          value: /etc/planetmint/ssl/bdb-instance.pem
         - name: PLANETMINT_DATABASE_KEYFILE
-          value: /etc/bigchaindb/ssl/bdb-instance.key
+          value: /etc/planetmint/ssl/bdb-instance.key
         - name: PLANETMINT_DATABASE_LOGIN
           valueFrom:
             configMapKeyRef:
@@ -263,7 +263,7 @@ spec:
             ERR=$?
             echo "Waiting for Tendermint instance."
           done
-          bigchaindb -l DEBUG start
+          planetmint -l DEBUG start
         ports:
         - containerPort: 9984
           protocol: TCP
@@ -276,10 +276,10 @@ spec:
           name: bdb-abci-port
         volumeMounts:
         - name: bdb-certs
-          mountPath: /etc/bigchaindb/ssl/
+          mountPath: /etc/planetmint/ssl/
           readOnly: true
         - name: ca-auth
-          mountPath: /etc/bigchaindb/ca/
+          mountPath: /etc/planetmint/ca/
           readOnly: true
         resources:
           limits:

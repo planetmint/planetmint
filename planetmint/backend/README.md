@@ -27,17 +27,17 @@ generic functions based on certain conditions being met (e.g. the database backe
 To see what this looks like in Planetmint, first note that our backend interfaces have been
 configured to dispatch based on a backend's **connection type**.
 
-Call `bigchaindb.backend.connect()` to create an instance of a `Connection`:
+Call `planetmint.backend.connect()` to create an instance of a `Connection`:
 
 ```python
-from bigchaindb.backend import connect
+from planetmint.backend import connect
 connection = connect()  # By default, uses the current configuration for backend, host, port, etc.
 ```
 
 Then, we can call a backend function by directly calling its interface:
 
 ```python
-from bigchaindb.backend import query
+from planetmint.backend import query
 query.write_transaction(connection, ...)
 ```
 
@@ -46,6 +46,6 @@ Code can simply call the base interface function with a `Connection` instance, a
 will handle routing the call to the actual implementation.
 
 Planetmint will load and register the configured backend's implementation automatically (see
-`bigchaindb.backend.connect()`), so you should always just be able to call an interface function if
+`planetmint.backend.connect()`), so you should always just be able to call an interface function if
 you have a `Connection` instance. A few helper utilities (see [`backend/utils.py`](./utils.py)) are
 also provided to make registering new backend implementations easier.

@@ -87,7 +87,7 @@ def test_bigchain_show_config(capsys):
 def test__run_init(mocker):
     from planetmint.commands.planetmint import _run_init
     bigchain_mock = mocker.patch(
-        'planetmint.commands.planetmint.planetmint.BigchainDB')
+        'planetmint.commands.planetmint.planetmint.Planetmint')
     init_db_mock = mocker.patch(
         'planetmint.commands.planetmint.schema.init_database',
         autospec=True,
@@ -150,7 +150,7 @@ def test_drop_db_does_not_drop_when_interactive_no(mock_db_drop, monkeypatch):
 def test_run_configure_when_config_does_not_exist(monkeypatch,
                                                   mock_write_config,
                                                   mock_generate_key_pair,
-                                                  mock_bigchaindb_backup_config):
+                                                  mock_planetmint_backup_config):
     from planetmint.commands.planetmint import run_configure
     monkeypatch.setattr('os.path.exists', lambda path: False)
     monkeypatch.setattr('builtins.input', lambda: '\n')
@@ -162,7 +162,7 @@ def test_run_configure_when_config_does_not_exist(monkeypatch,
 def test_run_configure_when_config_does_exist(monkeypatch,
                                               mock_write_config,
                                               mock_generate_key_pair,
-                                              mock_bigchaindb_backup_config):
+                                              mock_planetmint_backup_config):
     value = {}
 
     def mock_write_config(newconfig):

@@ -10,12 +10,12 @@ Code is Apache-2.0 and docs are CC-BY-4.0
 so show the latest GitHub release instead.
 --->
 
-[![Codecov branch](https://img.shields.io/codecov/c/github/bigchaindb/bigchaindb/master.svg)](https://codecov.io/github/bigchaindb/bigchaindb?branch=master)
-[![Latest release](https://img.shields.io/github/release/bigchaindb/bigchaindb/all.svg)](https://github.com/bigchaindb/bigchaindb/releases)
-[![Status on PyPI](https://img.shields.io/pypi/status/bigchaindb.svg)](https://pypi.org/project/Planetmint/)
-[![Travis branch](https://img.shields.io/travis/bigchaindb/bigchaindb/master.svg)](https://travis-ci.com/bigchaindb/bigchaindb)
-[![Documentation Status](https://readthedocs.org/projects/bigchaindb-server/badge/?version=latest)](https://docs.bigchaindb.com/projects/server/en/latest/)
-[![Join the chat at https://gitter.im/bigchaindb/bigchaindb](https://badges.gitter.im/bigchaindb/bigchaindb.svg)](https://gitter.im/bigchaindb/bigchaindb?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Codecov branch](https://img.shields.io/codecov/c/github/planetmint/planetmint/master.svg)](https://codecov.io/github/planetmint/planetmint?branch=master)
+[![Latest release](https://img.shields.io/github/release/planetmint/planetmint/all.svg)](https://github.com/planetmint/planetmint/releases)
+[![Status on PyPI](https://img.shields.io/pypi/status/planetmint.svg)](https://pypi.org/project/Planetmint/)
+[![Travis branch](https://img.shields.io/travis/planetmint/planetmint/master.svg)](https://travis-ci.com/planetmint/planetmint)
+[![Documentation Status](https://readthedocs.org/projects/planetmint-server/badge/?version=latest)](https://docs.planetmint.com/projects/server/en/latest/)
+[![Join the chat at https://gitter.im/planetmint/planetmint](https://badges.gitter.im/planetmint/planetmint.svg)](https://gitter.im/planetmint/planetmint?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 # Planetmint 服务器
 
@@ -23,17 +23,17 @@ Planetmint 是区块链数据库. 这是 _BigchainDB 服务器_ 的仓库.
 
 ## 基础知识
 
-* [尝试快速开始](https://docs.bigchaindb.com/projects/server/en/latest/quickstart.html)
-* [阅读 Planetmint 2.0 白皮书](https://www.bigchaindb.com/whitepaper/)
-* [查阅漫游指南](https://www.bigchaindb.com/developers/guide/)
+* [尝试快速开始](https://docs.planetmint.com/projects/server/en/latest/quickstart.html)
+* [阅读 Planetmint 2.0 白皮书](https://www.planetmint.com/whitepaper/)
+* [查阅漫游指南](https://www.planetmint.com/developers/guide/)
 
 ## 运行和测试 `master` 分支的 Planetmint 服务器
 
 运行和测试最新版本的 Planetmint 服务器非常简单. 确认你有安装最新版本的 [Docker Compose](https://docs.docker.com/compose/install/). 当你准备好了, 打开一个终端并运行:
 
 ```text
-git clone https://github.com/bigchaindb/bigchaindb.git
-cd bigchaindb
+git clone https://github.com/planetmint/planetmint.git
+cd planetmint
 make run
 ```
 
@@ -55,23 +55,23 @@ Planetmint 应该可以通过 `http://localhost:9984/` 访问.
 
 ## 一般人员链接
 
-* [Planetmint.com](https://www.bigchaindb.com/) - Planetmint 主网站, 包括新闻订阅
-* [路线图](https://github.com/bigchaindb/org/blob/master/ROADMAP.md)
-* [博客](https://medium.com/the-bigchaindb-blog)
+* [Planetmint.com](https://www.planetmint.com/) - Planetmint 主网站, 包括新闻订阅
+* [路线图](https://github.com/planetmint/org/blob/master/ROADMAP.md)
+* [博客](https://medium.com/the-planetmint-blog)
 * [推特](https://twitter.com/Planetmint)
 
 ## 开发人员链接
 
-* [所有的 Planetmint 文档](https://docs.bigchaindb.com/en/latest/)
-* [Planetmint 服务器 文档](https://docs.bigchaindb.com/projects/server/en/latest/index.html)
+* [所有的 Planetmint 文档](https://docs.planetmint.com/en/latest/)
+* [Planetmint 服务器 文档](https://docs.planetmint.com/projects/server/en/latest/index.html)
 * [CONTRIBUTING.md](.github/CONTRIBUTING.md) - how to contribute
 * [社区指南](CODE_OF_CONDUCT.md)
-* [公开问题](https://github.com/bigchaindb/bigchaindb/issues)
-* [公开的 pull request](https://github.com/bigchaindb/bigchaindb/pulls)
-* [Gitter 聊天室](https://gitter.im/bigchaindb/bigchaindb)
+* [公开问题](https://github.com/planetmint/planetmint/issues)
+* [公开的 pull request](https://github.com/planetmint/planetmint/pulls)
+* [Gitter 聊天室](https://gitter.im/planetmint/planetmint)
 
 ## 法律声明
 
 * [许可](LICENSES.md) - 开源代码 & 开源内容
-* [印记](https://www.bigchaindb.com/imprint/)
-* [联系我们](https://www.bigchaindb.com/contact/)
+* [印记](https://www.planetmint.com/imprint/)
+* [联系我们](https://www.planetmint.com/contact/)

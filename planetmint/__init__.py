@@ -7,16 +7,16 @@ import copy
 import logging
 
 from planetmint.log import DEFAULT_LOGGING_CONFIG as log_config
-from planetmint.lib import BigchainDB  # noqa
+from planetmint.lib import Planetmint  # noqa
 from planetmint.migrations.chain_migration_election import ChainMigrationElection
 from planetmint.version import __version__  # noqa
 from planetmint.core import App  # noqa
 
 # from functools import reduce
-# PORT_NUMBER = reduce(lambda x, y: x * y, map(ord, 'BigchainDB')) % 2**16
+# PORT_NUMBER = reduce(lambda x, y: x * y, map(ord, 'Planetmint')) % 2**16
 # basically, the port number is 9984
 
-# The following variable is used by `bigchaindb configure` to
+# The following variable is used by `planetmint configure` to
 # prompt the user for database values. We cannot rely on
 # _base_database_localmongodb.keys() because dicts are unordered.
 # I tried to configure
@@ -91,7 +91,7 @@ config = {
 }
 
 # We need to maintain a backup copy of the original config dict in case
-# the user wants to reconfigure the node. Check ``bigchaindb.config_utils``
+# the user wants to reconfigure the node. Check ``planetmint.config_utils``
 # for more info.
 _config = copy.deepcopy(config)
 from planetmint.common.transaction import Transaction  # noqa

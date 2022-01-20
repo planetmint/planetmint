@@ -8,17 +8,17 @@
 Command Line Interface
 ######################
 
-.. automodule:: bigchaindb.commands
+.. automodule:: planetmint.commands
     :special-members: __init__
 
 
-:mod:`bigchaindb.commands.bigchaindb`
+:mod:`planetmint.commands.planetmint`
 -------------------------------------
 
-.. automodule:: bigchaindb.commands.bigchaindb
+.. automodule:: planetmint.commands.planetmint
 
 
-:mod:`bigchaindb.commands.utils`
+:mod:`planetmint.commands.utils`
 --------------------------------
 
-.. automodule:: bigchaindb.commands.utils
+.. automodule:: planetmint.commands.utils

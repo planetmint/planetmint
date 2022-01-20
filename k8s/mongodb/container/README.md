@@ -25,7 +25,7 @@ docker run \
   --volume=<host dir for mongodb data files>:/data/db \
   --volume=<host dir for mongodb config data files>:/data/configdb \
   --volume=<host dir with the required TLS certificates>:/mongo-ssl:ro \
-  bigchaindb/mongodb:<version of container> \
+  planetmint/mongodb:<version of container> \
   --mongodb-port <mongod port number for external connections> \
   --mongodb-key-file-path /mongo-ssl/<private key file name>.pem \
   --mongodb-ca-file-path /mongo-ssl/<ca certificate file name>.crt \

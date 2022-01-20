@@ -10,4 +10,4 @@
     state: present
     update_cache: yes
   with_items: "{{ dependencies_deb }}"
-  tags: [bigchaindb]
+  tags: [planetmint]

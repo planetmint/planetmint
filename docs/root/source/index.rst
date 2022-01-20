@@ -21,7 +21,7 @@ More About Planetmint
    :maxdepth: 1
 
    Planetmint Docs Home <self>
-   about-bigchaindb
+   about-planetmint
    terminology
    properties
    basic-usage

@@ -28,4 +28,4 @@
     home_dir: "{{ home_path }}"
   roles:
     - tendermint
-    - bigchaindb
+    - planetmint

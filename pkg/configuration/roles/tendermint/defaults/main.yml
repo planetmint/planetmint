@@ -10,11 +10,11 @@ dependencies_key_exchange:
 tendermint_binary_url: "https://github.com/tendermint/tendermint/releases/download/v{{ tm_version }}/tendermint_{{ tm_version }}_linux_amd64.zip"
 
 # Docker configuration
-tendermint_image_name: "bigchaindb/tendermint"
+tendermint_image_name: "planetmint/tendermint"
 tendermint_image_tag: "develop"
 tendermint_docker_name: "tendermint"
-bigchaindb_docker_name: "bigchaindb"
-bigchaindb_docker_net: "bigchaindb_docker_net"
+planetmint_docker_name: "planetmint"
+planetmint_docker_net: "planetmint_docker_net"
 tendermint_host_mount_dir: "{{ home_dir }}/tendermint_docker"
 tendermint_host_mount_config_dir: "{{ home_dir }}/tendermint_config"
 tendermint_home: /tendermint/config

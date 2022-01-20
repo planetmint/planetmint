@@ -1,6 +1,6 @@
 <!---
 Copyright © 2020 Interplanetary Database Association e.V.,
-BigchainDB and IPDB software contributors.
+Planetmint and IPDB software contributors.
 SPDX-License-Identifier: (Apache-2.0 AND CC-BY-4.0)
 Code is Apache-2.0 and docs are CC-BY-4.0
 --->
@@ -13,7 +13,7 @@ This guide starts out with our general Python coding style guidelines and ends w
 
 Our starting point is [PEP8](https://www.python.org/dev/peps/pep-0008/), the standard "Style Guide for Python Code." Many Python IDEs will check your code against PEP8. (Note that PEP8 isn't frozen; it actually changes over time, but slowly.)
 
-BigchainDB uses Python 3.5+, so you can ignore all PEP8 guidelines specific to Python 2.
+Planetmint uses Python 3.5+, so you can ignore all PEP8 guidelines specific to Python 2.
 
 We use [pre-commit](http://pre-commit.com/) to check some of the rules below before every commit but not everything is realized yet.
 The hooks we use can be found in the [.pre-commit-config.yaml](https://github.com/bigchaindb/bigchaindb/blob/master/.pre-commit-config.yaml) file.
@@ -30,7 +30,7 @@ PEP8 says some things about docstrings, but not what to put in them or how to st
 
 PEP8 has some [maximum line length guidelines](https://www.python.org/dev/peps/pep-0008/#id17), starting with "Limit all lines to a maximum of 79 characters" but "for flowing long blocks of text with fewer structural restrictions (docstrings or comments), the line length should be limited to 72 characters."
 
-We discussed this at length, and it seems that the consensus is: _try_ to keep line lengths less than 79/72 characters, unless you have a special situation where longer lines would improve readability. (The basic reason is that 79/72 works for everyone, and BigchainDB is an open source project.) As a hard limit, keep all lines less than 119 characters (which is the width of GitHub code review).
+We discussed this at length, and it seems that the consensus is: _try_ to keep line lengths less than 79/72 characters, unless you have a special situation where longer lines would improve readability. (The basic reason is that 79/72 works for everyone, and Planetmint is an open source project.) As a hard limit, keep all lines less than 119 characters (which is the width of GitHub code review).
 
 ### Single or Double Quotes?
 

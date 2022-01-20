@@ -9,6 +9,6 @@ Cryptography
 
 Use the following link to find the Planetmint Transactions Spec (or Specs) that are relevant to you:
 
-`Planetmint Transactions Specs <https://github.com/bigchaindb/BEPs/tree/master/tx-specs/>`_
+`Planetmint Transactions Specs <https://github.com/planetmint/BEPs/tree/master/tx-specs/>`_
 
 Then see the sections titled **Cryptographic Hashes** and **Cryptographic Keys and Signatures**.

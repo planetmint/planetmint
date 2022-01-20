@@ -18,9 +18,9 @@ import planetmint.config_utils
 from planetmint.version import __version__
 
 
-def configure_bigchaindb(command):
+def configure_planetmint(command):
     """Decorator to be used by command line functions, such that the
-    configuration of bigchaindb is performed before the execution of
+    configuration of planetmint is performed before the execution of
     the command.
 
     Args:
@@ -138,7 +138,7 @@ def start(parser, argv, scope):
     return func(args)
 
 
-base_parser = argparse.ArgumentParser(add_help=False, prog='bigchaindb')
+base_parser = argparse.ArgumentParser(add_help=False, prog='planetmint')
 
 base_parser.add_argument('-c', '--config',
                          help='Specify the location of the configuration file '

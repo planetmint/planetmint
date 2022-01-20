@@ -26,10 +26,10 @@ def generate_key_pair():
     """Generates a cryptographic key pair.
 
     Returns:
-        :class:`~bigchaindb.common.crypto.CryptoKeypair`: A
+        :class:`~planetmint.common.crypto.CryptoKeypair`: A
         :obj:`collections.namedtuple` with named fields
-        :attr:`~bigchaindb.common.crypto.CryptoKeypair.private_key` and
-        :attr:`~bigchaindb.common.crypto.CryptoKeypair.public_key`.
+        :attr:`~planetmint.common.crypto.CryptoKeypair.private_key` and
+        :attr:`~planetmint.common.crypto.CryptoKeypair.public_key`.
 
     """
     # TODO FOR CC: Adjust interface so that this function becomes unnecessary

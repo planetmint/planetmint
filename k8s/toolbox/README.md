@@ -14,8 +14,8 @@ Code is Apache-2.0 and docs are CC-BY-4.0
 
 ## Build
 
-`docker build -t bigchaindb/toolbox .`
+`docker build -t planetmint/toolbox .`
 
 ## Push
 
-`docker push bigchaindb/toolbox`
+`docker push planetmint/toolbox`

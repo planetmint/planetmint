@@ -38,7 +38,7 @@ def mock_generate_key_pair(monkeypatch):
 
 
 @pytest.fixture
-def mock_bigchaindb_backup_config(monkeypatch):
+def mock_planetmint_backup_config(monkeypatch):
     config = {
         'database': {'host': 'host', 'port': 12345, 'name': 'adbname'},
     }

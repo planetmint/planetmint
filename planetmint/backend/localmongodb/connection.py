@@ -12,7 +12,7 @@ from planetmint.backend.connection import Connection
 from planetmint.backend.exceptions import (DuplicateKeyError,
                                            OperationError,
                                            ConnectionError)
-from planetmint.backend.utils import get_bigchaindb_config_value
+from planetmint.backend.utils import get_planetmint_config_value
 from planetmint.common.exceptions import ConfigurationError
 from planetmint.utils import Lazy
 
@@ -34,15 +34,15 @@ class LocalMongoDBConnection(Connection):
         """
 
         super().__init__(**kwargs)
-        self.replicaset = replicaset or get_bigchaindb_config_value('replicaset')
-        self.ssl = ssl if ssl is not None else get_bigchaindb_config_value('ssl', False)
-        self.login = login or get_bigchaindb_config_value('login')
-        self.password = password or get_bigchaindb_config_value('password')
-        self.ca_cert = ca_cert or get_bigchaindb_config_value('ca_cert')
-        self.certfile = certfile or get_bigchaindb_config_value('certfile')
-        self.keyfile = keyfile or get_bigchaindb_config_value('keyfile')
-        self.keyfile_passphrase = keyfile_passphrase or get_bigchaindb_config_value('keyfile_passphrase')
-        self.crlfile = crlfile or get_bigchaindb_config_value('crlfile')
+        self.replicaset = replicaset or get_planetmint_config_value('replicaset')
+        self.ssl = ssl if ssl is not None else get_planetmint_config_value('ssl', False)
+        self.login = login or get_planetmint_config_value('login')
+        self.password = password or get_planetmint_config_value('password')
+        self.ca_cert = ca_cert or get_planetmint_config_value('ca_cert')
+        self.certfile = certfile or get_planetmint_config_value('certfile')
+        self.keyfile = keyfile or get_planetmint_config_value('keyfile')
+        self.keyfile_passphrase = keyfile_passphrase or get_planetmint_config_value('keyfile_passphrase')
+        self.crlfile = crlfile or get_planetmint_config_value('crlfile')
 
     @property
     def db(self):
