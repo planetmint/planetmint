@@ -42,8 +42,8 @@ class AssetListApi(Resource):
 
         pool = current_app.config['bigchain_pool']
 
-        with pool() as bigchain:
-            assets = bigchain.text_search(**args)
+        with pool() as planet:
+            assets = planet.text_search(**args)
 
         try:
             # This only works with MongoDB as the backend

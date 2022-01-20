@@ -41,7 +41,7 @@ class Election(Transaction):
     ELECTION_THRESHOLD = 2 / 3
 
     @classmethod
-    def get_validator_change(cls, bigchain):
+    def get_validator_change(cls, planet):
         """Return the validator set from the most recent approved block
 
         :return: {
@@ -49,18 +49,18 @@ class Election(Transaction):
             'validators': <validator_set>
         }
         """
-        latest_block = bigchain.get_latest_block()
+        latest_block = planet.get_latest_block()
         if latest_block is None:
             return None
-        return bigchain.get_validator_change(latest_block['height'])
+        return planet.get_validator_change(latest_block['height'])
 
     @classmethod
-    def get_validators(cls, bigchain, height=None):
+    def get_validators(cls, planet, height=None):
         """Return a dictionary of validators with key as `public_key` and
            value as the `voting_power`
         """
         validators = {}
-        for validator in bigchain.get_validators(height):
+        for validator in planet.get_validators(height):
             # NOTE: we assume that Tendermint encodes public key in base64
             public_key = public_key_from_ed25519_key(key_from_base64(validator['public_key']['value']))
             validators[public_key] = validator['voting_power']
@@ -68,11 +68,11 @@ class Election(Transaction):
         return validators
 
     @classmethod
-    def recipients(cls, bigchain):
+    def recipients(cls, planet):
         """Convert validator dictionary to a recipient list for `Transaction`"""
 
         recipients = []
-        for public_key, voting_power in cls.get_validators(bigchain).items():
+        for public_key, voting_power in cls.get_validators(planet).items():
             recipients.append(([public_key], voting_power))
 
         return recipients
@@ -92,7 +92,7 @@ class Election(Transaction):
         # validators and their voting power in the network
         return current_topology == voters
 
-    def validate(self, bigchain, current_transactions=[]):
+    def validate(self, planet, current_transactions=[]):
         """Validate election transaction
 
         NOTE:
@@ -102,7 +102,7 @@ class Election(Transaction):
           allocated according to the voting power of each validator node.
 
         Args:
-            :param bigchain: (Planetmint) an instantiated planetmint.lib.Planetmint object.
+            :param planet: (Planetmint) an instantiated planetmint.lib.Planetmint object.
             :param current_transactions: (list) A list of transactions to be validated along with the election
 
         Returns:
@@ -114,14 +114,14 @@ class Election(Transaction):
         input_conditions = []
 
         duplicates = any(txn for txn in current_transactions if txn.id == self.id)
-        if bigchain.is_committed(self.id) or duplicates:
+        if planet.is_committed(self.id) or duplicates:
             raise DuplicateTransaction('transaction `{}` already exists'
                                        .format(self.id))
 
         if not self.inputs_valid(input_conditions):
             raise InvalidSignature('Transaction signature is invalid.')
 
-        current_validators = self.get_validators(bigchain)
+        current_validators = self.get_validators(planet)
 
         # NOTE: Proposer should be a single node
         if len(self.inputs) != 1 or len(self.inputs[0].owners_before) != 1:
@@ -184,15 +184,15 @@ class Election(Transaction):
                         votes = votes + int(getter(output, 'amount'))
         return votes
 
-    def get_commited_votes(self, bigchain, election_pk=None):
+    def get_commited_votes(self, planet, election_pk=None):
         if election_pk is None:
             election_pk = self.to_public_key(self.id)
-        txns = list(backend.query.get_asset_tokens_for_public_key(bigchain.connection,
+        txns = list(backend.query.get_asset_tokens_for_public_key(planet.connection,
                                                                   self.id,
                                                                   election_pk))
         return self.count_votes(election_pk, txns, dict.get)
 
-    def has_concluded(self, bigchain, current_votes=[]):
+    def has_concluded(self, planet, current_votes=[]):
         """Check if the election can be concluded or not.
 
         * Elections can only be concluded if the validator set has not changed
@@ -201,11 +201,11 @@ class Election(Transaction):
 
         Custom elections may override this function and introduce additional checks.
         """
-        if self.has_validator_set_changed(bigchain):
+        if self.has_validator_set_changed(planet):
             return False
 
         election_pk = self.to_public_key(self.id)
-        votes_committed = self.get_commited_votes(bigchain, election_pk)
+        votes_committed = self.get_commited_votes(planet, election_pk)
         votes_current = self.count_votes(election_pk, current_votes)
 
         total_votes = sum(output.amount for output in self.outputs)
@@ -215,31 +215,31 @@ class Election(Transaction):
 
         return False
 
-    def get_status(self, bigchain):
-        election = self.get_election(self.id, bigchain)
+    def get_status(self, planet):
+        election = self.get_election(self.id, planet)
         if election and election['is_concluded']:
             return self.CONCLUDED
 
-        return self.INCONCLUSIVE if self.has_validator_set_changed(bigchain) else self.ONGOING
+        return self.INCONCLUSIVE if self.has_validator_set_changed(planet) else self.ONGOING
 
-    def has_validator_set_changed(self, bigchain):
-        latest_change = self.get_validator_change(bigchain)
+    def has_validator_set_changed(self, planet):
+        latest_change = self.get_validator_change(planet)
         if latest_change is None:
             return False
 
         latest_change_height = latest_change['height']
 
-        election = self.get_election(self.id, bigchain)
+        election = self.get_election(self.id, planet)
 
         return latest_change_height > election['height']
 
-    def get_election(self, election_id, bigchain):
-        return bigchain.get_election(election_id)
+    def get_election(self, election_id, planet):
+        return planet.get_election(election_id)
 
-    def store(self, bigchain, height, is_concluded):
-        bigchain.store_election(self.id, height, is_concluded)
+    def store(self, planet, height, is_concluded):
+        planet.store_election(self.id, height, is_concluded)
 
-    def show_election(self, bigchain):
+    def show_election(self, planet):
         data = self.asset['data']
         if 'public_key' in data.keys():
             data['public_key'] = public_key_to_base64(data['public_key']['value'])
@@ -247,7 +247,7 @@ class Election(Transaction):
         for k, v in data.items():
             if k != 'seed':
                 response += f'{k}={v}\n'
-        response += f'status={self.get_status(bigchain)}'
+        response += f'status={self.get_status(planet)}'
 
         return response
 
@@ -276,7 +276,7 @@ class Election(Transaction):
         return elections
 
     @classmethod
-    def process_block(cls, bigchain, new_height, txns):
+    def process_block(cls, planet, new_height, txns):
         """Looks for election and vote transactions inside the block, records
            and processes elections.
 
@@ -303,27 +303,27 @@ class Election(Transaction):
         initiated_elections = cls._get_initiated_elections(new_height, txns)
 
         if initiated_elections:
-            bigchain.store_elections(initiated_elections)
+            planet.store_elections(initiated_elections)
 
         # elections voted for in this block and their votes
         elections = cls._get_votes(txns)
 
         validator_update = None
         for election_id, votes in elections.items():
-            election = bigchain.get_transaction(election_id)
+            election = planet.get_transaction(election_id)
             if election is None:
                 continue
 
-            if not election.has_concluded(bigchain, votes):
+            if not election.has_concluded(planet, votes):
                 continue
 
-            validator_update = election.on_approval(bigchain, new_height)
-            election.store(bigchain, new_height, is_concluded=True)
+            validator_update = election.on_approval(planet, new_height)
+            election.store(planet, new_height, is_concluded=True)
 
         return [validator_update] if validator_update else []
 
     @classmethod
-    def rollback(cls, bigchain, new_height, txn_ids):
+    def rollback(cls, planet, new_height, txn_ids):
         """Looks for election and vote transactions inside the block and
            cleans up the database artifacts possibly created in `process_blocks`.
 
@@ -332,23 +332,23 @@ class Election(Transaction):
 
         # delete election records for elections initiated at this height and
         # elections concluded at this height
-        bigchain.delete_elections(new_height)
+        planet.delete_elections(new_height)
 
-        txns = [bigchain.get_transaction(tx_id) for tx_id in txn_ids]
+        txns = [planet.get_transaction(tx_id) for tx_id in txn_ids]
 
         elections = cls._get_votes(txns)
         for election_id in elections:
-            election = bigchain.get_transaction(election_id)
-            election.on_rollback(bigchain, new_height)
+            election = planet.get_transaction(election_id)
+            election.on_rollback(planet, new_height)
 
-    def on_approval(self, bigchain, new_height):
+    def on_approval(self, planet, new_height):
         """Override to update the database state according to the
            election rules. Consider the current database state to account for
            other concluded elections, if required.
         """
         raise NotImplementedError
 
-    def on_rollback(self, bigchain, new_height):
+    def on_rollback(self, planet, new_height):
         """Override to clean up the database artifacts possibly created
            in `on_approval`. Part of the `end_block`/`commit` crash recovery.
         """

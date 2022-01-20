@@ -69,7 +69,7 @@ def test_node_count(some_args):
 ### Crash components
 - start n nodes, mongodb crashes
 - start n nodes, tendermint crashes
-- start n nodes, bigchain crashes
+- start n nodes, planet crashes
 - start n nodes, connection crashes
 - what else can crash?
 - possible crash times

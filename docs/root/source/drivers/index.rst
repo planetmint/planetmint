@@ -12,8 +12,8 @@ Connectors to Planetmint are referred to as drivers within the community. A driv
 These drivers were originally created by the original Planetmint team:
 
 * `Python Driver <https://docs.planetmint.com/projects/py-driver/en/latest/index.html>`_
-* `JavaScript / Node.js Driver <https://github.com/planetmint/js-planetmint-driver>`_
-* `Java Driver <https://github.com/planetmint/java-planetmint-driver>`_
+* `JavaScript / Node.js Driver <https://github.com/planetmint/js-bigchaindb-driver>`_
+* `Java Driver <https://github.com/planetmint/java-bigchaindb-driver>`_
 
 These drivers and tools were created by the Planetmint community:
 
@@ -26,6 +26,6 @@ These drivers and tools were created by the Planetmint community:
 * `ANSI C driver <https://github.com/RiddleAndCode/planetmint-c-driver>`_, should also work with C++ (working as of June 2019)
 * `C# driver <https://github.com/Omnibasis/planetmint-csharp-driver>`_ (working as of May 2019)
 * `Haskell transaction builder <https://github.com/planetmint/planetmint-hs>`_
-* `Go driver <https://github.com/zbo14/envoke/blob/master/bigchain/bigchain.go>`_
+* `Go driver <https://github.com/zbo14/envoke/blob/master/bigchain/planet.go>`_
 * `Ruby driver <https://github.com/LicenseRocks/planetmint_ruby>`_
 * `Ruby library for preparing/signing transactions and submitting them or querying a Planetmint node (MIT licensed) <https://rubygems.org/gems/planetmint>`_

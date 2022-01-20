@@ -12,12 +12,12 @@ from threading import Thread
 import queue
 
 import bigchaindb_driver.exceptions
-from bigchaindb_driver import Planetmint
+from bigchaindb_driver import BigchainDB
 from bigchaindb_driver.crypto import generate_keypair
 
 
 def test_double_create():
-    bdb = Planetmint(os.environ.get('PLANETMINT_ENDPOINT'))
+    bdb = BigchainDB(os.environ.get('PLANETMINT_ENDPOINT'))
     alice = generate_keypair()
 
     results = queue.Queue()

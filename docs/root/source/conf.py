@@ -290,7 +290,7 @@ html_static_path = ['_static']
 #   'da', 'de', 'en', 'es', 'fi', 'fr', 'h', 'it', 'ja'
 #   'nl', 'no', 'pt', 'ro', 'r', 'sv', 'tr', 'zh'
 #
-# html_search_language = 'en'
+# html_search_language = 'en's
 
 # A dictionary with options for the search language support, empty by default.
 # 'ja' uses this config value.
@@ -304,14 +304,14 @@ html_static_path = ['_static']
 # html_search_scorer = 'scorer.js'
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'BigchainDBdoc'
+htmlhelp_basename = 'Planetmintdoc'
 
 # -- Options for LaTeX output ---------------------------------------------
 
 latex_elements = {
      # The paper size ('letterpaper' or 'a4paper').
      #
-     # 'papersize': 'letterpaper',
+     'papersize': 'letterpaper',
 
      # The font size ('10pt', '11pt' or '12pt').
      #

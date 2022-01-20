@@ -28,7 +28,7 @@ def flush_localmongo_db(connection, dbname):
         getattr(connection.conn[dbname], t).delete_many({})
 
 
-def generate_block(bigchain):
+def generate_block(planet):
     from planetmint.common.crypto import generate_key_pair
     from planetmint.models import Transaction
 
@@ -38,7 +38,7 @@ def generate_block(bigchain):
                             asset=None)\
                     .sign([alice.private_key])
 
-    code, message = bigchain.write_transaction(tx, BROADCAST_TX_COMMIT)
+    code, message = planet.write_transaction(tx, BROADCAST_TX_COMMIT)
     assert code == 202
 
 

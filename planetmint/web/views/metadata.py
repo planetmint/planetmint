@@ -41,9 +41,9 @@ class MetadataApi(Resource):
 
         pool = current_app.config['bigchain_pool']
 
-        with pool() as bigchain:
+        with pool() as planet:
             args['table'] = 'metadata'
-            metadata = bigchain.text_search(**args)
+            metadata = planet.text_search(**args)
 
         try:
             # This only works with MongoDB as the backend

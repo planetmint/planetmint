@@ -1211,13 +1211,13 @@ class Transaction(object):
                    tx['metadata'], tx['version'], hash_id=tx['id'], tx_dict=tx)
 
     @classmethod
-    def from_db(cls, bigchain, tx_dict_list):
+    def from_db(cls, planet, tx_dict_list):
         """Helper method that reconstructs a transaction dict that was returned
         from the database. It checks what asset_id to retrieve, retrieves the
         asset from the asset table and reconstructs the transaction.
 
         Args:
-            bigchain (:class:`~planetmint.tendermint.Planetmint`): An instance
+            planet (:class:`~planetmint.tendermint.Planetmint`): An instance
                 of Planetmint used to perform database queries.
             tx_dict_list (:list:`dict` or :obj:`dict`): The transaction dict or
                 list of transaction dict as returned from the database.
@@ -1238,7 +1238,7 @@ class Transaction(object):
             tx_map[tx['id']] = tx
             tx_ids.append(tx['id'])
 
-        assets = list(bigchain.get_assets(tx_ids))
+        assets = list(planet.get_assets(tx_ids))
         for asset in assets:
             if asset is not None:
                 tx = tx_map[asset['id']]
@@ -1246,7 +1246,7 @@ class Transaction(object):
                 tx['asset'] = asset
 
         tx_ids = list(tx_map.keys())
-        metadata_list = list(bigchain.get_metadata(tx_ids))
+        metadata_list = list(planet.get_metadata(tx_ids))
         for metadata in metadata_list:
             tx = tx_map[metadata['id']]
             tx.update({'metadata': metadata.get('metadata')})
@@ -1276,13 +1276,13 @@ class Transaction(object):
     def validate_schema(cls, tx):
         pass
 
-    def validate_transfer_inputs(self, bigchain, current_transactions=[]):
+    def validate_transfer_inputs(self, planet, current_transactions=[]):
         # store the inputs so that we can check if the asset ids match
         input_txs = []
         input_conditions = []
         for input_ in self.inputs:
             input_txid = input_.fulfills.txid
-            input_tx = bigchain.get_transaction(input_txid)
+            input_tx = planet.get_transaction(input_txid)
 
             if input_tx is None:
                 for ctxn in current_transactions:
@@ -1293,7 +1293,7 @@ class Transaction(object):
                 raise InputDoesNotExist("input `{}` doesn't exist"
                                         .format(input_txid))
 
-            spent = bigchain.get_spent(input_txid, input_.fulfills.output,
+            spent = planet.get_spent(input_txid, input_.fulfills.output,
                                        current_transactions)
             if spent:
                 raise DoubleSpend('input `{}` was already spent'

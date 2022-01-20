@@ -283,14 +283,14 @@ specified path.
 
 **Log rotation:** Log files have a size limit of about 200 MB
 and will be rotated up to five times.
-For example, if `log.file` is set to `"~/bigchain.log"`, then
-logs would always be written to `bigchain.log`. Each time the file
-`bigchain.log` reaches 200 MB it will be closed and renamed
-`bigchain.log.1`. If `bigchain.log.1` and `bigchain.log.2` already exist they
-would be renamed `bigchain.log.2` and `bigchain.log.3`. This pattern would be
-applied up to `bigchain.log.5` after which `bigchain.log.5` would be
-overwritten by `bigchain.log.4`, thus ending the rotation cycle of whatever
-logs were in `bigchain.log.5`.
+For example, if `log.file` is set to `"~/planet.log"`, then
+logs would always be written to `planet.log`. Each time the file
+`planet.log` reaches 200 MB it will be closed and renamed
+`planet.log.1`. If `planet.log.1` and `planet.log.2` already exist they
+would be renamed `planet.log.2` and `planet.log.3`. This pattern would be
+applied up to `planet.log.5` after which `planet.log.5` would be
+overwritten by `planet.log.4`, thus ending the rotation cycle of whatever
+logs were in `planet.log.5`.
 
 ### log.error_file
 

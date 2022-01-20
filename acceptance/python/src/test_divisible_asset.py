@@ -29,7 +29,7 @@ import pytest
 from bigchaindb_driver.exceptions import BadRequest
 
 # For this test case we import and use the Python Driver.
-from bigchaindb_driver import Planetmint
+from bigchaindb_driver import BigchainDB
 from bigchaindb_driver.crypto import generate_keypair
 
 
@@ -37,7 +37,7 @@ def test_divisible_assets():
     # ## Set up a connection to Planetmint
     # Check [test_basic.py](./test_basic.html) to get some more details
     # about the endpoint.
-    bdb = Planetmint(os.environ.get('PLANETMINT_ENDPOINT'))
+    bdb = BigchainDB(os.environ.get('PLANETMINT_ENDPOINT'))
 
     # Oh look, it is Alice again and she brought her friend Bob along.
     alice, bob = generate_keypair(), generate_keypair()

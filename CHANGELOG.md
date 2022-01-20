@@ -399,7 +399,7 @@ Tag name: v1.2.0
 ### Added
 * New and improved installation setup docs and code. Pull requests [#1775](https://github.com/planetmint/planetmint/pull/1775) and [#1785](https://github.com/planetmint/planetmint/pull/1785)
 * New Planetmint configuration setting to set the port number of the log server: `log.port`. [Pull request #1796](https://github.com/planetmint/planetmint/pull/1796)
-* New secondary index on `id` in the bigchain table. That will make some queries execute faster. [Pull request #1803](https://github.com/planetmint/planetmint/pull/1803)
+* New secondary index on `id` in the planet table. That will make some queries execute faster. [Pull request #1803](https://github.com/planetmint/planetmint/pull/1803)
 * When using MongoDB, there are some restrictions on allowed names for keys (JSON keys). Those restrictions were always there but now Planetmint checks key names explicitly, rather than leaving that to MongoDB. Pull requests [#1807](https://github.com/planetmint/planetmint/pull/1807) and [#1811](https://github.com/planetmint/planetmint/pull/1811)
 * When using MongoDB, there are some restrictions on the allowed values of "language" (if that key is used in the values of `metadata` or `asset.data`). Those restrictions were always there but now Planetmint checks the values explicitly, rather than leaving that to MongoDB. Pull requests [#1806](https://github.com/planetmint/planetmint/pull/1806) and [#1811](https://github.com/planetmint/planetmint/pull/1811)
 * There's a new page in the root docs about permissions in Planetmint. [Pull request #1788](https://github.com/planetmint/planetmint/pull/1788)
@@ -434,7 +434,7 @@ Tag name: v1.1.0
 
 ### Notes
 * New drivers & tools from our community:
-    * [Java driver](https://github.com/authenteq/java-planetmint-driver), by [Authenteq](https://authenteq.com/)
+    * [Java driver](https://github.com/authenteq/java-bigchaindb-driver), by [Authenteq](https://authenteq.com/)
     * [Ruby library](https://rubygems.org/gems/planetmint), by @nileshtrivedi
 * Many improvements to our production deployment template (which uses Kubernetes).
 * The production deployment template for the multi-node case was out of date. We updated that and verified it. [Pull request #1713](https://github.com/planetmint/planetmint/pull/1713)
@@ -493,7 +493,7 @@ Tag name: v1.0.0rc1
 * In `setup.py`, the  "Development Status" (as reported on PyPI) was changed from Alpha to Beta. [Pull Request #1437](https://github.com/planetmint/planetmint/pull/1437)
 * If you explicitly specify a config file, e.g. `planetmint -c path/to/config start` and that file can't be found, then Planetmint Server will fail with a helpful error message. [Pull Request #1486](https://github.com/planetmint/planetmint/pull/1486)
 * Reduced the response time on the HTTP API endpoint to get all the unspent outputs associated with a given public key (a.k.a. "fast unspents"). [Pull Request #1411](https://github.com/planetmint/planetmint/pull/1411)
-* Internally, the value of an asset's `"data"` is now stored in a separate assets table. This enabled the new text search. Each asset data is stored along with the associated CREATE transaction ID (asset ID). That data gets written when the containing block gets written to the bigchain table. [Pull Request #1460](https://github.com/planetmint/planetmint/pull/1460)
+* Internally, the value of an asset's `"data"` is now stored in a separate assets table. This enabled the new text search. Each asset data is stored along with the associated CREATE transaction ID (asset ID). That data gets written when the containing block gets written to the planet table. [Pull Request #1460](https://github.com/planetmint/planetmint/pull/1460)
 * Schema validation was sped up by switching to `rapidjson-schema`. [Pull Request #1494](https://github.com/planetmint/planetmint/pull/1494)
 * If a node comes back from being down for a while, it will resume voting on blocks in the order determined by the MongoDB oplog, in the case of MongoDB. (In the case of RethinkDB, blocks missed in the changefeed will not be voted on.) [Pull Request #1389](https://github.com/planetmint/planetmint/pull/1389)
 * Parallelized transaction schema validation in the vote pipeline. [Pull Request #1492](https://github.com/planetmint/planetmint/pull/1492)
@@ -523,7 +523,7 @@ Tag name: v1.0.0rc1
 * We dropped support for Python 3.4. [Pull Request #1564](https://github.com/planetmint/planetmint/pull/1564)
 * There were many improvements to our Kubernetes-based production deployment template (and the associated documentaiton).
 * There is now a [Planetmint Ruby driver](https://github.com/LicenseRocks/planetmint_ruby), created by @addywaddy at [license.rocks](https://github.com/planetmint/planetmint/pull/1437).
-* The [Planetmint JavaScript driver](https://github.com/planetmint/js-planetmint-driver) was moved to a different GitHub repo and is now officially maintained by the Planetmint team.
+* The [Planetmint JavaScript driver](https://github.com/planetmint/js-bigchaindb-driver) was moved to a different GitHub repo and is now officially maintained by the Planetmint team.
 * We continue to recommend using MongoDB.
 
 ## [0.10.3] - 2017-06-29
@@ -996,7 +996,7 @@ committed: May 27, 2016, 1:42 PM GMT+2
 - Caching of calls to `load_consensus_plugin()`, using [`@lru_cache`](https://docs.python.org/3/library/functools.html#functools.lru_cache). This speeds up the instantiation of `Bigchain` objects and greatly improves overall performance. [Pull Request #271](https://github.com/planetmint/planetmint/pull/271)
 - New `Dockerfile-dev` Docker file to make it easier for developers to _develop_ Planetmint with Docker. One can run all unit tests with Docker again. [Pull Request #313](https://github.com/planetmint/planetmint/pull/313)
 - Transactions in invalid blocks are copied to the backlog: [Pull Request #221](https://github.com/planetmint/planetmint/pull/221).
-- Queries to the bigchain table now ignore invalid blocks: [Pull Request #324](https://github.com/planetmint/planetmint/issues/324)
+- Queries to the planet table now ignore invalid blocks: [Pull Request #324](https://github.com/planetmint/planetmint/issues/324)
 - Use secondary index on get_transaction: [Pull Request #324](https://github.com/planetmint/planetmint/issues/324)
 - New `planetmint` command to set the number of RethinkDB shards (in both tables): [Pull Request #258](https://github.com/planetmint/planetmint/pull/258)
 - Better handling of an outdated `setuptools`: [Pull Request #279](https://github.com/planetmint/planetmint/pull/279)
