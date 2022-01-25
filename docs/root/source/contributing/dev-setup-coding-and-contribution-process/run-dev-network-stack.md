@@ -26,20 +26,20 @@ Minimum resource requirements for a single node Planetmint dev setup. **The more
 ## Download the scripts
 > **Note**: If you're working on Planetmint Server code, on a branch based on
 > recent code, then you already have local recent versions of *stack.sh* and 
-> *unstack.sh* in your bigchaindb/pkg/scripts/ directory. Otherwise you can 
+> *unstack.sh* in your planetmint/pkg/scripts/ directory. Otherwise you can 
 > get them using: 
 
 ```text
 $ export GIT_BRANCH=master
-$ curl -fOL https://raw.githubusercontent.com/bigchaindb/bigchaindb/${GIT_BRANCH}/pkg/scripts/stack.sh
+$ curl -fOL https://raw.githubusercontent.com/planetmint/planetmint/${GIT_BRANCH}/pkg/scripts/stack.sh
 
 # Optional
-$ curl -fOL https://raw.githubusercontent.com/bigchaindb/bigchaindb/${GIT_BRANCH}/pkg/scripts/unstack.sh
+$ curl -fOL https://raw.githubusercontent.com/planetmint/planetmint/${GIT_BRANCH}/pkg/scripts/unstack.sh
 ```
 
 ## Quick Start
 If you run `stack.sh` out of the box i.e. without any configuration changes, you will be able to deploy a 4 node
-Planetmint network with Docker containers, created from `master` branch of `bigchaindb/bigchaindb` repo and Tendermint version `0.22.8`.
+Planetmint network with Docker containers, created from `master` branch of `planetmint/planetmint` repo and Tendermint version `0.22.8`.
 
 **Note**: Run `stack.sh` with either root or non-root user with sudo enabled.
 
@@ -89,11 +89,11 @@ $ bash stack.sh -h
         of the instance(s) spawned. (default: ubuntu/xenial64)
 
     ENV[STACK_REPO]
-        (Optional) To configure bigchaindb repo to use, set STACK_REPO environment
-        variable. (default: bigchaindb/bigchaindb)
+        (Optional) To configure planetmint repo to use, set STACK_REPO environment
+        variable. (default: planetmint/planetmint)
 
     ENV[STACK_BRANCH]
-        (Optional) To configure bigchaindb repo branch to use set STACK_BRANCH environment
+        (Optional) To configure planetmint repo branch to use set STACK_BRANCH environment
         variable. (default: master)
 
     ENV[TM_VERSION]
@@ -171,8 +171,8 @@ $ export STACK_SIZE=4
 $ export STACK_TYPE=docker
 
 #Optional, repo to use for the network deployment
-# Default: bigchaindb/bigchaindb
-$ export STACK_REPO=bigchaindb/bigchaindb
+# Default: planetmint/planetmint
+$ export STACK_REPO=planetmint/planetmint
 
 #Optional, codebase to use for the network deployment
 # Default: master
@@ -222,8 +222,8 @@ $ export STACK_VM_CPUS=1
 $ export STACK_BOX_NAME=ubuntu/xenial64
 
 #Optional, repo to use for the network deployment
-# Default: bigchaindb/bigchaindb
-$ export STACK_REPO=bigchaindb/bigchaindb
+# Default: planetmint/planetmint
+$ export STACK_REPO=planetmint/planetmint
 
 #Optional, codebase to use for the network deployment
 # Default: master

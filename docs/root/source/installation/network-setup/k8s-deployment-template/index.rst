@@ -42,7 +42,7 @@ Feel free change things to suit your needs or preferences.
    cloud-manager
    easy-rsa
    upgrade-on-kubernetes
-   bigchaindb-network-on-kubernetes
+   planetmint-network-on-kubernetes
    tectonic-azure
    troubleshoot
    architecture

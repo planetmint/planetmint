@@ -70,7 +70,7 @@ The commands are:
 export PATH=${PATH}:${GOPATH}/bin
 ```
 
-Follow [the Tendermint docs](https://tendermint.com/docs/introduction/install.html#from-source) to install Tendermint from source.
+Follow [the Tendermint docs](https://tendermint.io/docs/introduction/install.html#from-source) to install Tendermint from source.
 
 If the installation is successful then Tendermint is installed at `$GOPATH/bin`. To ensure Tendermint's installed fine execute the following command,
 
@@ -112,8 +112,8 @@ $ tendermint unsafe_reset_all
 To install Planetmint from source (for dev), clone the repo and execute the following command, (it is better that you create a virtual env for this)
 
 ```bash
-$ git clone https://github.com/bigchaindb/bigchaindb.git
-$ cd bigchaindb
+$ git clone https://github.com/planetmint/planetmint.git
+$ cd planetmint
 $ pip install -e .[dev]  #  or  pip install -e '.[dev]'  # for zsh
 ```
 
@@ -132,7 +132,7 @@ One could mark a specific test and execute the same by appending `-m my_mark` to
 Although the above should prove sufficient in most cases but in case tests are failing on Travis CI then the following command can be used to possibly replicate the failure locally,
 
 ```bash
-$ docker-compose run --rm --no-deps bdb pytest -v --cov=bigchaindb
+$ docker-compose run --rm --no-deps bdb pytest -v --cov=planetmint
 ```
 
 NOTE: before executing the above command the user must ensure that they reset the Tendermint container by executing `tendermint usafe_reset_all` command in the Tendermint container.

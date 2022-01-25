@@ -21,13 +21,13 @@ The value of each setting is determined according to the following rules:
 * Otherwise, if it's set in a local config file, then use that value
 * Otherwise, use the default value
 
-The local config file is `$HOME/.bigchaindb` by default (a file which might not even exist), but you can tell Planetmint to use a different file by using the `-c` command-line option, e.g. `bigchaindb -c path/to/config_file.json start`
-or using the `PLANETMINT_CONFIG_PATH` environment variable, e.g. `BIGHAINDB_CONFIG_PATH=.my_bigchaindb_config bigchaindb start`.
+The local config file is `$HOME/.planetmint` by default (a file which might not even exist), but you can tell Planetmint to use a different file by using the `-c` command-line option, e.g. `planetmint -c path/to/config_file.json start`
+or using the `PLANETMINT_CONFIG_PATH` environment variable, e.g. `BIGHAINDB_CONFIG_PATH=.my_planetmint_config planetmint start`.
 Note that the `-c` command line option will always take precedence if both the `PLANETMINT_CONFIG_PATH` and the `-c` command line option are used.
 
-You can read the current default values in the file [bigchaindb/\_\_init\_\_.py](https://github.com/bigchaindb/bigchaindb/blob/master/bigchaindb/__init__.py). (The link is to the latest version.)
+You can read the current default values in the file [planetmint/\_\_init\_\_.py](https://github.com/planetmint/planetmint/blob/master/planetmint/__init__.py). (The link is to the latest version.)
 
-Running `bigchaindb -y configure localmongodb` will generate a local config file in `$HOME/.bigchaindb` with all the default values.
+Running `planetmint -y configure localmongodb` will generate a local config file in `$HOME/.planetmint` with all the default values.
 
 ## database.*
 
@@ -37,7 +37,7 @@ The settings with names of the form `database.*` are for the backend database
 * `database.backend` can only be `localmongodb`, currently.
 * `database.host` is the hostname (FQDN) of the backend database.
 * `database.port` is self-explanatory.
-* `database.name` is a user-chosen name for the database inside MongoDB, e.g. `bigchain`.
+* `database.name` is a user-chosen name for the database inside MongoDB, e.g. `planetmint`.
 * `database.connection_timeout` is the maximum number of milliseconds that Planetmint will wait before giving up on one attempt to connect to the backend database.
 * `database.max_tries` is the maximum number of times that Planetmint will try to establish a connection with the backend database. If 0, then it will try forever.
 * `database.replicaset` is the name of the MongoDB replica set. The default value is `null` because in Planetmint 2.0+, each Planetmint node has its own independent MongoDB database and no replica set is necessary. Replica set must already exist if this option is configured, Planetmint will not create it.
@@ -51,7 +51,7 @@ If you use all the default Planetmint configuration settings, then no authentica
 
 **Username/Password Authentication**
 
-To use username/password authentication, a MongoDB instance must already be running somewhere (maybe in another machine), it must already have a database for use by Planetmint (usually named `bigchain`, which is the default `database.name`), and that database must already have a "readWrite" user with associated username and password. To create such a user, login to your MongoDB instance as Admin and run the following commands:
+To use username/password authentication, a MongoDB instance must already be running somewhere (maybe in another machine), it must already have a database for use by Planetmint (usually named `planetmint`, which is the default `database.name`), and that database must already have a "readWrite" user with associated username and password. To create such a user, login to your MongoDB instance as Admin and run the following commands:
 
 ```text
 use <database.name>
@@ -64,7 +64,7 @@ db.createUser({user: "<database.login>", pwd: "<database.password>", roles: [{ro
 
 **x.509 Certificate Authentication**
 
-To use x.509 certificate authentication, a MongoDB instance must be running somewhere (maybe in another machine), it must already have a database for use by Planetmint (usually named `bigchain`, which is the default `database.name`), and that database must be set up to use x.509 authentication. See the MongoDB docs about how to do that.
+To use x.509 certificate authentication, a MongoDB instance must be running somewhere (maybe in another machine), it must already have a database for use by Planetmint (usually named `planetmint`, which is the default `database.name`), and that database must be set up to use x.509 authentication. See the MongoDB docs about how to do that.
 
 * `database.login` is the user's username.
 * `database.password` isn't used so the default value (`null`) is fine.
@@ -84,14 +84,14 @@ export PLANETMINT_DATABASE_MAX_TRIES=3
 
 **Default values**
 
-If (no environment variables were set and there's no local config file), or you used `bigchaindb -y configure localmongodb` to create a default local config file for a `localmongodb` backend, then the defaults will be:
+If (no environment variables were set and there's no local config file), or you used `planetmint -y configure localmongodb` to create a default local config file for a `localmongodb` backend, then the defaults will be:
 
 ```js
 "database": {
     "backend": "localmongodb",
     "host": "localhost",
     "port": 27017,
-    "name": "bigchain",
+    "name": "planetmint",
     "connection_timeout": 5000,
     "max_tries": 3,
     "replicaset": null,
@@ -213,7 +213,7 @@ different from where Planetmint is running.
 
 ```text
 export PLANETMINT_WSSERVER_ADVERTISED_SCHEME=wss
-export PLANETMINT_WSSERVER_ADVERTISED_HOST=mybigchaindb.com
+export PLANETMINT_WSSERVER_ADVERTISED_HOST=myplanetmint.io
 export PLANETMINT_WSSERVER_ADVERTISED_PORT=443
 ```
 
@@ -222,7 +222,7 @@ export PLANETMINT_WSSERVER_ADVERTISED_PORT=443
 ```js
 "wsserver": {
     "advertised_scheme": "wss",
-    "advertised_host": "mybigchaindb.com",
+    "advertised_host": "myplanetmint.io",
     "advertised_port": 443
 }
 ```
@@ -246,8 +246,8 @@ The `log.*` settings are to configure logging.
 ```js
 {
     "log": {
-        "file": "/var/log/bigchaindb.log",
-        "error_file": "/var/log/bigchaindb-errors.log",
+        "file": "/var/log/planetmint.log",
+        "error_file": "/var/log/planetmint-errors.log",
         "level_console": "info",
         "level_logfile": "info",
         "datefmt_console": "%Y-%m-%d %H:%M:%S",
@@ -263,8 +263,8 @@ The `log.*` settings are to configure logging.
 ```js
 {
     "log": {
-        "file": "~/bigchaindb.log",
-        "error_file": "~/bigchaindb-errors.log",
+        "file": "~/planetmint.log",
+        "error_file": "~/planetmint-errors.log",
         "level_console": "info",
         "level_logfile": "info",
         "datefmt_console": "%Y-%m-%d %H:%M:%S",
@@ -278,19 +278,19 @@ The `log.*` settings are to configure logging.
 ### log.file
 
 The full path to the file where logs should be written.
-The user running `bigchaindb` must have write access to the
+The user running `planetmint` must have write access to the
 specified path.
 
 **Log rotation:** Log files have a size limit of about 200 MB
 and will be rotated up to five times.
-For example, if `log.file` is set to `"~/bigchain.log"`, then
-logs would always be written to `bigchain.log`. Each time the file
-`bigchain.log` reaches 200 MB it will be closed and renamed
-`bigchain.log.1`. If `bigchain.log.1` and `bigchain.log.2` already exist they
-would be renamed `bigchain.log.2` and `bigchain.log.3`. This pattern would be
-applied up to `bigchain.log.5` after which `bigchain.log.5` would be
-overwritten by `bigchain.log.4`, thus ending the rotation cycle of whatever
-logs were in `bigchain.log.5`.
+For example, if `log.file` is set to `"~/planetmint.log"`, then
+logs would always be written to `planetmint.log`. Each time the file
+`planetmint.log` reaches 200 MB it will be closed and renamed
+`planetmint.log.1`. If `planetmint.log.1` and `planetmint.log.2` already exist they
+would be renamed `planetmint.log.2` and `planetmint.log.3`. This pattern would be
+applied up to `planetmint.log.5` after which `planetmint.log.5` would be
+overwritten by `planetmint.log.4`, thus ending the rotation cycle of whatever
+logs were in `planetmint.log.5`.
 
 ### log.error_file
 

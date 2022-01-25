@@ -9,8 +9,8 @@ Code is Apache-2.0 and docs are CC-BY-4.0
 
 You can find a list of all Planetmint Server releases and release notes on GitHub at:
 
-[https://github.com/bigchaindb/bigchaindb/releases](https://github.com/bigchaindb/bigchaindb/releases)
+[https://github.com/planetmint/planetmint/releases](https://github.com/planetmint/planetmint/releases)
 
-The [CHANGELOG.md file](https://github.com/bigchaindb/bigchaindb/blob/master/CHANGELOG.md) contains much the same information, but it also has notes about what to expect in the _next_ release.
+The [CHANGELOG.md file](https://github.com/planetmint/planetmint/blob/master/CHANGELOG.md) contains much the same information, but it also has notes about what to expect in the _next_ release.
 
-We also have [a roadmap document in ROADMAP.md](https://github.com/bigchaindb/org/blob/master/ROADMAP.md).
+We also have [a roadmap document in ROADMAP.md](https://github.com/planetmint/org/blob/master/ROADMAP.md).

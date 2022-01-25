@@ -28,7 +28,7 @@ Below, we note how a reverse proxy can be used
 to do some Planetmint-specific things.
 
 You may also be interested in
-[our NGINX configuration file template](https://github.com/bigchaindb/nginx_3scale/blob/master/nginx.conf.template)
+[our NGINX configuration file template](https://github.com/planetmint/nginx_3scale/blob/master/nginx.conf.template)
 (open source, on GitHub).
 
 
@@ -55,4 +55,4 @@ For more information, see
 [the NGINX docs about client_max_body_size](https://nginx.org/en/docs/http/ngx_http_core_module.html#client_max_body_size).
 
 Note: By enforcing a maximum transaction size, you
-[indirectly enforce a maximum crypto-conditions complexity](https://github.com/bigchaindb/bigchaindb/issues/356#issuecomment-288085251).
+[indirectly enforce a maximum crypto-conditions complexity](https://github.com/planetmint/planetmint/issues/356#issuecomment-288085251).

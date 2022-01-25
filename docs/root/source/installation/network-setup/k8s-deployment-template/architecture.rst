@@ -32,7 +32,7 @@ as described in these docs, it will include:
   <https://docs.microsoft.com/en-us/azure/operations-management-suite/>`_.
 
 
-.. _bigchaindb-node:
+.. _planetmint-node:
 
 Planetmint Node Diagram
 -----------------------
@@ -104,7 +104,7 @@ Planetmint Node Diagram
   |                +-----------+             +--------+               |    |                                                             |
   |                |           +-------------+        |               |    |                                                             |
   |                |                                  |               |    | "Bi+directional, communication between"                     |
-  |                |                                  |               |    | "BigchainDBAPP) and Tendermint"                            |
+  |                |                                  |               |    | "PlanetmintAPP) and Tendermint"                            |
   |                |                                  |               |    | "BFT consensus Engine"                                      |
   |                |                                  |               |    |                                                             |
   |                v                                  v               |    |                                                             |

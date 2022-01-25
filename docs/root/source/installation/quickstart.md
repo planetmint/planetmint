@@ -72,7 +72,7 @@ To develop an app that talks to a Planetmint network, you'll want a test network
 Create a transaction and post it to the test network:
 
 <div class="buttondiv">
-    <a class="button" href="https://www.bigchaindb.com/developers/getstarted/">Try Planetmint Now</a>
+    <a class="button" href="https://www.planetmint.io/developers/getstarted/">Try Planetmint Now</a>
 </div>
 
 <hr>

@@ -4,7 +4,7 @@
    SPDX-License-Identifier: (Apache-2.0 AND CC-BY-4.0)
    Code is Apache-2.0 and docs are CC-BY-4.0
 
-.. _kubernetes-template-deploy-a-single-bigchaindb-node:
+.. _kubernetes-template-deploy-a-single-planetmint-node:
 
 Kubernetes Template: Deploy a Single Planetmint Node
 ====================================================
@@ -26,7 +26,7 @@ It assumes you already have a running Kubernetes cluster.
 
 Below, we refer to many files by their directory and filename,
 such as ``configuration/config-map.yaml``. Those files are files in the
-`bigchaindb/bigchaindb repository on GitHub <https://github.com/bigchaindb/bigchaindb/>`_
+`planetmint/planetmint repository on GitHub <https://github.com/planetmint/planetmint/>`_
 in the ``k8s/`` directory.
 Make sure you're getting those files from the appropriate Git branch on
 GitHub, i.e. the branch for the version of Planetmint that your Planetmint
@@ -132,7 +132,7 @@ That means you can visit the dashboard in your web browser at
 Step 3: Configure Your Planetmint Node
 --------------------------------------
 
-See the page titled :ref:`how-to-configure-a-bigchaindb-node`.
+See the page titled :ref:`how-to-configure-a-planetmint-node`.
 
 
 .. _start-the-nginx-service:
@@ -166,7 +166,7 @@ Step 5: Assign DNS Name to the NGINX Public IP
 
   * This step is required only if you are planning to set up multiple
     `Planetmint nodes
-    <https://docs.bigchaindb.com/en/latest/terminology.html>`_ or are using
+    <https://docs.planetmint.io/en/latest/terminology.html>`_ or are using
     HTTPS certificates tied to a domain.
 
   * The following command can help you find out if the NGINX service started
@@ -214,7 +214,7 @@ Step 6: Start the MongoDB Kubernetes Service
        $ kubectl apply -f mongodb/mongo-svc.yaml
 
 
-.. _start-the-bigchaindb-kubernetes-service:
+.. _start-the-planetmint-kubernetes-service:
 
 Step 7: Start the Planetmint Kubernetes Service
 -----------------------------------------------
@@ -223,7 +223,7 @@ Step 7: Start the Planetmint Kubernetes Service
 
     .. code:: bash
 
-       $ kubectl apply -f bigchaindb/bigchaindb-svc.yaml
+       $ kubectl apply -f planetmint/planetmint-svc.yaml
 
 
 .. _start-the-openresty-kubernetes-service:
@@ -437,7 +437,7 @@ Planetmint needs somewhere to store Tendermint data persistently, Tendermint use
 LevelDB as the persistent storage layer.
 
 The Kubernetes template for configuration of Storage Class is located in the
-file ``bigchaindb/bigchaindb-sc.yaml``.
+file ``planetmint/planetmint-sc.yaml``.
 
 Details about how to create a Azure Storage account and how Kubernetes Storage Class works
 are already covered in this document: :ref:`create-kubernetes-storage-class-mdb`.
@@ -446,7 +446,7 @@ Create the required storage classes using:
 
 .. code:: bash
 
-   $ kubectl apply -f bigchaindb/bigchaindb-sc.yaml
+   $ kubectl apply -f planetmint/planetmint-sc.yaml
 
 
 You can check if it worked using ``kubectl get storageclasses``.
@@ -459,7 +459,7 @@ Step 15: Create Kubernetes Persistent Volume Claims for Planetmint
 Next, you will create two PersistentVolumeClaim objects ``tendermint-db-claim`` and
 ``tendermint-config-db-claim``.
 
-This configuration is located in the file ``bigchaindb/bigchaindb-pvc.yaml``.
+This configuration is located in the file ``planetmint/planetmint-pvc.yaml``.
 
 Details about Kubernetes Persistent Volumes, Persistent Volume Claims
 and how they work with Azure are already covered in this
@@ -469,7 +469,7 @@ Create the required Persistent Volume Claims using:
 
 .. code:: bash
 
-   $ kubectl apply -f bigchaindb/bigchaindb-pvc.yaml
+   $ kubectl apply -f planetmint/planetmint-pvc.yaml
 
 You can check its status using:
 
@@ -483,7 +483,7 @@ You can check its status using:
 Step 16: Start a Kubernetes StatefulSet for Planetmint
 ------------------------------------------------------
 
-  * This configuration is located in the file ``bigchaindb/bigchaindb-ss.yaml``.
+  * This configuration is located in the file ``planetmint/planetmint-ss.yaml``.
 
   * Set the ``spec.serviceName`` to the value set in ``bdb-instance-name`` in
     the ConfigMap.
@@ -505,7 +505,7 @@ Step 16: Start a Kubernetes StatefulSet for Planetmint
 
     .. code:: bash
 
-       $ kubectl apply -f bigchaindb/bigchaindb-ss.yaml
+       $ kubectl apply -f planetmint/planetmint-ss.yaml
 
     .. code:: bash
 
@@ -570,7 +570,7 @@ Step 18(Optional): Start a Kubernetes Deployment for OpenResty
     - ``node-dns-server-ip``
     - ``openresty-backend-port``
     - ``ngx-bdb-instance-name``
-    - ``bigchaindb-api-port``
+    - ``planetmint-api-port``
 
   * Create the OpenResty Deployment using:
 
@@ -610,7 +610,7 @@ infrastructure to resolve ``bdb-instance-X`` to the host where it is actually av
 We can do this in Kubernetes using a Kubernetes Service of ``type``
 ``ExternalName``.
 
-* This configuration is located in the file ``bigchaindb/bigchaindb-ext-conn-svc.yaml``.
+* This configuration is located in the file ``planetmint/planetmint-ext-conn-svc.yaml``.
 
 * Set the name of the ``metadata.name`` to the host name of the Planetmint instance you are trying to connect to.
   For instance if you are configuring this service on cluster with ``bdb-instance-1`` then the ``metadata.name`` will
@@ -646,17 +646,17 @@ Step 21.1: Testing Internally
 To test the setup of your Planetmint node, you could use a Docker container
 that provides utilities like ``nslookup``, ``curl`` and ``dig``.
 For example, you could use a container based on our
-`bigchaindb/toolbox <https://hub.docker.com/r/bigchaindb/toolbox/>`_ image.
+`planetmint/toolbox <https://hub.docker.com/r/planetmint/toolbox/>`_ image.
 (The corresponding
-`Dockerfile <https://github.com/bigchaindb/bigchaindb/blob/master/k8s/toolbox/Dockerfile>`_
-is in the ``bigchaindb/bigchaindb`` repository on GitHub.)
+`Dockerfile <https://github.com/planetmint/planetmint/blob/master/k8s/toolbox/Dockerfile>`_
+is in the ``planetmint/planetmint`` repository on GitHub.)
 You can use it as below to get started immediately:
 
 .. code:: bash
 
    $ kubectl   \
       run -it toolbox \
-      --image bigchaindb/toolbox \
+      --image planetmint/toolbox \
       --image-pull-policy=Always \
       --restart=Never --rm
 

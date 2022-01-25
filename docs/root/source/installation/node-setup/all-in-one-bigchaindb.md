@@ -10,7 +10,7 @@ Code is Apache-2.0 and docs are CC-BY-4.0
 For those who like using Docker and wish to experiment with Planetmint in
 non-production environments, we currently maintain a Planetmint all-in-one 
 Docker image and a
-`Dockerfile-all-in-one` that can be used to build an image for `bigchaindb`.
+`Dockerfile-all-in-one` that can be used to build an image for `planetmint`.
 
 This image contains all the services required for a Planetmint node i.e.
 
@@ -21,8 +21,8 @@ This image contains all the services required for a Planetmint node i.e.
 **Note:** **NOT for Production Use:** *This is an single node opinionated image not well suited for a network deployment.*
 *This image is to help quick deployment for early adopters, for a more standard approach please refer to one of our deployment guides:*
 
-- [Planetmint developer setup guides](https://docs.bigchaindb.com/projects/contributing/en/latest/dev-setup-coding-and-contribution-process/index.html).
-- [Planetmint with Kubernetes](http://docs.bigchaindb.com/projects/server/en/latest/k8s-deployment-template/index.html).
+- [Planetmint developer setup guides](https://docs.planetmint.io/projects/contributing/en/latest/dev-setup-coding-and-contribution-process/index.html).
+- [Planetmint with Kubernetes](http://docs.planetmint.io/projects/server/en/latest/k8s-deployment-template/index.html).
 
 ## Prerequisite(s)
 - [Docker](https://docs.docker.com/engine/installation/)
@@ -33,19 +33,19 @@ With Docker installed, you can proceed as follows.
 
 In a terminal shell, pull the latest version of the Planetmint all-in-one Docker image using:
 ```text
-$ docker pull bigchaindb/bigchaindb:all-in-one
+$ docker pull planetmint/planetmint:all-in-one
 
 $ docker run \
   --detach \
-  --name bigchaindb \
+  --name planetmint \
   --publish 9984:9984 \
   --publish 9985:9985 \
   --publish 27017:27017 \
   --publish 26657:26657 \
-  --volume $HOME/bigchaindb_docker/mongodb/data/db:/data/db \
-  --volume $HOME/bigchaindb_docker/mongodb/data/configdb:/data/configdb \
-  --volume $HOME/bigchaindb_docker/tendermint:/tendermint \
-  bigchaindb/bigchaindb:all-in-one
+  --volume $HOME/planetmint_docker/mongodb/data/db:/data/db \
+  --volume $HOME/planetmint_docker/mongodb/data/configdb:/data/configdb \
+  --volume $HOME/planetmint_docker/tendermint:/tendermint \
+  planetmint/planetmint:all-in-one
 ```
 
 Let's analyze that command:
@@ -57,18 +57,18 @@ Let's analyze that command:
   * `9985` Planetmint Websocket server
   * `27017` Default port for MongoDB
   * `26657` Tendermint RPC server
-* `--volume "$HOME/bigchaindb_docker/mongodb:/data"` map the host directory
- `$HOME/bigchaindb_docker/mongodb` to the container directory `/data`;
+* `--volume "$HOME/planetmint_docker/mongodb:/data"` map the host directory
+ `$HOME/planetmint_docker/mongodb` to the container directory `/data`;
  this allows us to have the data persisted on the host machine,
  you can read more in the [official Docker
  documentation](https://docs.docker.com/engine/tutorials/dockervolumes)
-  * `$HOME/bigchaindb_docker/tendermint:/tendermint` to persist Tendermint data.
-* `bigchaindb/bigchaindb:all-in-one` the image to use. All the options after the container name are passed on to the entrypoint inside the container.
+  * `$HOME/planetmint_docker/tendermint:/tendermint` to persist Tendermint data.
+* `planetmint/planetmint:all-in-one` the image to use. All the options after the container name are passed on to the entrypoint inside the container.
 
 ## Verify
 
 ```text
-$ docker ps | grep bigchaindb
+$ docker ps | grep planetmint
 ```
 
 Send your first transaction using [Planetmint drivers](../../drivers/index).
@@ -80,8 +80,8 @@ Assuming you have Docker installed, you would proceed as follows.
 
 In a terminal shell:
 ```text
-git clone git@github.com:bigchaindb/bigchaindb.git
-cd bigchaindb/
+git clone git@github.com:planetmint/planetmint.git
+cd planetmint/
 ```
 
 Build the Docker image:

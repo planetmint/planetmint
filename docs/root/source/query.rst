@@ -17,7 +17,7 @@ We wrote a blog post in The Planetmint Blog to show
 how to use some MongoDB tools to query a Planetmint node's MongoDB database.
 It includes some specific example queries for data
 about custom cars and their ownership histories.
-`Check it out <https://blog.bigchaindb.com/using-mongodb-to-query-bigchaindb-data-3fc651e0861b>`_.
+`Check it out <https://blog.planetmint.io/using-mongodb-to-query-planetmint-data-3fc651e0861b>`_.
 
 How to Connect to MongoDB
 -------------------------
@@ -56,11 +56,11 @@ For example, if you're on a machine that's running a default Planetmint node, th
     ...
     > show dbs
     admin     0.000GB
-    bigchain  0.000GB
+    planetmint  0.000GB
     config    0.000GB
     local     0.000GB
-    > use bigchain
-    switched to db bigchain
+    > use planetmint
+    switched to db planetmint
     > show collections
     abci_chains
     assets
@@ -75,14 +75,14 @@ For example, if you're on a machine that's running a default Planetmint node, th
 The above example illustrates several things:
 
 * When you don't specify the hostname or port, the Mongo Shell assumes they are ``localhost`` and ``27017``, respectively. (``localhost`` had IP address 127.0.0.1 on the machine in question, an Ubuntu machine.)
-* Planetmint stores its data in a database named ``bigchain``.
-* The ``bigchain`` database contains several `collections <https://docs.mongodb.com/manual/core/databases-and-collections/>`_.
+* Planetmint stores its data in a database named ``planetmint``.
+* The ``planetmint`` database contains several `collections <https://docs.mongodb.com/manual/core/databases-and-collections/>`_.
 * Votes aren't stored in any collection, currently. They are all handled and stored by Tendermint in its own (LevelDB) database.
 
 Example Documents from Some Collections
 ---------------------------------------
 
-The most interesting collections in the ``bigchain`` database are:
+The most interesting collections in the ``planetmint`` database are:
 
 - transactions
 - assets
@@ -174,7 +174,7 @@ What a Node Operator Can Expose to External Users
 Each node operator can decide how they let external users get information from their local MongoDB database. They could expose:
 
 - their local MonogoDB database itself to queries from external users, maybe as a MongoDB user with a role that has limited privileges, e.g. read-only.
-- a limited HTTP API, allowing a restricted set of predefined queries, such as `the HTTP API provided by Planetmint Server <http://bigchaindb.com/http-api>`_, or a custom HTTP API implemented using Django, Express, Ruby on Rails, or ASP.NET.
+- a limited HTTP API, allowing a restricted set of predefined queries, such as `the HTTP API provided by Planetmint Server <http://planetmint.io/http-api>`_, or a custom HTTP API implemented using Django, Express, Ruby on Rails, or ASP.NET.
 - some other API, such as a GraphQL API. They could do that using custom code or code from a third party.
 
 Each node operator can expose a different level or type of access to their local MongoDB database.
@@ -224,6 +224,6 @@ of the MongoDB drivers, such as `the MongoDB Node.js driver
 Here are some links to example JavaScript code that queries a
 Planetmint node's MongoDB database:
 
-- `The Planetmint JavaScript/Node.js driver source code <https://github.com/bigchaindb/js-bigchaindb-driver>`_
-- `Example code by @manolodewiner <https://github.com/manolodewiner/query-mongodb-bigchaindb/blob/master/queryMongo.js>`_
-- `More example code by @manolodewiner <https://github.com/bigchaindb/bigchaindb/issues/2315#issuecomment-392724279>`_
+- `The Planetmint JavaScript/Node.js driver source code <https://github.com/planetmint/js-planetmint-driver>`_
+- `Example code by @manolodewiner <https://github.com/manolodewiner/query-mongodb-planetmint/blob/master/queryMongo.js>`_
+- `More example code by @manolodewiner <https://github.com/planetmint/planetmint/issues/2315#issuecomment-392724279>`_

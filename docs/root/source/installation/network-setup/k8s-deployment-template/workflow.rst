@@ -145,7 +145,7 @@ then you will run a script which reads that file to generate some Kubernetes con
 you will send those config files to your Kubernetes cluster,
 and then you will deploy all the stuff that you need to have a Planetmint node.
 
-⟶ Proceed to :ref:`deploy your Planetmint node <kubernetes-template-deploy-a-single-bigchaindb-node>`.
+⟶ Proceed to :ref:`deploy your Planetmint node <kubernetes-template-deploy-a-single-planetmint-node>`.
 
 .. raw:: html
 

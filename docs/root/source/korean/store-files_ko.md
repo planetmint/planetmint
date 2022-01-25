@@ -5,7 +5,7 @@ SPDX-License-Identifier: (Apache-2.0 AND CC-BY-4.0)
 Code is Apache-2.0 and docs are CC-BY-4.0
 --->
 
-# BigchainDB에 파일을 저장하는 방법
+# Planetmint에 파일을 저장하는 방법
 
 Planetmint 네트워크에 파일을 저장할 수는 있지만 그렇게하지 않는 것이 좋습니다. 파일이 아닌 구조화 된 데이터를 저장, 인덱싱 및 쿼리하는 데 가장 적합합니다.
 

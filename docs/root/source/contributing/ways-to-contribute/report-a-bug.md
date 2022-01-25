@@ -21,10 +21,10 @@ To write an issue, go to the relevant GitHub repository, click on the **Issues**
 People ask questions about Planetmint in the following places:
 
 - Gitter
-  - [bigchaindb/bigchaindb](https://gitter.im/planetmint/community)
-  - [bigchaindb/js-bigchaindb-driver](https://gitter.im/planetmint/community))
+  - [planetmint/planetmint](https://gitter.im/planetmint/community)
+  - [planetmint/js-planetmint-driver](https://gitter.im/planetmint/community))
 - [Twitter](https://twitter.com/planetmint)
-- [Stack Overflow "bigchaindb"](https://stackoverflow.com/search?q=planetmint)
+- [Stack Overflow "planetmint"](https://stackoverflow.com/search?q=planetmint)
 
 Feel free to hang out and answer some questions. People will be thankful.
 

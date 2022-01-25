@@ -79,13 +79,13 @@ def get_old_new(url, old, new):
     filename = wget.download(url)
     rename(old, new)
 
-get_old_new('https://raw.githubusercontent.com/bigchaindb/bigchaindb/master/CODE_OF_CONDUCT.md',
+get_old_new('https://raw.githubusercontent.com/planetmint/planetmint/master/CODE_OF_CONDUCT.md',
             'CODE_OF_CONDUCT.md', 'contributing/cross-project-policies/code-of-conduct.md')
 
-get_old_new('https://raw.githubusercontent.com/bigchaindb/bigchaindb/master/RELEASE_PROCESS.md',
+get_old_new('https://raw.githubusercontent.com/planetmint/planetmint/master/RELEASE_PROCESS.md',
             'RELEASE_PROCESS.md', 'contributing/cross-project-policies/release-process.md')
 
-get_old_new('https://raw.githubusercontent.com/bigchaindb/bigchaindb/master/PYTHON_STYLE_GUIDE.md',
+get_old_new('https://raw.githubusercontent.com/planetmint/planetmint/master/PYTHON_STYLE_GUIDE.md',
             'PYTHON_STYLE_GUIDE.md', 'contributing/cross-project-policies/python-style-guide.md')
 
 suppress_warnings = ['misc.highlighting_failure']
@@ -304,7 +304,7 @@ html_static_path = ['_static']
 # html_search_scorer = 'scorer.js'
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'BigchainDBdoc'
+htmlhelp_basename = 'Planetmintdoc'
 
 # -- Options for LaTeX output ---------------------------------------------
 
@@ -372,7 +372,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'bigchaindb', 'Planetmint Documentation',
+    (master_doc, 'planetmint', 'Planetmint Documentation',
      [author], 1)
 ]
 

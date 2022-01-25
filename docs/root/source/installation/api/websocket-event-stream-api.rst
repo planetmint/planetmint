@@ -82,7 +82,7 @@ All messages sent in a stream are in the JSON format.
     as a specific ``output``'s ``public_key``.
 
     If you have specific use cases that you think would fit as part of this
-    API, consider creating a new `BEP <https://github.com/bigchaindb/BEPs>`_.
+    API, consider creating a new `BEP <https://github.com/planetmint/BEPs>`_.
 
 Valid Transactions
 ~~~~~~~~~~~~~~~~~~
