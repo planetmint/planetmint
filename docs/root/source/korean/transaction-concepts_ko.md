@@ -20,13 +20,13 @@ BigchainDB는 Planetmint Server v0.8.0부터 나눌 수있는 자산을 지원�
 
 CREATE 트랜잭션은 하나 이상의 출력을 가질 수 있습니다. 각 출력에는 관련 금액이 있습니다. 출력에 연결된 공유 수입니다. 예를 들어 자산이 50 개의 오크 나무로 구성되어있는 경우 한 출력에는 한 소유자 세트에 35 개의 오크 나무가 있고 다른 출력에는 다른 소유자 세트에는 15 개의 오크 나무가있을 수 있습니다.
 
-또한 각 출력에는 연관된 조건이 있습니다. 출력을 전송 / 소비하기 위해 충족되어야하는 조건 (TRANSFER 트랜잭션에 의해). BigchainDB는 다양한 조건을 지원합니다. 자세한 내용은 관련 [Planetmint 트랜잭션 Spec](https://github.com/bigchaindb/BEPs/tree/master/tx-specs/)과 관련된 **트랜잭션 구성 요소 : 조건 섹션**을 참조하십시오.
+또한 각 출력에는 연관된 조건이 있습니다. 출력을 전송 / 소비하기 위해 충족되어야하는 조건 (TRANSFER 트랜잭션에 의해). BigchainDB는 다양한 조건을 지원합니다. 자세한 내용은 관련 [Planetmint 트랜잭션 Spec](https://github.com/planetmint/BEPs/tree/master/tx-specs/)과 관련된 **트랜잭션 구성 요소 : 조건 섹션**을 참조하십시오.
 
 ![Example Planetmint CREATE transaction](./_static/CREATE_example.png)
 
 위의 예제에서는 Planetmint CREATE 트랜잭션 다이어그램을 보여줍니다. Pam은 자산 3 주를 소유 / 통제하고 다른 주식은 없습니다 (다른 산출물이 없으므로).
 
-각 출력에는 해당 출력의 조건과 연관된 모든 공개 키 목록이 있습니다. 다시 말하면, 그 목록은 "소유자"의 목록으로 해석 될 수 있습니다.보다 정확한 단어는 이행자, 서명자, 컨트롤러 또는 이전 가능 요소 일 수 있습니다. 관련 [Planetmint Transactions Spec](https://github.com/bigchaindb/BEPs/tree/master/tx-specs/) **소유자에 관한 참고 사항** 섹션을 참조하십시오.
+각 출력에는 해당 출력의 조건과 연관된 모든 공개 키 목록이 있습니다. 다시 말하면, 그 목록은 "소유자"의 목록으로 해석 될 수 있습니다.보다 정확한 단어는 이행자, 서명자, 컨트롤러 또는 이전 가능 요소 일 수 있습니다. 관련 [Planetmint Transactions Spec](https://github.com/planetmint/BEPs/tree/master/tx-specs/) **소유자에 관한 참고 사항** 섹션을 참조하십시오.
 
 CREATE 트랜잭션은 모든 소유자가 서명해야합니다. (만약 당신이 그 서명을 원한다면, 그것은 인코딩되었지만 하나의 입력의 "이행"에있다.)
 
@@ -51,11 +51,11 @@ CREATE 트랜잭션은 모든 소유자가 서명해야합니다. (만약 당신
 ## 트랜잭션 유효성
 
 언제 트랜잭션이 유효한지 유효성을 검사하는 것에 관해 해당 블로그에 게시되어있습니다. *The Planetmint Blog*:
-["What is a Valid Transaction in Planetmint?"](https://blog.bigchaindb.com/what-is-a-valid-transaction-in-bigchaindb-9a1a075a9598) (Note: That post was about Planetmint Server v1.0.0.)
+["What is a Valid Transaction in Planetmint?"](https://blog.planetmint.com/what-is-a-valid-transaction-in-planetmint-9a1a075a9598) (Note: That post was about Planetmint Server v1.0.0.)
 
-Each [Planetmint Transactions Spec](https://github.com/bigchaindb/BEPs/tree/master/tx-specs/) documents the conditions for a transaction (of that version) to be valid.
+Each [Planetmint Transactions Spec](https://github.com/planetmint/BEPs/tree/master/tx-specs/) documents the conditions for a transaction (of that version) to be valid.
 
 ## 트랜잭션 예시
 
-아래의 [HTTP API 문서](https://docs.bigchaindb.com/projects/server/en/latest/http-client-server-api.html)와 [the Python 드라이버 문서](https://docs.bigchaindb.com/projects/py-driver/en/latest/usage.html)에는 예제 Planetmint 트랜잭션이 있습니다.
+아래의 [HTTP API 문서](https://docs.planetmint.com/projects/server/en/latest/http-client-server-api.html)와 [the Python 드라이버 문서](https://docs.planetmint.com/projects/py-driver/en/latest/usage.html)에는 예제 Planetmint 트랜잭션이 있습니다.
 .

@@ -1,7 +1,7 @@
 # Toolbox container for debugging
 # Run as:
-# docker run -it --rm --entrypoint sh bigchaindb/toolbox
-# kubectl run -it toolbox --image bigchaindb/toolbox --restart=Never --rm
+# docker run -it --rm --entrypoint sh planetmint/toolbox
+# kubectl run -it toolbox --image planetmint/toolbox --restart=Never --rm
 
 FROM alpine:3.5
 LABEL maintainer "contact@ipdb.global"

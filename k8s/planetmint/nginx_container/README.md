@@ -22,5 +22,5 @@ docker run \
   --env TM_PUB_KEY_ACCESS_PORT=''
   --publish=<nginx port for external connections>:<corresponding host port> \
   --volume=<host dir with public key>:/usr/share/nginx \
-  bigchaindb/nginx_pub_key_access:<version_number>
+  planetmint/nginx_pub_key_access:<version_number>
 ```

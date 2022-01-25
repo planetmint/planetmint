@@ -1,9 +1,9 @@
 # Do you want to:
 
 - make a bug report? Then read below about what should go in a bug report.
-- make a feature request or proposal? Then read [the page about how to make a feature request or proposal](https://docs.bigchaindb.com/projects/contributing/en/latest/ways-can-contribute/make-a-feature-request-or-proposal.html).
-- ask a question about Planetmint? Then [go to Gitter](https://gitter.im/bigchaindb/bigchaindb) (our chat room) and ask it there.
-- share your neat idea or realization? Then [go to Gitter](https://gitter.im/bigchaindb/bigchaindb) (our chat room) and share it there.
+- make a feature request or proposal? Then read [the page about how to make a feature request or proposal](https://docs.planetmint.com/projects/contributing/en/latest/ways-can-contribute/make-a-feature-request-or-proposal.html).
+- ask a question about Planetmint? Then [go to Gitter](https://gitter.im/planetmint/planetmint) (our chat room) and ask it there.
+- share your neat idea or realization? Then [go to Gitter](https://gitter.im/planetmint/planetmint) (our chat room) and share it there.
 
 # What Should Go in a Bug Report
 

@@ -5,6 +5,6 @@
 # Code is Apache-2.0 and docs are CC-BY-4.0
 
 
-docker build -t bigchaindb/tendermint:2.2.2 .
+docker build -t planetmint/tendermint:2.2.2 .
 
-docker push bigchaindb/tendermint:2.2.2
+docker push planetmint/tendermint:2.2.2

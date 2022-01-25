@@ -1,5 +1,5 @@
 # Dockerfile for MongoDB Monitoring Agent
-# Use it to create bigchaindb/mongodb-monitoring-agent
+# Use it to create planetmint/mongodb-monitoring-agent
 # on Docker Hub.
 
 # "Never install the Monitoring Agent on the same server as a data bearing mongod instance."

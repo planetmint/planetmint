@@ -21,13 +21,13 @@ The value of each setting is determined according to the following rules:
 * Otherwise, if it's set in a local config file, then use that value
 * Otherwise, use the default value
 
-The local config file is `$HOME/.bigchaindb` by default (a file which might not even exist), but you can tell Planetmint to use a different file by using the `-c` command-line option, e.g. `bigchaindb -c path/to/config_file.json start`
-or using the `PLANETMINT_CONFIG_PATH` environment variable, e.g. `BIGHAINDB_CONFIG_PATH=.my_bigchaindb_config bigchaindb start`.
+The local config file is `$HOME/.planetmint` by default (a file which might not even exist), but you can tell Planetmint to use a different file by using the `-c` command-line option, e.g. `planetmint -c path/to/config_file.json start`
+or using the `PLANETMINT_CONFIG_PATH` environment variable, e.g. `BIGHAINDB_CONFIG_PATH=.my_planetmint_config planetmint start`.
 Note that the `-c` command line option will always take precedence if both the `PLANETMINT_CONFIG_PATH` and the `-c` command line option are used.
 
-You can read the current default values in the file [bigchaindb/\_\_init\_\_.py](https://github.com/bigchaindb/bigchaindb/blob/master/bigchaindb/__init__.py). (The link is to the latest version.)
+You can read the current default values in the file [planetmint/\_\_init\_\_.py](https://github.com/planetmint/planetmint/blob/master/planetmint/__init__.py). (The link is to the latest version.)
 
-Running `bigchaindb -y configure localmongodb` will generate a local config file in `$HOME/.bigchaindb` with all the default values.
+Running `planetmint -y configure localmongodb` will generate a local config file in `$HOME/.planetmint` with all the default values.
 
 ## database.*
 
@@ -84,7 +84,7 @@ export PLANETMINT_DATABASE_MAX_TRIES=3
 
 **Default values**
 
-If (no environment variables were set and there's no local config file), or you used `bigchaindb -y configure localmongodb` to create a default local config file for a `localmongodb` backend, then the defaults will be:
+If (no environment variables were set and there's no local config file), or you used `planetmint -y configure localmongodb` to create a default local config file for a `localmongodb` backend, then the defaults will be:
 
 ```js
 "database": {
@@ -213,7 +213,7 @@ different from where Planetmint is running.
 
 ```text
 export PLANETMINT_WSSERVER_ADVERTISED_SCHEME=wss
-export PLANETMINT_WSSERVER_ADVERTISED_HOST=mybigchaindb.com
+export PLANETMINT_WSSERVER_ADVERTISED_HOST=myplanetmint.com
 export PLANETMINT_WSSERVER_ADVERTISED_PORT=443
 ```
 
@@ -222,7 +222,7 @@ export PLANETMINT_WSSERVER_ADVERTISED_PORT=443
 ```js
 "wsserver": {
     "advertised_scheme": "wss",
-    "advertised_host": "mybigchaindb.com",
+    "advertised_host": "myplanetmint.com",
     "advertised_port": 443
 }
 ```
@@ -246,8 +246,8 @@ The `log.*` settings are to configure logging.
 ```js
 {
     "log": {
-        "file": "/var/log/bigchaindb.log",
-        "error_file": "/var/log/bigchaindb-errors.log",
+        "file": "/var/log/planetmint.log",
+        "error_file": "/var/log/planetmint-errors.log",
         "level_console": "info",
         "level_logfile": "info",
         "datefmt_console": "%Y-%m-%d %H:%M:%S",
@@ -263,8 +263,8 @@ The `log.*` settings are to configure logging.
 ```js
 {
     "log": {
-        "file": "~/bigchaindb.log",
-        "error_file": "~/bigchaindb-errors.log",
+        "file": "~/planetmint.log",
+        "error_file": "~/planetmint-errors.log",
         "level_console": "info",
         "level_logfile": "info",
         "datefmt_console": "%Y-%m-%d %H:%M:%S",
@@ -278,19 +278,19 @@ The `log.*` settings are to configure logging.
 ### log.file
 
 The full path to the file where logs should be written.
-The user running `bigchaindb` must have write access to the
+The user running `planetmint` must have write access to the
 specified path.
 
 **Log rotation:** Log files have a size limit of about 200 MB
 and will be rotated up to five times.
-For example, if `log.file` is set to `"~/bigchain.log"`, then
-logs would always be written to `bigchain.log`. Each time the file
-`bigchain.log` reaches 200 MB it will be closed and renamed
-`bigchain.log.1`. If `bigchain.log.1` and `bigchain.log.2` already exist they
-would be renamed `bigchain.log.2` and `bigchain.log.3`. This pattern would be
-applied up to `bigchain.log.5` after which `bigchain.log.5` would be
-overwritten by `bigchain.log.4`, thus ending the rotation cycle of whatever
-logs were in `bigchain.log.5`.
+For example, if `log.file` is set to `"~/planet.log"`, then
+logs would always be written to `planet.log`. Each time the file
+`planet.log` reaches 200 MB it will be closed and renamed
+`planet.log.1`. If `planet.log.1` and `planet.log.2` already exist they
+would be renamed `planet.log.2` and `planet.log.3`. This pattern would be
+applied up to `planet.log.5` after which `planet.log.5` would be
+overwritten by `planet.log.4`, thus ending the rotation cycle of whatever
+logs were in `planet.log.5`.
 
 ### log.error_file
 

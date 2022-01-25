@@ -35,7 +35,7 @@ Planetmint can store data of any kind, but it's designed to be particularly good
 
 .. note::
 
-   We used the word "owners" somewhat loosely above. A more accurate word might be fulfillers, signers, controllers, or transfer-enablers. See the section titled **A Note about Owners** in the relevant `Planetmint Transactions Spec <https://github.com/bigchaindb/BEPs/tree/master/tx-specs/>`_.
+   We used the word "owners" somewhat loosely above. A more accurate word might be fulfillers, signers, controllers, or transfer-enablers. See the section titled **A Note about Owners** in the relevant `Planetmint Transactions Spec <https://github.com/planetmint/BEPs/tree/master/tx-specs/>`_.
 
 # Production-Ready?
 
@@ -52,7 +52,7 @@ A system could store data off-chain, e.g. in a third-party database, document st
 - Keep track of who has read permissions (or other permissions) in a third-party system. An example of how this could be done is described below.
 - Keep a permanent record of all requests made to the third-party system.
 - Store hashes of documents-stored-elsewhere, so that a change in any document can be detected.
-- Record all handshake-establishing requests and responses between two off-chain parties (e.g. a Diffie-Hellman key exchange), so as to prove that they established an encrypted tunnel (without giving readers access to that tunnel). There are more details about this idea in `the Privacy Protocols repository <https://github.com/bigchaindb/privacy-protocols>`_.
+- Record all handshake-establishing requests and responses between two off-chain parties (e.g. a Diffie-Hellman key exchange), so as to prove that they established an encrypted tunnel (without giving readers access to that tunnel). There are more details about this idea in `the Privacy Protocols repository <https://github.com/planetmint/privacy-protocols>`_.
 
 A simple way to record who has read permission on a particular document would be for the third-party system (“DocPile”) to store a CREATE transaction in a Planetmint network for every document+user pair, to indicate that that user has read permissions for that document. The transaction could be signed by DocPile (or maybe by a document owner, as a variation). The asset data field would contain 1) the unique ID of the user and 2) the unique ID of the document. The one output on the CREATE transaction would only be transferable/spendable by DocPile (or, again, a document owner).
 

@@ -6,7 +6,7 @@ Code is Apache-2.0 and docs are CC-BY-4.0
 --->
 
 ## Feature : Add query parameter "mode" to `POST` transaction
-Add new query parameter `mode` to the [post transaction api](https://docs.bigchaindb.com/projects/server/en/latest/http-client-server-api.html#post--api-v1-transactions) such that client can,
+Add new query parameter `mode` to the [post transaction api](https://docs.planetmint.com/projects/server/en/latest/http-client-server-api.html#post--api-v1-transactions) such that client can,
 - asynchronously post the transaction
 - post the transaction and return after it has been validated
 - post the transaction and return after it has been committed
@@ -24,7 +24,7 @@ The Tendermint api allows to post a transaction in [three modes](https://tenderm
 - allow client to post a transaction and return after a transaction has been committed.
 
 ## Proposed change
-Add query parameter `mode` to the [`POST` transaction api](https://docs.bigchaindb.com/projects/server/en/latest/http-client-server-api.html#post--api-v1-transactions)
+Add query parameter `mode` to the [`POST` transaction api](https://docs.planetmint.com/projects/server/en/latest/http-client-server-api.html#post--api-v1-transactions)
 
 ### Alternatives
 N/A
@@ -33,7 +33,7 @@ N/A
 N/A
 
 ### API impact
-The query parameter `mode` will be introduced to [`POST /api/v1/transaction`](https://docs.bigchaindb.com/projects/server/en/latest/http-client-server-api.html#post--api-v1-transactions) and will have the following possible values
+The query parameter `mode` will be introduced to [`POST /api/v1/transaction`](https://docs.planetmint.com/projects/server/en/latest/http-client-server-api.html#post--api-v1-transactions) and will have the following possible values
 - `async`
 - `sync`
 - `commit`
@@ -50,13 +50,13 @@ N/A
 N/A
 
 ### End user impact
-The feature itself will not impact the client drivers but it may lead to [`GET /api/v1/statuses?transaction_id={transaction_id}`](https://docs.bigchaindb.com/projects/server/en/latest/http-client-server-api.html#get--api-v1-statuses?transaction_id=transaction_id) being deprecated in the future.
+The feature itself will not impact the client drivers but it may lead to [`GET /api/v1/statuses?transaction_id={transaction_id}`](https://docs.planetmint.com/projects/server/en/latest/http-client-server-api.html#get--api-v1-statuses?transaction_id=transaction_id) being deprecated in the future.
 
 ### Deployment impact
 N/A
 
 ### Documentation impact
-The documentation for [posting a transaction](https://docs.bigchaindb.com/projects/server/en/latest/http-client-server-api.html#post--api-v1-transactions) would need to describe the use of query parameter `mode`.
+The documentation for [posting a transaction](https://docs.planetmint.com/projects/server/en/latest/http-client-server-api.html#post--api-v1-transactions) would need to describe the use of query parameter `mode`.
 
 ### Testing impact
 Following new test cases should be included

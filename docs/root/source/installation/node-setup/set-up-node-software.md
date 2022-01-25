@@ -36,17 +36,17 @@ For example, to install version 2.2.2, you would do:
 
 ```
 # Change 2.0.0 to the latest version as explained above:
-sudo pip3 install bigchaindb==2.2.2
+sudo pip3 install planetmint==2.2.2
 ```
 
-Check that you installed the correct version of Planetmint Server using `bigchaindb --version`.
+Check that you installed the correct version of Planetmint Server using `planetmint --version`.
 
 ## Configure Planetmint Server
 
 To configure Planetmint Server, run:
 
 ```
-bigchaindb configure
+planetmint configure
 ```
 
 The first question is ``API Server bind? (default `localhost:9984`)``.
@@ -58,7 +58,7 @@ The first question is ``API Server bind? (default `localhost:9984`)``.
 You can accept the default value for all other Planetmint config settings.
 
 If you're using NGINX, then you should edit your Planetmint config file
-(in `$HOME/.bigchaindb` by default) and set the following values
+(in `$HOME/.planetmint` by default) and set the following values
 under `"wsserver"`:
 
 ```

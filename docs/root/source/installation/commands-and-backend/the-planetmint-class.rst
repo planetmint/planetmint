@@ -8,4 +8,4 @@
 The Planetmint Class
 ####################
 
-.. autoclass:: bigchaindb.Planetmint
+.. autoclass:: planetmint.Planetmint

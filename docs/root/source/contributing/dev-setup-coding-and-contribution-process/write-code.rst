@@ -21,7 +21,7 @@ Refresh Yourself about the C4 Process
 -------------------------------------
 
 C4 is the Collective Code Construction Contract. It's quite short:
-`re-reading it will only take a few minutes <https://github.com/bigchaindb/BEPs/tree/master/1>`_.
+`re-reading it will only take a few minutes <https://github.com/planetmint/BEPs/tree/master/1>`_.
 
 
 Set Up Your Local Machine. Here's How.
@@ -69,7 +69,7 @@ Set Up Your Local Machine. Here's How.
 Before You Start Writing Code
 -----------------------------
 
-Read `BEP-24 <https://github.com/bigchaindb/BEPs/tree/master/24>`_
+Read `BEP-24 <https://github.com/planetmint/BEPs/tree/master/24>`_
 so you know what to do to ensure that your changes (i.e. your future pull request) can be merged.
 It's easy and will save you some hassle later on.
 
@@ -79,7 +79,7 @@ Start Writing Code
 
 Use the Git `Fork and Pull Request Workflow <https://github.com/susam/gitpr>`_. Tip: You could print that page for reference.
 
-Your Python code should follow `our Python Style Guide <https://github.com/bigchaindb/bigchaindb/blob/master/PYTHON_STYLE_GUIDE.md>`_.
+Your Python code should follow `our Python Style Guide <https://github.com/planetmint/planetmint/blob/master/PYTHON_STYLE_GUIDE.md>`_.
 Similarly for JavaScript.
 
 Make sure `pre-commit <https://pre-commit.com/>`_ actually checks commits. Do:

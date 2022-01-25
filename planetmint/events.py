@@ -34,7 +34,7 @@ class Event:
 
         Args:
             event_type (int): the type of the event, see
-                :class:`~bigchaindb.events.EventTypes`
+                :class:`~planetmint.events.EventTypes`
             event_data (obj): the data of the event.
         """
 
@@ -88,7 +88,7 @@ class Exchange:
         """Given an event, send it to all the subscribers.
 
         Args
-            event (:class:`~bigchaindb.events.EventTypes`): the event to
+            event (:class:`~planetmint.events.EventTypes`): the event to
                 dispatch to all the subscribers.
         """
 

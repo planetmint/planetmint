@@ -150,7 +150,7 @@ def get_owned_ids(connection, owner):
 
 @singledispatch
 def get_block(connection, block_id):
-    """Get a block from the bigchain table.
+    """Get a block from the planet table.
 
     Args:
         block_id (str): block id of the block to get

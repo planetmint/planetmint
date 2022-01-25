@@ -256,9 +256,9 @@ All logging messages containing the string "critical" but not "CriticalAddonsOnl
 
 ``Type=ContainerLog critical NOT(CriticalAddonsOnly)``
 
-All logging messages from containers running the Docker image bigchaindb/nginx_3scale:1.3, containing the string "GET" but not the strings "Go-http-client" or "runscope" (where those exclusions filter out tests by Kubernetes and Runscope):
+All logging messages from containers running the Docker image planetmint/nginx_3scale:1.3, containing the string "GET" but not the strings "Go-http-client" or "runscope" (where those exclusions filter out tests by Kubernetes and Runscope):
 
-``Type=ContainerLog Image="bigchaindb/nginx_3scale:1.3" GET NOT("Go-http-client") NOT(runscope)``
+``Type=ContainerLog Image="planetmint/nginx_3scale:1.3" GET NOT("Go-http-client") NOT(runscope)``
 
 .. note::
 

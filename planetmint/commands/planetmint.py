@@ -23,10 +23,10 @@ from planetmint.common.exceptions import (DatabaseDoesNotExist,
 from planetmint.elections.vote import Vote
 import planetmint
 from planetmint import (backend, ValidatorElection,
-                        BigchainDB)
+                        Planetmint)
 from planetmint.backend import schema
 from planetmint.commands import utils
-from planetmint.commands.utils import (configure_bigchaindb,
+from planetmint.commands.utils import (configure_planetmint,
                                        input_on_stderr)
 from planetmint.log import setup_logging
 from planetmint.tendermint_utils import public_key_from_base64
@@ -43,7 +43,7 @@ logger = logging.getLogger(__name__)
 #   should be printed to stderr.
 
 
-@configure_bigchaindb
+@configure_planetmint
 def run_show_config(args):
     """Show the current configuration"""
     # TODO Proposal: remove the "hidden" configuration. Only show config. If
@@ -54,7 +54,7 @@ def run_show_config(args):
     print(json.dumps(config, indent=4, sort_keys=True))
 
 
-@configure_bigchaindb
+@configure_planetmint
 def run_configure(args):
     """Run a script to configure the current node."""
     config_path = args.config or planetmint.config_utils.CONFIG_DEFAULT_PATH
@@ -103,29 +103,29 @@ def run_configure(args):
     print('Ready to go!', file=sys.stderr)
 
 
-@configure_bigchaindb
+@configure_planetmint
 def run_election(args):
     """Initiate and manage elections"""
 
-    b = BigchainDB()
+    b = Planetmint()
 
     # Call the function specified by args.action, as defined above
     globals()[f'run_election_{args.action}'](args, b)
 
 
-def run_election_new(args, bigchain):
+def run_election_new(args, planet):
     election_type = args.election_type.replace('-', '_')
-    globals()[f'run_election_new_{election_type}'](args, bigchain)
+    globals()[f'run_election_new_{election_type}'](args, planet)
 
 
-def create_new_election(sk, bigchain, election_class, data):
+def create_new_election(sk, planet, election_class, data):
     try:
         key = load_node_key(sk)
-        voters = election_class.recipients(bigchain)
+        voters = election_class.recipients(planet)
         election = election_class.generate([key.public_key],
                                            voters,
                                            data, None).sign([key.private_key])
-        election.validate(bigchain)
+        election.validate(planet)
     except ValidationError as e:
         logger.error(e)
         return False
@@ -133,7 +133,7 @@ def create_new_election(sk, bigchain, election_class, data):
         logger.error(fd_404)
         return False
 
-    resp = bigchain.write_transaction(election, BROADCAST_TX_COMMIT)
+    resp = planet.write_transaction(election, BROADCAST_TX_COMMIT)
     if resp == (202, ''):
         logger.info('[SUCCESS] Submitted proposal with id: {}'.format(election.id))
         return election.id
@@ -142,7 +142,7 @@ def create_new_election(sk, bigchain, election_class, data):
         return False
 
 
-def run_election_new_upsert_validator(args, bigchain):
+def run_election_new_upsert_validator(args, planet):
     """Initiates an election to add/update/remove a validator to an existing Planetmint network
 
     :param args: dict
@@ -152,7 +152,7 @@ def run_election_new_upsert_validator(args, bigchain):
         'node_id': the node_id of the new peer (str)
         'sk': the path to the private key of the node calling the election (str)
         }
-    :param bigchain: an instance of Planetmint
+    :param planet: an instance of Planetmint
     :return: election_id or `False` in case of failure
     """
 
@@ -163,24 +163,24 @@ def run_election_new_upsert_validator(args, bigchain):
         'node_id': args.node_id
     }
 
-    return create_new_election(args.sk, bigchain, ValidatorElection, new_validator)
+    return create_new_election(args.sk, planet, ValidatorElection, new_validator)
 
 
-def run_election_new_chain_migration(args, bigchain):
+def run_election_new_chain_migration(args, planet):
     """Initiates an election to halt block production
 
     :param args: dict
         args = {
         'sk': the path to the private key of the node calling the election (str)
         }
-    :param bigchain: an instance of Planetmint
+    :param planet: an instance of Planetmint
     :return: election_id or `False` in case of failure
     """
 
-    return create_new_election(args.sk, bigchain, ChainMigrationElection, {})
+    return create_new_election(args.sk, planet, ChainMigrationElection, {})
 
 
-def run_election_approve(args, bigchain):
+def run_election_approve(args, planet):
     """Approve an election
 
     :param args: dict
@@ -188,12 +188,12 @@ def run_election_approve(args, bigchain):
         'election_id': the election_id of the election (str)
         'sk': the path to the private key of the signer (str)
         }
-    :param bigchain: an instance of Planetmint
+    :param planet: an instance of Planetmint
     :return: success log message or `False` in case of error
     """
 
     key = load_node_key(args.sk)
-    tx = bigchain.get_transaction(args.election_id)
+    tx = planet.get_transaction(args.election_id)
     voting_powers = [v.amount for v in tx.outputs if key.public_key in v.public_keys]
     if len(voting_powers) > 0:
         voting_power = voting_powers[0]
@@ -206,9 +206,9 @@ def run_election_approve(args, bigchain):
     approval = Vote.generate(inputs,
                              [([election_pub_key], voting_power)],
                              tx.id).sign([key.private_key])
-    approval.validate(bigchain)
+    approval.validate(planet)
 
-    resp = bigchain.write_transaction(approval, BROADCAST_TX_COMMIT)
+    resp = planet.write_transaction(approval, BROADCAST_TX_COMMIT)
 
     if resp == (202, ''):
         logger.info('[SUCCESS] Your vote has been submitted')
@@ -218,22 +218,22 @@ def run_election_approve(args, bigchain):
         return False
 
 
-def run_election_show(args, bigchain):
+def run_election_show(args, planet):
     """Retrieves information about an election
 
     :param args: dict
         args = {
         'election_id': the transaction_id for an election (str)
         }
-    :param bigchain: an instance of Planetmint
+    :param planet: an instance of Planetmint
     """
 
-    election = bigchain.get_transaction(args.election_id)
+    election = planet.get_transaction(args.election_id)
     if not election:
         logger.error(f'No election found with election_id {args.election_id}')
         return
 
-    response = election.show_election(bigchain)
+    response = election.show_election(planet)
 
     logger.info(response)
 
@@ -241,18 +241,18 @@ def run_election_show(args, bigchain):
 
 
 def _run_init():
-    bdb = planetmint.BigchainDB()
+    bdb = planetmint.Planetmint()
 
     schema.init_database(connection=bdb.connection)
 
 
-@configure_bigchaindb
+@configure_planetmint
 def run_init(args):
     """Initialize the database"""
     _run_init()
 
 
-@configure_bigchaindb
+@configure_planetmint
 def run_drop(args):
     """Drop the database"""
     dbname = planetmint.config['database']['name']
@@ -273,7 +273,7 @@ def run_recover(b):
     rollback(b)
 
 
-@configure_bigchaindb
+@configure_planetmint
 def run_start(args):
     """Start the processes to run the node"""
 
@@ -281,7 +281,7 @@ def run_start(args):
     setup_logging()
 
     logger.info('Planetmint Version %s', planetmint.__version__)
-    run_recover(planetmint.lib.BigchainDB())
+    run_recover(planetmint.lib.Planetmint())
 
     if not args.skip_initialize_database:
         logger.info('Initializing database')

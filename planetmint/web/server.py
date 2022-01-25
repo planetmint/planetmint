@@ -16,7 +16,7 @@ from flask_cors import CORS
 import gunicorn.app.base
 
 from planetmint import utils
-from planetmint import BigchainDB
+from planetmint import Planetmint
 from planetmint.web.routes import add_routes
 from planetmint.web.strip_content_type_middleware import StripContentTypeMiddleware
 
@@ -60,7 +60,7 @@ class StandaloneApplication(gunicorn.app.base.BaseApplication):
         return self.application
 
 
-def create_app(*, debug=False, threads=1, bigchaindb_factory=None):
+def create_app(*, debug=False, threads=1, planetmint_factory=None):
     """Return an instance of the Flask application.
 
     Args:
@@ -71,8 +71,8 @@ def create_app(*, debug=False, threads=1, bigchaindb_factory=None):
         an instance of the Flask application.
     """
 
-    if not bigchaindb_factory:
-        bigchaindb_factory = BigchainDB
+    if not planetmint_factory:
+        planetmint_factory = Planetmint
 
     app = Flask(__name__)
     app.wsgi_app = StripContentTypeMiddleware(app.wsgi_app)
@@ -81,14 +81,14 @@ def create_app(*, debug=False, threads=1, bigchaindb_factory=None):
 
     app.debug = debug
 
-    app.config['bigchain_pool'] = utils.pool(bigchaindb_factory, size=threads)
+    app.config['bigchain_pool'] = utils.pool(planetmint_factory, size=threads)
 
     add_routes(app)
 
     return app
 
 
-def create_server(settings, log_config=None, bigchaindb_factory=None):
+def create_server(settings, log_config=None, planetmint_factory=None):
     """Wrap and return an application ready to be run.
 
     Args:
@@ -113,6 +113,6 @@ def create_server(settings, log_config=None, bigchaindb_factory=None):
     settings['custom_log_config'] = log_config
     app = create_app(debug=settings.get('debug', False),
                      threads=settings['threads'],
-                     bigchaindb_factory=bigchaindb_factory)
+                     planetmint_factory=planetmint_factory)
     standalone = StandaloneApplication(app, options=settings)
     return standalone

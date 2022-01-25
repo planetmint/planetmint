@@ -15,7 +15,7 @@ Planetmint 쿼리
 ------------------------------
 
 
-Planetmint 블로그에 MongoDB 도구를 사용하여 Planetmint 노드의 MongoDB 데이터베이스를 쿼리하는 방법에 대한 게시물을 올렸습니다. 데이터에 대한 일부 특정 예제 쿼리가 주요 내용입니다. [여기서 확인하세요](https://blog.bigchaindb.com/using-mongodb-to-query-bigchaindb-data-3fc651e0861b)
+Planetmint 블로그에 MongoDB 도구를 사용하여 Planetmint 노드의 MongoDB 데이터베이스를 쿼리하는 방법에 대한 게시물을 올렸습니다. 데이터에 대한 일부 특정 예제 쿼리가 주요 내용입니다. [여기서 확인하세요](https://blog.planetmint.com/using-mongodb-to-query-planetmint-data-3fc651e0861b)
 
 MongoDB에 연결하기
 -------------------------
@@ -53,7 +53,7 @@ SQL을 이용해 mongoDB 데이터베이스를 쿼리할 수 있습니다. 예�
     ...
     > show dbs
     admin     0.000GB
-    bigchain  0.000GB
+    planet  0.000GB
     config    0.000GB
     local     0.000GB
     > use bigchain
@@ -162,7 +162,7 @@ metadata 컬렉션의 문서는 MongoDB가 추가한 `"_id"`필드와 거래에�
 각 노드 operator는 외부 사용자가 자신의 로컬 MongoDB 데이터베이스에서 정보를 얻는 방법을 결정할 수 있습니다. 그들은 다음과 같은 것들을 보낼 수 있습니다:
 
 - 외부유저를 쿼리 처리하는 로컬 MongoDB 데이터베이스 한된 제한된 권한을 가진 역할을 가진 MongoDB 사용자 예) read-only
-- 제한된 미리 정의된 쿼리 집합을 허용하는 제한된 HTTP API, [Planetmint 서버에서 제공하는 HTTP API](http://bigchaindb.com/http-api), 혹은Django, Express, Ruby on Rails, or ASP.NET.를 이용해 구현된 커스텀 HTTP API 
+- 제한된 미리 정의된 쿼리 집합을 허용하는 제한된 HTTP API, [Planetmint 서버에서 제공하는 HTTP API](http://planetmint.com/http-api), 혹은Django, Express, Ruby on Rails, or ASP.NET.를 이용해 구현된 커스텀 HTTP API 
 - 다른 API(예: GraphQL API) 제3자의 사용자 정의 코드 또는 코드를 사용하여 수행할 수 있습니다..
 
 각 노드 operator는 로컬 MongoDB 데이터베이스에 대한 다른 레벨 또는 유형의 액세스를 노출할 수 있습니다.
@@ -197,6 +197,6 @@ Tendermint voting 파워가 0인 노드인 추종자 노드를 생성할 수 있
 
 [MongoDB node.js 드라이버](https://mongodb.github.io/node-mongodb-native/?jmp=docs)와 같은 MongoDB 드라이버를 사용하여 다음 중 하나를 사용하여 노드의 MongoDB 데이터베이스에 연결할 수 있습니다. 여기 자바스크립트 쿼리 코드에 대한 링크가 있습니다.
 
-- [The Planetmint JavaScript/Node.js driver source code](https://github.com/bigchaindb/js-bigchaindb-driver)
-- [Example code by @manolodewiner](https://github.com/manolodewiner/query-mongodb-bigchaindb/blob/master/queryMongo.js)
-- [More example code by @manolodewiner](https://github.com/bigchaindb/bigchaindb/issues/2315#issuecomment-392724279)
+- [The Planetmint JavaScript/Node.js driver source code](https://github.com/planetmint/js-bigchaindb-driver)
+- [Example code by @manolodewiner](https://github.com/manolodewiner/query-mongodb-planetmint/blob/master/queryMongo.js)
+- [More example code by @manolodewiner](https://github.com/planetmint/planetmint/issues/2315#issuecomment-392724279)

@@ -5,7 +5,7 @@
 
 """This module provides the blueprint for some basic API endpoints.
 
-For more information please refer to the documentation: http://bigchaindb.com/http-api
+For more information please refer to the documentation: http://planetmint.com/http-api
 """
 import logging
 
@@ -34,8 +34,8 @@ class TransactionApi(Resource):
         """
         pool = current_app.config['bigchain_pool']
 
-        with pool() as bigchain:
-            tx = bigchain.get_transaction(tx_id)
+        with pool() as planet:
+            tx = planet.get_transaction(tx_id)
 
         if not tx:
             return make_error(404)
@@ -52,8 +52,8 @@ class TransactionListApi(Resource):
         parser.add_argument('last_tx', type=parameters.valid_bool,
                             required=False)
         args = parser.parse_args()
-        with current_app.config['bigchain_pool']() as bigchain:
-            txs = bigchain.get_transactions_filtered(**args)
+        with current_app.config['bigchain_pool']() as planet:
+            txs = planet.get_transactions_filtered(**args)
 
         return [tx.to_dict() for tx in txs]
 
@@ -89,16 +89,16 @@ class TransactionListApi(Resource):
                 'Invalid transaction ({}): {}'.format(type(e).__name__, e)
             )
 
-        with pool() as bigchain:
+        with pool() as planet:
             try:
-                bigchain.validate_transaction(tx_obj)
+                planet.validate_transaction(tx_obj)
             except ValidationError as e:
                 return make_error(
                     400,
                     'Invalid transaction ({}): {}'.format(type(e).__name__, e)
                 )
             else:
-                status_code, message = bigchain.write_transaction(tx_obj, mode)
+                status_code, message = planet.write_transaction(tx_obj, mode)
 
         if status_code == 202:
             response = jsonify(tx)

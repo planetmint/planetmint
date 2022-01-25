@@ -5,6 +5,6 @@
 # Code is Apache-2.0 and docs are CC-BY-4.0
 
 
-docker build -t bigchaindb/nginx-https-web-proxy:0.12 .
+docker build -t planetmint/nginx-https-web-proxy:0.12 .
 
-docker push bigchaindb/nginx-https-web-proxy:0.12
+docker push planetmint/nginx-https-web-proxy:0.12

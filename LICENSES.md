@@ -5,8 +5,8 @@
 For all the code and documentation in this repository, the copyright is owned by one or more of the following:
 
 - Planetmint GmbH
-- A Planetmint contributor who agreed to a Planetmint Contributor License Agreement (CLA) with Planetmint GmbH. (See [BEP-16](https://github.com/bigchaindb/BEPs/tree/master/16).)
-- A Planetmint contributor who signed off on the Developer Certificate of Origin (DCO) for all their contributions. (See [BEP-24](https://github.com/bigchaindb/BEPs/tree/master/24).)
+- A Planetmint contributor who agreed to a Planetmint Contributor License Agreement (CLA) with Planetmint GmbH. (See [BEP-16](https://github.com/planetmint/BEPs/tree/master/16).)
+- A Planetmint contributor who signed off on the Developer Certificate of Origin (DCO) for all their contributions. (See [BEP-24](https://github.com/planetmint/BEPs/tree/master/24).)
 - (Rarely, see the **Exceptions Section** below) A third pary who licensed the code in question under an open source license.
 
 ## Code Licenses

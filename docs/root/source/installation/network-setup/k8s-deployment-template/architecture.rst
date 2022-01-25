@@ -32,7 +32,7 @@ as described in these docs, it will include:
   <https://docs.microsoft.com/en-us/azure/operations-management-suite/>`_.
 
 
-.. _bigchaindb-node:
+.. _planetmint-node:
 
 Planetmint Node Diagram
 -----------------------

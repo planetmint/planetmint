@@ -17,7 +17,7 @@ class ValidatorsApi(Resource):
 
         pool = current_app.config['bigchain_pool']
 
-        with pool() as bigchain:
-            validators = bigchain.get_validators()
+        with pool() as planet:
+            validators = planet.get_validators()
 
         return validators

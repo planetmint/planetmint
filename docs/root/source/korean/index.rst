@@ -9,7 +9,7 @@ Planetmint 문서
 
 블록체인 데이터베이스인 BigchainDB를 만나보세요.
 
-`분산형 <https://github.com/bigchaindb/bigchaindb/blob/master/docs/root/source/korean/decentralized_kor.md>`_, `불변성 <https://github.com/bigchaindb/bigchaindb/blob/master/docs/root/source/korean/immutable-ko.md>`_ 및 `자산에 대한 네이티브 지원 <https://github.com/bigchaindb/bigchaindb/blob/master/docs/root/source/korean/assets_ko.md>`_ 을 포함한 일부 데이터베이스 특성들과 블록체인 특성을 가지고 있습니다.
+`분산형 <https://github.com/planetmint/planetmint/blob/master/docs/root/source/korean/decentralized_kor.md>`_, `불변성 <https://github.com/planetmint/planetmint/blob/master/docs/root/source/korean/immutable-ko.md>`_ 및 `자산에 대한 네이티브 지원 <https://github.com/planetmint/planetmint/blob/master/docs/root/source/korean/assets_ko.md>`_ 을 포함한 일부 데이터베이스 특성들과 블록체인 특성을 가지고 있습니다.
 
 높은 수준에서, 사용자는 Planetmint HTTP API를 사용하는 Planetmint 네트워크(노드 집합) 또는 Planetmint 파이썬 드라이버와 같은 API용 래퍼로 통신할 수 있습니다. 각 Planetmint 노드는 Planetmint Server 및 다양한 다른 소프트웨어를 실행합니다. 더 자세한 사항은 용어 페이지에서 이러한 용어 중 일부를 설명합니다.
 
@@ -56,22 +56,22 @@ Planetmint 문서
    </style>
 
    <div class="buttondiv">
-     <a class="button" href="http://bigchaindb.com/http-api">HTTP API 문서</a>
+     <a class="button" href="http://planetmint.com/http-api">HTTP API 문서</a>
    </div>
    <div class="buttondiv">
-     <a class="button" href="http://docs.bigchaindb.com/projects/contributing/en/latest/index.html">BigchainDB에 기여하는 법</a>
+     <a class="button" href="http://docs.planetmint.com/projects/contributing/en/latest/index.html">BigchainDB에 기여하는 법</a>
    </div>
    <div class="buttondiv">
-     <a class="button" href="http://docs.bigchaindb.com/projects/py-driver/en/latest/index.html">파이썬 드라이버 문서</a>
+     <a class="button" href="http://docs.planetmint.com/projects/py-driver/en/latest/index.html">파이썬 드라이버 문서</a>
    </div>
    <div class="buttondiv">
-     <a class="button" href="https://docs.bigchaindb.com/projects/js-driver/en/latest/index.html">자바스크립트 드라이버 문서</a>
+     <a class="button" href="https://docs.planetmint.com/projects/js-driver/en/latest/index.html">자바스크립트 드라이버 문서</a>
    </div>
    <div class="buttondiv">
-     <a class="button" href="http://docs.bigchaindb.com/projects/server/en/latest/index.html">서버 문서</a>
+     <a class="button" href="http://docs.planetmint.com/projects/server/en/latest/index.html">서버 문서</a>
    </div>
    <div class="buttondiv">
-     <a class="button" href="http://docs.bigchaindb.com/projects/server/en/latest/quickstart.html">서버 빠른 시작</a>
+     <a class="button" href="http://docs.planetmint.com/projects/server/en/latest/quickstart.html">서버 빠른 시작</a>
    </div>
 
 
@@ -95,4 +95,4 @@ BigchainDB에 대한 추가 정보
    store-files_ko
    permissions-ko
    private-data-ko
-   Data Models <https://docs.bigchaindb.com/projects/server/en/latest/data-models/index.html>
+   Data Models <https://docs.planetmint.com/projects/server/en/latest/data-models/index.html>

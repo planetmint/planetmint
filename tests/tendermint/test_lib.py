@@ -76,7 +76,7 @@ def test_get_latest_block(b):
 
 @pytest.mark.bdb
 @patch('planetmint.backend.query.get_block', return_value=None)
-@patch('planetmint.BigchainDB.get_latest_block', return_value={'height': 10})
+@patch('planetmint.Planetmint.get_latest_block', return_value={'height': 10})
 def test_get_empty_block(_0, _1, b):
     assert b.get_block(5) == {'height': 5, 'transactions': []}
 

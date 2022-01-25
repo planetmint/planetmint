@@ -12,7 +12,7 @@ determined according to the following rules:
 * Otherwise, if it's set in a local config file, then use that
   value
 * Otherwise, use the default value (contained in
-  ``bigchaindb.__init__``)
+  ``planetmint.__init__``)
 """
 
 
@@ -180,18 +180,18 @@ def update_types(config, reference, list_sep=':'):
 
 
 def set_config(config):
-    """Set bigchaindb.config equal to the default config dict,
+    """Set planetmint.config equal to the default config dict,
     then update that with whatever is in the provided config dict,
-    and then set bigchaindb.config['CONFIGURED'] = True
+    and then set planetmint.config['CONFIGURED'] = True
 
     Args:
         config (dict): the config dict to read for changes
                        to the default config
 
     Note:
-        Any previous changes made to ``bigchaindb.config`` will be lost.
+        Any previous changes made to ``planetmint.config`` will be lost.
     """
-    # Deep copy the default config into bigchaindb.config
+    # Deep copy the default config into planetmint.config
     planetmint.config = copy.deepcopy(planetmint._config)
     # Update the default config with whatever is in the passed config
     update(planetmint.config, update_types(config, planetmint.config))
@@ -199,8 +199,8 @@ def set_config(config):
 
 
 def update_config(config):
-    """Update bigchaindb.config with whatever is in the provided config dict,
-    and then set bigchaindb.config['CONFIGURED'] = True
+    """Update planetmint.config with whatever is in the provided config dict,
+    and then set planetmint.config['CONFIGURED'] = True
 
     Args:
         config (dict): the config dict to read for changes
@@ -218,7 +218,7 @@ def write_config(config, filename=None):
     Args:
         config (dict): a dictionary with the configuration to load.
         filename (str): the name of the file that will store the new configuration. Defaults to ``None``.
-            If ``None``, the HOME of the current user and the string ``.bigchaindb`` will be used.
+            If ``None``, the HOME of the current user and the string ``.planetmint`` will be used.
     """
     if not filename:
         filename = CONFIG_DEFAULT_PATH
@@ -255,7 +255,7 @@ def autoconfigure(filename=None, config=None, force=False):
     newconfig = env_config(newconfig)
     if config:
         newconfig = update(newconfig, config)
-    set_config(newconfig)  # sets bigchaindb.config
+    set_config(newconfig)  # sets planetmint.config
 
 
 @lru_cache()
@@ -267,29 +267,29 @@ def load_validation_plugin(name=None):
             setup.py of the providing package.
 
     Returns:
-        an uninstantiated subclass of ``bigchaindb.validation.AbstractValidationRules``
+        an uninstantiated subclass of ``planetmint.validation.AbstractValidationRules``
     """
     if not name:
         return BaseValidationRules
 
-    # TODO: This will return the first plugin with group `bigchaindb.validation`
+    # TODO: This will return the first plugin with group `planetmint.validation`
     #       and name `name` in the active WorkingSet.
     #       We should probably support Requirements specs in the config, e.g.
     #       validation_plugin: 'my-plugin-package==0.0.1;default'
     plugin = None
-    for entry_point in iter_entry_points('bigchaindb.validation', name):
+    for entry_point in iter_entry_points('planetmint.validation', name):
         plugin = entry_point.load()
 
     # No matching entry_point found
     if not plugin:
         raise ResolutionError(
-            'No plugin found in group `bigchaindb.validation` with name `{}`'.
+            'No plugin found in group `planetmint.validation` with name `{}`'.
             format(name))
 
     # Is this strictness desireable?
     # It will probably reduce developer headaches in the wild.
     if not issubclass(plugin, (BaseValidationRules,)):
-        raise TypeError('object of type "{}" does not implement `bigchaindb.'
+        raise TypeError('object of type "{}" does not implement `planetmint.'
                         'validation.BaseValidationRules`'.format(type(plugin)))
 
     return plugin
@@ -302,7 +302,7 @@ def load_events_plugins(names=None):
         return plugins
 
     for name in names:
-        for entry_point in iter_entry_points('bigchaindb.events', name):
+        for entry_point in iter_entry_points('planetmint.events', name):
             plugins.append((name, entry_point.load()))
 
     return plugins

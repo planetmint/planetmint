@@ -32,5 +32,5 @@ docker run \
   --publish=<p2p port on host>:<p2p port> \
   --volume <host dir for tendermint data>:/tendermint \
   --volume=<host dir for public key>:/tendermint_node_data \
-  bigchaindb/tendermint:<version_number>
+  planetmint/tendermint:<version_number>
 ```

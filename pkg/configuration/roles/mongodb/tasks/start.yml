@@ -12,7 +12,7 @@
     detach: true
     network_mode: bridge
     networks:
-      - name: "{{ bigchaindb_docker_net }}"
+      - name: "{{ planetmint_docker_net }}"
     published_ports:
       - "{{ mongodb_port }}"
     restart_policy: unless-stopped

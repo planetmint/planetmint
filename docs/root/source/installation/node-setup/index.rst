@@ -14,12 +14,12 @@ You can use the all-in-one docker solution, or install Tendermint, MongoDB, and 
 
    deploy-a-machine
    aws-setup
-   all-in-one-bigchaindb
-   bigchaindb-node-ansible
+   all-in-one-planetmint
+   planetmint-node-ansible
    set-up-node-software
    set-up-nginx
    configuration
-   bigchaindb-cli
+   planetmint-cli
    troubleshooting
    production-node/index
    release-notes

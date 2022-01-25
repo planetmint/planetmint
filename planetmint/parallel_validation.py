@@ -6,14 +6,14 @@
 import multiprocessing as mp
 from collections import defaultdict
 
-from planetmint import App, BigchainDB
+from planetmint import App, Planetmint
 from planetmint.tendermint_utils import decode_transaction
 from abci import CodeTypeOk
 
 
 class ParallelValidationApp(App):
-    def __init__(self, bigchaindb=None, events_queue=None, abci=None):
-        super().__init__(bigchaindb, events_queue, abci=abci)
+    def __init__(self, planetmint=None, events_queue=None, abci=None):
+        super().__init__(planetmint, events_queue, abci=abci)
         self.parallel_validator = ParallelValidator()
         self.parallel_validator.start()
 
@@ -88,7 +88,7 @@ class ValidationWorker:
     def __init__(self, in_queue, results_queue):
         self.in_queue = in_queue
         self.results_queue = results_queue
-        self.bigchaindb = BigchainDB()
+        self.planetmint = Planetmint()
         self.reset()
 
     def reset(self):
@@ -104,7 +104,7 @@ class ValidationWorker:
         except KeyError:
             asset_id = dict_transaction['id']
 
-        transaction = self.bigchaindb.is_valid_transaction(
+        transaction = self.planetmint.is_valid_transaction(
                 dict_transaction,
                 self.validated_transactions[asset_id])
 

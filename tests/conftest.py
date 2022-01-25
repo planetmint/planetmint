@@ -79,7 +79,7 @@ def _bdb_marker(request):
 
 
 @pytest.fixture(autouse=True)
-def _restore_config(_configure_bigchaindb):
+def _restore_config(_configure_planetmint):
     from planetmint import config, config_utils
     config_before_test = copy.deepcopy(config)
     yield
@@ -87,7 +87,7 @@ def _restore_config(_configure_bigchaindb):
 
 
 @pytest.fixture(scope='session')
-def _configure_bigchaindb(request):
+def _configure_planetmint(request):
     import planetmint
     from planetmint import config_utils
     test_db_name = TEST_DB_NAME
@@ -111,7 +111,7 @@ def _configure_bigchaindb(request):
 
 
 @pytest.fixture(scope='session')
-def _setup_database(_configure_bigchaindb):
+def _setup_database(_configure_planetmint):
     from planetmint import config
     from planetmint.backend import connect
     print('Initializing test db')
@@ -132,7 +132,7 @@ def _setup_database(_configure_bigchaindb):
 
 
 @pytest.fixture
-def _bdb(_setup_database, _configure_bigchaindb):
+def _bdb(_setup_database, _configure_planetmint):
     from planetmint import config
     from planetmint.backend import connect
     from .utils import flush_db
@@ -242,8 +242,8 @@ def a():
 
 @pytest.fixture
 def b():
-    from planetmint import BigchainDB
-    return BigchainDB()
+    from planetmint import Planetmint
+    return Planetmint()
 
 
 @pytest.fixture
@@ -412,7 +412,7 @@ def _abci_http(request):
 
 
 @pytest.fixture
-def abci_http(_setup_database, _configure_bigchaindb, abci_server,
+def abci_http(_setup_database, _configure_planetmint, abci_server,
               tendermint_host, tendermint_port):
     import requests
     import time

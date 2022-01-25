@@ -58,7 +58,7 @@ class Input(object):
                 to be signed with a private key.
             owners_before (:obj:`list` of :obj:`str`): A list of owners after a
                 Transaction was confirmed.
-            fulfills (:class:`~bigchaindb.common.transaction. TransactionLink`,
+            fulfills (:class:`~planetmint.common.transaction. TransactionLink`,
                 optional): A link representing the input of a `TRANSFER`
                 Transaction.
     """
@@ -71,7 +71,7 @@ class Input(object):
                     Fulfillment to be signed with a private key.
                 owners_before (:obj:`list` of :obj:`str`): A list of owners
                     after a Transaction was confirmed.
-                fulfills (:class:`~bigchaindb.common.transaction.
+                fulfills (:class:`~planetmint.common.transaction.
                     TransactionLink`, optional): A link representing the input
                     of a `TRANSFER` Transaction.
         """
@@ -141,7 +141,7 @@ class Input(object):
                 data (dict): The Input to be transformed.
 
             Returns:
-                :class:`~bigchaindb.common.transaction.Input`
+                :class:`~planetmint.common.transaction.Input`
 
             Raises:
                 InvalidSignature: If an Input's URI couldn't be parsed.
@@ -257,7 +257,7 @@ class TransactionLink(object):
                 link (dict): The link to be transformed.
 
             Returns:
-                :class:`~bigchaindb.common.transaction.TransactionLink`
+                :class:`~planetmint.common.transaction.TransactionLink`
         """
         try:
             return cls(link['transaction_id'], link['output_index'])
@@ -468,7 +468,7 @@ class Output(object):
                 data (dict): The dict to be transformed.
 
             Returns:
-                :class:`~bigchaindb.common.transaction.Output`
+                :class:`~planetmint.common.transaction.Output`
         """
         try:
             fulfillment = _fulfillment_from_details(data['condition']['details'])
@@ -491,10 +491,10 @@ class Transaction(object):
 
         Attributes:
             operation (str): Defines the operation of the Transaction.
-            inputs (:obj:`list` of :class:`~bigchaindb.common.
+            inputs (:obj:`list` of :class:`~planetmint.common.
                 transaction.Input`, optional): Define the assets to
                 spend.
-            outputs (:obj:`list` of :class:`~bigchaindb.common.
+            outputs (:obj:`list` of :class:`~planetmint.common.
                 transaction.Output`, optional): Define the assets to lock.
             asset (dict): Asset payload for this Transaction. ``CREATE``
                 Transactions require a dict with a ``data``
@@ -521,9 +521,9 @@ class Transaction(object):
             Args:
                 operation (str): Defines the operation of the Transaction.
                 asset (dict): Asset payload for this Transaction.
-                inputs (:obj:`list` of :class:`~bigchaindb.common.
+                inputs (:obj:`list` of :class:`~planetmint.common.
                     transaction.Input`, optional): Define the assets to
-                outputs (:obj:`list` of :class:`~bigchaindb.common.
+                outputs (:obj:`list` of :class:`~planetmint.common.
                     transaction.Output`, optional): Define the assets to
                     lock.
                 metadata (dict): Metadata to be stored along with the
@@ -660,7 +660,7 @@ class Transaction(object):
                     be created in this Transaction.
 
             Returns:
-                :class:`~bigchaindb.common.transaction.Transaction`
+                :class:`~planetmint.common.transaction.Transaction`
         """
 
         (inputs, outputs) = cls.validate_create(tx_signers, recipients, asset, metadata)
@@ -716,7 +716,7 @@ class Transaction(object):
                         weight respectively. `inp2` is owned completely by `d`.
 
             Args:
-                inputs (:obj:`list` of :class:`~bigchaindb.common.transaction.
+                inputs (:obj:`list` of :class:`~planetmint.common.transaction.
                     Input`): Converted `Output`s, intended to
                     be used as inputs in the transfer to generate.
                 recipients (:obj:`list` of :obj:`tuple`): A list of
@@ -728,7 +728,7 @@ class Transaction(object):
                     Transaction.
 
             Returns:
-                :class:`~bigchaindb.common.transaction.Transaction`
+                :class:`~planetmint.common.transaction.Transaction`
         """
         (inputs, outputs) = cls.validate_transfer(inputs, recipients, asset_id, metadata)
         return cls(cls.TRANSFER, {'id': asset_id}, inputs, outputs, metadata)
@@ -757,7 +757,7 @@ class Transaction(object):
                     outputs should be returned as inputs.
 
             Returns:
-                :obj:`list` of :class:`~bigchaindb.common.transaction.
+                :obj:`list` of :class:`~planetmint.common.transaction.
                     Input`
         """
         # NOTE: If no indices are passed, we just assume to take all outputs
@@ -774,7 +774,7 @@ class Transaction(object):
         """Adds an input to a Transaction's list of inputs.
 
             Args:
-                input_ (:class:`~bigchaindb.common.transaction.
+                input_ (:class:`~planetmint.common.transaction.
                     Input`): An Input to be added to the Transaction.
         """
         if not isinstance(input_, Input):
@@ -785,7 +785,7 @@ class Transaction(object):
         """Adds an output to a Transaction's list of outputs.
 
             Args:
-                output (:class:`~bigchaindb.common.transaction.
+                output (:class:`~planetmint.common.transaction.
                     Output`): An Output to be added to the
                     Transaction.
         """
@@ -811,7 +811,7 @@ class Transaction(object):
                     Transaction.
 
             Returns:
-                :class:`~bigchaindb.common.transaction.Transaction`
+                :class:`~planetmint.common.transaction.Transaction`
         """
         # TODO: Singing should be possible with at least one of all private
         #       keys supplied to this method.
@@ -857,7 +857,7 @@ class Transaction(object):
                     - ThresholdSha256.
 
             Args:
-                input_ (:class:`~bigchaindb.common.transaction.
+                input_ (:class:`~planetmint.common.transaction.
                     Input`) The Input to be signed.
                 message (str): The message to be signed
                 key_pairs (dict): The keys to sign the Transaction with.
@@ -878,7 +878,7 @@ class Transaction(object):
         """Signs a Ed25519Fulfillment.
 
             Args:
-                input_ (:class:`~bigchaindb.common.transaction.
+                input_ (:class:`~planetmint.common.transaction.
                     Input`) The input to be signed.
                 message (str): The message to be signed
                 key_pairs (dict): The keys to sign the Transaction with.
@@ -910,7 +910,7 @@ class Transaction(object):
         """Signs a ThresholdSha256.
 
             Args:
-                input_ (:class:`~bigchaindb.common.transaction.
+                input_ (:class:`~planetmint.common.transaction.
                     Input`) The Input to be signed.
                 message (str): The message to be signed
                 key_pairs (dict): The keys to sign the Transaction with.
@@ -962,7 +962,7 @@ class Transaction(object):
                 evaluate parts of the validation-checks to `True`.
 
             Args:
-                outputs (:obj:`list` of :class:`~bigchaindb.common.
+                outputs (:obj:`list` of :class:`~planetmint.common.
                     transaction.Output`): A list of Outputs to check the
                     Inputs against.
 
@@ -1025,7 +1025,7 @@ class Transaction(object):
                 does not validate against `output_condition_uri`.
 
             Args:
-                input_ (:class:`~bigchaindb.common.transaction.
+                input_ (:class:`~planetmint.common.transaction.
                     Input`) The Input to be signed.
                 operation (str): The type of Transaction.
                 message (str): The fulfillment message.
@@ -1134,7 +1134,7 @@ class Transaction(object):
         transaction are related to the same asset id.
 
         Args:
-            transactions (:obj:`list` of :class:`~bigchaindb.common.
+            transactions (:obj:`list` of :class:`~planetmint.common.
                 transaction.Transaction`): A list of Transactions.
                 Usually input Transactions that should have a matching
                 asset ID.
@@ -1196,7 +1196,7 @@ class Transaction(object):
                 tx_body (dict): The Transaction to be transformed.
 
             Returns:
-                :class:`~bigchaindb.common.transaction.Transaction`
+                :class:`~planetmint.common.transaction.Transaction`
         """
         operation = tx.get('operation', Transaction.CREATE) if isinstance(tx, dict) else Transaction.CREATE
         cls = Transaction.resolve_class(operation)
@@ -1211,13 +1211,13 @@ class Transaction(object):
                    tx['metadata'], tx['version'], hash_id=tx['id'], tx_dict=tx)
 
     @classmethod
-    def from_db(cls, bigchain, tx_dict_list):
+    def from_db(cls, planet, tx_dict_list):
         """Helper method that reconstructs a transaction dict that was returned
         from the database. It checks what asset_id to retrieve, retrieves the
         asset from the asset table and reconstructs the transaction.
 
         Args:
-            bigchain (:class:`~bigchaindb.tendermint.BigchainDB`): An instance
+            planet (:class:`~planetmint.tendermint.Planetmint`): An instance
                 of Planetmint used to perform database queries.
             tx_dict_list (:list:`dict` or :obj:`dict`): The transaction dict or
                 list of transaction dict as returned from the database.
@@ -1238,7 +1238,7 @@ class Transaction(object):
             tx_map[tx['id']] = tx
             tx_ids.append(tx['id'])
 
-        assets = list(bigchain.get_assets(tx_ids))
+        assets = list(planet.get_assets(tx_ids))
         for asset in assets:
             if asset is not None:
                 tx = tx_map[asset['id']]
@@ -1246,7 +1246,7 @@ class Transaction(object):
                 tx['asset'] = asset
 
         tx_ids = list(tx_map.keys())
-        metadata_list = list(bigchain.get_metadata(tx_ids))
+        metadata_list = list(planet.get_metadata(tx_ids))
         for metadata in metadata_list:
             tx = tx_map[metadata['id']]
             tx.update({'metadata': metadata.get('metadata')})
@@ -1276,13 +1276,13 @@ class Transaction(object):
     def validate_schema(cls, tx):
         pass
 
-    def validate_transfer_inputs(self, bigchain, current_transactions=[]):
+    def validate_transfer_inputs(self, planet, current_transactions=[]):
         # store the inputs so that we can check if the asset ids match
         input_txs = []
         input_conditions = []
         for input_ in self.inputs:
             input_txid = input_.fulfills.txid
-            input_tx = bigchain.get_transaction(input_txid)
+            input_tx = planet.get_transaction(input_txid)
 
             if input_tx is None:
                 for ctxn in current_transactions:
@@ -1293,7 +1293,7 @@ class Transaction(object):
                 raise InputDoesNotExist("input `{}` doesn't exist"
                                         .format(input_txid))
 
-            spent = bigchain.get_spent(input_txid, input_.fulfills.output,
+            spent = planet.get_spent(input_txid, input_.fulfills.output,
                                        current_transactions)
             if spent:
                 raise DoubleSpend('input `{}` was already spent'

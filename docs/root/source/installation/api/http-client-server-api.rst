@@ -18,7 +18,7 @@ If you set up a Planetmint node or reverse proxy yourself,
 and you're not sure what the API Root URL is,
 then see the last section of this page for help.
 
-.. _bigchaindb-root-url:
+.. _planetmint-root-url:
 
 Planetmint Root URL
 -------------------
@@ -59,7 +59,7 @@ Transactions Endpoint
    then one option is to connect to MongoDB directly (if possible)
    and do whatever queries MongoDB allows.
    For more about that option, see
-   `the page about querying Planetmint <https://docs.bigchaindb.com/en/latest/query.html>`_.
+   `the page about querying Planetmint <https://docs.planetmint.com/en/latest/query.html>`_.
 
 .. http:get:: /api/v1/transactions/{transaction_id}
 
@@ -172,11 +172,11 @@ Transactions Endpoint
 
        The posted transaction should be valid.
        The relevant
-       `Planetmint Transactions Spec <https://github.com/bigchaindb/BEPs/tree/master/tx-specs/>`_
+       `Planetmint Transactions Spec <https://github.com/planetmint/BEPs/tree/master/tx-specs/>`_
        explains how to build a valid transaction
        and how to check if a transaction is valid.
        One would normally use a driver such as the `Planetmint Python Driver
-       <https://docs.bigchaindb.com/projects/py-driver/en/latest/index.html>`_
+       <https://docs.planetmint.com/projects/py-driver/en/latest/index.html>`_
        to build a valid transaction.
 
    .. note::
@@ -223,7 +223,7 @@ unspent outputs.
    then one option is to connect to MongoDB directly (if possible)
    and do whatever queries MongoDB allows.
    For more about that option, see
-   `the page about querying Planetmint <https://docs.bigchaindb.com/en/latest/query.html>`_.
+   `the page about querying Planetmint <https://docs.planetmint.com/en/latest/query.html>`_.
 
 .. http:get:: /api/v1/outputs
 
@@ -341,7 +341,7 @@ Assets
    then one option is to connect to MongoDB directly (if possible)
    and do whatever queries MongoDB allows.
    For more about that option, see
-   `the page about querying Planetmint <https://docs.bigchaindb.com/en/latest/query.html>`_.
+   `the page about querying Planetmint <https://docs.planetmint.com/en/latest/query.html>`_.
 
 .. http:get:: /api/v1/assets
 
@@ -377,7 +377,7 @@ Assets
 
    .. sourcecode:: http
 
-        GET /api/v1/assets/?search=bigchaindb HTTP/1.1
+        GET /api/v1/assets/?search=planetmint HTTP/1.1
         Host: example.com
 
    **Example response**:
@@ -426,7 +426,7 @@ Assets
 
    .. sourcecode:: http
 
-    GET /api/v1/assets?search=bigchaindb&limit=2 HTTP/1.1
+    GET /api/v1/assets?search=planetmint&limit=2 HTTP/1.1
     Host: example.com
 
    **Example response**:
@@ -465,7 +465,7 @@ Transaction Metadata
    then one option is to connect to MongoDB directly (if possible)
    and do whatever queries MongoDB allows.
    For more about that option, see
-   `the page about querying Planetmint <https://docs.bigchaindb.com/en/latest/query.html>`_.
+   `the page about querying Planetmint <https://docs.planetmint.com/en/latest/query.html>`_.
 
 .. http:get:: /api/v1/metadata
 
@@ -501,7 +501,7 @@ Transaction Metadata
 
    .. sourcecode:: http
 
-        GET /api/v1/metadata/?search=bigchaindb HTTP/1.1
+        GET /api/v1/metadata/?search=planetmint HTTP/1.1
         Host: example.com
 
    **Example response**:
@@ -550,7 +550,7 @@ Transaction Metadata
 
    .. sourcecode:: http
 
-    GET /api/v1/metadata?search=bigchaindb&limit=2 HTTP/1.1
+    GET /api/v1/metadata?search=planetmint&limit=2 HTTP/1.1
     Host: example.com
 
    **Example response**:
@@ -703,7 +703,7 @@ Blocks
 Determining the API Root URL
 ----------------------------
 
-When you start Planetmint Server using ``bigchaindb start``,
+When you start Planetmint Server using ``planetmint start``,
 an HTTP API is exposed at some address. The default is:
 
 ``http://localhost:9984/api/v1/``

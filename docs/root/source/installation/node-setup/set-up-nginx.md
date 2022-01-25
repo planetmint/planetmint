@@ -31,7 +31,7 @@ Get an SSL certificate for your node's subdomain (such as `bnode.example.com`).
 * Create a "PEM file" (text file) by concatenating your SSL certificate with all intermediate certificates (_in that order, with the intermediate certs last_).
 * Copy that PEM file into `/etc/nginx/ssl/cert.pem`
 * In the
-  [bigchaindb/bigchaindb repository on GitHub](https://github.com/bigchaindb/bigchaindb),
+  [planetmint/planetmint repository on GitHub](https://github.com/planetmint/planetmint),
   find the file `nginx/nginx.conf` and copy its contents to
   `/etc/nginx/nginx.conf` on your machine (i.e. replace the existing file there).
 * Edit that file (`/etc/nginx/nginx.conf`): replace the two instances of

@@ -35,6 +35,6 @@ directories:
 mongodb_port: 27017
 
 # Docker configuration
-bigchaindb_docker_net: "bigchaindb_docker_net"
+planetmint_docker_net: "planetmint_docker_net"
 mongodb_docker_name: "mongodb"
 mongodb_host_mount_dir: "{{ home_dir }}/mongodb_docker"

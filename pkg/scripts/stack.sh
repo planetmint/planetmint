@@ -12,7 +12,7 @@ umask 022
 
 # defaults
 stack_branch=${STACK_BRANCH:="master"}
-stack_repo=${STACK_REPO:="bigchaindb/bigchaindb"}
+stack_repo=${STACK_REPO:="planetmint/planetmint"}
 stack_size=${STACK_SIZE:=4}
 stack_type=${STACK_TYPE:="docker"}
 stack_type_provider=${STACK_TYPE_PROVIDER:=""}
@@ -42,8 +42,8 @@ if [[ -n "$NOUNSET" ]]; then
 fi
 
 TOP_DIR=$(cd $(dirname "$0") && pwd)
-SCRIPTS_DIR=$TOP_DIR/bigchaindb/pkg/scripts
-CONF_DIR=$TOP_DIR/bigchaindb/pkg/configuration
+SCRIPTS_DIR=$TOP_DIR/planetmint/pkg/scripts
+CONF_DIR=$TOP_DIR/planetmint/pkg/configuration
 
 
 function usage() {
@@ -80,11 +80,11 @@ function usage() {
         of the instance(s) spawned. (default: ${stack_box_name})
 
     ENV[STACK_REPO]
-        (Optional) To configure bigchaindb repo to use, set STACK_REPO environment
+        (Optional) To configure planetmint repo to use, set STACK_REPO environment
         variable. (default: ${stack_repo})
 
     ENV[STACK_BRANCH]
-        (Optional) To configure bigchaindb repo branch to use set STACK_BRANCH environment
+        (Optional) To configure planetmint repo branch to use set STACK_BRANCH environment
         variable. (default: ${stack_branch})
 
     ENV[TM_VERSION]
@@ -172,8 +172,8 @@ trap finish EXIT
 
 export STACK_REPO=$stack_repo
 export STACK_BRANCH=$stack_branch
-echo "Using bigchaindb repo: '$STACK_REPO'"
-echo "Using bigchaindb branch '$STACK_BRANCH'"
+echo "Using planetmint repo: '$STACK_REPO'"
+echo "Using planetmint branch '$STACK_BRANCH'"
 
 git clone https://github.com/${stack_repo}.git -b $stack_branch || true
 
@@ -185,7 +185,7 @@ if [[ $stack_type == "local" ]]; then
 fi
 
 # configure stack-config.yml
-cat >$TOP_DIR/bigchaindb/pkg/configuration/vars/stack-config.yml <<EOF
+cat >$TOP_DIR/planetmint/pkg/configuration/vars/stack-config.yml <<EOF
 ---
 stack_type: "${stack_type}"
 stack_size: "${stack_size}"
@@ -213,7 +213,7 @@ stack_type_provider="$(echo $stack_type_provider | tr '[A-Z]' '[a-z]')"
 if [[ $stack_type == "local" ]]; then
 	echo "Configuring setup locally!"
 	vagrant up --provider virtualbox --provision
-	ansible-playbook $CONF_DIR/bigchaindb-start.yml \
+	ansible-playbook $CONF_DIR/planetmint-start.yml \
 		-i $CONF_DIR/hosts/all \
 		--extra-vars "operation=start home_path=${TOP_DIR}"
 elif [[ $stack_type == "cloud" && $stack_type_provider == "azure" ]]; then
@@ -227,7 +227,7 @@ elif [[ $stack_type == "cloud" && $stack_type_provider == "azure" ]]; then
     vagrant box add azure-dummy https://github.com/azure/vagrant-azure/raw/v2.0/dummy.box \
     --provider azure --force
 	vagrant up --provider azure --provision
-	ansible-playbook $CONF_DIR/bigchaindb-start.yml \
+	ansible-playbook $CONF_DIR/planetmint-start.yml \
 		-i $CONF_DIR/hosts/all \
 		--extra-vars "operation=start home_path=/opt/stack"
 elif [[ $stack_type == "docker" ]]; then
@@ -236,7 +236,7 @@ elif [[ $stack_type == "docker" ]]; then
 	cat >$CONF_DIR/hosts/all <<EOF
   $(hostname)  ansible_connection=local
 EOF
-	ansible-playbook $CONF_DIR/bigchaindb-start.yml \
+	ansible-playbook $CONF_DIR/planetmint-start.yml \
     -i $CONF_DIR/hosts/all \
 	--extra-vars "operation=start home_path=${TOP_DIR}"
 else

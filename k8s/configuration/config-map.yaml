@@ -70,28 +70,28 @@ data:
   openresty-backend-port: "8080"
 
   # Planetmint configuration parameters
-  # Refer https://docs.bigchaindb.com/projects/server/en/latest/server-reference/configuration.html
+  # Refer https://docs.planetmint.com/projects/server/en/latest/server-reference/configuration.html
 
-  # bigchaindb-api-port is the port number on which Planetmint is listening
+  # planetmint-api-port is the port number on which Planetmint is listening
   # for HTTP requests.
-  bigchaindb-api-port: "9984"
+  planetmint-api-port: "9984"
 
-  # bigchaindb-server-bind is the socket where Planetmint binds for API
+  # planetmint-server-bind is the socket where Planetmint binds for API
   # requests.
-  bigchaindb-server-bind: "0.0.0.0:9984"
+  planetmint-server-bind: "0.0.0.0:9984"
 
-  # bigchaindb-ws-port and bigchaindb-ws-interface form the socket where
+  # planetmint-ws-port and planetmint-ws-interface form the socket where
   # Planetmint binds for Websocket connections.
-  bigchaindb-ws-port: "9985"
-  bigchaindb-ws-interface: "0.0.0.0"
+  planetmint-ws-port: "9985"
+  planetmint-ws-interface: "0.0.0.0"
 
-  # bigchaindb-database-name is the database collection used by Planetmint with
+  # planetmint-database-name is the database collection used by Planetmint with
   # the MongoDB backend.
-  bigchaindb-database-name: "bigchain"
+  planetmint-database-name: "bigchain"
 
-  # bigchaindb-wsserver-advertised-scheme is the protocol used to access the
+  # planetmint-wsserver-advertised-scheme is the protocol used to access the
   # WebSocket API in Planetmint; can be 'ws' or 'wss' (default).
-  bigchaindb-wsserver-advertised-scheme: "wss"
+  planetmint-wsserver-advertised-scheme: "wss"
 
   # Optional: Optimize storage engine(wired tiger)
   # cache size. e.g. (2048MB, 2GB, 1TB), otherwise
@@ -111,18 +111,18 @@ data:
   # Planetmint instance authentication user name
   bdb-user: "<user name>"
 
-  # bigchaindb-database-maxtries is the maximum number of times that Planetmint
+  # planetmint-database-maxtries is the maximum number of times that Planetmint
   # will try to establish a connection with the database backend.
   # If it is set to 0, then it will try forever.
-  bigchaindb-database-maxtries: "3"
+  planetmint-database-maxtries: "3"
 
-  # bigchaindb-database-connection-timeout is the maximum number of
+  # planetmint-database-connection-timeout is the maximum number of
   # milliseconds that Planetmint will wait before closing the connection while
   # connecting to the database backend.
-  bigchaindb-database-connection-timeout: "5000"
+  planetmint-database-connection-timeout: "5000"
 
-  # bigchaindb-log-level is the log level used to log to the console.
-  bigchaindb-log-level: "debug"
+  # planetmint-log-level is the log level used to log to the console.
+  planetmint-log-level: "debug"
 
 ---
 apiVersion: v1

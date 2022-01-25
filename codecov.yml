@@ -25,7 +25,7 @@ coverage:
   ignore:          # files and folders that will be removed during processing
     - "docs/*"
     - "tests/*"
-    - "bigchaindb/version.py"
+    - "planetmint/version.py"
     - "k8s/*"
 
 comment:

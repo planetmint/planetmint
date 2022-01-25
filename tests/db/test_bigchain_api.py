@@ -446,7 +446,7 @@ class TestMultipleInputs(object):
 
 def test_get_outputs_filtered_only_unspent():
     from planetmint.common.transaction import TransactionLink
-    from planetmint.lib import BigchainDB
+    from planetmint.lib import Planetmint
 
     go = 'planetmint.fastquery.FastQuery.get_outputs_by_public_key'
     with patch(go) as get_outputs:
@@ -455,14 +455,14 @@ def test_get_outputs_filtered_only_unspent():
         fs = 'planetmint.fastquery.FastQuery.filter_spent_outputs'
         with patch(fs) as filter_spent:
             filter_spent.return_value = [TransactionLink('b', 2)]
-            out = BigchainDB().get_outputs_filtered('abc', spent=False)
+            out = Planetmint().get_outputs_filtered('abc', spent=False)
     get_outputs.assert_called_once_with('abc')
     assert out == [TransactionLink('b', 2)]
 
 
 def test_get_outputs_filtered_only_spent():
     from planetmint.common.transaction import TransactionLink
-    from planetmint.lib import BigchainDB
+    from planetmint.lib import Planetmint
     go = 'planetmint.fastquery.FastQuery.get_outputs_by_public_key'
     with patch(go) as get_outputs:
         get_outputs.return_value = [TransactionLink('a', 1),
@@ -470,7 +470,7 @@ def test_get_outputs_filtered_only_spent():
         fs = 'planetmint.fastquery.FastQuery.filter_unspent_outputs'
         with patch(fs) as filter_spent:
             filter_spent.return_value = [TransactionLink('b', 2)]
-            out = BigchainDB().get_outputs_filtered('abc', spent=True)
+            out = Planetmint().get_outputs_filtered('abc', spent=True)
     get_outputs.assert_called_once_with('abc')
     assert out == [TransactionLink('b', 2)]
 
@@ -479,13 +479,13 @@ def test_get_outputs_filtered_only_spent():
 @patch('planetmint.fastquery.FastQuery.filter_spent_outputs')
 def test_get_outputs_filtered(filter_spent, filter_unspent):
     from planetmint.common.transaction import TransactionLink
-    from planetmint.lib import BigchainDB
+    from planetmint.lib import Planetmint
 
     go = 'planetmint.fastquery.FastQuery.get_outputs_by_public_key'
     with patch(go) as get_outputs:
         get_outputs.return_value = [TransactionLink('a', 1),
                                     TransactionLink('b', 2)]
-        out = BigchainDB().get_outputs_filtered('abc')
+        out = Planetmint().get_outputs_filtered('abc')
     get_outputs.assert_called_once_with('abc')
     filter_spent.assert_not_called()
     filter_unspent.assert_not_called()
@@ -494,7 +494,7 @@ def test_get_outputs_filtered(filter_spent, filter_unspent):
 
 def test_cant_spend_same_input_twice_in_tx(b, alice):
     """Recreate duplicated fulfillments bug
-    https://github.com/bigchaindb/bigchaindb/issues/1099
+    https://github.com/planetmint/planetmint/issues/1099
     """
     from planetmint.models import Transaction
     from planetmint.common.exceptions import DoubleSpend

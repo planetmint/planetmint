@@ -6,27 +6,27 @@
 ---
 - name: Stopping Planetmint Docker
   docker_container:
-    name: "{{ bigchaindb_docker_name }}{{ item }}"
-    image: "{{ bigchaindb_image_name }}:{{ bigchaindb_image_tag }}"
+    name: "{{ planetmint_docker_name }}{{ item }}"
+    image: "{{ planetmint_image_name }}:{{ planetmint_image_tag }}"
     keep_volumes: no
     state: absent
     force_kill: yes
   with_sequence: start=1 end="{{ stack_size|int }}" stride=1
   when: stack_type|lower == "docker" or stack_type|lower == "cloud"
-  tags: [bigchaindb]
+  tags: [planetmint]
 
 - name: Get Running Planetmint Process(es)
   shell: "ps aux | grep \"[b]igchaindb\" | awk '{print $2}'"
   register: bdb_ps
   ignore_errors: yes
   when: stack_type|lower == "local"
-  tags: [bigchaindb]
+  tags: [planetmint]
 
 - name: Kill Planetmint Process(es)
   shell: "kill -9 {{ item }}"
   with_items: "{{ bdb_ps.stdout_lines }}"
   when: stack_type|lower == "local" and bdb_ps.stdout_lines|length > 0
-  tags: [bigchaindb]
+  tags: [planetmint]
 
 - name: Kill auxiliary Planetmint Process(es)
   shell: "pkill {{ item }}"
@@ -36,4 +36,4 @@
     - gunicorn
   ignore_errors: yes
   when: stack_type|lower == "local"
-  tags: [bigchaindb]
+  tags: [planetmint]

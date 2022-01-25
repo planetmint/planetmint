@@ -20,15 +20,15 @@ class Vote(Transaction):
     # Custom validation schema
     TX_SCHEMA_CUSTOM = TX_SCHEMA_VOTE
 
-    def validate(self, bigchain, current_transactions=[]):
+    def validate(self, planet, current_transactions=[]):
         """Validate election vote transaction
         NOTE: There are no additional validity conditions on casting votes i.e.
         a vote is just a valid TRANFER transaction
 
-        For more details refer BEP-21: https://github.com/bigchaindb/BEPs/tree/master/21
+        For more details refer BEP-21: https://github.com/planetmint/BEPs/tree/master/21
 
         Args:
-            bigchain (Planetmint): an instantiated bigchaindb.lib.BigchainDB object.
+            planet (Planetmint): an instantiated planetmint.lib.Planetmint object.
 
         Returns:
             Vote: a Vote object
@@ -36,7 +36,7 @@ class Vote(Transaction):
         Raises:
             ValidationError: If the election vote is invalid
         """
-        self.validate_transfer_inputs(bigchain, current_transactions)
+        self.validate_transfer_inputs(planet, current_transactions)
         return self
 
     @classmethod

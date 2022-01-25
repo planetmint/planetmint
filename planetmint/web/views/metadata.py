@@ -5,7 +5,7 @@
 
 """This module provides the blueprint for some basic API endpoints.
 
-For more information please refer to the documentation: http://bigchaindb.com/http-api
+For more information please refer to the documentation: http://planetmint.com/http-api
 """
 import logging
 
@@ -41,9 +41,9 @@ class MetadataApi(Resource):
 
         pool = current_app.config['bigchain_pool']
 
-        with pool() as bigchain:
+        with pool() as planet:
             args['table'] = 'metadata'
-            metadata = bigchain.text_search(**args)
+            metadata = planet.text_search(**args)
 
         try:
             # This only works with MongoDB as the backend

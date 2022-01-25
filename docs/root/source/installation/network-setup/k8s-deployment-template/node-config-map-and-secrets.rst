@@ -4,7 +4,7 @@
    SPDX-License-Identifier: (Apache-2.0 AND CC-BY-4.0)
    Code is Apache-2.0 and docs are CC-BY-4.0
 
-.. _how-to-configure-a-bigchaindb-node:
+.. _how-to-configure-a-planetmint-node:
 
 How to Configure a Planetmint Node
 ==================================

@@ -38,7 +38,7 @@ DEFAULT_LOGGING_CONFIG = {
         },
         'file': {
             'class': 'logging.handlers.RotatingFileHandler',
-            'filename': os.path.join(DEFAULT_LOG_DIR, 'bigchaindb.log'),
+            'filename': os.path.join(DEFAULT_LOG_DIR, 'planetmint.log'),
             'mode': 'w',
             'maxBytes':  209715200,
             'backupCount': 5,
@@ -47,7 +47,7 @@ DEFAULT_LOGGING_CONFIG = {
         },
         'errors': {
             'class': 'logging.handlers.RotatingFileHandler',
-            'filename': os.path.join(DEFAULT_LOG_DIR, 'bigchaindb-errors.log'),
+            'filename': os.path.join(DEFAULT_LOG_DIR, 'planetmint-errors.log'),
             'mode': 'w',
             'maxBytes':  209715200,
             'backupCount': 5,
@@ -78,7 +78,7 @@ def setup_logging():
         Configuration, if needed, should be applied before invoking this
         decorator, as starting the subscriber process for logging will
         configure the root logger for the child process based on the
-        state of :obj:`bigchaindb.config` at the moment this decorator
+        state of :obj:`planetmint.config` at the moment this decorator
         is invoked.
 
     """

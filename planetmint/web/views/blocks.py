@@ -5,7 +5,7 @@
 
 """This module provides the blueprint for the blocks API endpoints.
 
-For more information please refer to the documentation: http://bigchaindb.com/http-api
+For more information please refer to the documentation: http://planetmint.com/http-api
 """
 from flask import current_app
 from flask_restful import Resource, reqparse
@@ -26,8 +26,8 @@ class BlockApi(Resource):
 
         pool = current_app.config['bigchain_pool']
 
-        with pool() as bigchain:
-            block = bigchain.get_block(block_id=block_id)
+        with pool() as planet:
+            block = planet.get_block(block_id=block_id)
 
         if not block:
             return make_error(404)
@@ -52,7 +52,7 @@ class BlockListApi(Resource):
 
         pool = current_app.config['bigchain_pool']
 
-        with pool() as bigchain:
-            blocks = bigchain.get_block_containing_tx(tx_id)
+        with pool() as planet:
+            blocks = planet.get_block_containing_tx(tx_id)
 
         return blocks

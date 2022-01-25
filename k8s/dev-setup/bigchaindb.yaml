@@ -38,8 +38,8 @@ spec:
     spec:
       terminationGracePeriodSeconds: 10
       containers:
-      - name: bigchaindb
-        image: bigchaindb/bigchaindb:2.2.2
+      - name: planetmint
+        image: planetmint/planetmint:2.2.2
         imagePullPolicy: Always
         args:
         - start

@@ -10,7 +10,7 @@
     state: build
     tag: "{{tendermint_image_tag }}"
     dockerfile: Dockerfile
-    path: "{{ home_dir }}/bigchaindb/pkg/configuration/roles/tendermint/files"
+    path: "{{ home_dir }}/planetmint/pkg/configuration/roles/tendermint/files"
     buildargs:
       tm_version: "{{ tm_version }}"
     nocache: yes
@@ -41,7 +41,7 @@
     detach: true
     network_mode: bridge
     networks:
-      - name: "{{ bigchaindb_docker_net }}"
+      - name: "{{ planetmint_docker_net }}"
     published_ports:
       - "{{ tendermint_p2p_port }}"
       - "{{ tendermint_rpc_port }}"
@@ -56,7 +56,7 @@
       STACK_SIZE: "{{ stack_size|string }}"
       TM_DOCKER_NAME: "{{ tendermint_docker_name|string }}"
       TM_P2P_PORT: "{{ tendermint_p2p_port|string }}"
-      PLANETMINT_DOCKER_NAME: "{{ bigchaindb_docker_name|string }}"
+      PLANETMINT_DOCKER_NAME: "{{ planetmint_docker_name|string }}"
       _ITEM: "{{ item|string }}"
     state: started
     keep_volumes: true

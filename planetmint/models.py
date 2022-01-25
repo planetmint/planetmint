@@ -16,10 +16,10 @@ class Transaction(Transaction):
     METADATA = 'metadata'
     DATA = 'data'
 
-    def validate(self, bigchain, current_transactions=[]):
+    def validate(self, planet, current_transactions=[]):
         """Validate transaction spend
         Args:
-            bigchain (Planetmint): an instantiated bigchaindb.Planetmint object.
+            planet (Planetmint): an instantiated planetmint.Planetmint object.
         Returns:
             The transaction (Transaction) if the transaction is valid else it
             raises an exception describing the reason why the transaction is
@@ -31,7 +31,7 @@ class Transaction(Transaction):
 
         if self.operation == Transaction.CREATE:
             duplicates = any(txn for txn in current_transactions if txn.id == self.id)
-            if bigchain.is_committed(self.id) or duplicates:
+            if planet.is_committed(self.id) or duplicates:
                 raise DuplicateTransaction('transaction `{}` already exists'
                                            .format(self.id))
 
@@ -39,7 +39,7 @@ class Transaction(Transaction):
                 raise InvalidSignature('Transaction signature is invalid.')
 
         elif self.operation == Transaction.TRANSFER:
-            self.validate_transfer_inputs(bigchain, current_transactions)
+            self.validate_transfer_inputs(planet, current_transactions)
 
         return self
 

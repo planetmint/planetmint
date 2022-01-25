@@ -35,19 +35,19 @@ def config(request, monkeypatch):
 
 
 def test_bigchain_class_default_initialization(config):
-    from planetmint import BigchainDB
+    from planetmint import Planetmint
     from planetmint.validation import BaseValidationRules
     from planetmint.backend.connection import Connection
-    bigchain = BigchainDB()
-    assert isinstance(bigchain.connection, Connection)
-    assert bigchain.connection.host == config['database']['host']
-    assert bigchain.connection.port == config['database']['port']
-    assert bigchain.connection.dbname == config['database']['name']
-    assert bigchain.validation == BaseValidationRules
+    planet = Planetmint()
+    assert isinstance(planet.connection, Connection)
+    assert planet.connection.host == config['database']['host']
+    assert planet.connection.port == config['database']['port']
+    assert planet.connection.dbname == config['database']['name']
+    assert planet.validation == BaseValidationRules
 
 
 def test_bigchain_class_initialization_with_parameters():
-    from planetmint import BigchainDB
+    from planetmint import Planetmint
     from planetmint.backend import connect
     from planetmint.validation import BaseValidationRules
     init_db_kwargs = {
@@ -57,12 +57,12 @@ def test_bigchain_class_initialization_with_parameters():
         'name': 'this_is_the_db_name',
     }
     connection = connect(**init_db_kwargs)
-    bigchain = BigchainDB(connection=connection)
-    assert bigchain.connection == connection
-    assert bigchain.connection.host == init_db_kwargs['host']
-    assert bigchain.connection.port == init_db_kwargs['port']
-    assert bigchain.connection.dbname == init_db_kwargs['name']
-    assert bigchain.validation == BaseValidationRules
+    planet = Planetmint(connection=connection)
+    assert planet.connection == connection
+    assert planet.connection.host == init_db_kwargs['host']
+    assert planet.connection.port == init_db_kwargs['port']
+    assert planet.connection.dbname == init_db_kwargs['name']
+    assert planet.validation == BaseValidationRules
 
 
 @pytest.mark.bdb

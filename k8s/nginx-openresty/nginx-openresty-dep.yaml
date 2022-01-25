@@ -17,7 +17,7 @@ spec:
       terminationGracePeriodSeconds: 10
       containers:
       - name: nginx-openresty
-        image: bigchaindb/nginx_3scale:2.2.2
+        image: planetmint/nginx_3scale:2.2.2
         imagePullPolicy: IfNotPresent
         env:
         - name: DNS_SERVER
@@ -39,7 +39,7 @@ spec:
           valueFrom:
             configMapKeyRef:
               name: vars
-              key: bigchaindb-api-port
+              key: planetmint-api-port
         ports:
         - containerPort: "<openresty-backend-port from ConfigMap>"
           protocol: TCP

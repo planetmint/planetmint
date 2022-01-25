@@ -33,7 +33,7 @@ There are also other commands you can execute:
 The Planetmint `Makefile` is a wrapper around some `docker-compose` commands we use frequently. If you need a finer granularity to manage the containers, you can still use `docker-compose` directly. This part of the documentation explains how to do that.
 
 ```bash
-$ docker-compose build bigchaindb
+$ docker-compose build planetmint
 $ docker-compose up -d bdb
 ```
 
@@ -41,7 +41,7 @@ The above command will launch all 3 main required services/processes:
 
 * ``mongodb``
 * ``tendermint``
-* ``bigchaindb``
+* ``planetmint``
 
 To follow the logs of the ``tendermint`` service:
 
@@ -49,10 +49,10 @@ To follow the logs of the ``tendermint`` service:
 $ docker-compose logs -f tendermint
 ```
 
-To follow the logs of the ``bigchaindb`` service:
+To follow the logs of the ``planetmint`` service:
 
 ```bash
-$ docker-compose logs -f bigchaindb
+$ docker-compose logs -f planetmint
 ```
 
 To follow the logs of the ``mongodb`` service:
@@ -81,18 +81,18 @@ $ docker-compose -f docker-compose.yml run --rm bdb-driver ipython
 Run all the tests using:
 
 ```bash
-$ docker-compose run --rm --no-deps bigchaindb pytest -v
+$ docker-compose run --rm --no-deps planetmint pytest -v
 ```
 
 Run tests from a file:
 
 ```bash
-$ docker-compose run --rm --no-deps bigchaindb pytest /path/to/file -v
+$ docker-compose run --rm --no-deps planetmint pytest /path/to/file -v
 ```
 
 Run specific tests:
 ```bash
-$ docker-compose run --rm --no-deps bigchaindb pytest /path/to/file -k "<test_name>" -v
+$ docker-compose run --rm --no-deps planetmint pytest /path/to/file -k "<test_name>" -v
 ```
 
 ### Building Docs

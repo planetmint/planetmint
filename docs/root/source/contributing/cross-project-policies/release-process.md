@@ -1,6 +1,6 @@
 <!---
 Copyright © 2020 Interplanetary Database Association e.V.,
-BigchainDB and IPDB software contributors.
+Planetmint and IPDB software contributors.
 SPDX-License-Identifier: (Apache-2.0 AND CC-BY-4.0)
 Code is Apache-2.0 and docs are CC-BY-4.0
 --->
@@ -9,7 +9,7 @@ Code is Apache-2.0 and docs are CC-BY-4.0
 
 ## Notes
 
-BigchainDB follows
+Planetmint follows
 [the Python form of Semantic Versioning](https://packaging.python.org/tutorials/distributing-packages/#choosing-a-versioning-scheme)
 (i.e. MAJOR.MINOR.PATCH),
 which is almost identical
@@ -46,7 +46,7 @@ The following steps are what we do to release a new version of _BigchainDB Serve
    - In `bigchaindb/version.py`:
      - update `__version__` to e.g. `0.9.0` (with no `.dev` on the end)
      - update `__short_version__` to e.g. `0.9` (with no `.dev` on the end)
-   - In the docs about installing BigchainDB (and Tendermint), and in the associated scripts, recommend/install a version of Tendermint that _actually works_ with the soon-to-be-released version of BigchainDB. You can find all such references by doing a search for the previously-recommended version number, such as `0.31.5`.
+   - In the docs about installing Planetmint (and Tendermint), and in the associated scripts, recommend/install a version of Tendermint that _actually works_ with the soon-to-be-released version of Planetmint. You can find all such references by doing a search for the previously-recommended version number, such as `0.31.5`.
    - In `setup.py`, _maybe_ update the development status item in the `classifiers` list. For example, one allowed value is `"Development Status :: 5 - Production/Stable"`. The [allowed values are listed at pypi.python.org](https://pypi.python.org/pypi?%3Aaction=list_classifiers).
 
 2. **Wait for all the tests to pass!**
@@ -65,7 +65,7 @@ The following steps are what we do to release a new version of _BigchainDB Serve
    ```text
    sudo chown -R $(whoami):$(whoami) .
    ```
-10. [Log in to readthedocs.org](https://readthedocs.org/accounts/login/) and go to the **BigchainDB Server** project, then:
+10. [Log in to readthedocs.org](https://readthedocs.org/accounts/login/) and go to the **Planetmint Server** project, then:
    - Click on "Builds", select "latest" from the drop-down menu, then click the "Build Version:" button.
    - Wait for the build of "latest" to finish. This can take a few minutes.
    - Go to Admin --> Advanced Settings
@@ -98,4 +98,4 @@ The following steps are what we do to release a new version of _BigchainDB Serve
    - If the release is an Alpha, Beta or Release Candidate release,
      then click on the "Trigger" button for that tag as well.
 
-Congratulations, you have released a new version of BigchainDB Server!
+Congratulations, you have released a new version of Planetmint Server!

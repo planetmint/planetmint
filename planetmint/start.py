@@ -9,7 +9,7 @@ import setproctitle
 from abci import TmVersion, ABCI
 
 import planetmint
-from planetmint.lib import BigchainDB
+from planetmint.lib import Planetmint
 from planetmint.core import App
 from planetmint.parallel_validation import ParallelValidationApp
 from planetmint.web import server, websocket_server
@@ -28,7 +28,7 @@ BANNER = """
 *                                                                          *
 *   You can send HTTP requests via the HTTP API documented in the          *
 *   Planetmint Server docs at:                                             *
-*    https://bigchaindb.com/http-api                                       *
+*    https://planetmint.com/http-api                                       *
 *                                                                          *
 *   Listening to client connections on: {:<15}                    *
 *                                                                          *
@@ -44,7 +44,7 @@ def start(args):
     app_server = server.create_server(
         settings=planetmint.config['server'],
         log_config=planetmint.config['log'],
-        bigchaindb_factory=BigchainDB)
+        planetmint_factory=Planetmint)
     p_webapi = Process(name='planetmint_webapi', target=app_server.run, daemon=True)
     p_webapi.start()
 

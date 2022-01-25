@@ -6,7 +6,7 @@
 """MongoDB backend implementation.
 
 Contains a MongoDB-specific implementation of the
-:mod:`~bigchaindb.backend.schema` and :mod:`~bigchaindb.backend.query` interfaces.
+:mod:`~planetmint.backend.schema` and :mod:`~planetmint.backend.query` interfaces.
 
 You can specify Planetmint to use MongoDB as its database backend by either
 setting ``database.backend`` to ``'localmongodb'`` in your configuration file, or
@@ -16,8 +16,8 @@ setting the ``PLANETMINT_DATABASE_BACKEND`` environment variable to
 MongoDB is the default database backend for Planetmint.
 
 If configured to use MongoDB, Planetmint will automatically return instances
-of :class:`~bigchaindb.backend.localmongodb.LocalMongoDBConnection` for
-:func:`~bigchaindb.backend.connection.connect` and dispatch calls of the
+of :class:`~planetmint.backend.localmongodb.LocalMongoDBConnection` for
+:func:`~planetmint.backend.connection.connect` and dispatch calls of the
 generic backend interfaces to the implementations in this module.
 """
 
@@ -25,4 +25,4 @@ generic backend interfaces to the implementations in this module.
 from planetmint.backend.localmongodb import schema, query # noqa
 
 # MongoDBConnection should always be accessed via
-# ``bigchaindb.backend.connect()``.
+# ``planetmint.backend.connect()``.
