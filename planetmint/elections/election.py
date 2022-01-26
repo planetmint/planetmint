@@ -209,8 +209,8 @@ class Election(Transaction):
         votes_current = self.count_votes(election_pk, current_votes)
 
         total_votes = sum(output.amount for output in self.outputs)
-        if (votes_committed < (2/3) * total_votes) and \
-                (votes_committed + votes_current >= (2/3)*total_votes):
+        if (votes_committed < (2 / 3) * total_votes) and \
+                (votes_committed + votes_current >= (2 / 3) * total_votes):
             return True
 
         return False

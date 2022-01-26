@@ -321,7 +321,7 @@ def inputs(user_pk, b, alice):
             for _ in range(10)
         ]
         tx_ids = [tx.id for tx in transactions]
-        block = Block(app_hash='hash'+str(height), height=height, transactions=tx_ids)
+        block = Block(app_hash='hash' + str(height), height=height, transactions=tx_ids)
         b.store_block(block._asdict())
         b.store_bulk_transactions(transactions)
 

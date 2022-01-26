@@ -66,8 +66,8 @@ def merkleroot(hashes):
     if len(hashes) % 2 == 1:
         hashes.append(hashes[-1])
     parent_hashes = [
-        sha3_256(hashes[i] + hashes[i+1]).digest()
-        for i in range(0, len(hashes)-1, 2)
+        sha3_256(hashes[i] + hashes[i + 1]).digest()
+        for i in range(0, len(hashes) - 1, 2)
     ]
     return merkleroot(parent_hashes)
 

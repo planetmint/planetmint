@@ -205,7 +205,7 @@ def _fulfillment_from_details(data, _depth=0):
     if data['type'] == 'threshold-sha-256':
         threshold = ThresholdSha256(data['threshold'])
         for cond in data['subconditions']:
-            cond = _fulfillment_from_details(cond, _depth+1)
+            cond = _fulfillment_from_details(cond, _depth + 1)
             threshold.add_subfulfillment(cond)
         return threshold
 

@@ -497,7 +497,7 @@ def test_new_validator_set(b):
     for u in updates:
         updated_validators.append({'public_key': {'type': 'ed25519-base64',
                                                   'value': public_key_to_base64(u['public_key']['value'])},
-                                   'voting_power':  u['power']})
+                                   'voting_power': u['power']})
 
     assert updated_validator_set == updated_validators
 

@@ -68,7 +68,7 @@ def test_upsert_validator_delegate_election_vote(b_mock, valid_upsert_validator_
     key0 = ed25519_node_keys[public_key0]
 
     delegate_vote = Vote.generate([input0],
-                                  [([alice.public_key], 3), ([key0.public_key], votes-3)],
+                                  [([alice.public_key], 3), ([key0.public_key], votes - 3)],
                                   election_id=valid_upsert_validator_election.id)\
         .sign([key0.private_key])
 
@@ -86,7 +86,7 @@ def test_upsert_validator_delegate_election_vote(b_mock, valid_upsert_validator_
 
     key0_votes = delegate_vote.to_inputs()[1]
     key0_casted_vote = Vote.generate([key0_votes],
-                                     [([election_pub_key], votes-3)],
+                                     [([election_pub_key], votes - 3)],
                                      election_id=valid_upsert_validator_election.id)\
         .sign([key0.private_key])
     assert key0_casted_vote.validate(b_mock)
@@ -104,7 +104,7 @@ def test_upsert_validator_invalid_election_vote(b_mock, valid_upsert_validator_e
     election_pub_key = ValidatorElection.to_public_key(valid_upsert_validator_election.id)
 
     vote = Vote.generate([input0],
-                         [([election_pub_key], votes+1)],
+                         [([election_pub_key], votes + 1)],
                          election_id=valid_upsert_validator_election.id)\
         .sign([key0.private_key])
 
@@ -125,7 +125,7 @@ def test_valid_election_votes_received(b_mock, valid_upsert_validator_election, 
 
     # delegate some votes to alice
     delegate_vote = Vote.generate([input0],
-                                  [([alice.public_key], 4), ([key0.public_key], votes-4)],
+                                  [([alice.public_key], 4), ([key0.public_key], votes - 4)],
                                   election_id=valid_upsert_validator_election.id)\
         .sign([key0.private_key])
     b_mock.store_bulk_transactions([delegate_vote])
@@ -147,7 +147,7 @@ def test_valid_election_votes_received(b_mock, valid_upsert_validator_election, 
     assert valid_upsert_validator_election.get_commited_votes(b_mock) == 2
 
     key0_casted_vote = Vote.generate([key0_votes],
-                                     [([election_public_key], votes-4)],
+                                     [([election_public_key], votes - 4)],
                                      election_id=valid_upsert_validator_election.id)\
         .sign([key0.private_key])
 

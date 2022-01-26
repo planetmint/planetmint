@@ -55,7 +55,7 @@ def map_leafs(func, mapping):
             if isinstance(val, collections.abc.Mapping):
                 _inner(val, path + [key])
             else:
-                mapping[key] = func(val, path=path+[key])
+                mapping[key] = func(val, path=path + [key])
 
         return mapping
 

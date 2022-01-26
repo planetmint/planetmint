@@ -27,7 +27,7 @@ class ValidatorElection(Election):
         super(ValidatorElection, self).validate(planet, current_transactions=current_transactions)
 
         # NOTE: change more than 1/3 of the current power is not allowed
-        if self.asset['data']['power'] >= (1/3)*sum(current_validators.values()):
+        if self.asset['data']['power'] >= (1 / 3) * sum(current_validators.values()):
             raise InvalidPowerChange('`power` change must be less than 1/3 of total power')
 
         return self
