@@ -21,8 +21,8 @@ This image contains all the services required for a Planetmint node i.e.
 **Note:** **NOT for Production Use:** *This is an single node opinionated image not well suited for a network deployment.*
 *This image is to help quick deployment for early adopters, for a more standard approach please refer to one of our deployment guides:*
 
-- [Planetmint developer setup guides](https://docs.planetmint.com/projects/contributing/en/latest/dev-setup-coding-and-contribution-process/index.html).
-- [Planetmint with Kubernetes](http://docs.planetmint.com/projects/server/en/latest/k8s-deployment-template/index.html).
+- [Planetmint developer setup guides](https://docs.planetmint.io/projects/contributing/en/latest/dev-setup-coding-and-contribution-process/index.html).
+- [Planetmint with Kubernetes](http://docs.planetmint.io/projects/server/en/latest/k8s-deployment-template/index.html).
 
 ## Prerequisite(s)
 - [Docker](https://docs.docker.com/engine/installation/)

@@ -120,7 +120,7 @@ of the outgoing paperclips (100).
 
 When a node is asked to check if a transaction is valid, it checks several
 things. We documented those things in a post on *The Planetmint Blog*:
-["What is a Valid Transaction in Planetmint?"](https://blog.planetmint.com/what-is-a-valid-transaction-in-planetmint-9a1a075a9598)
+["What is a Valid Transaction in Planetmint?"](https://blog.planetmint.io/what-is-a-valid-transaction-in-planetmint-9a1a075a9598)
 (Note: That post was about Planetmint Server v1.0.0.)
 
 ### Example Transactions
