@@ -13,8 +13,8 @@ For full docs visit https://docs.planetmint.com
 import sys
 from setuptools import setup, find_packages
 
-if sys.version_info < (3, 6):
-    sys.exit('Please use Python version 3.6 or higher.')
+if sys.version_info < (3, 9):
+    sys.exit('Please use Python version 3.9 or higher.')
 
 # get the version
 version = {}
@@ -112,7 +112,7 @@ setup(
     author_email='contact@ipdb.global',
     license='Apache Software License 2.0',
     zip_safe=False,
-    python_requires='>=3.6',
+    python_requires='>=3.9',
     classifiers=[
         'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',
@@ -121,10 +121,7 @@ setup(
         'Topic :: Software Development',
         'Natural Language :: English',
         'License :: OSI Approved :: Apache Software License',
-        'Programming Language :: Python :: 3 :: Only',
-        'Programming Language :: Python :: 3.6',
-        'Programming Language :: Python :: 3.7',
-        'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
         'Operating System :: MacOS :: MacOS X',
         'Operating System :: POSIX :: Linux',
     ],

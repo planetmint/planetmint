@@ -300,7 +300,7 @@ full path to the file where error logs should be written.
 ### log.level_console
 
 The log level used to log to the console. Possible allowed values are the ones
-defined by [Python](https://docs.python.org/3.6/library/logging.html#levels),
+defined by [Python](https://docs.python.org/3.9/library/logging.html#levels),
 but case-insensitive for the sake of convenience:
 
 ```text
@@ -310,7 +310,7 @@ but case-insensitive for the sake of convenience:
 ### log.level_logfile
 
 The log level used to log to the log file. Possible allowed values are the ones
-defined by [Python](https://docs.python.org/3.6/library/logging.html#levels),
+defined by [Python](https://docs.python.org/3.9/library/logging.html#levels),
 but case-insensitive for the sake of convenience:
 
 ```text
@@ -323,7 +323,7 @@ The format string for the date/time portion of a message, when logged to the
 console.
 
 For more information on how to construct the format string please consult the
-table under [Python's documentation of time.strftime(format[, t])](https://docs.python.org/3.6/library/time.html#time.strftime).
+table under [Python's documentation of time.strftime(format[, t])](https://docs.python.org/3.9/library/time.html#time.strftime).
 
 ### log.datefmt_logfile
 
@@ -331,7 +331,7 @@ The format string for the date/time portion of a message, when logged to a log
  file.
 
 For more information on how to construct the format string please consult the
-table under [Python's documentation of time.strftime(format[, t])](https://docs.python.org/3.6/library/time.html#time.strftime).
+table under [Python's documentation of time.strftime(format[, t])](https://docs.python.org/3.9/library/time.html#time.strftime).
 
 ### log.fmt_console
 
@@ -339,7 +339,7 @@ A string used to format the log messages when logged to the console.
 
 For more information on possible formatting options please consult Python's
 documentation on
-[LogRecord attributes](https://docs.python.org/3.6/library/logging.html#logrecord-attributes).
+[LogRecord attributes](https://docs.python.org/3.9/library/logging.html#logrecord-attributes).
 
 ### log.fmt_logfile
 
@@ -347,7 +347,7 @@ A string used to format the log messages when logged to a log file.
 
 For more information on possible formatting options please consult Python's
 documentation on
-[LogRecord attributes](https://docs.python.org/3.6/library/logging.html#logrecord-attributes).
+[LogRecord attributes](https://docs.python.org/3.9/library/logging.html#logrecord-attributes).
 
 ### log.granular_levels
 

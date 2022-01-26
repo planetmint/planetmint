@@ -13,7 +13,7 @@ MongoDB and Tendermint.
 
 ## Install Planetmint Server
 
-Planetmint Server requires **Python 3.6+**, so make sure your system has it.
+Planetmint Server requires **Python 3.9+**, so make sure your system has it.
 
 Install the required OS-level packages:
 

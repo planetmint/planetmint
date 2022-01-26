@@ -62,7 +62,7 @@ Set Up Your Local Machine. Here's How.
      $ virtualenv -p $(which python3.6) NEW_ENV_NAME
      $ . NEW_ENV_NAME/bin/activate
 
-  Be sure to use Python 3.6.x as the Python version for your virtualenv. The virtualenv creation process will actually get the
+  Be sure to use Python 3.9.x as the Python version for your virtualenv. The virtualenv creation process will actually get the
   latest ``pip``, ``wheel`` and ``setuptools`` and put them inside the new virtualenv.
 
 

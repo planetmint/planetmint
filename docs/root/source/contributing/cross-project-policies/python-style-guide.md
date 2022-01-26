@@ -16,7 +16,7 @@ Our starting point is [PEP8](https://www.python.org/dev/peps/pep-0008/), the sta
 Planetmint uses Python 3.5+, so you can ignore all PEP8 guidelines specific to Python 2.
 
 We use [pre-commit](http://pre-commit.com/) to check some of the rules below before every commit but not everything is realized yet.
-The hooks we use can be found in the [.pre-commit-config.yaml](https://github.com/bigchaindb/bigchaindb/blob/master/.pre-commit-config.yaml) file.
+The hooks we use can be found in the [.pre-commit-config.yaml](https://github.com/planetmint/planetmint/blob/master/.pre-commit-config.yaml) file.
 
 ### Python Docstrings
 
@@ -86,12 +86,12 @@ we use the `format()` version. The [official Python documentation says](https://
 
 We use [Flake8](http://flake8.pycqa.org/en/latest/index.html) to check our Python code style. Once you have it installed, you can run it using:
 ```text
-flake8 --max-line-length 119 bigchaindb/
+flake8 --max-line-length 119 planetmint/
 ```
 
 
 ## Writing and Running (Python) Tests
 
-The content of this section was moved to [`bigchaindb/tests/README.md`](https://github.com/bigchaindb/bigchaindb/blob/master/tests/README.md).
+The content of this section was moved to [`planetmint/tests/README.md`](https://github.com/planetmint/planetmint/blob/master/tests/README.md).
 
 Note: We automatically run all tests on all pull requests (using Travis CI), so you should definitely run all tests locally before you submit a pull request. See the above-linked README file for instructions.

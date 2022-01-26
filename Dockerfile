@@ -1,4 +1,4 @@
-FROM python:3.6
+FROM python:3.9
 LABEL maintainer "contact@ipdb.global"
 RUN mkdir -p /usr/src/app
 COPY . /usr/src/app/

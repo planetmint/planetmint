@@ -4,7 +4,7 @@
 # Code is Apache-2.0 and docs are CC-BY-4.0
 
 ---
-- name: Install dependencies py36 | yum
+- name: Install dependencies py39 | yum
   yum:
     name: "{{ item }}"
     update_cache: yes
@@ -12,15 +12,15 @@
   with_items:
     - "yum-utils"
     - "https://centos7.iuscommunity.org/ius-release.rpm"
-  tags: [py36]
+  tags: [py39]
 
-- name: Install py36 | yum
+- name: Install py39 | yum
   yum:
     name: "{{ item }}"
     state: present
     update_cache: yes
   with_items:
-    - "python36u"
-    - "python36u-pip"
-    - "python36u-devel"
-  tags: [py36]
+    - "python39u"
+    - "python39u-pip"
+    - "python39u-devel"
+  tags: [py39]
