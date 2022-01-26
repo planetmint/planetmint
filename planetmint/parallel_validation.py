@@ -8,21 +8,44 @@ from collections import defaultdict
 
 from planetmint import App, Planetmint
 from planetmint.tendermint_utils import decode_transaction
-from abci import CodeTypeOk
+from abci.application import OkCode
+from tendermint.abci.types_pb2 import (
+    RequestInfo,
+    ResponseInfo,
+    RequestInitChain,
+    ResponseInitChain,
+    #ResponseCheckTx,
+    #ResponseDeliverTx,
+    RequestQuery,
+    ResponseQuery,
+    RequestBeginBlock,
+    ResponseBeginBlock,
+    RequestEndBlock,
+    ResponseEndBlock,
+    ResponseCommit,
+    RequestLoadSnapshotChunk,
+    ResponseLoadSnapshotChunk,
+    RequestListSnapshots,
+    ResponseListSnapshots,
+    RequestOfferSnapshot,
+    ResponseOfferSnapshot,
+    RequestApplySnapshotChunk,
+    ResponseApplySnapshotChunk,
+)
 
 
 class ParallelValidationApp(App):
-    def __init__(self, planetmint=None, events_queue=None, abci=None):
-        super().__init__(planetmint, events_queue, abci=abci)
+    def __init__(self, planetmint=None, events_queue=None):
+        super().__init__(planetmint, events_queue)
         self.parallel_validator = ParallelValidator()
         self.parallel_validator.start()
 
     def check_tx(self, raw_transaction):
-        return self.abci.ResponseCheckTx(code=CodeTypeOk)
+        return ResponseCheckTx(code=OkCode)
 
     def deliver_tx(self, raw_transaction):
         self.parallel_validator.validate(raw_transaction)
-        return self.abci.ResponseDeliverTx(code=CodeTypeOk)
+        return ResponseDeliverTx(code=OkCode)
 
     def end_block(self, request_end_block):
         result = self.parallel_validator.result(timeout=30)

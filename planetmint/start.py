@@ -6,7 +6,7 @@
 import logging
 import setproctitle
 
-from abci import TmVersion, ABCI
+#from abci import TmVersion, ABCI
 
 import planetmint
 from planetmint.lib import Planetmint
@@ -68,18 +68,16 @@ def start(args):
     setproctitle.setproctitle('planetmint')
 
     # Start the ABCIServer
-    abci = ABCI(TmVersion(planetmint.config['tendermint']['version']))
+    #abci = ABCI(TmVersion(planetmint.config['tendermint']['version']))
     if args.experimental_parallel_validation:
         app = ABCIServer(
             app=ParallelValidationApp(
-                abci=abci.types,
                 events_queue=exchange.get_publisher_queue(),
             )
         )
     else:
         app = ABCIServer(
             app=App(
-                abci=abci.types,
                 events_queue=exchange.get_publisher_queue(),
             )
         )

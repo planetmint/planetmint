@@ -3,7 +3,7 @@ import binascii
 import codecs
 
 import planetmint
-from abci import types_v0_22_8, types_v0_31_5, TmVersion
+from tendermint.abci import types_pb2 as types_v0_34_11
 from planetmint.common.exceptions import InvalidPublicKey, BigchainDBError
 
 
@@ -17,8 +17,7 @@ def encode_validator(v):
                               'check Planetmint configuration file')
 
     validator_update_t, pubkey_t = {
-        TmVersion.v0_22_8: (types_v0_22_8.Validator, types_v0_22_8.PubKey),
-        TmVersion.v0_31_5: (types_v0_31_5.ValidatorUpdate, types_v0_31_5.PubKey)
+        TmVersion.v0_34_11: (types_v0_34_11.ValidatorUpdate, types_v0_34_11.PubKey)
     }[version]
     pub_key = pubkey_t(type='ed25519', data=bytes.fromhex(ed25519_public_key))
 

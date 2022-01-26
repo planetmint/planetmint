@@ -10,7 +10,30 @@ import logging
 import sys
 
 from abci.application import BaseApplication
-from abci import CodeTypeOk
+from abci.application import OkCode
+from tendermint.abci.types_pb2 import (
+    RequestInfo,
+    ResponseInfo,
+    RequestInitChain,
+    ResponseInitChain,
+    ResponseCheckTx,
+    ResponseDeliverTx,
+    RequestQuery,
+    ResponseQuery,
+    RequestBeginBlock,
+    ResponseBeginBlock,
+    RequestEndBlock,
+    ResponseEndBlock,
+    ResponseCommit,
+    RequestLoadSnapshotChunk,
+    ResponseLoadSnapshotChunk,
+    RequestListSnapshots,
+    ResponseListSnapshots,
+    RequestOfferSnapshot,
+    ResponseOfferSnapshot,
+    RequestApplySnapshotChunk,
+    ResponseApplySnapshotChunk,
+)
 
 from planetmint import Planetmint
 from planetmint.elections.election import Election
@@ -34,8 +57,8 @@ class App(BaseApplication):
     transaction logic to Tendermint Core.
     """
 
-    def __init__(self, abci, planetmint=None, events_queue=None,):
-        super().__init__(abci)
+    def __init__(self, planetmint=None, events_queue=None,):
+        #super().__init__(abci)
         self.events_queue = events_queue
         self.planetmint = planetmint or Planetmint()
         self.block_txn_ids = []
@@ -101,7 +124,7 @@ class App(BaseApplication):
                                          genesis.chain_id, True)
         self.chain = {'height': abci_chain_height, 'is_synced': True,
                       'chain_id': genesis.chain_id}
-        return self.abci.ResponseInitChain()
+        return ResponseInitChain()
 
     def info(self, request):
         """Return height of the latest committed block."""
@@ -116,7 +139,7 @@ class App(BaseApplication):
 
         logger.info(f"Tendermint version: {request.version}")
 
-        r = self.abci.ResponseInfo()
+        r = ResponseInfo()
         block = self.planetmint.get_latest_block()
         if block:
             chain_shift = 0 if self.chain is None else self.chain['height']
@@ -141,10 +164,10 @@ class App(BaseApplication):
         transaction = decode_transaction(raw_transaction)
         if self.planetmint.is_valid_transaction(transaction):
             logger.debug('check_tx: VALID')
-            return self.abci.ResponseCheckTx(code=CodeTypeOk)
+            return ResponseCheckTx(code=CodeTypeOk)
         else:
             logger.debug('check_tx: INVALID')
-            return self.abci.ResponseCheckTx(code=CodeTypeError)
+            return ResponseCheckTx(code=CodeTypeError)
 
     def begin_block(self, req_begin_block):
         """Initialize list of transaction.
@@ -161,7 +184,7 @@ class App(BaseApplication):
 
         self.block_txn_ids = []
         self.block_transactions = []
-        return self.abci.ResponseBeginBlock()
+        return ResponseBeginBlock()
 
     def deliver_tx(self, raw_transaction):
         """Validate the transaction before mutating the state.
@@ -178,12 +201,12 @@ class App(BaseApplication):
 
         if not transaction:
             logger.debug('deliver_tx: INVALID')
-            return self.abci.ResponseDeliverTx(code=CodeTypeError)
+            return ResponseDeliverTx(code=CodeTypeError)
         else:
             logger.debug('storing tx')
             self.block_txn_ids.append(transaction.id)
             self.block_transactions.append(transaction)
-            return self.abci.ResponseDeliverTx(code=CodeTypeOk)
+            return ResponseDeliverTx(code=CodeTypeOk)
 
     def end_block(self, request_end_block):
         """Calculate block hash using transaction ids and previous block
@@ -219,7 +242,7 @@ class App(BaseApplication):
                                                   self.new_height,
                                                   self.block_transactions)
 
-        return self.abci.ResponseEndBlock(validator_updates=validator_update)
+        return ResponseEndBlock(validator_updates=validator_update)
 
     def commit(self):
         """Store the new height and along with block hash."""
@@ -250,7 +273,7 @@ class App(BaseApplication):
             })
             self.events_queue.put(event)
 
-        return self.abci.ResponseCommit(data=data)
+        return ResponseCommit(data=data)
 
 
 def rollback(b):
