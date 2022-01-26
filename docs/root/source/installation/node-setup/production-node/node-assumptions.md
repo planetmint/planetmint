@@ -9,7 +9,7 @@ Code is Apache-2.0 and docs are CC-BY-4.0
 
 Be sure you know the key Planetmint terminology:
 
-* [Planetmint node, Planetmint network and Planetmint consortium](https://docs.planetmint.com/en/latest/terminology.html)
+* [Planetmint node, Planetmint network and Planetmint consortium](https://docs.planetmint.io/en/latest/terminology.html)
 
 Note that there are a few kinds of nodes:
 

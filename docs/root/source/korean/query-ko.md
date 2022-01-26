@@ -15,7 +15,7 @@ Planetmint 쿼리
 ------------------------------
 
 
-Planetmint 블로그에 MongoDB 도구를 사용하여 Planetmint 노드의 MongoDB 데이터베이스를 쿼리하는 방법에 대한 게시물을 올렸습니다. 데이터에 대한 일부 특정 예제 쿼리가 주요 내용입니다. [여기서 확인하세요](https://blog.planetmint.com/using-mongodb-to-query-planetmint-data-3fc651e0861b)
+Planetmint 블로그에 MongoDB 도구를 사용하여 Planetmint 노드의 MongoDB 데이터베이스를 쿼리하는 방법에 대한 게시물을 올렸습니다. 데이터에 대한 일부 특정 예제 쿼리가 주요 내용입니다. [여기서 확인하세요](https://blog.bigchaindb.com/using-mongodb-to-query-bigchaindb-data-3fc651e0861b)
 
 MongoDB에 연결하기
 -------------------------
@@ -53,11 +53,15 @@ SQL을 이용해 mongoDB 데이터베이스를 쿼리할 수 있습니다. 예�
     ...
     > show dbs
     admin     0.000GB
+<<<<<<< HEAD
     planet  0.000GB
+=======
+    planetmint  0.000GB
+>>>>>>> 3bfc3298f8210b135084e823eedd47f213538088
     config    0.000GB
     local     0.000GB
-    > use bigchain
-    switched to db bigchain
+    > use planetmint
+    switched to db planetmint
     > show collections
     abci_chains
     assets
@@ -74,14 +78,14 @@ SQL을 이용해 mongoDB 데이터베이스를 쿼리할 수 있습니다. 예�
 - 호스트 이름이나 포트를 지정하지 않으면 Mongo Shell은 각각 `localhost`와 `27017`으로 가정합니다. (`localhost`는 우분투에 IP주소를 127.0.0.1로 설정했습니다.)
 
 
-* BigchainDB는 데이터를 `bigchain`이라는 데이터베이스에 저장합니다.
-* `bigchain` 데이터베이스에는 여러 [collections](https://docs.mongodb.com/manual/core/databases-and-collections/)가 포함되어 있습니다.
+* Planetmint는 데이터를 `planetmint`이라는 데이터베이스에 저장합니다.
+* `planetmint` 데이터베이스에는 여러 [collections](https://docs.mongodb.com/manual/core/databases-and-collections/)가 포함되어 있습니다.
 * 어떤 컬렉션에도 투표가 저장되지 않습니다. 이런 데이터는 모두 자체(LevelDB) 데이터베이스에 의해 처리되고 저장됩니다.
 
 컬렉션에 대한 예시 문서
 ---------------------------------------
 
-``bigchain`` 데이터베이스의 가장 흥미로운 부분은 아래와 같습니다:
+``planetmint`` 데이터베이스의 가장 흥미로운 부분은 아래와 같습니다:
 
 - transactions
 - assets
@@ -162,7 +166,11 @@ metadata 컬렉션의 문서는 MongoDB가 추가한 `"_id"`필드와 거래에�
 각 노드 operator는 외부 사용자가 자신의 로컬 MongoDB 데이터베이스에서 정보를 얻는 방법을 결정할 수 있습니다. 그들은 다음과 같은 것들을 보낼 수 있습니다:
 
 - 외부유저를 쿼리 처리하는 로컬 MongoDB 데이터베이스 한된 제한된 권한을 가진 역할을 가진 MongoDB 사용자 예) read-only
+<<<<<<< HEAD
 - 제한된 미리 정의된 쿼리 집합을 허용하는 제한된 HTTP API, [Planetmint 서버에서 제공하는 HTTP API](http://planetmint.com/http-api), 혹은Django, Express, Ruby on Rails, or ASP.NET.를 이용해 구현된 커스텀 HTTP API 
+=======
+- 제한된 미리 정의된 쿼리 집합을 허용하는 제한된 HTTP API, [Planetmint 서버에서 제공하는 HTTP API](http://planetmint.io/http-api), 혹은Django, Express, Ruby on Rails, or ASP.NET.를 이용해 구현된 커스텀 HTTP API 
+>>>>>>> 3bfc3298f8210b135084e823eedd47f213538088
 - 다른 API(예: GraphQL API) 제3자의 사용자 정의 코드 또는 코드를 사용하여 수행할 수 있습니다..
 
 각 노드 operator는 로컬 MongoDB 데이터베이스에 대한 다른 레벨 또는 유형의 액세스를 노출할 수 있습니다.
@@ -197,6 +205,10 @@ Tendermint voting 파워가 0인 노드인 추종자 노드를 생성할 수 있
 
 [MongoDB node.js 드라이버](https://mongodb.github.io/node-mongodb-native/?jmp=docs)와 같은 MongoDB 드라이버를 사용하여 다음 중 하나를 사용하여 노드의 MongoDB 데이터베이스에 연결할 수 있습니다. 여기 자바스크립트 쿼리 코드에 대한 링크가 있습니다.
 
+<<<<<<< HEAD
 - [The Planetmint JavaScript/Node.js driver source code](https://github.com/planetmint/js-bigchaindb-driver)
+=======
+- [The Planetmint JavaScript/Node.js driver source code](https://github.com/planetmint/js-planetmint-driver)
+>>>>>>> 3bfc3298f8210b135084e823eedd47f213538088
 - [Example code by @manolodewiner](https://github.com/manolodewiner/query-mongodb-planetmint/blob/master/queryMongo.js)
 - [More example code by @manolodewiner](https://github.com/planetmint/planetmint/issues/2315#issuecomment-392724279)

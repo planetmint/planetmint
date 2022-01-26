@@ -7,11 +7,11 @@ Code is Apache-2.0 and docs are CC-BY-4.0
 
 # 용어
 
-BigchainDB와 관련돈 몇 가지 전문화된 용어가 있습니다. 시작하기에 앞서, 최소한 다음과 같은 사항을 알아야합니다. 
+Planetmint와 관련돈 몇 가지 전문화된 용어가 있습니다. 시작하기에 앞서, 최소한 다음과 같은 사항을 알아야합니다. 
 
 ## Planetmint 노드
 
-**Planetmint 노드**는 [Planetmint 서버](https://docs.planetmint.com/projects/server/en/latest/introduction.html) 및 관련된 소프트웨어를 실행하는 시스템(또는 논리적인 시스템)입니다. 각각의 노드는 한 개인이나 조직에 의해 제어될 수 있습니다.
+**Planetmint 노드**는 [Planetmint 서버](https://docs.planetmint.io/projects/server/en/latest/introduction.html) 및 관련된 소프트웨어를 실행하는 시스템(또는 논리적인 시스템)입니다. 각각의 노드는 한 개인이나 조직에 의해 제어될 수 있습니다.
 
 ## Planetmint 네트워크
 

@@ -9,18 +9,18 @@ Code is Apache-2.0 and docs are CC-BY-4.0
 
 *트랜잭션*은 물건 (예 : 자산)을 등록, 발행, 생성 또는 전송하는 데 사용됩니다.
 
-트랜잭션은 BigchainDB가 저장하는 가장 기본적인 종류의 레코드입니다. CREATE 트랜잭션과 TRANSFER 트랜잭션의 두 종류가 있습니다.
+트랜잭션은 Planetmint가 저장하는 가장 기본적인 종류의 레코드입니다. CREATE 트랜잭션과 TRANSFER 트랜잭션의 두 종류가 있습니다.
 
 
 ## 트랜잭션 생성
 
-CREATE 트랜잭션은 BigchainDB에서 한 가지 (또는 자산)의 이력을 등록, 발행, 생성 또는 다른 방법으로 시작하는 데 사용될 수 있습니다. 예를 들어, 신원이나 창작물을 등록 할 수 있습니다. 이러한 것들을 종종 "자산"이라고 부르지만 literal 자산이 아닐 수도 있습니다.
+CREATE 트랜잭션은 Planetmint에서 한 가지 (또는 자산)의 이력을 등록, 발행, 생성 또는 다른 방법으로 시작하는 데 사용될 수 있습니다. 예를 들어, 신원이나 창작물을 등록 할 수 있습니다. 이러한 것들을 종종 "자산"이라고 부르지만 literal 자산이 아닐 수도 있습니다.
 
-BigchainDB는 Planetmint Server v0.8.0부터 나눌 수있는 자산을 지원합니다. 이는 "공유"의 초기 숫자로 자산을 생성 / 등록 할 수 있음을 의미합니다. 예를 들어, CREATE 트랜잭션은 50 개의 오크 나무로 된 트럭로드를 등록 할 수 있습니다. 분할 가능한 자산의 각 주식은 서로 공유 할 수 있어야합니다. 주식은 대체 가능해야합니다.
+Planetmint는 Planetmint Server v0.8.0부터 나눌 수있는 자산을 지원합니다. 이는 "공유"의 초기 숫자로 자산을 생성 / 등록 할 수 있음을 의미합니다. 예를 들어, CREATE 트랜잭션은 50 개의 오크 나무로 된 트럭로드를 등록 할 수 있습니다. 분할 가능한 자산의 각 주식은 서로 공유 할 수 있어야합니다. 주식은 대체 가능해야합니다.
 
 CREATE 트랜잭션은 하나 이상의 출력을 가질 수 있습니다. 각 출력에는 관련 금액이 있습니다. 출력에 연결된 공유 수입니다. 예를 들어 자산이 50 개의 오크 나무로 구성되어있는 경우 한 출력에는 한 소유자 세트에 35 개의 오크 나무가 있고 다른 출력에는 다른 소유자 세트에는 15 개의 오크 나무가있을 수 있습니다.
 
-또한 각 출력에는 연관된 조건이 있습니다. 출력을 전송 / 소비하기 위해 충족되어야하는 조건 (TRANSFER 트랜잭션에 의해). BigchainDB는 다양한 조건을 지원합니다. 자세한 내용은 관련 [Planetmint 트랜잭션 Spec](https://github.com/planetmint/BEPs/tree/master/tx-specs/)과 관련된 **트랜잭션 구성 요소 : 조건 섹션**을 참조하십시오.
+또한 각 출력에는 연관된 조건이 있습니다. 출력을 전송 / 소비하기 위해 충족되어야하는 조건 (TRANSFER 트랜잭션에 의해). Planetmint는 다양한 조건을 지원합니다. 자세한 내용은 관련 [Planetmint 트랜잭션 Spec](https://github.com/planetmint/BEPs/tree/master/tx-specs/)과 관련된 **트랜잭션 구성 요소 : 조건 섹션**을 참조하십시오.
 
 ![Example Planetmint CREATE transaction](./_static/CREATE_example.png)
 
@@ -51,11 +51,15 @@ CREATE 트랜잭션은 모든 소유자가 서명해야합니다. (만약 당신
 ## 트랜잭션 유효성
 
 언제 트랜잭션이 유효한지 유효성을 검사하는 것에 관해 해당 블로그에 게시되어있습니다. *The Planetmint Blog*:
-["What is a Valid Transaction in Planetmint?"](https://blog.planetmint.com/what-is-a-valid-transaction-in-planetmint-9a1a075a9598) (Note: That post was about Planetmint Server v1.0.0.)
+["What is a Valid Transaction in Planetmint?"](https://blog.bigchaindb.io/what-is-a-valid-transaction-in-bigchaindb-9a1a075a9598) (Note: That post was about Planetmint Server v1.0.0.)
 
 Each [Planetmint Transactions Spec](https://github.com/planetmint/BEPs/tree/master/tx-specs/) documents the conditions for a transaction (of that version) to be valid.
 
 ## 트랜잭션 예시
 
+<<<<<<< HEAD
 아래의 [HTTP API 문서](https://docs.planetmint.com/projects/server/en/latest/http-client-server-api.html)와 [the Python 드라이버 문서](https://docs.planetmint.com/projects/py-driver/en/latest/usage.html)에는 예제 Planetmint 트랜잭션이 있습니다.
+=======
+아래의 [HTTP API 문서](https://docs.planetmint.io/projects/server/en/latest/http-client-server-api.html)와 [the Python 드라이버 문서](https://docs.planetmint.io/projects/py-driver/en/latest/usage.html)에는 예제 Planetmint 트랜잭션이 있습니다.
+>>>>>>> 3bfc3298f8210b135084e823eedd47f213538088
 .

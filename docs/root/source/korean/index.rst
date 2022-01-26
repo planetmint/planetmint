@@ -7,7 +7,7 @@
 Planetmint 문서
 ========================
 
-블록체인 데이터베이스인 BigchainDB를 만나보세요.
+블록체인 데이터베이스인 Planetmint를 만나보세요.
 
 `분산형 <https://github.com/planetmint/planetmint/blob/master/docs/root/source/korean/decentralized_kor.md>`_, `불변성 <https://github.com/planetmint/planetmint/blob/master/docs/root/source/korean/immutable-ko.md>`_ 및 `자산에 대한 네이티브 지원 <https://github.com/planetmint/planetmint/blob/master/docs/root/source/korean/assets_ko.md>`_ 을 포함한 일부 데이터베이스 특성들과 블록체인 특성을 가지고 있습니다.
 
@@ -56,6 +56,7 @@ Planetmint 문서
    </style>
 
    <div class="buttondiv">
+<<<<<<< HEAD
      <a class="button" href="http://planetmint.com/http-api">HTTP API 문서</a>
    </div>
    <div class="buttondiv">
@@ -72,10 +73,28 @@ Planetmint 문서
    </div>
    <div class="buttondiv">
      <a class="button" href="http://docs.planetmint.com/projects/server/en/latest/quickstart.html">서버 빠른 시작</a>
+=======
+     <a class="button" href="http://planetmint.io/http-api">HTTP API 문서</a>
+   </div>
+   <div class="buttondiv">
+     <a class="button" href="http://docs.planetmint.io/projects/contributing/en/latest/index.html">Planetmint에 기여하는 법</a>
+   </div>
+   <div class="buttondiv">
+     <a class="button" href="http://docs.planetmint.io/projects/py-driver/en/latest/index.html">파이썬 드라이버 문서</a>
+   </div>
+   <div class="buttondiv">
+     <a class="button" href="https://docs.planetmint.io/projects/js-driver/en/latest/index.html">자바스크립트 드라이버 문서</a>
+   </div>
+   <div class="buttondiv">
+     <a class="button" href="http://docs.planetmint.io/projects/server/en/latest/index.html">서버 문서</a>
+   </div>
+   <div class="buttondiv">
+     <a class="button" href="http://docs.planetmint.io/projects/server/en/latest/quickstart.html">서버 빠른 시작</a>
+>>>>>>> 3bfc3298f8210b135084e823eedd47f213538088
    </div>
 
 
-BigchainDB에 대한 추가 정보
+Planetmint에 대한 추가 정보
 -------------------------------------------------------
 
 .. toctree::
@@ -95,4 +114,8 @@ BigchainDB에 대한 추가 정보
    store-files_ko
    permissions-ko
    private-data-ko
+<<<<<<< HEAD
    Data Models <https://docs.planetmint.com/projects/server/en/latest/data-models/index.html>
+=======
+   Data Models <https://docs.planetmint.io/projects/server/en/latest/data-models/index.html>
+>>>>>>> 3bfc3298f8210b135084e823eedd47f213538088

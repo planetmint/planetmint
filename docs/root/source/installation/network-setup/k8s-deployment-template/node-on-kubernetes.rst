@@ -166,7 +166,11 @@ Step 5: Assign DNS Name to the NGINX Public IP
 
   * This step is required only if you are planning to set up multiple
     `Planetmint nodes
+<<<<<<< HEAD
     <https://docs.planetmint.com/en/latest/terminology.html>`_ or are using
+=======
+    <https://docs.planetmint.io/en/latest/terminology.html>`_ or are using
+>>>>>>> 3bfc3298f8210b135084e823eedd47f213538088
     HTTPS certificates tied to a domain.
 
   * The following command can help you find out if the NGINX service started

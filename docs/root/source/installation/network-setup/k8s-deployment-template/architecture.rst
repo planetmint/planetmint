@@ -104,7 +104,7 @@ Planetmint Node Diagram
   |                +-----------+             +--------+               |    |                                                             |
   |                |           +-------------+        |               |    |                                                             |
   |                |                                  |               |    | "Bi+directional, communication between"                     |
-  |                |                                  |               |    | "BigchainDBAPP) and Tendermint"                            |
+  |                |                                  |               |    | "PlanetmintAPP) and Tendermint"                            |
   |                |                                  |               |    | "BFT consensus Engine"                                      |
   |                |                                  |               |    |                                                             |
   |                v                                  v               |    |                                                             |

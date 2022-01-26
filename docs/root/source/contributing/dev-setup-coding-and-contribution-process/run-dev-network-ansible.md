@@ -107,7 +107,7 @@ $ docker ps | grep planetmint
 ```
 
 You can now send transactions and verify the functionality of your Planetmint node.
-See the [Planetmint Python Driver documentation](https://docs.planetmint.com/projects/py-driver/en/latest/index.html)
+See the [Planetmint Python Driver documentation](https://docs.planetmint.io/projects/py-driver/en/latest/index.html)
 for details on how to use it.
 
 **Note**: The `bdb_root_url` can be be one of the following:
@@ -121,7 +121,7 @@ OR
 bdb_root_url = http://<HOST-IP>:<DOCKER-PUBLISHED-PORT>
 ```
 
-**Note**: Planetmint has [other drivers as well](http://docs.planetmint.com/projects/server/en/latest/drivers-clients/index.html).
+**Note**: Planetmint has [other drivers as well](http://docs.planetmint.io/projects/server/en/latest/drivers-clients/index.html).
 
 ### Experimental: Running Ansible a Remote Dev/Host
 #### Remote Setup

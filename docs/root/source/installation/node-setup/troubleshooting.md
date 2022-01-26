@@ -8,8 +8,8 @@
 
 ## Tendermint Tips
 
-* [Configure Tendermint to create no empty blocks](https://tendermint.com/docs/tendermint-core/using-tendermint.html#no-empty-blocks).
-* Store the Tendermint data on a fast drive. You can do that by changing [the location of TMHOME](https://tendermint.com/docs/tendermint-core/using-tendermint.html#directory-root) to be on the fast drive.
+* [Configure Tendermint to create no empty blocks](https://tendermint.io/docs/tendermint-core/using-tendermint.html#no-empty-blocks).
+* Store the Tendermint data on a fast drive. You can do that by changing [the location of TMHOME](https://tendermint.io/docs/tendermint-core/using-tendermint.html#directory-root) to be on the fast drive.
 
 See the [Tendermint tips in the vrde/notes repository](https://github.com/vrde/notes/tree/master/tendermint).
 
@@ -36,7 +36,7 @@ addr_book_strict = false
 
 If you want to refresh your node back to a fresh empty state, then your best bet is to terminate it and deploy a new machine, but if that's not an option, then you can:
 
-* drop the `bigchain` database in MongoDB using `planetmint drop` (but that only works if MongoDB is running)
+* drop the `planetmint` database in MongoDB using `planetmint drop` (but that only works if MongoDB is running)
 * reset Tendermint using `tendermint unsafe_reset_all`
 * delete the directory `$HOME/.tendermint`
 
