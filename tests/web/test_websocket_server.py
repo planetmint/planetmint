@@ -38,11 +38,13 @@ def test_eventify_block_works_with_any_transaction():
     block = {'height': 1,
              'transactions': [tx, tx_transfer]}
 
-    expected_events = [{
+    expected_events = [
+        {
             'height': 1,
             'asset_id': tx.id,
             'transaction_id': tx.id
-        }, {
+        },
+        {
             'height': 1,
             'asset_id': tx_transfer.asset['id'],
             'transaction_id': tx_transfer.id
