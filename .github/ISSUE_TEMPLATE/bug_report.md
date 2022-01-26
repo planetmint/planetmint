@@ -24,7 +24,7 @@ If applicable, add add textual content to help explain your problem.
  - Bigchaindb version:
  - Tendermint version:
  - Mongodb version:
-- Python full version: [e.g. Python 3.6.6]
+- Python full version: [e.g. Python 3.9.3]
 
 **Additional context**
 Add any other context about the problem here.

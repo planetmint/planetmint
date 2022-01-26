@@ -4,7 +4,7 @@ set -ex
 export PATH=/usr/local/bin:$PATH
 export LANG=C.UTF-8
 export GPG_KEY=0D96DF4D4110E5C43FBFB17F2D347EA6AA65421D
-export PYTHON_VERSION=3.6.5
+export PYTHON_VERSION=3.9
 rm -rf /var/lib/apt/lists/* && \
 apt-get update && apt-get install -y --no-install-recommends tcl tk libssl-dev && rm -rf /var/lib/apt/lists/* && \
 apt-get update && apt-get install -y dpkg-dev tcl-dev tk-dev --no-install-recommends && rm -rf /var/lib/apt/lists/* && \

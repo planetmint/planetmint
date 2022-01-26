@@ -74,7 +74,7 @@ $ planetmint --log-level INFO start
 
 The allowed levels are `DEBUG`, `INFO`, `WARNING`, `ERROR`, and `CRITICAL`.
 For an explanation regarding these levels please consult the
-[Logging Levels](https://docs.python.org/3.6/library/logging.html#levels)
+[Logging Levels](https://docs.python.org/3.9/library/logging.html#levels)
 section of Python's documentation.
 
 For a more fine-grained control over the logging configuration you can use the

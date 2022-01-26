@@ -14,9 +14,7 @@ language: python
 cache: pip
 
 python:
-  - 3.6
-  - 3.7
-  - 3.8
+  - 3.9
 
 env:
   global:
@@ -28,40 +26,16 @@ env:
 matrix:
   fast_finish: true
   include:
-  - python: 3.6
+  - python: 3.9
     env:
     - PLANETMINT_DATABASE_BACKEND=localmongodb
     - PLANETMINT_DATABASE_SSL=
-  - python: 3.6
-    env:
-    - PLANETMINT_DATABASE_BACKEND=localmongodb
-    - PLANETMINT_DATABASE_SSL=
-    - PLANETMINT_CI_ABCI=enable
-  - python: 3.6
-    env:
-    - PLANETMINT_ACCEPTANCE_TEST=enable
-  - python: 3.7
-    env:
-    - PLANETMINT_DATABASE_BACKEND=localmongodb
-    - PLANETMINT_DATABASE_SSL=
-  - python: 3.7
+  - python: 3.9
     env:
     - PLANETMINT_DATABASE_BACKEND=localmongodb
     - PLANETMINT_DATABASE_SSL=
     - PLANETMINT_CI_ABCI=enable
-  - python: 3.7
-    env:
-    - PLANETMINT_ACCEPTANCE_TEST=enable
-  - python: 3.8
-    env:
-    - PLANETMINT_DATABASE_BACKEND=localmongodb
-    - PLANETMINT_DATABASE_SSL=
-  - python: 3.8
-    env:
-    - PLANETMINT_DATABASE_BACKEND=localmongodb
-    - PLANETMINT_DATABASE_SSL=
-    - PLANETMINT_CI_ABCI=enable
-  - python: 3.8
+  - python: 3.9
     env:
     - PLANETMINT_ACCEPTANCE_TEST=enable
 
