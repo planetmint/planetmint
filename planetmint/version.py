@@ -7,4 +7,4 @@ __version__ = '0.9.0'
 __short_version__ = '0.9'
 
 # Supported Tendermint versions
-__tm_supported_versions__ = ["0.31.5", "0.22.8"]
+__tm_supported_versions__ = ["0.34.11"]
