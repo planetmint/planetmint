@@ -56,24 +56,6 @@ Planetmint 문서
    </style>
 
    <div class="buttondiv">
-<<<<<<< HEAD
-     <a class="button" href="http://planetmint.com/http-api">HTTP API 문서</a>
-   </div>
-   <div class="buttondiv">
-     <a class="button" href="http://docs.planetmint.com/projects/contributing/en/latest/index.html">BigchainDB에 기여하는 법</a>
-   </div>
-   <div class="buttondiv">
-     <a class="button" href="http://docs.planetmint.com/projects/py-driver/en/latest/index.html">파이썬 드라이버 문서</a>
-   </div>
-   <div class="buttondiv">
-     <a class="button" href="https://docs.planetmint.com/projects/js-driver/en/latest/index.html">자바스크립트 드라이버 문서</a>
-   </div>
-   <div class="buttondiv">
-     <a class="button" href="http://docs.planetmint.com/projects/server/en/latest/index.html">서버 문서</a>
-   </div>
-   <div class="buttondiv">
-     <a class="button" href="http://docs.planetmint.com/projects/server/en/latest/quickstart.html">서버 빠른 시작</a>
-=======
      <a class="button" href="http://planetmint.io/http-api">HTTP API 문서</a>
    </div>
    <div class="buttondiv">
@@ -90,7 +72,6 @@ Planetmint 문서
    </div>
    <div class="buttondiv">
      <a class="button" href="http://docs.planetmint.io/projects/server/en/latest/quickstart.html">서버 빠른 시작</a>
->>>>>>> 3bfc3298f8210b135084e823eedd47f213538088
    </div>
 
 
@@ -114,8 +95,4 @@ Planetmint에 대한 추가 정보
    store-files_ko
    permissions-ko
    private-data-ko
-<<<<<<< HEAD
-   Data Models <https://docs.planetmint.com/projects/server/en/latest/data-models/index.html>
-=======
    Data Models <https://docs.planetmint.io/projects/server/en/latest/data-models/index.html>
->>>>>>> 3bfc3298f8210b135084e823eedd47f213538088
