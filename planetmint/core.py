@@ -178,9 +178,9 @@ class App(BaseApplication):
         self.abort_if_abci_chain_is_not_synced()
 
         chain_shift = 0 if self.chain is None else self.chain['height']
-        logger.debug('BEGIN BLOCK, height:%s, num_txs:%s',
-                     req_begin_block.header.height + chain_shift,
-                     req_begin_block.header.num_txs)
+        #req_begin_block.header.num_txs not found, so removing it. 
+        logger.debug('BEGIN BLOCK, height:%s',
+                     req_begin_block.header.height + chain_shift)
 
         self.block_txn_ids = []
         self.block_transactions = []
