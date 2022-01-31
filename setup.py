@@ -16,7 +16,7 @@ from setuptools import setup, find_packages
 if sys.version_info < (3, 9):
     sys.exit('Please use Python version 3.9 or higher.')
 
-with open('README.rst') as readme_file:
+with open('README.md') as readme_file:
     readme = readme_file.read()
 
 # get the version
@@ -100,11 +100,11 @@ setup(
     version=version['__version__'],
     description='Planetmint: The Blockchain Database',
     long_description=readme,
-    long_description_content_type='text/x-rst',
+    long_description_content_type='text/markdown',
     url='https://github.com/Planetmint/planetmint/',
     author='Planetmint Contributors',
     author_email='contact@ipdb.global',
-    license='AGPLv3,
+    license='AGPLv3',
     zip_safe=False,
     python_requires='>=3.9',
     classifiers=[
