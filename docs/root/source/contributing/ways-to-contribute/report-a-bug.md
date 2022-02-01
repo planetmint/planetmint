@@ -22,7 +22,6 @@ People ask questions about Planetmint in the following places:
 
 - Gitter
   - [planetmint/planetmint](https://gitter.im/planetmint/community)
-  - [planetmint/js-planetmint-driver](https://gitter.im/planetmint/community))
 - [Twitter](https://twitter.com/planetmint)
 - [Stack Overflow "planetmint"](https://stackoverflow.com/search?q=planetmint)
 
