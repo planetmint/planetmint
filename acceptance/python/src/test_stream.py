@@ -27,8 +27,8 @@ from uuid import uuid4
 # [websocket](https://github.com/websocket-client/websocket-client) module
 from websocket import create_connection
 
-from bigchaindb_driver import BigchainDB
-from bigchaindb_driver.crypto import generate_keypair
+from planetmint_driver import planetmint
+from planetmint_driver.crypto import generate_keypair
 
 
 def test_stream():
@@ -40,7 +40,7 @@ def test_stream():
     # *That's pretty bad, but let's do like this for now.*
     WS_ENDPOINT = 'ws://{}:9985/api/v1/streams/valid_transactions'.format(BDB_ENDPOINT.rsplit(':')[0])
 
-    bdb = BigchainDB(BDB_ENDPOINT)
+    bdb = Planetmint(BDB_ENDPOINT)
 
     # Hello to Alice again, she is pretty active in those tests, good job
     # Alice!

@@ -25,15 +25,15 @@
 import os
 
 # For this test case we import and use the Python Driver.
-from bigchaindb_driver import BigchainDB
-from bigchaindb_driver.crypto import generate_keypair
+from planetmint_driver import planetmint
+from planetmint_driver.crypto import generate_keypair
 
 
 def test_multiple_owners():
     # ## Set up a connection to Planetmint
     # Check [test_basic.py](./test_basic.html) to get some more details
     # about the endpoint.
-    bdb = BigchainDB(os.environ.get('PLANETMINT_ENDPOINT'))
+    bdb = Planetmint(os.environ.get('PLANETMINT_ENDPOINT'))
 
     # Hey Alice and Bob, nice to see you again!
     alice, bob = generate_keypair(), generate_keypair()
