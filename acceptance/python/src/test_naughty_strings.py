@@ -24,7 +24,7 @@ from blns import blns
 import pytest
 
 # For this test case we import and use the Python Driver.
-from planetmint_driver import planetmint
+from planetmint_driver import Planetmint
 from planetmint_driver.crypto import generate_keypair
 from planetmint_driver.exceptions import BadRequest
 

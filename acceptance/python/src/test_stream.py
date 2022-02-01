@@ -27,7 +27,7 @@ from uuid import uuid4
 # [websocket](https://github.com/websocket-client/websocket-client) module
 from websocket import create_connection
 
-from planetmint_driver import planetmint
+from planetmint_driver import Planetmint
 from planetmint_driver.crypto import generate_keypair
 
 
