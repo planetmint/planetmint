@@ -236,8 +236,8 @@ def merlin():
 
 @pytest.fixture
 def a():
-    from abci import types_v0_31_5
-    return types_v0_31_5
+    from tendermint.abci import types_pb2 as types_v0_34_11
+    return types_v0_34_11
 
 
 @pytest.fixture
@@ -442,11 +442,11 @@ def event_loop():
 @pytest.fixture(scope='session')
 def abci_server():
     from abci.server import ABCIServer
-    from abci import types_v0_31_5
+    from tendermint.abci import types_pb2 as types_v0_34_11
     from planetmint.core import App
     from planetmint.utils import Process
 
-    app = ABCIServer(app=App(types_v0_31_5))
+    app = ABCIServer(app=App(types_v0_34_11))
     abci_proxy = Process(name='ABCI', target=app.run)
     yield abci_proxy.start()
     abci_proxy.terminate()

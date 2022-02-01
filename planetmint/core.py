@@ -8,7 +8,8 @@ with Tendermint.
 """
 import logging
 import sys
-
+import enum
+from tendermint.abci import types_pb2
 from abci.application import BaseApplication
 from abci.application import OkCode
 from tendermint.abci.types_pb2 import (
@@ -49,6 +50,10 @@ from planetmint.events import EventTypes, Event
 CodeTypeError = 1
 logger = logging.getLogger(__name__)
 
+class TmVersion(enum.Enum):
+    """Supported Tendermint versions enum"""
+    v0_34_11 = 'v0.34.11'
+
 
 class App(BaseApplication):
     """Bridge between Planetmint and Tendermint.
@@ -59,6 +64,8 @@ class App(BaseApplication):
 
     def __init__(self, planetmint=None, events_queue=None,):
         #super().__init__(abci)
+        logger.debug('Checking values of types')
+        logger.debug(dir(types_pb2))
         self.events_queue = events_queue
         self.planetmint = planetmint or Planetmint()
         self.block_txn_ids = []

@@ -6,7 +6,7 @@ from planetmint.lib import Block
 from planetmint.elections.election import Election
 from planetmint.migrations.chain_migration_election import ChainMigrationElection
 from planetmint.upsert_validator.validator_election import ValidatorElection
-
+from planetmint.core import TmVersion
 
 @pytest.mark.bdb
 def test_process_block_concludes_all_elections(b):

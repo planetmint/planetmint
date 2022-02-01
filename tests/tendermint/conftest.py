@@ -6,7 +6,7 @@
 import pytest
 import codecs
 
-from abci import types_v0_31_5 as types
+from tendermint.abci import types_pb2 as types
 
 
 @pytest.fixture

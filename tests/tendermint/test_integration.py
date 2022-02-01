@@ -5,13 +5,13 @@
 
 import codecs
 
-from abci import types_v0_31_5 as types
+from tendermint.abci import types_pb2 as types 
 import json
 import pytest
 
 
 from abci.server import ProtocolHandler
-from abci.encoding import read_messages
+from abci.utils import read_messages
 
 from planetmint.common.transaction_mode_types import BROADCAST_TX_COMMIT, BROADCAST_TX_SYNC
 from planetmint.version import __tm_supported_versions__
