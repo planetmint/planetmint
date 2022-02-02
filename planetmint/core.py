@@ -62,29 +62,29 @@ class App(BaseApplication):
     transaction logic to Tendermint Core.
     """
 
-    def __init__(self, planetmint=None, events_queue=None,):
+    def __init__(self, planetmint_node=None, events_queue=None,):
         #super().__init__(abci)
         logger.debug('Checking values of types')
         logger.debug(dir(types_pb2))
         self.events_queue = events_queue
-        self.planetmint = planetmint or Planetmint()
+        self.planetmint_node = planetmint_node or Planetmint()
         self.block_txn_ids = []
         self.block_txn_hash = ''
         self.block_transactions = []
         self.validators = None
         self.new_height = None
-        self.chain = self.planetmint.get_latest_abci_chain()
+        self.chain = self.planetmint_node.get_latest_abci_chain()
 
     def log_abci_migration_error(self, chain_id, validators):
         logger.error('An ABCI chain migration is in process. '
-                     'Download the new ABCI client and configure it with '
+                     'Download theself.planetmint_node.get_latest_abci_chain new ABCI client and configure it with '
                      f'chain_id={chain_id} and validators={validators}.')
 
     def abort_if_abci_chain_is_not_synced(self):
         if self.chain is None or self.chain['is_synced']:
             return
 
-        validators = self.planetmint.get_validators()
+        validators = self.planetmint_node.get_validators()
         self.log_abci_migration_error(self.chain['chain_id'], validators)
         sys.exit(1)
 
@@ -94,7 +94,7 @@ class App(BaseApplication):
         app_hash = ''
         height = 0
 
-        known_chain = self.planetmint.get_latest_abci_chain()
+        known_chain = self.planetmint_node.get_latest_abci_chain()
         if known_chain is not None:
             chain_id = known_chain['chain_id']
 
@@ -105,16 +105,16 @@ class App(BaseApplication):
                 sys.exit(1)
 
             if chain_id != genesis.chain_id:
-                validators = self.planetmint.get_validators()
+                validators = self.planetmint_node.get_validators()
                 self.log_abci_migration_error(chain_id, validators)
                 sys.exit(1)
 
             # set migration values for app hash and height
-            block = self.planetmint.get_latest_block()
+            block = self.planetmint_node.get_latest_block()
             app_hash = '' if block is None else block['app_hash']
             height = 0 if block is None else block['height'] + 1
 
-        known_validators = self.planetmint.get_validators()
+        known_validators = self.planetmint_node.get_validators()
         validator_set = [vutils.decode_validator(v)
                          for v in genesis.validators]
 
@@ -124,10 +124,10 @@ class App(BaseApplication):
             sys.exit(1)
 
         block = Block(app_hash=app_hash, height=height, transactions=[])
-        self.planetmint.store_block(block._asdict())
-        self.planetmint.store_validator_set(height + 1, validator_set)
+        self.planetmint_node.store_block(block._asdict())
+        self.planetmint_node.store_validator_set(height + 1, validator_set)
         abci_chain_height = 0 if known_chain is None else known_chain['height']
-        self.planetmint.store_abci_chain(abci_chain_height,
+        self.planetmint_node.store_abci_chain(abci_chain_height,
                                          genesis.chain_id, True)
         self.chain = {'height': abci_chain_height, 'is_synced': True,
                       'chain_id': genesis.chain_id}
@@ -147,7 +147,7 @@ class App(BaseApplication):
         #logger.info(f"Tendermint version: {request.version}")
 
         r = ResponseInfo()
-        block = self.planetmint.get_latest_block()
+        block = self.planetmint_node.get_latest_block()
         if block:
             chain_shift = 0 if self.chain is None else self.chain['height']
             r.last_block_height = block['height'] - chain_shift
@@ -169,7 +169,7 @@ class App(BaseApplication):
 
         logger.debug('check_tx: %s', raw_transaction)
         transaction = decode_transaction(raw_transaction)
-        if self.planetmint.is_valid_transaction(transaction):
+        if self.planetmint_node.is_valid_transaction(transaction):
             logger.debug('check_tx: VALID')
             return ResponseCheckTx(code=CodeTypeOk)
         else:
@@ -203,7 +203,7 @@ class App(BaseApplication):
         self.abort_if_abci_chain_is_not_synced()
 
         logger.debug('deliver_tx: %s', raw_transaction)
-        transaction = self.planetmint.is_valid_transaction(
+        transaction = self.planetmint_node.is_valid_transaction(
             decode_transaction(raw_transaction), self.block_transactions)
 
         if not transaction:
@@ -235,10 +235,10 @@ class App(BaseApplication):
         logger.debug(f'Updating pre-commit state: {self.new_height}')
         pre_commit_state = dict(height=self.new_height,
                                 transactions=self.block_txn_ids)
-        self.planetmint.store_pre_commit_state(pre_commit_state)
+        self.planetmint_node.store_pre_commit_state(pre_commit_state)
 
         block_txn_hash = calculate_hash(self.block_txn_ids)
-        block = self.planetmint.get_latest_block()
+        block = self.planetmint_node.get_latest_block()
 
         if self.block_txn_ids:
             self.block_txn_hash = calculate_hash([block['app_hash'], block_txn_hash])
@@ -260,14 +260,14 @@ class App(BaseApplication):
 
         # register a new block only when new transactions are received
         if self.block_txn_ids:
-            self.planetmint.store_bulk_transactions(self.block_transactions)
+            self.planetmint_node.store_bulk_transactions(self.block_transactions)
 
         block = Block(app_hash=self.block_txn_hash,
                       height=self.new_height,
                       transactions=self.block_txn_ids)
         # NOTE: storing the block should be the last operation during commit
         # this effects crash recovery. Refer BEP#8 for details
-        self.planetmint.store_block(block._asdict())
+        self.planetmint_node.store_block(block._asdict())
 
         logger.debug('Commit-ing new block with hash: apphash=%s ,'
                      'height=%s, txn ids=%s', data, self.new_height,

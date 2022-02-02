@@ -5,6 +5,7 @@ import enum
 
 import planetmint
 from tendermint.abci import types_pb2 as types_v0_34_11
+from tendermint.crypto import keys_pb2
 from planetmint.common.exceptions import InvalidPublicKey, BigchainDBError
 
 class TmVersion(enum.Enum):
@@ -21,9 +22,9 @@ def encode_validator(v):
                               'check Planetmint configuration file')
 
     validator_update_t, pubkey_t = {
-        TmVersion.v0_34_11: (types_v0_34_11.ValidatorUpdate, types_v0_34_11.PubKey)
+        TmVersion.v0_34_11: (types_v0_34_11.ValidatorUpdate, keys_pb2.PublicKey)
     }[version]
-    pub_key = pubkey_t(type='ed25519', data=bytes.fromhex(ed25519_public_key))
+    pub_key = pubkey_t(ed25519=bytes.fromhex(ed25519_public_key))
 
     return validator_update_t(pub_key=pub_key, power=v['power'])
 
