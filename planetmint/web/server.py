@@ -16,7 +16,7 @@ from flask_cors import CORS
 import gunicorn.app.base
 
 from planetmint import utils
-from planetmint import Planetmint
+from planetmint.lib import Planetmint
 from planetmint.web.routes import add_routes
 from planetmint.web.strip_content_type_middleware import StripContentTypeMiddleware
 

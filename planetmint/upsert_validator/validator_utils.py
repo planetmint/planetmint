@@ -4,29 +4,15 @@ import codecs
 import enum
 
 import planetmint
-from tendermint.abci import types_pb2 as types_v0_34_11
+from tendermint.abci import types_pb2 
 from tendermint.crypto import keys_pb2
 from planetmint.common.exceptions import InvalidPublicKey, BigchainDBError
 
-class TmVersion(enum.Enum):
-    """Supported Tendermint versions enum"""
-    v0_34_11 = 'v0.34.11'
-
 def encode_validator(v):
     ed25519_public_key = v['public_key']['value']
-    # NOTE: tendermint expects public to be encoded in go-amino format
-    try:
-        version = TmVersion(planetmint.config["tendermint"]["version"])
-    except ValueError:
-        raise BigchainDBError('Invalid tendermint version, '
-                              'check Planetmint configuration file')
+    pub_key = keys_pb2.PublicKey(ed25519=bytes.fromhex(ed25519_public_key))
 
-    validator_update_t, pubkey_t = {
-        TmVersion.v0_34_11: (types_v0_34_11.ValidatorUpdate, keys_pb2.PublicKey)
-    }[version]
-    pub_key = pubkey_t(ed25519=bytes.fromhex(ed25519_public_key))
-
-    return validator_update_t(pub_key=pub_key, power=v['power'])
+    return types_pb2.ValidatorUpdate(pub_key=pub_key, power=v['power'])
 
 
 def decode_validator(v):

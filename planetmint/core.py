@@ -50,10 +50,6 @@ from planetmint.events import EventTypes, Event
 CodeTypeError = 1
 logger = logging.getLogger(__name__)
 
-class TmVersion(enum.Enum):
-    """Supported Tendermint versions enum"""
-    v0_34_11 = 'v0.34.11'
-
 
 class App(BaseApplication):
     """Bridge between Planetmint and Tendermint.
@@ -171,7 +167,7 @@ class App(BaseApplication):
         transaction = decode_transaction(raw_transaction)
         if self.planetmint_node.is_valid_transaction(transaction):
             logger.debug('check_tx: VALID')
-            return ResponseCheckTx(code=CodeTypeOk)
+            return ResponseCheckTx(code=OkCode)
         else:
             logger.debug('check_tx: INVALID')
             return ResponseCheckTx(code=CodeTypeError)
@@ -213,7 +209,7 @@ class App(BaseApplication):
             logger.debug('storing tx')
             self.block_txn_ids.append(transaction.id)
             self.block_transactions.append(transaction)
-            return ResponseDeliverTx(code=CodeTypeOk)
+            return ResponseDeliverTx(code=OkCode)
 
     def end_block(self, request_end_block):
         """Calculate block hash using transaction ids and previous block

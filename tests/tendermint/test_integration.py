@@ -25,7 +25,7 @@ def test_app(a, b, init_chain_request):
     from planetmint.common.crypto import generate_key_pair
     from planetmint.models import Transaction
 
-    app = App(a, b)
+    app = App(b, a)
     p = ProtocolHandler(app)
 
     data = p.process('info',
@@ -150,7 +150,7 @@ def test_post_transaction_responses(tendermint_ws_url, b):
 def test_exit_when_tm_ver_not_supported(a, b):
     from planetmint import App
 
-    app = App(a, b)
+    app = App(b, a)
     p = ProtocolHandler(app)
 
     with pytest.raises(SystemExit):
