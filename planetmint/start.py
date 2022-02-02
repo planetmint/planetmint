@@ -6,8 +6,6 @@
 import logging
 import setproctitle
 
-#from abci import TmVersion, ABCI
-
 import planetmint
 from planetmint.lib import Planetmint
 from planetmint.core import App

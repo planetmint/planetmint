@@ -6,7 +6,8 @@
 import multiprocessing as mp
 from collections import defaultdict
 
-from planetmint import App, Planetmint
+from planetmint import App
+from planetmint.lib import Planetmint
 from planetmint.tendermint_utils import decode_transaction
 from abci.application import OkCode
 from tendermint.abci.types_pb2 import (

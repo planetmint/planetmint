@@ -9,7 +9,7 @@ with Tendermint.
 import logging
 import sys
 import enum
-from tendermint.abci import types_pb2
+from tendermint.abci import types_pb2   
 from abci.application import BaseApplication
 from abci.application import OkCode
 from tendermint.abci.types_pb2 import (
@@ -49,10 +49,6 @@ from planetmint.events import EventTypes, Event
 
 CodeTypeError = 1
 logger = logging.getLogger(__name__)
-
-class TmVersion(enum.Enum):
-    """Supported Tendermint versions enum"""
-    v0_34_11 = 'v0.34.11'
 
 
 class App(BaseApplication):
