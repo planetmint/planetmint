@@ -446,7 +446,7 @@ def abci_server():
     from planetmint.core import App
     from planetmint.utils import Process
 
-    app = ABCIServer(app=App(types_v0_34_11))
+    app = ABCIServer(app=App())
     abci_proxy = Process(name='ABCI', target=app.run)
     yield abci_proxy.start()
     abci_proxy.terminate()

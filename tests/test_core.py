@@ -214,7 +214,7 @@ def test_check_tx__signed_create_is_ok(a, b):
 
     app = App(b, a)
     result = app.check_tx(encode_tx_to_bytes(tx))
-    assert result.code == CodeTypeOk
+    assert result.code == OkCode
 
 
 def test_check_tx__unsigned_create_is_error(a, b):
@@ -247,7 +247,7 @@ def test_deliver_tx__valid_create_updates_db_and_emits_event(a, b, init_chain_re
                             [([bob.public_key], 1)])\
                     .sign([alice.private_key])
 
-    app = App(a, b, events)
+    app = App( a, events)
 
     app.init_chain(init_chain_request)
 
@@ -255,7 +255,7 @@ def test_deliver_tx__valid_create_updates_db_and_emits_event(a, b, init_chain_re
     app.begin_block(begin_block)
 
     result = app.deliver_tx(encode_tx_to_bytes(tx))
-    assert result.code == CodeTypeOk
+    assert result.code == OkCode
 
     app.end_block(types.RequestEndBlock(height=99))
     app.commit()
@@ -290,7 +290,7 @@ def test_deliver_tx__double_spend_fails(a, b, init_chain_request):
     app.begin_block(begin_block)
 
     result = app.deliver_tx(encode_tx_to_bytes(tx))
-    assert result.code == CodeTypeOk
+    assert result.code == OkCode
 
     app.end_block(types.RequestEndBlock(height=99))
     app.commit()
@@ -325,7 +325,7 @@ def test_deliver_transfer_tx__double_spend_fails(a, b, init_chain_request):
                     .sign([alice.private_key])
 
     result = app.deliver_tx(encode_tx_to_bytes(tx))
-    assert result.code == CodeTypeOk
+    assert result.code == OkCode
 
     tx_transfer = Transaction.transfer(tx.to_inputs(),
                                        [([bob.public_key], 1)],
@@ -333,7 +333,7 @@ def test_deliver_transfer_tx__double_spend_fails(a, b, init_chain_request):
                              .sign([alice.private_key])
 
     result = app.deliver_tx(encode_tx_to_bytes(tx_transfer))
-    assert result.code == CodeTypeOk
+    assert result.code == OkCode    
 
     double_spend = Transaction.transfer(tx.to_inputs(),
                                         [([carly.public_key], 1)],

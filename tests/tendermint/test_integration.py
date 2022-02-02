@@ -42,7 +42,7 @@ def test_app(a, b, init_chain_request):
     assert block0['height'] == 0
     assert block0['app_hash'] == ''
 
-    pk = codecs.encode(init_chain_request.validators[0].pub_key.data, 'base64').decode().strip('\n')
+    pk = codecs.encode(init_chain_request.validators[0].pub_key.ed25519, 'base64').decode().strip('\n')
     [validator] = b.get_validators(height=1)
     assert validator['public_key']['value'] == pk
     assert validator['voting_power'] == 10

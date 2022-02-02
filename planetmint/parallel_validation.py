@@ -128,7 +128,7 @@ class ValidationWorker:
         except KeyError:
             asset_id = dict_transaction['id']
 
-        transaction = self.planetmint_node.is_valid_transaction(
+        transaction = self.planetmint.is_valid_transaction(
                 dict_transaction,
                 self.validated_transactions[asset_id])
 

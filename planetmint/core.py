@@ -58,7 +58,7 @@ class App(BaseApplication):
     transaction logic to Tendermint Core.
     """
 
-    def __init__(self, planetmint_node=None, events_queue=None,):
+    def __init__(self, planetmint_node=None, events_queue=None):
         #super().__init__(abci)
         logger.debug('Checking values of types')
         logger.debug(dir(types_pb2))
@@ -70,6 +70,7 @@ class App(BaseApplication):
         self.validators = None
         self.new_height = None
         self.chain = self.planetmint_node.get_latest_abci_chain()
+        
 
     def log_abci_migration_error(self, chain_id, validators):
         logger.error('An ABCI chain migration is in process. '
@@ -167,7 +168,7 @@ class App(BaseApplication):
         transaction = decode_transaction(raw_transaction)
         if self.planetmint_node.is_valid_transaction(transaction):
             logger.debug('check_tx: VALID')
-            return ResponseCheckTx(code=CodeTypeOk)
+            return ResponseCheckTx(code=OkCode)
         else:
             logger.debug('check_tx: INVALID')
             return ResponseCheckTx(code=CodeTypeError)
@@ -209,7 +210,7 @@ class App(BaseApplication):
             logger.debug('storing tx')
             self.block_txn_ids.append(transaction.id)
             self.block_transactions.append(transaction)
-            return ResponseDeliverTx(code=CodeTypeOk)
+            return ResponseDeliverTx(code=OkCode)
 
     def end_block(self, request_end_block):
         """Calculate block hash using transaction ids and previous block
@@ -241,7 +242,7 @@ class App(BaseApplication):
         else:
             self.block_txn_hash = block['app_hash']
 
-        validator_update = Election.process_block(self.planetmint,
+        validator_update = Election.process_block(self.planetmint_node,
                                                   self.new_height,
                                                   self.block_transactions)
 

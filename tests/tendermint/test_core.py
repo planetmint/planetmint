@@ -247,8 +247,9 @@ def test_deliver_tx__valid_create_updates_db_and_emits_event(a, b, init_chain_re
                             [([bob.public_key], 1)])\
                     .sign([alice.private_key])
 
-    app = App(a, b, events)
-
+    # app = App(b, a, events)
+    app = App(b, events)
+    
     app.init_chain(init_chain_request)
 
     begin_block = types.RequestBeginBlock()
@@ -376,7 +377,7 @@ def test_end_block_return_validator_updates(a, b, init_chain_request):
     resp = app.end_block(types.RequestEndBlock(height=2))
     assert resp.validator_updates[0].power == new_validator['election']['power']
     expected = bytes.fromhex(new_validator['election']['public_key']['value'])
-    assert expected == resp.validator_updates[0].pub_key.data
+    assert expected == resp.validator_updates[0].pub_key.ed25519
 
 
 def test_store_pre_commit_state_in_end_block(a, b, alice, init_chain_request):
