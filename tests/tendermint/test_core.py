@@ -8,6 +8,7 @@ import pytest
 import random
 
 from tendermint.abci import types_pb2 as types
+from tendermint.crypto import keys_pb2 
 
 from planetmint import App
 from planetmint.backend.localmongodb import query
@@ -40,7 +41,7 @@ def generate_address():
 
 def generate_validator():
     pk, _ = generate_key_pair()
-    pub_key = types.PubKey(type='ed25519', data=pk.encode())
+    pub_key = keys_pb2.PublicKey(ed25519=pk.encode())
     val = types.ValidatorUpdate(power=10, pub_key=pub_key)
     return val
 
