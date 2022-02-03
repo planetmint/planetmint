@@ -74,7 +74,7 @@ tests_require = [
 
 install_requires = [
     'chardet==3.0.4',
-    'aiohttp==3.8.1',
+    'aiohttp==3.7.4',
     'bigchaindb-abci==1.0.7',
     'planetmint-cryptoconditions>=0.9.0',
     'flask-cors==3.0.10',
