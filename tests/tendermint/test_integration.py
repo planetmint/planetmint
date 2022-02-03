@@ -19,13 +19,13 @@ from io import BytesIO
 
 
 @pytest.mark.bdb
-def test_app(a, b, init_chain_request):
+def test_app(b, eventqueue_fixture, init_chain_request):
     from planetmint import App
     from planetmint.tendermint_utils import calculate_hash
     from planetmint.common.crypto import generate_key_pair
     from planetmint.models import Transaction
 
-    app = App(b, a)
+    app = App(b, eventqueue_fixture)
     p = ProtocolHandler(app)
 
     data = p.process('info',
@@ -144,14 +144,3 @@ def test_post_transaction_responses(tendermint_ws_url, b):
         code, message = b.write_transaction(double_spend, mode)
         assert code == 500
         assert message == 'Transaction validation failed'
-
-
-@pytest.mark.bdb
-def test_exit_when_tm_ver_not_supported(a, b):
-    from planetmint import App
-
-    app = App(b, a)
-    p = ProtocolHandler(app)
-
-    with pytest.raises(SystemExit):
-        p.process('info', types.Request(info=types.RequestInfo(version='2')))

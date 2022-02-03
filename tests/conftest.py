@@ -31,6 +31,7 @@ from planetmint.common.crypto import (key_pair_from_ed25519_key,
 from planetmint.common.exceptions import DatabaseDoesNotExist
 from planetmint.lib import Block
 from tests.utils import gen_vote
+import tests.tendermint.conftest
 
 TEST_DB_NAME = 'planetmint_test'
 
@@ -235,15 +236,22 @@ def merlin():
 
 
 @pytest.fixture
-def a():
-    from tendermint.abci import types_pb2 as types_v0_34_11
-    return types_v0_34_11
+#def a():
+def abci_fixture():
+    from tendermint.abci import types_pb2
+    return types_pb2
 
 
 @pytest.fixture
 def b():
     from planetmint import Planetmint
     return Planetmint()
+
+@pytest.fixture
+def eventqueue_fixture():
+    from multiprocessing import Queue
+    return Queue()
+
 
 
 @pytest.fixture
