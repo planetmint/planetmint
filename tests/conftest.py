@@ -9,6 +9,7 @@ Tasks:
 1. setup test database before starting the tests
 2. delete test database after running the tests
 """
+import asyncio
 import json
 import os
 import copy
@@ -430,7 +431,7 @@ def abci_http(_setup_database, _configure_planetmint, abci_server,
     return False
 
 
-@pytest.yield_fixture(scope='session')
+@pytest.fixture(scope='session')
 def event_loop():
     import asyncio
 
