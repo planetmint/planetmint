@@ -205,10 +205,6 @@ Tendermint voting 파워가 0인 노드인 추종자 노드를 생성할 수 있
 
 [MongoDB node.js 드라이버](https://mongodb.github.io/node-mongodb-native/?jmp=docs)와 같은 MongoDB 드라이버를 사용하여 다음 중 하나를 사용하여 노드의 MongoDB 데이터베이스에 연결할 수 있습니다. 여기 자바스크립트 쿼리 코드에 대한 링크가 있습니다.
 
-<<<<<<< HEAD
-- [The Planetmint JavaScript/Node.js driver source code](https://github.com/planetmint/js-bigchaindb-driver)
-=======
-- [The Planetmint JavaScript/Node.js driver source code](https://github.com/planetmint/js-planetmint-driver)
->>>>>>> 3bfc3298f8210b135084e823eedd47f213538088
-- [Example code by @manolodewiner](https://github.com/manolodewiner/query-mongodb-planetmint/blob/master/queryMongo.js)
-- [More example code by @manolodewiner](https://github.com/planetmint/planetmint/issues/2315#issuecomment-392724279)
+- [The Planetmint JavaScript/Node.js driver source code](https://github.com/bigchaindb/js-bidchaindb-driver)
+- [Example code by @manolodewiner](https://github.com/manolodewiner/query-mongodb-bigchaindb/blob/master/queryMongo.js)
+- [More example code by @manolodewiner](https://github.com/bigchaindb/bigchaindb/issues/2315#issuecomment-392724279)

@@ -9,8 +9,8 @@ WORKDIR /
 RUN apk add --no-cache --update curl bind-tools python3-dev g++ \
         libffi-dev make vim git nodejs openssl-dev \
     && pip3 install ipython \
-    && git clone https://github.com/bigchaindb/bigchaindb-driver \
-    && cd bigchaindb-driver \
+    && git clone https://github.com/planetmint/planetmint-driver \
+    && cd planetmint-driver \
     && pip3 install -e . \
     && npm install -g wsc
 ENTRYPOINT ["/bin/sh"]

@@ -10,7 +10,7 @@ WORKDIR /usr/src/app
 RUN apk --update add sudo bash \
     && apk --update add python3 openssl ca-certificates git \
     && apk --update add --virtual build-dependencies python3-dev \
-        libffi-dev openssl-dev build-base jq \
+        libffi-dev openssl-dev build-base jq zsh \
     && apk add --no-cache libstdc++ dpkg gnupg \
     && pip3 install --upgrade pip cffi \
     && pip install -e . \

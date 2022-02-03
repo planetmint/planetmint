@@ -11,13 +11,13 @@ from uuid import uuid4
 from threading import Thread
 import queue
 
-import bigchaindb_driver.exceptions
-from bigchaindb_driver import BigchainDB
-from bigchaindb_driver.crypto import generate_keypair
+import planetmint_driver.exceptions
+from planetmint_driver import Planetmint
+from planetmint_driver.crypto import generate_keypair
 
 
 def test_double_create():
-    bdb = BigchainDB(os.environ.get('PLANETMINT_ENDPOINT'))
+    bdb = Planetmint(os.environ.get('PLANETMINT_ENDPOINT'))
     alice = generate_keypair()
 
     results = queue.Queue()
@@ -33,7 +33,7 @@ def test_double_create():
         try:
             bdb.transactions.send_commit(tx)
             results.put('OK')
-        except bigchaindb_driver.exceptions.TransportError as e:
+        except planetmint_driver.exceptions.TransportError as e:
             results.put('FAIL')
 
     t1 = Thread(target=send_and_queue, args=(tx, ))

@@ -16,6 +16,9 @@ from setuptools import setup, find_packages
 if sys.version_info < (3, 9):
     sys.exit('Please use Python version 3.9 or higher.')
 
+with open('README.md') as readme_file:
+    readme = readme_file.read()
+
 # get the version
 version = {}
 with open('planetmint/version.py') as fp:
@@ -59,7 +62,6 @@ tests_require = [
     'flake8',
     'flake8-quotes==0.8.1',
     'hypothesis>=5.3.0',
-    # Removed pylint because its GPL license isn't Apache2-compatible
     'pytest>=3.0.0',
     'pytest-cov==2.8.1',
     'pytest-mock',
@@ -74,7 +76,7 @@ install_requires = [
     'chardet==3.0.4',
     'aiohttp==3.7.4',
     'abci==0.8.3',
-    'cryptoconditions==0.8.1',
+    'planetmint-cryptoconditions>=0.9.0',
     'flask-cors==3.0.10',
     'flask-restful==0.3.9',
     'flask==2.0.1',
@@ -97,20 +99,12 @@ setup(
     name='Planetmint',
     version=version['__version__'],
     description='Planetmint: The Blockchain Database',
-    long_description=(
-        "Planetmint allows developers and enterprises to deploy blockchain "
-        "proof-of-concepts, platforms and applications with a blockchain "
-        "database. Planetmint supports a wide range of industries and use cases "
-        "from identity and intellectual property to supply chains, energy, IoT "
-        "and financial ecosystems. With high throughput, low latency, powerful "
-        "query functionality, decentralized control, immutable data storage and "
-        "built-in asset support, Planetmint is like a database with blockchain "
-        "characteristics."
-        ),
+    long_description=readme,
+    long_description_content_type='text/markdown',
     url='https://github.com/Planetmint/planetmint/',
     author='Planetmint Contributors',
     author_email='contact@ipdb.global',
-    license='Apache Software License 2.0',
+    license='AGPLv3',
     zip_safe=False,
     python_requires='>=3.9',
     classifiers=[

@@ -12,10 +12,9 @@ so show the latest GitHub release instead.
 
 [![Codecov branch](https://img.shields.io/codecov/c/github/planetmint/planetmint/master.svg)](https://codecov.io/github/planetmint/planetmint?branch=master)
 [![Latest release](https://img.shields.io/github/release/planetmint/planetmint/all.svg)](https://github.com/planetmint/planetmint/releases)
-[![Status on PyPI](https://img.shields.io/pypi/status/planetmint.svg)](https://pypi.org/project/Planetmint/)
-[![Travis branch](https://img.shields.io/travis/planetmint/planetmint/master.svg)](https://travis-ci.com/planetmint/planetmint)
-[![Documentation Status](https://readthedocs.org/projects/planetmint-server/badge/?version=latest)](https://docs.planetmint.com/projects/server/en/latest/)
-[![Join the chat at https://gitter.im/planetmint/planetmint](https://badges.gitter.im/planetmint/planetmint.svg)](https://gitter.im/planetmint/planetmint?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Status on PyPI](https://img.shields.io/pypi/status/planetmint.svg)](https://pypi.org/project/Planetmint)
+[![Build Status](https://app.travis-ci.com/planetmint/planetmint.svg?branch=main)](https://app.travis-ci.com/planetmint/planetmint)
+[![Join the chat at https://gitter.im/planetmint/planetmint](https://badges.gitter.im/planetmint/planetmint.svg)](https://gitter.im/planetmint/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 # Planetmint Server
 

@@ -24,8 +24,8 @@
 import os
 
 # For this test case we import and use the Python Driver.
-from bigchaindb_driver import BigchainDB
-from bigchaindb_driver.crypto import generate_keypair
+from planetmint_driver import Planetmint
+from planetmint_driver.crypto import generate_keypair
 
 
 def test_basic():
@@ -34,7 +34,7 @@ def test_basic():
     # connect to localhost, but you can override this value using the env variable
     # called `PLANETMINT_ENDPOINT`, a valid value must include the schema:
     # `https://example.com:9984`
-    bdb = BigchainDB(os.environ.get('PLANETMINT_ENDPOINT'))
+    bdb = Planetmint(os.environ.get('PLANETMINT_ENDPOINT'))
 
     # ## Create keypairs
     # This test requires the interaction between two actors with their own keypair.
