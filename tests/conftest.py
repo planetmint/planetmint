@@ -9,7 +9,6 @@ Tasks:
 1. setup test database before starting the tests
 2. delete test database after running the tests
 """
-import asyncio
 import json
 import os
 import copy
