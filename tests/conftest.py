@@ -438,7 +438,7 @@ def abci_http(_setup_database, _configure_planetmint, abci_server,
     return False
 
 
-@pytest.yield_fixture(scope='session')
+@pytest.fixture(scope='session')
 def event_loop():
     import asyncio
 
