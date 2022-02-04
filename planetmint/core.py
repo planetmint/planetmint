@@ -8,7 +8,7 @@ with Tendermint.
 """
 import logging
 import sys
-from tendermint.abci import types_pb2   
+from tendermint.abci import types_pb2
 from abci.application import BaseApplication
 from abci.application import OkCode
 from tendermint.abci.types_pb2 import (
@@ -41,7 +41,7 @@ class App(BaseApplication):
     """
 
     def __init__(self, planetmint_node=None, events_queue=None):
-        #super().__init__(abci)
+        # super().__init__(abci)
         logger.debug('Checking values of types')
         logger.debug(dir(types_pb2))
         self.events_queue = events_queue
@@ -52,7 +52,6 @@ class App(BaseApplication):
         self.validators = None
         self.new_height = None
         self.chain = self.planetmint_node.get_latest_abci_chain()
-        
 
     def log_abci_migration_error(self, chain_id, validators):
         logger.error('An ABCI chain migration is in process. '
@@ -98,8 +97,7 @@ class App(BaseApplication):
         self.planetmint_node.store_block(block._asdict())
         self.planetmint_node.store_validator_set(height + 1, validator_set)
         abci_chain_height = 0 if known_chain is None else known_chain['height']
-        self.planetmint_node.store_abci_chain(abci_chain_height,
-                                         genesis.chain_id, True)
+        self.planetmint_node.store_abci_chain(abci_chain_height, genesis.chain_id, True)
         self.chain = {'height': abci_chain_height, 'is_synced': True,
                       'chain_id': genesis.chain_id}
         return ResponseInitChain()
@@ -156,7 +154,7 @@ class App(BaseApplication):
         self.abort_if_abci_chain_is_not_synced()
 
         chain_shift = 0 if self.chain is None else self.chain['height']
-        # req_begin_block.header.num_txs not found, so removing it. 
+        # req_begin_block.header.num_txs not found, so removing it.
         logger.debug('BEGIN BLOCK, height:%s',
                      req_begin_block.header.height + chain_shift)
 
