@@ -25,7 +25,6 @@ from planetmint.tendermint_utils import public_key_to_base64
 from planetmint.version import __tm_supported_versions__
 
 from tests.utils import generate_election, generate_validators
-from tests.tendermint.conftest import init_chain_request
 
 
 pytestmark = pytest.mark.bdb
@@ -334,7 +333,7 @@ def test_deliver_transfer_tx__double_spend_fails(b, init_chain_request):
                              .sign([alice.private_key])
 
     result = app.deliver_tx(encode_tx_to_bytes(tx_transfer))
-    assert result.code == OkCode    
+    assert result.code == OkCode
 
     double_spend = Transaction.transfer(tx.to_inputs(),
                                         [([carly.public_key], 1)],

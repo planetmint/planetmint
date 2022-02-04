@@ -14,6 +14,7 @@ import os
 import copy
 import random
 import tempfile
+import codecs
 from collections import namedtuple
 from logging import getLogger
 from logging.config import dictConfig
@@ -31,7 +32,9 @@ from planetmint.common.crypto import (key_pair_from_ed25519_key,
 from planetmint.common.exceptions import DatabaseDoesNotExist
 from planetmint.lib import Block
 from tests.utils import gen_vote
-# import tests.tendermint.conftest
+
+from tendermint.abci import types_pb2 as types
+from tendermint.crypto import keys_pb2
 
 TEST_DB_NAME = 'planetmint_test'
 
@@ -40,6 +43,15 @@ USER2_SK, USER2_PK = crypto.generate_key_pair()
 # Test user. inputs will be created for this user. Cryptography Keys
 USER_PRIVATE_KEY = '8eJ8q9ZQpReWyQT5aFCiwtZ5wDZC4eDnCen88p3tQ6ie'
 USER_PUBLIC_KEY = 'JEAkEJqLbbgDRAtMm8YAjGp759Aq2qTn9eaEHUj2XePE'
+
+
+@pytest.fixture
+def init_chain_request():
+    pk = codecs.decode(b'VAgFZtYw8bNR5TMZHFOBDWk9cAmEu3/c6JgRBmddbbI=',
+                       'base64')
+    val_a = types.ValidatorUpdate(power=10,
+                                  pub_key=keys_pb2.PublicKey(ed25519=pk))
+    return types.RequestInitChain(validators=[val_a])
 
 
 def pytest_addoption(parser):
