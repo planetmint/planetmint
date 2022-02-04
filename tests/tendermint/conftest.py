@@ -6,8 +6,8 @@
 import pytest
 import codecs
 
-from abci import types_v0_31_5 as types
-
+from tendermint.abci import types_pb2 as types
+from tendermint.crypto import keys_pb2
 
 @pytest.fixture
 def validator_pub_key():
@@ -19,5 +19,5 @@ def init_chain_request():
     pk = codecs.decode(b'VAgFZtYw8bNR5TMZHFOBDWk9cAmEu3/c6JgRBmddbbI=',
                        'base64')
     val_a = types.ValidatorUpdate(power=10,
-                                  pub_key=types.PubKey(type='ed25519', data=pk))
+                                  pub_key=keys_pb2.PublicKey(ed25519=pk))
     return types.RequestInitChain(validators=[val_a])

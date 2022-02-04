@@ -5,13 +5,13 @@
 
 import codecs
 
-from abci import types_v0_31_5 as types
+from tendermint.abci import types_pb2 as types
 import json
 import pytest
 
 
 from abci.server import ProtocolHandler
-from abci.encoding import read_messages
+from abci.utils import read_messages
 
 from planetmint.common.transaction_mode_types import BROADCAST_TX_COMMIT, BROADCAST_TX_SYNC
 from planetmint.version import __tm_supported_versions__
@@ -19,13 +19,13 @@ from io import BytesIO
 
 
 @pytest.mark.bdb
-def test_app(a, b, init_chain_request):
+def test_app(b, eventqueue_fixture, init_chain_request):
     from planetmint import App
     from planetmint.tendermint_utils import calculate_hash
     from planetmint.common.crypto import generate_key_pair
     from planetmint.models import Transaction
 
-    app = App(a, b)
+    app = App(b, eventqueue_fixture)
     p = ProtocolHandler(app)
 
     data = p.process('info',
@@ -42,7 +42,7 @@ def test_app(a, b, init_chain_request):
     assert block0['height'] == 0
     assert block0['app_hash'] == ''
 
-    pk = codecs.encode(init_chain_request.validators[0].pub_key.data, 'base64').decode().strip('\n')
+    pk = codecs.encode(init_chain_request.validators[0].pub_key.ed25519, 'base64').decode().strip('\n')
     [validator] = b.get_validators(height=1)
     assert validator['public_key']['value'] == pk
     assert validator['voting_power'] == 10
@@ -144,14 +144,3 @@ def test_post_transaction_responses(tendermint_ws_url, b):
         code, message = b.write_transaction(double_spend, mode)
         assert code == 500
         assert message == 'Transaction validation failed'
-
-
-@pytest.mark.bdb
-def test_exit_when_tm_ver_not_supported(a, b):
-    from planetmint import App
-
-    app = App(a, b)
-    p = ProtocolHandler(app)
-
-    with pytest.raises(SystemExit):
-        p.process('info', types.Request(info=types.RequestInfo(version='2')))

@@ -2,32 +2,20 @@ import base64
 import binascii
 import codecs
 
-import planetmint
-from abci import types_v0_22_8, types_v0_31_5, TmVersion
-from planetmint.common.exceptions import InvalidPublicKey, BigchainDBError
-
+from tendermint.abci import types_pb2
+from tendermint.crypto import keys_pb2
+from planetmint.common.exceptions import InvalidPublicKey
 
 def encode_validator(v):
     ed25519_public_key = v['public_key']['value']
-    # NOTE: tendermint expects public to be encoded in go-amino format
-    try:
-        version = TmVersion(planetmint.config["tendermint"]["version"])
-    except ValueError:
-        raise BigchainDBError('Invalid tendermint version, '
-                              'check Planetmint configuration file')
+    pub_key = keys_pb2.PublicKey(ed25519=bytes.fromhex(ed25519_public_key))
 
-    validator_update_t, pubkey_t = {
-        TmVersion.v0_22_8: (types_v0_22_8.Validator, types_v0_22_8.PubKey),
-        TmVersion.v0_31_5: (types_v0_31_5.ValidatorUpdate, types_v0_31_5.PubKey)
-    }[version]
-    pub_key = pubkey_t(type='ed25519', data=bytes.fromhex(ed25519_public_key))
-
-    return validator_update_t(pub_key=pub_key, power=v['power'])
+    return types_pb2.ValidatorUpdate(pub_key=pub_key, power=v['power'])
 
 
 def decode_validator(v):
     return {'public_key': {'type': 'ed25519-base64',
-                           'value': codecs.encode(v.pub_key.data, 'base64').decode().rstrip('\n')},
+                           'value': codecs.encode(v.pub_key.ed25519, 'base64').decode().rstrip('\n')},
             'voting_power': v.power}
 
 

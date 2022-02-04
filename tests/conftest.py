@@ -14,6 +14,7 @@ import os
 import copy
 import random
 import tempfile
+import codecs
 from collections import namedtuple
 from logging import getLogger
 from logging.config import dictConfig
@@ -32,6 +33,9 @@ from planetmint.common.exceptions import DatabaseDoesNotExist
 from planetmint.lib import Block
 from tests.utils import gen_vote
 
+from tendermint.abci import types_pb2 as types
+from tendermint.crypto import keys_pb2
+
 TEST_DB_NAME = 'planetmint_test'
 
 USER2_SK, USER2_PK = crypto.generate_key_pair()
@@ -39,6 +43,15 @@ USER2_SK, USER2_PK = crypto.generate_key_pair()
 # Test user. inputs will be created for this user. Cryptography Keys
 USER_PRIVATE_KEY = '8eJ8q9ZQpReWyQT5aFCiwtZ5wDZC4eDnCen88p3tQ6ie'
 USER_PUBLIC_KEY = 'JEAkEJqLbbgDRAtMm8YAjGp759Aq2qTn9eaEHUj2XePE'
+
+
+@pytest.fixture
+def init_chain_request():
+    pk = codecs.decode(b'VAgFZtYw8bNR5TMZHFOBDWk9cAmEu3/c6JgRBmddbbI=',
+                       'base64')
+    val_a = types.ValidatorUpdate(power=10,
+                                  pub_key=keys_pb2.PublicKey(ed25519=pk))
+    return types.RequestInitChain(validators=[val_a])
 
 
 def pytest_addoption(parser):
@@ -235,9 +248,10 @@ def merlin():
 
 
 @pytest.fixture
-def a():
-    from abci import types_v0_31_5
-    return types_v0_31_5
+# def a():
+def abci_fixture():
+    from tendermint.abci import types_pb2
+    return types_pb2
 
 
 @pytest.fixture
@@ -245,11 +259,14 @@ def b():
     from planetmint import Planetmint
     return Planetmint()
 
+@pytest.fixture
+def eventqueue_fixture():
+    from multiprocessing import Queue
+    return Queue()
 
 @pytest.fixture
 def b_mock(b, network_validators):
     b.get_validators = mock_get_validators(network_validators)
-
     return b
 
 
@@ -442,11 +459,11 @@ def event_loop():
 @pytest.fixture(scope='session')
 def abci_server():
     from abci.server import ABCIServer
-    from abci import types_v0_31_5
+    # from tendermint.abci import types_pb2 as types_v0_34_11
     from planetmint.core import App
     from planetmint.utils import Process
 
-    app = ABCIServer(app=App(types_v0_31_5))
+    app = ABCIServer(app=App())
     abci_proxy = Process(name='ABCI', target=app.run)
     yield abci_proxy.start()
     abci_proxy.terminate()
