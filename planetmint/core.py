@@ -8,38 +8,20 @@ with Tendermint.
 """
 import logging
 import sys
-import enum
 from tendermint.abci import types_pb2   
 from abci.application import BaseApplication
 from abci.application import OkCode
 from tendermint.abci.types_pb2 import (
-    RequestInfo,
     ResponseInfo,
-    RequestInitChain,
     ResponseInitChain,
     ResponseCheckTx,
     ResponseDeliverTx,
-    RequestQuery,
-    ResponseQuery,
-    RequestBeginBlock,
     ResponseBeginBlock,
-    RequestEndBlock,
     ResponseEndBlock,
-    ResponseCommit,
-    RequestLoadSnapshotChunk,
-    ResponseLoadSnapshotChunk,
-    RequestListSnapshots,
-    ResponseListSnapshots,
-    RequestOfferSnapshot,
-    ResponseOfferSnapshot,
-    RequestApplySnapshotChunk,
-    ResponseApplySnapshotChunk,
+    ResponseCommit
 )
-
 from planetmint import Planetmint
 from planetmint.elections.election import Election
-from planetmint.version import __tm_supported_versions__
-from planetmint.utils import tendermint_version_is_compatible
 from planetmint.tendermint_utils import (decode_transaction,
                                          calculate_hash)
 from planetmint.lib import Block
@@ -80,17 +62,14 @@ class App(BaseApplication):
     def abort_if_abci_chain_is_not_synced(self):
         if self.chain is None or self.chain['is_synced']:
             return
-
         validators = self.planetmint_node.get_validators()
         self.log_abci_migration_error(self.chain['chain_id'], validators)
         sys.exit(1)
 
     def init_chain(self, genesis):
         """Initialize chain upon genesis or a migration"""
-
         app_hash = ''
         height = 0
-
         known_chain = self.planetmint_node.get_latest_abci_chain()
         if known_chain is not None:
             chain_id = known_chain['chain_id']
@@ -100,26 +79,21 @@ class App(BaseApplication):
                        f'the chain {chain_id} is already synced.')
                 logger.error(msg)
                 sys.exit(1)
-
             if chain_id != genesis.chain_id:
                 validators = self.planetmint_node.get_validators()
                 self.log_abci_migration_error(chain_id, validators)
                 sys.exit(1)
-
             # set migration values for app hash and height
             block = self.planetmint_node.get_latest_block()
             app_hash = '' if block is None else block['app_hash']
             height = 0 if block is None else block['height'] + 1
-
         known_validators = self.planetmint_node.get_validators()
         validator_set = [vutils.decode_validator(v)
                          for v in genesis.validators]
-
         if known_validators and known_validators != validator_set:
             self.log_abci_migration_error(known_chain['chain_id'],
                                           known_validators)
             sys.exit(1)
-
         block = Block(app_hash=app_hash, height=height, transactions=[])
         self.planetmint_node.store_block(block._asdict())
         self.planetmint_node.store_validator_set(height + 1, validator_set)
@@ -136,12 +110,12 @@ class App(BaseApplication):
         self.abort_if_abci_chain_is_not_synced()
 
         # Check if Planetmint supports the Tendermint version
-        #if not (hasattr(request, 'version') and tendermint_version_is_compatible(request.version)):
+        # if not (hasattr(request, 'version') and tendermint_version_is_compatible(request.version)):
         #    logger.error(f'Unsupported Tendermint version: {getattr(request, "version", "no version")}.'
         #                 f' Currently, Planetmint only supports {__tm_supported_versions__}. Exiting!')
         #    sys.exit(1)
 
-        #logger.info(f"Tendermint version: {request.version}")
+        # logger.info(f"Tendermint version: {request.version}")
 
         r = ResponseInfo()
         block = self.planetmint_node.get_latest_block()
@@ -182,7 +156,7 @@ class App(BaseApplication):
         self.abort_if_abci_chain_is_not_synced()
 
         chain_shift = 0 if self.chain is None else self.chain['height']
-        #req_begin_block.header.num_txs not found, so removing it. 
+        # req_begin_block.header.num_txs not found, so removing it. 
         logger.debug('BEGIN BLOCK, height:%s',
                      req_begin_block.header.height + chain_shift)
 

@@ -11,27 +11,8 @@ from planetmint.lib import Planetmint
 from planetmint.tendermint_utils import decode_transaction
 from abci.application import OkCode
 from tendermint.abci.types_pb2 import (
-    RequestInfo,
-    ResponseInfo,
-    RequestInitChain,
-    ResponseInitChain,
-    #ResponseCheckTx,
-    #ResponseDeliverTx,
-    RequestQuery,
-    ResponseQuery,
-    RequestBeginBlock,
-    ResponseBeginBlock,
-    RequestEndBlock,
-    ResponseEndBlock,
-    ResponseCommit,
-    RequestLoadSnapshotChunk,
-    ResponseLoadSnapshotChunk,
-    RequestListSnapshots,
-    ResponseListSnapshots,
-    RequestOfferSnapshot,
-    ResponseOfferSnapshot,
-    RequestApplySnapshotChunk,
-    ResponseApplySnapshotChunk,
+    ResponseCheckTx,
+    ResponseDeliverTx,
 )
 
 

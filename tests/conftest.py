@@ -31,7 +31,7 @@ from planetmint.common.crypto import (key_pair_from_ed25519_key,
 from planetmint.common.exceptions import DatabaseDoesNotExist
 from planetmint.lib import Block
 from tests.utils import gen_vote
-import tests.tendermint.conftest
+# import tests.tendermint.conftest
 
 TEST_DB_NAME = 'planetmint_test'
 
@@ -236,7 +236,7 @@ def merlin():
 
 
 @pytest.fixture
-#def a():
+# def a():
 def abci_fixture():
     from tendermint.abci import types_pb2
     return types_pb2
@@ -252,12 +252,9 @@ def eventqueue_fixture():
     from multiprocessing import Queue
     return Queue()
 
-
-
 @pytest.fixture
 def b_mock(b, network_validators):
     b.get_validators = mock_get_validators(network_validators)
-
     return b
 
 
@@ -450,7 +447,7 @@ def event_loop():
 @pytest.fixture(scope='session')
 def abci_server():
     from abci.server import ABCIServer
-    from tendermint.abci import types_pb2 as types_v0_34_11
+    # from tendermint.abci import types_pb2 as types_v0_34_11
     from planetmint.core import App
     from planetmint.utils import Process
 

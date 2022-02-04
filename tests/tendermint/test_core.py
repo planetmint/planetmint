@@ -8,7 +8,7 @@ import pytest
 import random
 
 from tendermint.abci import types_pb2 as types
-from tendermint.crypto import keys_pb2 
+from tendermint.crypto import keys_pb2
 
 from planetmint import App
 from planetmint.backend.localmongodb import query
@@ -248,7 +248,7 @@ def test_deliver_tx__valid_create_updates_db_and_emits_event(b, init_chain_reque
                     .sign([alice.private_key])
 
     app = App(b, events)
-    
+
     app.init_chain(init_chain_request)
 
     begin_block = types.RequestBeginBlock()
