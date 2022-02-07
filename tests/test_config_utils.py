@@ -221,7 +221,7 @@ def test_autoconfigure_read_both_from_file_and_env(monkeypatch, request):
         'tendermint': {
             'host': 'localhost',
             'port': 26657,
-            'version': 'v0.34.11'
+            'version': 'v0.34.15'
         },
         'log': {
             'file': LOG_FILE,

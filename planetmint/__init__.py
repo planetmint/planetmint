@@ -71,7 +71,7 @@ config = {
     'tendermint': {
         'host': 'localhost',
         'port': 26657,
-        'version': 'v0.34.11',  # look for __tm_supported_versions__
+        'version': 'v0.34.15',  # look for __tm_supported_versions__
     },
     # FIXME: hardcoding to localmongodb for now
     'database': _database_map['localmongodb'],
