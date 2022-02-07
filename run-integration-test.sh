@@ -22,7 +22,7 @@ setup () {
 }
 
 run_test () {
-	docker-compose run --rm python-integration pytest /src/test_basic.py
+	docker-compose run --rm python-integration pytest /src
 }
 
 teardown () {
