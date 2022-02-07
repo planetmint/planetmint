@@ -1,4 +1,4 @@
-.PHONY: help run start stop logs test test-unit test-unit-watch test-acceptance cov doc doc-acceptance clean reset release dist check-deps clean-build clean-pyc clean-test
+.PHONY: help run start stop logs test test-unit test-unit-watch test-acceptance test-integration cov doc doc-acceptance clean reset release dist check-deps clean-build clean-pyc clean-test
 
 .DEFAULT_GOAL := help
 
@@ -81,6 +81,9 @@ test-unit-watch: check-deps ## Run all tests and wait. Every time you change cod
 
 test-acceptance: check-deps ## Run all acceptance tests
 	@./run-acceptance-test.sh
+
+test-integration: check-deps ## Run all integration tests
+	@./run-integration-test.sh
 
 cov: check-deps ## Check code coverage and open the result in the browser
 	@$(DC) run --rm planetmint pytest -v --cov=planetmint --cov-report html
