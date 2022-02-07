@@ -5,20 +5,18 @@
 # Code is Apache-2.0 and docs are CC-BY-4.0
 
 
-# Set up a Planetmint node and return only when we are able to connect to both
-# the Planetmint container *and* the Tendermint container.
-setup () {
-	docker-compose up -d planetmint
+# Check if both integration test nodes are reachable
+check_status () {
+    OK="200 OK"
 
-	# Try to connect to the containers for maximum three times, and wait
-	# one second between tries.
-	for i in $(seq 3); do
-		if $(docker-compose run --rm curl-client); then
-			break
-		else
-			sleep 1
-		fi
-	done
+    STATUS_1=$(curl -I -s -X GET https://itest1.planetmint.io/ | head -n 1)
+    STATUS_2=$(curl -I -s -X GET https://itest2.planetmint.io/ | head -n 1)
+
+    # Check if both response status codes return 200 OK
+    if ! [[ "$STATUS_1" == *"$OK"* ]] || ! [[ "$STATUS_2" == *"$OK"* ]]
+    then
+        exit 1
+    fi
 }
 
 run_test () {
@@ -29,7 +27,7 @@ teardown () {
 	docker-compose down
 }
 
-setup
+check_status
 run_test
 exitcode=$?
 teardown
