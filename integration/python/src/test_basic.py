@@ -1,12 +1,19 @@
+# Copyright © 2020 Interplanetary Database Association e.V.,
+# Planetmint and IPDB software contributors.
+# SPDX-License-Identifier: (Apache-2.0 AND CC-BY-4.0)
+# Code is Apache-2.0 and docs are CC-BY-4.0
+
 # import Planetmint and create object
 from planetmint_driver import Planetmint
 from planetmint_driver.crypto import generate_keypair
 import time
+import os
+
 
 def test_basic():
     # Setup up connection to Planetmint integration test nodes
-    pm_itest1_url = 'https://itest1.planetmint.io'
-    pm_itest2_url = 'https://itest2.planetmint.io'
+    pm_itest1_url = os.environ.get('PLANETMINT_ENDPOINT_1')
+    pm_itest2_url = os.environ.get('PLANETMINT_ENDPOINT_1')
     pm_itest1 = Planetmint(pm_itest1_url)
     pm_itest2 = Planetmint(pm_itest2_url)
 

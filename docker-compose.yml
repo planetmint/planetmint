@@ -89,7 +89,10 @@ services:
       context: .
       dockerfile: ./integration/python/Dockerfile
     volumes:
-      - ./integration/python/src:/src 
+      - ./integration/python/src:/src
+    environment:
+      - PLANETMINT_ENDPOINT_1=https://itest1.planetmint.io
+      - PLANETMINT_ENDPOINT_2=https://itest2.planetmint.io
 
   # Build docs only
   # docker-compose build bdocs
