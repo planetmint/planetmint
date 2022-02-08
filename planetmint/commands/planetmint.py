@@ -13,6 +13,7 @@ import argparse
 import copy
 import json
 import sys
+from planetmint.backend.tarantool.database import TarantoolDB, init_tarantool
 
 from planetmint.core import rollback
 from planetmint.migrations.chain_migration_election import ChainMigrationElection
@@ -25,6 +26,7 @@ import planetmint
 from planetmint import (backend, ValidatorElection,
                         Planetmint)
 from planetmint.backend import schema
+from planetmint.backend.tarantool import tarantool
 from planetmint.commands import utils
 from planetmint.commands.utils import (configure_planetmint,
                                        input_on_stderr)
@@ -241,9 +243,11 @@ def run_election_show(args, planet):
 
 
 def _run_init():
-    bdb = planetmint.Planetmint()
+    #bdb = planetmint.Planetmint()
 
-    schema.init_database(connection=bdb.connection)
+    #schema.init_database(connection=bdb.connection)
+
+    init_tarantool()
 
 
 @configure_planetmint
