@@ -83,6 +83,17 @@ services:
     environment:
       - PLANETMINT_ENDPOINT=planetmint
 
+  # Planetmint setup to do integration testing wtih Python
+  python-integration:
+    build:
+      context: .
+      dockerfile: ./integration/python/Dockerfile
+    volumes:
+      - ./integration/python/src:/src
+    environment:
+      - PLANETMINT_ENDPOINT_1=https://itest1.planetmint.io
+      - PLANETMINT_ENDPOINT_2=https://itest2.planetmint.io
+
   # Build docs only
   # docker-compose build bdocs
   # docker-compose up -d bdocs
