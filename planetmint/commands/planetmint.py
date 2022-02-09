@@ -13,7 +13,7 @@ import argparse
 import copy
 import json
 import sys
-from planetmint.backend.tarantool.database import TarantoolDB, init_tarantool
+from planetmint.backend.tarantool.database import TarantoolDB, drop_tarantool, init_tarantool
 
 from planetmint.core import rollback
 from planetmint.migrations.chain_migration_election import ChainMigrationElection
@@ -259,18 +259,14 @@ def run_init(args):
 @configure_planetmint
 def run_drop(args):
     """Drop the database"""
-    dbname = planetmint.config['database']['name']
 
     if not args.yes:
-        response = input_on_stderr('Do you want to drop `{}` database? [y/n]: '.format(dbname))
+        response = input_on_stderr('Do you want to drop `{}` database? [y/n]: ')
         if response != 'y':
             return
 
-    conn = backend.connect()
-    try:
-        schema.drop_database(conn, dbname)
-    except DatabaseDoesNotExist:
-        print("Cannot drop '{name}'. The database does not exist.".format(name=dbname), file=sys.stderr)
+    drop_tarantool()
+    
 
 
 def run_recover(b):
