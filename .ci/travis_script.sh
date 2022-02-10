@@ -13,6 +13,8 @@ elif [[ ${PLANETMINT_CI_ABCI} == 'enable' ]]; then
   docker-compose exec planetmint pytest -v -m abci
 elif [[ ${PLANETMINT_ACCEPTANCE_TEST} == 'enable' ]]; then
     ./run-acceptance-test.sh
+elif [[ ${PLANETMINT_INTEGRATION_TEST} == 'enable' ]]; then
+    ./run-integration-test.sh
 else
   docker-compose exec planetmint pytest -v --cov=planetmint --cov-report xml:htmlcov/coverage.xml
 fi
