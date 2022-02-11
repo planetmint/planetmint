@@ -293,10 +293,19 @@ def get_block_with_transaction(txid, connection):
 
 
 @register_query(LocalMongoDBConnection)
-def delete_transactions(conn, txn_ids):
-    conn.run(conn.collection('assets').delete_many({'id': {'$in': txn_ids}}))
-    conn.run(conn.collection('metadata').delete_many({'id': {'$in': txn_ids}}))
-    conn.run(conn.collection('transactions').delete_many({'id': {'$in': txn_ids}}))
+def delete_transactions(connection, txn_ids):
+    space = connection.space("transactions")
+    for _id in txn_ids:
+        space.delete(_id)
+    inputs_space = connection.space("inputs")
+    outputs_space = connection.space("outputs")
+    for _id in txn_ids:
+        _inputs = inputs_space.select(_id, index="id_search")
+        _outputs = outputs_space.select(_id, index="id_search")
+        for _inpID in _inputs:
+            space.delete(_inpID[5])
+        for _outpID in _outputs:
+            space.delete(_outpID[5])
 
 
 @register_query(LocalMongoDBConnection)
@@ -367,10 +376,11 @@ def store_validator_set(validators_update, connection):
 
 
 @register_query(LocalMongoDBConnection)
-def delete_validator_set(conn, height):
-    return conn.run(
-        conn.collection('validators').delete_many({'height': height})
-    )
+def delete_validator_set(connection, height):
+    space = connection.space("validators")
+    _validators = space.select(height, index="height_search")
+    for _valid in _validators.data:
+        space.delete(_valid[0])
 
 
 @register_query(LocalMongoDBConnection)
@@ -393,10 +403,11 @@ def store_elections(elections, connection):
 
 
 @register_query(LocalMongoDBConnection)
-def delete_elections(conn, height):
-    return conn.run(
-        conn.collection('elections').delete_many({'height': height})
-    )
+def delete_elections(connection, height):
+    space = connection.space("elections")
+    _elections = space.select(height, index="height_search")
+    for _elec in _elections.data:
+        space.delete(_elec[0])
 
 
 @register_query(LocalMongoDBConnection)
@@ -443,10 +454,11 @@ def store_abci_chain(height, chain_id, connection, is_synced=True):
 
 
 @register_query(LocalMongoDBConnection)
-def delete_abci_chain(conn, height):
-    return conn.run(
-        conn.collection('abci_chains').delete_many({'height': height})
-    )
+def delete_abci_chain(connection, height):
+    space = connection.space("abci_chains")
+    _chains = space.select(height, index="height_search")
+    for _chain in _chains.data:
+        space.delete(_chain[2])
 
 
 @register_query(LocalMongoDBConnection)
