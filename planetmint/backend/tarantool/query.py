@@ -16,7 +16,7 @@ from planetmint.common.transaction import Transaction
 register_query = module_dispatch_registrar(backend.query)
 
 
-def _group_transaction_by_ids(txids, connection):
+def _group_transaction_by_ids(txids: list, connection):
     txspace = connection.space("transactions")
     inxspace = connection.space("inputs")
     outxspace = connection.space("outputs")
@@ -108,7 +108,7 @@ def get_transactions(transactions_ids: list, connection):
 
 
 @register_query(LocalMongoDBConnection)
-def store_metadatas(metadata, connection):
+def store_metadatas(metadata: dict, connection):
     space = connection.space("meta_data")
     for meta in metadata:
         space.insert((meta["id"], meta))
@@ -124,14 +124,14 @@ def get_metadata(transaction_ids: list, space):
 
 
 @register_query(LocalMongoDBConnection)
-def store_asset(asset, connection):
+def store_asset(asset: dict, connection):
     space = connection.space("assets")
     unique = token_hex(8)
     space.insert((asset["id"], unique, asset["data"]))
 
 
 @register_query(LocalMongoDBConnection)
-def store_assets(assets, connection):
+def store_assets(assets: list, connection):
     space = connection.space("assets")
     for asset in assets:
         unique = token_hex(8)
@@ -197,7 +197,7 @@ def latest_block(connection):  # TODO Here is used DESCENDING OPERATOR
 
 
 @register_query(LocalMongoDBConnection)
-def store_block(block, connection):
+def store_block(block: dict, connection):
     space = connection.space("blocks")
     block_unique_id = token_hex(8)
     space.insert((block["app_hash"],
@@ -209,7 +209,8 @@ def store_block(block, connection):
 
 
 @register_query(LocalMongoDBConnection)
-def get_txids_filtered(connection, asset_id, operation=None, last_tx=None):  # TODO here is used 'OR' operator
+def get_txids_filtered(connection, asset_id: str, operation: str = None,
+                       last_tx: str = None):  # TODO here is used 'OR' operator
     _transaction_object = formats.transactions.copy()
     _transaction_object["inputs"] = []
     _transaction_object["outputs"] = []
@@ -265,7 +266,7 @@ def _remove_text_score(asset):
 
 
 @register_query(LocalMongoDBConnection)
-def get_owned_ids(connection, owner):  # TODO To make a test
+def get_owned_ids(connection, owner: str):  # TODO To make a test
     space = connection.space("keys")
     _keys = space.select(owner, index="keys_search", limit=1)
     if len(_keys.data) == 0:
@@ -276,7 +277,7 @@ def get_owned_ids(connection, owner):  # TODO To make a test
 
 
 @register_query(LocalMongoDBConnection)
-def get_spending_transactions(inputs, connection):
+def get_spending_transactions(inputs: list, connection):
     transaction_ids = [i['transaction_id'] for i in inputs]
     output_indexes = [i['output_index'] for i in inputs]
 
@@ -293,7 +294,7 @@ def get_spending_transactions(inputs, connection):
 
 
 @register_query(LocalMongoDBConnection)
-def get_block(block_id, connection):
+def get_block(block_id: str, connection):
     space = connection.space("blocks")
     _block = space.select(block_id, index="block_search", limit=1)
     _block = _block.data[0]
@@ -303,7 +304,7 @@ def get_block(block_id, connection):
 
 
 @register_query(LocalMongoDBConnection)
-def get_block_with_transaction(txid, connection):
+def get_block_with_transaction(txid: str, connection):
     space = connection.space("blocks_tx")
     _all_blocks_tx = space.select(txid, index="id_search")
     _all_blocks_tx = _all_blocks_tx.data
@@ -315,7 +316,7 @@ def get_block_with_transaction(txid, connection):
 
 
 @register_query(LocalMongoDBConnection)
-def delete_transactions(connection, txn_ids):
+def delete_transactions(connection, txn_ids: list):
     space = connection.space("transactions")
     for _id in txn_ids:
         space.delete(_id)
@@ -331,7 +332,7 @@ def delete_transactions(connection, txn_ids):
 
 
 @register_query(LocalMongoDBConnection)
-def store_unspent_outputs(conn, *unspent_outputs):
+def store_unspent_outputs(conn, *unspent_outputs: list):
     if unspent_outputs:
         try:
             return conn.run(
@@ -346,7 +347,7 @@ def store_unspent_outputs(conn, *unspent_outputs):
 
 
 @register_query(LocalMongoDBConnection)
-def delete_unspent_outputs(conn, *unspent_outputs):
+def delete_unspent_outputs(conn, *unspent_outputs: list):
     if unspent_outputs:
         return conn.run(
             conn.collection('utxos').delete_many({
@@ -369,7 +370,7 @@ def get_unspent_outputs(conn, *, query=None):
 
 
 @register_query(LocalMongoDBConnection)
-def store_pre_commit_state(state, connection):
+def store_pre_commit_state(state: dict, connection):
     space = connection.space("pre_commits")
     _precommit = space.select(state["height"], index="height_search", limit=1)
     unique_id = token_hex(8) if (len(_precommit.data) == 0) else _precommit.data[0][0]
@@ -381,12 +382,18 @@ def store_pre_commit_state(state, connection):
 
 
 @register_query(LocalMongoDBConnection)
-def get_pre_commit_state(conn):
-    return conn.run(conn.collection('pre_commit').find_one())
+def get_pre_commit_state(connection):
+    space = connection.space("pre_commit_tx")
+    _commits_tx = space.select(limit=1)
+    _commits_tx = _commits_tx.data
+    space = connection.space("pre_commits")
+    _commit = space.select(_commits_tx[0][1], index="id_search")
+    _commit = _commit.data[0]
+    return {"height": _commit[0], "transactions": [_cmt[0] for _cmt in _commits_tx]}
 
 
 @register_query(LocalMongoDBConnection)
-def store_validator_set(validators_update, connection):
+def store_validator_set(validators_update: dict, connection):
     space = connection.space("validators")
     _validator = space.select(validators_update["height"], index="height_search", limit=1)
     unique_id = token_hex(8) if (len(_validator.data) == 0) else _validator.data[0][0]
@@ -398,7 +405,7 @@ def store_validator_set(validators_update, connection):
 
 
 @register_query(LocalMongoDBConnection)
-def delete_validator_set(connection, height):
+def delete_validator_set(connection, height: int):
     space = connection.space("validators")
     _validators = space.select(height, index="height_search")
     for _valid in _validators.data:
@@ -406,7 +413,7 @@ def delete_validator_set(connection, height):
 
 
 @register_query(LocalMongoDBConnection)
-def store_election(election_id, height, is_concluded, connection):
+def store_election(election_id: str, height: int, is_concluded: boolean, connection):
     space = connection.space("elections")
     space.upsert((election_id, height, is_concluded),
                  op_list=[('=', 0, election_id),
@@ -416,7 +423,7 @@ def store_election(election_id, height, is_concluded, connection):
 
 
 @register_query(LocalMongoDBConnection)
-def store_elections(elections, connection):
+def store_elections(elections: list, connection):
     space = connection.space("elections")
     for election in elections:
         _election = space.insert((election["election_id"],
@@ -425,7 +432,7 @@ def store_elections(elections, connection):
 
 
 @register_query(LocalMongoDBConnection)
-def delete_elections(connection, height):
+def delete_elections(connection, height: int):
     space = connection.space("elections")
     _elections = space.select(height, index="height_search")
     for _elec in _elections.data:
@@ -433,7 +440,7 @@ def delete_elections(connection, height):
 
 
 @register_query(LocalMongoDBConnection)
-def get_validator_set(connection, height=None):
+def get_validator_set(connection, height: int = None):
     space = connection.space("validators")
     _validators = space.select()
     _validators = _validators.data
@@ -445,7 +452,7 @@ def get_validator_set(connection, height=None):
 
 
 @register_query(LocalMongoDBConnection)
-def get_election(election_id, connection):
+def get_election(election_id: str, connection):
     space = connection.space("elections")
     _elections = space.select(election_id, index="id_search")
     _elections = _elections.data
@@ -454,7 +461,7 @@ def get_election(election_id, connection):
 
 
 @register_query(LocalMongoDBConnection)
-def get_asset_tokens_for_public_key(connection, asset_id, public_key):
+def get_asset_tokens_for_public_key(connection, asset_id: str, public_key: str):
     space = connection.space("keys")
     _keys = space.select([public_key], index="keys_search")
     space = connection.space("transactions")
@@ -466,7 +473,7 @@ def get_asset_tokens_for_public_key(connection, asset_id, public_key):
 
 
 @register_query(LocalMongoDBConnection)
-def store_abci_chain(height, chain_id, connection, is_synced=True):
+def store_abci_chain(height: int, chain_id: str, connection, is_synced: boolean = True):
     space = connection.space("abci_chains")
     space.upsert((height, chain_id, is_synced),
                  op_list=[('=', 0, height),
@@ -476,7 +483,7 @@ def store_abci_chain(height, chain_id, connection, is_synced=True):
 
 
 @register_query(LocalMongoDBConnection)
-def delete_abci_chain(connection, height):
+def delete_abci_chain(connection, height: int):
     space = connection.space("abci_chains")
     _chains = space.select(height, index="height_search")
     for _chain in _chains.data:
