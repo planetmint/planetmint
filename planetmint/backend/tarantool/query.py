@@ -63,7 +63,7 @@ def _group_transaction_by_ids(txids, connection):
 
 @register_query(LocalMongoDBConnection)
 def store_transactions(signed_transactions: list,
-                       connection):  # TODO fulfills object review if need to replace "" to None.
+                       connection):
     txspace = connection.space("transactions")
     inxspace = connection.space("inputs")
     outxspace = connection.space("outputs")
@@ -265,60 +265,13 @@ def _remove_text_score(asset):
 
 
 @register_query(LocalMongoDBConnection)
-def get_owned_ids(connection, owner):  # TODO implement 'group_transactions_by_id'
+def get_owned_ids(connection, owner):  # TODO To make a test
     space = connection.space("keys")
-    _keys = space.select(owner, index="keys_search")
-
-    _outputid = _keys[0][1]
+    _keys = space.select(owner, index="keys_search", limit=1)
+    if len(_keys.data) == 0:
+        return []
     _transactionid = _keys[0][0]
-
-    _transaction_object = formats.transactions.copy()
-    _transaction_object["inputs"] = []
-    _transaction_object["outputs"] = []
-
-    _transactions = []
-
-    _all_keys = space.select(_outputid, index="id_search")
-    _all_keys = _all_keys.data
-
-    space = connection.space("transactions")
-    _all_transactions = space.select(_transactionid, index="id_search")
-    _all_transactions = _all_transactions.data
-
-    space = connection.space("inputs")
-    _all_inputs = space.select(_transactionid, index="id_search")
-    _all_inputs = _all_inputs.data
-
-    space = connection.space("outputs")
-    _all_outputs = space.select(_transactionid, index="id_search")
-    _all_outputs = _all_outputs.data
-
-    for tsobject in _all_transactions:
-        local_ts = _transaction_object.copy()
-        local_ts["id"] = tsobject[0]
-        local_ts["operation"] = tsobject[1]
-        local_ts["version"] = tsobject[2]
-
-        for _in in _all_inputs:
-            if _in[0] == tsobject[0]:
-                local_ts["inputs"].append(
-                    {
-                        "owners_before": _in[2],
-                        "fulffils": {"transaction_id": _in[3], "output_index": _in[4]},
-                        "fulffilment": _in[1]
-                    }
-                )
-        for _out in _all_outputs:
-            if _out[0] == tsobject[0]:
-                local_ts["outputs"].append(
-                    {
-                        "public_keys": [_key[2] for _key in _all_keys if _out[5] == _key[1]],
-                        "condition": {"details": {"type": _out[3], "public_key": _out[4]}, "uri": _out[2]},
-                        "amount": _out[1]
-                    }
-                )
-        _transactions.append(local_ts)
-
+    _transactions = _group_transaction_by_ids(txids=[_transactionid], connection=connection)
     return _transactions
 
 
