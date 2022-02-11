@@ -16,28 +16,95 @@ from planetmint.common.transaction import Transaction
 register_query = module_dispatch_registrar(backend.query)
 
 
-@register_query(LocalMongoDBConnection)
-def store_transactions(conn, signed_transactions):
-    return conn.run(conn.collection('transactions')
-                    .insert_many(signed_transactions))
+def _group_transaction_by_ids(txids, connection):
+    txspace = connection.space("transactions")
+    inxspace = connection.space("inputs")
+    outxspace = connection.space("outputs")
+    keysxspace = connection.space("keys")
+    _transactions = []
+    for txid in txids:
+        _txobject = txspace.select(txid, index="id_search")
+        if len(_txobject.data) == 0:
+            continue
+        _txobject = _txobject.data[0]
+        _txinputs = inxspace.select(txid, index="id_search")
+        _txinputs = _txinputs.data
+        _txoutputs = outxspace.select(txid, index="id_search")
+        _txoutputs = _txoutputs.data
+        _txkeys = keysxspace.select(txid, index="txid_search")
+        _txkeys = _txkeys.data
+        _obj = {
+            "id": txid,
+            "version": _txobject[2],
+            "operation": _txobject[1],
+            "inputs": [
+                {
+                    "owners_before": _in[2],
+                    "fulfills": {"transaction_id": _in[3], "output_index": _in[4]},
+                    "fulfillment": _in[1]
+                } for _in in _txinputs
+            ],
+            "outputs": [
+                {
+                    "public_keys": [_key[2] for _key in _txkeys if _key[1] == _out[5]],
+                    "amount": _out[1],
+                    "condition": {"details": {"type": _out[3], "public_key": _out[4]}, "uri": _out[2]}
+                } for _out in _txoutputs
+            ]
+        }
+        if len(_txobject[3]) > 0:
+            _obj["asset"] = {
+                "id": _txobject[3]
+            }
+        _transactions.append(_obj)
+
+    return _transactions
 
 
 @register_query(LocalMongoDBConnection)
-def get_transaction(conn, transaction_id):
-    return conn.run(
-        conn.collection('transactions')
-        .find_one({'id': transaction_id}, {'_id': 0}))
+def store_transactions(signed_transactions: list,
+                       connection):  # TODO fulfills object review if need to replace "" to None.
+    txspace = connection.space("transactions")
+    inxspace = connection.space("inputs")
+    outxspace = connection.space("outputs")
+    keysxspace = connection.space("keys")
+    for transaction in signed_transactions:
+        txspace.insert((transaction["id"],
+                        transaction["operation"],
+                        transaction["version"],
+                        transaction["asset"]["id"] if "asset" in transaction.keys() else ""
+                        ))
+        for _in in transaction["inputs"]:
+            input_id = token_hex(7)
+            inxspace.insert((transaction["id"],
+                             _in["fulfillment"],
+                             _in["owners_before"],
+                             _in["fulfills"]["transaction_id"] if _in["fulfills"] is not None else "",
+                             str(_in["fulfills"]["output_index"]) if _in["fulfills"] is not None else "",
+                             input_id))
+        for _out in transaction["outputs"]:
+            output_id = token_hex(7)
+            outxspace.insert((transaction["id"],
+                              _out["amount"],
+                              _out["condition"]["uri"],
+                              _out["condition"]["details"]["type"],
+                              _out["condition"]["details"]["public_key"],
+                              output_id
+                              ))
+            for _key in _out["public_keys"]:
+                keysxspace.insert((transaction["id"], output_id, _key))
 
 
 @register_query(LocalMongoDBConnection)
-def get_transactions(conn, transaction_ids):
-    try:
-        return conn.run(
-            conn.collection('transactions')
-            .find({'id': {'$in': transaction_ids}},
-                  projection={'_id': False}))
-    except IndexError:
-        pass
+def get_transaction(transaction_id: str, connection):
+    _transactions = _group_transaction_by_ids(txids=[transaction_id], connection=connection)
+    return next(iter(_transactions), None)
+
+
+@register_query(LocalMongoDBConnection)
+def get_transactions(transactions_ids: list, connection):
+    _transactions = _group_transaction_by_ids(txids=transactions_ids, connection=connection)
+    return _transactions
 
 
 @register_query(LocalMongoDBConnection)
@@ -48,11 +115,12 @@ def store_metadatas(metadata, connection):
 
 
 @register_query(LocalMongoDBConnection)
-def get_metadata(conn, transaction_ids):
-    return conn.run(
-        conn.collection('metadata')
-        .find({'id': {'$in': transaction_ids}},
-              projection={'_id': False}))
+def get_metadata(transaction_ids: list, space):
+    _returned_data = []
+    for _id in transaction_ids:
+        metadata = space.select(_id, index="id_search")
+        _returned_data.append({"id": metadata.data[0][0], "metadata": metadata.data[0][1]})
+    return _returned_data
 
 
 @register_query(LocalMongoDBConnection)
@@ -171,18 +239,19 @@ def get_txids_filtered(connection, asset_id, operation=None, last_tx=None):  # T
 
 
 @register_query(LocalMongoDBConnection)
-def text_search(conn, search, *, language='english', case_sensitive=False,  # TODO review text search in tarantool (maybe, remove)
+def text_search(conn, search, *, language='english', case_sensitive=False,
+                # TODO review text search in tarantool (maybe, remove)
                 diacritic_sensitive=False, text_score=False, limit=0, table='assets'):
     cursor = conn.run(
         conn.collection(table)
-        .find({'$text': {
-                '$search': search,
-                '$language': language,
-                '$caseSensitive': case_sensitive,
-                '$diacriticSensitive': diacritic_sensitive}},
-              {'score': {'$meta': 'textScore'}, '_id': False})
-        .sort([('score', {'$meta': 'textScore'})])
-        .limit(limit))
+            .find({'$text': {
+            '$search': search,
+            '$language': language,
+            '$caseSensitive': case_sensitive,
+            '$diacriticSensitive': diacritic_sensitive}},
+            {'score': {'$meta': 'textScore'}, '_id': False})
+            .sort([('score', {'$meta': 'textScore'})])
+            .limit(limit))
 
     if text_score:
         return cursor
@@ -439,7 +508,7 @@ def get_asset_tokens_for_public_key(connection, asset_id, public_key):
     _transactions = space.select([asset_id], index="only_asset_search")
     _transactions = _transactions.data
     _keys = _keys.data
-    _grouped_transactions = group_transaction_by_ids(connection=connection, txids=[_tx[0] for _tx in _transactions])
+    _grouped_transactions = _group_transaction_by_ids(connection=connection, txids=[_tx[0] for _tx in _transactions])
     return _grouped_transactions
 
 
