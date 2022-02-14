@@ -40,7 +40,7 @@ def _group_transaction_by_ids(txids: list, connection):
             "inputs": [
                 {
                     "owners_before": _in[2],
-                    "fulfills": {"transaction_id": _in[3], "output_index": _in[4]},
+                    "fulfills": {"transaction_id": _in[3], "output_index": _in[4]} if len(_in[3]) > 0 and len(_int[4]) > 0 else None,
                     "fulfillment": _in[1]
                 } for _in in _txinputs
             ],
