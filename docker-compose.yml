@@ -125,6 +125,7 @@ services:
       - ./integration:/integration
       - ./tests:/tests
 
+  # Remove all build, test, coverage and Python artifacts
   clean:
     image: alpine
     command: /bin/sh -c "./planetmint/scripts/clean.sh"

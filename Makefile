@@ -1,4 +1,4 @@
-.PHONY: help run start stop logs test test-unit test-unit-watch test-acceptance test-integration cov doc doc-acceptance clean reset release dist check-deps clean-build clean-pyc clean-test
+.PHONY: help run start stop logs lint test test-unit test-unit-watch test-acceptance test-integration cov doc doc-acceptance clean reset release dist check-deps clean-build clean-pyc clean-test
 
 .DEFAULT_GOAL := help
 
