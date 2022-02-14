@@ -161,7 +161,7 @@ def get_spent(fullfil_transaction_id: str, fullfil_output_index: str, connection
     _inputs = space.select([fullfil_transaction_id, fullfil_output_index], index="spent_search")
     _inputs = _inputs.data
     _transactions = _group_transaction_by_ids(txids=[inp[0] for inp in _inputs], connection=connection)
-    return next(iter(_transactions), None)
+    return _transactions
 
 
 @register_query(LocalMongoDBConnection)
@@ -257,7 +257,7 @@ def get_owned_ids(connection, owner: str):  # TODO To make a test
 
 
 @register_query(LocalMongoDBConnection)
-def get_spending_transactions(inputs: list, connection):
+def get_spending_transactions(inputs, connection):  # TODO can be duplicate transaction objects, to verify somehow
     transaction_ids = [i['transaction_id'] for i in inputs]
     output_indexes = [i['output_index'] for i in inputs]
 
@@ -268,7 +268,7 @@ def get_spending_transactions(inputs: list, connection):
         ot_id = output_indexes[i]
 
         _trans_object = get_spent(fullfil_transaction_id=ts_id, fullfil_output_index=ot_id, connection=connection)
-        _transactions.append(_trans_object)
+        _transactions.extend(_trans_object)
 
     return _transactions
 
