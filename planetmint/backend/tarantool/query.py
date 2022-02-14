@@ -157,31 +157,11 @@ def get_assets(assets_ids: list, space):
 
 @register_query(LocalMongoDBConnection)
 def get_spent(fullfil_transaction_id: str, fullfil_output_index: str, connection):
-    _transaction_object = formats.transactions.copy()
-    _transaction_object["inputs"] = []
-    _transaction_object["outputs"] = []
     space = connection.space("inputs")
     _inputs = space.select([fullfil_transaction_id, fullfil_output_index], index="spent_search")
     _inputs = _inputs.data
-    _transaction_object["id"] = _inputs[0][0]
-    _transaction_object["inputs"] = [
-        {
-            "owners_before": _in[2],
-            "fulfills": {"transaction_id": _in[3], "output_index": _in[4]},
-            "fulfillment": _in[1]
-        } for _in in _inputs
-    ]
-    space = connection.space("outputs")
-    _outputs = space.select(_transaction_object["id"], index="id_search")
-    _outputs = _outputs.data
-    _transaction_object["outputs"] = [
-        {
-            "public_keys": _out[5],
-            "amount": _out[1],
-            "condition": {"details": {"type": _out[3], "public_key": _out[4]}, "uri": _out[2]}
-        } for _out in _outputs
-    ]
-    return _transaction_object
+    _transactions = _group_transaction_by_ids(txids=[inp[0] for inp in _inputs], connection=connection)
+    return next(iter(_transactions), None)
 
 
 @register_query(LocalMongoDBConnection)
