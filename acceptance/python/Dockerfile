@@ -7,4 +7,5 @@ RUN pip install --upgrade \
 	websocket-client~=0.47.0 \
 	pytest~=3.0 \
 	planetmint-driver>=0.9.0 \
-	blns
+	blns \
+	planetmint-cryptoconditions>=0.9.0
