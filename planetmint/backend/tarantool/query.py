@@ -191,8 +191,6 @@ def store_block(block: dict, connection):
 
 @register_query(LocalMongoDBConnection)
 def get_txids_filtered(connection, asset_id, operation=None, last_tx=None):  # TODO here is used 'OR' operator
-    _transaction_object = {"inputs": [], "outputs": [], "operation": "", "version": "", "id": ""}
-
     actions = {
         "CREATE": {"sets": ["CREATE", asset_id], "index": "transaction_search"},
         # 1 - operation, 2 - id (only in transactions) +
