@@ -1,4 +1,4 @@
-.PHONY: help run start stop logs lint test test-unit test-unit-watch test-acceptance test-integration cov doc doc-acceptance clean reset release dist check-deps clean-build clean-pyc clean-test
+.PHONY: help run start stop logs lint test test-unit test-unit-watch test-acceptance test-integration cov docs docs-acceptance clean reset release dist check-deps clean-build clean-pyc clean-test
 
 .DEFAULT_GOAL := help
 
@@ -92,13 +92,13 @@ cov: check-deps ## Check code coverage and open the result in the browser
 	@$(DC) run --rm planetmint pytest -v --cov=planetmint --cov-report html
 	$(BROWSER) htmlcov/index.html
 
-doc: check-deps ## Generate HTML documentation and open it in the browser
+docs: check-deps ## Generate HTML documentation and open it in the browser
 	@$(DC) run --rm --no-deps bdocs make -C docs/root html
 	@$(DC) run --rm --no-deps bdocs make -C docs/server html
 	@$(DC) run --rm --no-deps bdocs make -C docs/contributing html
 	$(BROWSER) docs/root/build/html/index.html
 
-doc-acceptance: check-deps ## Create documentation for acceptance tests
+docs-acceptance: check-deps ## Create documentation for acceptance tests
 	@$(DC) run --rm python-acceptance pycco -i -s /src -d /docs
 	$(BROWSER) acceptance/python/docs/index.html
 
