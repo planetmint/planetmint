@@ -70,7 +70,7 @@ stop: check-deps ## Stop Planetmint
 logs: check-deps ## Attach to the logs
 	@$(DC) logs -f planetmint
 
-lint: check-deps ## Lint the Project
+lint: check-deps ## Lint the project
 	@$(DC) up lint
 
 test: check-deps test-unit test-acceptance ## Run unit and acceptance tests
