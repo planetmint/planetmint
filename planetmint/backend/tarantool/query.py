@@ -394,7 +394,7 @@ def delete_validator_set(connection, height: int):
 
 
 @register_query(LocalMongoDBConnection)
-def store_election(election_id: str, height: int, is_concluded: boolean, connection):
+def store_election(election_id: str, height: int, is_concluded: bool, connection):
     space = connection.space("elections")
     space.upsert((election_id, height, is_concluded),
                  op_list=[('=', 0, election_id),
@@ -454,7 +454,7 @@ def get_asset_tokens_for_public_key(connection, asset_id: str, public_key: str):
 
 
 @register_query(LocalMongoDBConnection)
-def store_abci_chain(height: int, chain_id: str, connection, is_synced: boolean = True):
+def store_abci_chain(height: int, chain_id: str, connection, is_synced: bool = True):
     space = connection.space("abci_chains")
     space.upsert((height, chain_id, is_synced),
                  op_list=[('=', 0, height),
