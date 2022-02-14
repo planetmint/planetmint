@@ -40,7 +40,8 @@ def _group_transaction_by_ids(txids: list, connection):
             "inputs": [
                 {
                     "owners_before": _in[2],
-                    "fulfills": {"transaction_id": _in[3], "output_index": _in[4]} if len(_in[3]) > 0 and len(_int[4]) > 0 else None,
+                    "fulfills": {"transaction_id": _in[3], "output_index": _in[4]} if len(_in[3]) > 0 and len(
+                        _int[4]) > 0 else None,
                     "fulfillment": _in[1]
                 } for _in in _txinputs
             ],
@@ -189,18 +190,15 @@ def store_block(block: dict, connection):
 
 
 @register_query(LocalMongoDBConnection)
-def get_txids_filtered(connection, asset_id: str, operation: str = None,
-                       last_tx: str = None):  # TODO here is used 'OR' operator
-    _transaction_object = formats.transactions.copy()
-    _transaction_object["inputs"] = []
-    _transaction_object["outputs"] = []
+def get_txids_filtered(connection, asset_id, operation=None, last_tx=None):  # TODO here is used 'OR' operator
+    _transaction_object = {"inputs": [], "outputs": [], "operation": "", "version": "", "id": ""}
 
     actions = {
         "CREATE": {"sets": ["CREATE", asset_id], "index": "transaction_search"},
         # 1 - operation, 2 - id (only in transactions) +
         "TRANSFER": {"sets": ["TRANSFER", asset_id], "index": "asset_search"},
         # 1 - operation, 2 - asset.id (linked mode) + OPERATOR OR
-        None: {"sets": [asset_id, asset_id], "index": "both_search"}
+        None: {"sets": [asset_id, asset_id]}
     }[operation]
     space = connection.space("transactions")
     if actions["sets"][0] == "CREATE":
@@ -210,11 +208,13 @@ def get_txids_filtered(connection, asset_id: str, operation: str = None,
         _transactions = space.select([operation, asset_id], index=actions["index"])
         _transactions = _transactions.data
     else:
-        _transactions = space.select([asset_id, asset_id], index=actions["index"])
-        _transactions = _transactions.data
+        _tx_ids = space.select([asset_id], index="id_search")
+        _assets_ids = space.select([asset_id], index="only_asset_search")
+
+        return tuple(set([item for sublist in _assets_ids.data for item in sublist] + [item for sublist in _tx_ids.data for item in sublist]))
 
     if last_tx:
-        _transactions = [_transactions[0]]
+        return tuple(next(iter(_transactions)))
 
     return tuple([elem[0] for elem in _transactions])
 
