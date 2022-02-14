@@ -190,7 +190,8 @@ def store_block(block: dict, connection):
 
 
 @register_query(LocalMongoDBConnection)
-def get_txids_filtered(connection, asset_id, operation=None, last_tx=None):  # TODO here is used 'OR' operator
+def get_txids_filtered(connection, asset_id: str, operation: str = None,
+                       last_tx: any = None):  # TODO here is used 'OR' operator
     actions = {
         "CREATE": {"sets": ["CREATE", asset_id], "index": "transaction_search"},
         # 1 - operation, 2 - id (only in transactions) +
@@ -209,7 +210,9 @@ def get_txids_filtered(connection, asset_id, operation=None, last_tx=None):  # T
         _tx_ids = space.select([asset_id], index="id_search")
         _assets_ids = space.select([asset_id], index="only_asset_search")
 
-        return tuple(set([item for sublist in _assets_ids.data for item in sublist] + [item for sublist in _tx_ids.data for item in sublist]))
+        return tuple(
+            set([item for sublist in _assets_ids.data for item in sublist] + [item for sublist in _tx_ids.data for item
+                                                                              in sublist]))
 
     if last_tx:
         return tuple(next(iter(_transactions)))
