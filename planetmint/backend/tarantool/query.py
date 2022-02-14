@@ -246,7 +246,7 @@ def _remove_text_score(asset):
 
 
 @register_query(LocalMongoDBConnection)
-def get_owned_ids(connection, owner: str):  # TODO To make a test
+def get_owned_ids(connection, owner: str):
     space = connection.space("keys")
     _keys = space.select(owner, index="keys_search", limit=1)
     if len(_keys.data) == 0:
