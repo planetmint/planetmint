@@ -124,3 +124,9 @@ services:
       - ./acceptance:/acceptance
       - ./integration:/integration
       - ./tests:/tests
+
+  clean:
+    image: alpine
+    command: /bin/sh -c "./planetmint/scripts/clean.sh"
+    volumes:
+      - $PWD:/planetmint

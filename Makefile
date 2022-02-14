@@ -102,7 +102,8 @@ doc-acceptance: check-deps ## Create documentation for acceptance tests
 	@$(DC) run --rm python-acceptance pycco -i -s /src -d /docs
 	$(BROWSER) acceptance/python/docs/index.html
 
-clean: clean-build clean-pyc clean-test ## Remove all build, test, coverage and Python artifacts
+clean: check-deps ## Remove all build, test, coverage and Python artifacts
+	@$(DC) up clean
 	@$(ECHO) "Cleaning was successful."
 
 reset: check-deps ## Stop and REMOVE all containers. WARNING: you will LOSE all data stored in Planetmint.
@@ -129,22 +130,3 @@ ifndef IS_DOCKER_COMPOSE_INSTALLED
 	@$(ECHO)
 	@$(DC) # docker-compose is not installed, so we call it to generate an error and exit
 endif
-
-clean-build: # Remove build artifacts
-	@rm -fr build/
-	@rm -fr dist/
-	@rm -fr .eggs/
-	@find . -name '*.egg-info' -exec rm -fr {} +
-	@find . -name '*.egg' -exec rm -f {} +
-
-clean-pyc: # Remove Python file artifacts
-	@find . -name '*.pyc' -exec rm -f {} +
-	@find . -name '*.pyo' -exec rm -f {} +
-	@find . -name '*~' -exec rm -f {} +
-	@find . -name '__pycache__' -exec rm -fr {} +
-
-clean-test: # Remove test and coverage artifacts
-	@find . -name '.pytest_cache' -exec rm -fr {} +
-	@rm -fr .tox/
-	@rm -f .coverage
-	@rm -fr htmlcov/
