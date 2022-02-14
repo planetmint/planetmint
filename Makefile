@@ -94,8 +94,6 @@ cov: check-deps ## Check code coverage and open the result in the browser
 
 docs: check-deps ## Generate HTML documentation and open it in the browser
 	@$(DC) run --rm --no-deps bdocs make -C docs/root html
-	@$(DC) run --rm --no-deps bdocs make -C docs/server html
-	@$(DC) run --rm --no-deps bdocs make -C docs/contributing html
 	$(BROWSER) docs/root/build/html/index.html
 
 docs-acceptance: check-deps ## Create documentation for acceptance tests
