@@ -43,10 +43,11 @@ There are also other commands you can execute:
 * `make start`: Run Planetmint from source and daemonize it (stop it with `make stop`).
 * `make stop`: Stop Planetmint.
 * `make logs`: Attach to the logs.
+* `make lint`: Lint the project
 * `make test`: Run all unit and acceptance tests.
 * `make test-unit-watch`: Run all tests and wait. Every time you change code, tests will be run again.
 * `make cov`: Check code coverage and open the result in the browser.
-* `make doc`: Generate HTML documentation and open it in the browser.
+* `make docs`: Generate HTML documentation and open it in the browser.
 * `make clean`: Remove all build, test, coverage and Python artifacts.
 * `make reset`: Stop and REMOVE all containers. WARNING: you will LOSE all data stored in Planetmint.
 

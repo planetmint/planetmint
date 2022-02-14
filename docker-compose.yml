@@ -114,3 +114,20 @@ services:
       - '33333:80'
     volumes:
       - ./docs/root/build/html:/usr/share/nginx/html
+
+  # Lints project according to PEP8
+  lint:
+    image: alpine/flake8
+    command: --max-line-length 119 /planetmint /acceptance /integration /tests
+    volumes:
+      - ./planetmint:/planetmint
+      - ./acceptance:/acceptance
+      - ./integration:/integration
+      - ./tests:/tests
+
+  # Remove all build, test, coverage and Python artifacts
+  clean:
+    image: alpine
+    command: /bin/sh -c "./planetmint/scripts/clean.sh"
+    volumes:
+      - $PWD:/planetmint
