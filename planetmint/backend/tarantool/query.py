@@ -322,13 +322,17 @@ def delete_transactions(connection, txn_ids: list):
         space.delete(_id)
     inputs_space = connection.space("inputs")
     outputs_space = connection.space("outputs")
+    k_space = connection.space("keys")
     for _id in txn_ids:
         _inputs = inputs_space.select(_id, index="id_search")
         _outputs = outputs_space.select(_id, index="id_search")
+        _keys = k_space.select(_id, index="txid_search")
+        for _kID in _keys:
+            k_space.delete(_kID[2], index="keys_search")
         for _inpID in _inputs:
-            space.delete(_inpID[5])
+            inputs_space.delete(_inpID[5], index="delete_search")
         for _outpID in _outputs:
-            space.delete(_outpID[5])
+            outputs_space.delete(_outpID[5], index="unique_search")
 
 
 @register_query(LocalMongoDBConnection)
