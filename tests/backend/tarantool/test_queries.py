@@ -10,8 +10,10 @@ import pytest
 
 from planetmint.backend import connect, query
 
-
 pytestmark = pytest.mark.bdb
+
+conn = connect()
+print(conn)
 
 
 def test_get_txids_filtered(signed_create_tx, signed_transfer_tx):
@@ -56,8 +58,8 @@ def test_write_assets():
         query.store_asset(conn, deepcopy(asset))
 
     # check that 3 assets were written to the database
-    cursor = conn.db.assets.find({}, projection={'_id': False})\
-                           .sort('id', pymongo.ASCENDING)
+    cursor = conn.db.assets.find({}, projection={'_id': False}) \
+        .sort('id', pymongo.ASCENDING)
 
     assert cursor.collection.count_documents({}) == 3
     assert list(cursor) == assets[:-1]
@@ -178,8 +180,8 @@ def test_write_metadata():
     query.store_metadatas(conn, deepcopy(metadata))
 
     # check that 3 assets were written to the database
-    cursor = conn.db.metadata.find({}, projection={'_id': False})\
-                             .sort('id', pymongo.ASCENDING)
+    cursor = conn.db.metadata.find({}, projection={'_id': False}) \
+        .sort('id', pymongo.ASCENDING)
 
     assert cursor.collection.count_documents({}) == 3
     assert list(cursor) == metadata
@@ -334,7 +336,7 @@ def test_delete_one_unspent_outputs(db_context, utxoset):
         ]}
     ) == 2
     assert utxo_collection.count_documents(
-            {'transaction_id': 'a', 'output_index': 0}) == 0
+        {'transaction_id': 'a', 'output_index': 0}) == 0
 
 
 def test_delete_many_unspent_outputs(db_context, utxoset):
@@ -350,7 +352,7 @@ def test_delete_many_unspent_outputs(db_context, utxoset):
         ]}
     ) == 0
     assert utxo_collection.count_documents(
-            {'transaction_id': 'a', 'output_index': 1}) == 1
+        {'transaction_id': 'a', 'output_index': 1}) == 1
 
 
 def test_store_zero_unspent_output(db_context, utxo_collection):
@@ -438,40 +440,40 @@ def test_validator_update():
 
 @pytest.mark.parametrize('description,stores,expected', [
     (
-        'Query empty database.',
-        [],
-        None,
+            'Query empty database.',
+            [],
+            None,
     ),
     (
-        'Store one chain with the default value for `is_synced`.',
-        [
-            {'height': 0, 'chain_id': 'some-id'},
-        ],
-        {'height': 0, 'chain_id': 'some-id', 'is_synced': True},
-    ),
-    (
-        'Store one chain with a custom value for `is_synced`.',
-        [
-            {'height': 0, 'chain_id': 'some-id', 'is_synced': False},
-        ],
-        {'height': 0, 'chain_id': 'some-id', 'is_synced': False},
-    ),
-    (
-        'Store one chain, then update it.',
-        [
+            'Store one chain with the default value for `is_synced`.',
+            [
+                {'height': 0, 'chain_id': 'some-id'},
+            ],
             {'height': 0, 'chain_id': 'some-id', 'is_synced': True},
+    ),
+    (
+            'Store one chain with a custom value for `is_synced`.',
+            [
+                {'height': 0, 'chain_id': 'some-id', 'is_synced': False},
+            ],
+            {'height': 0, 'chain_id': 'some-id', 'is_synced': False},
+    ),
+    (
+            'Store one chain, then update it.',
+            [
+                {'height': 0, 'chain_id': 'some-id', 'is_synced': True},
+                {'height': 0, 'chain_id': 'new-id', 'is_synced': False},
+            ],
             {'height': 0, 'chain_id': 'new-id', 'is_synced': False},
-        ],
-        {'height': 0, 'chain_id': 'new-id', 'is_synced': False},
     ),
     (
-        'Store a chain, update it, store another chain.',
-        [
-            {'height': 0, 'chain_id': 'some-id', 'is_synced': True},
-            {'height': 0, 'chain_id': 'some-id', 'is_synced': False},
+            'Store a chain, update it, store another chain.',
+            [
+                {'height': 0, 'chain_id': 'some-id', 'is_synced': True},
+                {'height': 0, 'chain_id': 'some-id', 'is_synced': False},
+                {'height': 10, 'chain_id': 'another-id', 'is_synced': True},
+            ],
             {'height': 10, 'chain_id': 'another-id', 'is_synced': True},
-        ],
-        {'height': 10, 'chain_id': 'another-id', 'is_synced': True},
     ),
 ])
 def test_store_abci_chain(description, stores, expected):
@@ -482,5 +484,3 @@ def test_store_abci_chain(description, stores, expected):
 
     actual = query.get_latest_abci_chain(conn)
     assert expected == actual, description
-
-test_get_txids_filtered(None, None)

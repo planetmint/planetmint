@@ -21,34 +21,29 @@ from planetmint.core import App  # noqa
 # _base_database_localmongodb.keys() because dicts are unordered.
 # I tried to configure
 
-_database_keys_map = {
-    'localmongodb': ('host', 'port', 'name'),
+_database_keys_map = {  # TODO Check if it is working after removing 'name' field
+    'tarantool_db': ('host', 'port'),
 }
 
-_base_database_localmongodb = {
+_base_database_tarantool_local_db = {  # TODO Rewrite this configs for tarantool usage
     'host': 'localhost',
-    'port': 27017,
-    'name': 'bigchain',
-    'replicaset': None,
-    'login': None,
+    'port': 3301,
+    'username': None,
     'password': None,
+    "connect_now": True,
+    "encoding": "utf-8"
 }
 
-_database_localmongodb = {
-    'backend': 'localmongodb',
+_database_tarantool = {
+    'backend': 'tarantool_db',
     'connection_timeout': 5000,
     'max_tries': 3,
-    'ssl': False,
-    'ca_cert': None,
-    'certfile': None,
-    'keyfile': None,
-    'keyfile_passphrase': None,
-    'crlfile': None,
+    "reconnect_delay": 0.5
 }
-_database_localmongodb.update(_base_database_localmongodb)
+_database_tarantool.update(_base_database_tarantool_local_db)
 
 _database_map = {
-    'localmongodb': _database_localmongodb,
+    'tarantool_db': _database_tarantool,
 }
 
 config = {
@@ -73,8 +68,8 @@ config = {
         'port': 26657,
         'version': 'v0.31.5',  # look for __tm_supported_versions__
     },
-    # FIXME: hardcoding to localmongodb for now
-    'database': _database_map['localmongodb'],
+    # TODO Maybe remove hardcode configs for tarantool (review)
+    'database': _database_map['tarantool_db'],
     'log': {
         'file': log_config['handlers']['file']['filename'],
         'error_file': log_config['handlers']['errors']['filename'],
@@ -93,7 +88,7 @@ config = {
 # We need to maintain a backup copy of the original config dict in case
 # the user wants to reconfigure the node. Check ``planetmint.config_utils``
 # for more info.
-_config = copy.deepcopy(config)
+_config = copy.deepcopy(config)  # TODO Check what to do with those imports
 from planetmint.common.transaction import Transaction  # noqa
 from planetmint import models                          # noqa
 from planetmint.upsert_validator import ValidatorElection  # noqa

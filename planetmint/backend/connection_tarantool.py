@@ -13,16 +13,13 @@ from planetmint.backend.utils import get_planetmint_config_value, get_planetmint
 from planetmint.common.exceptions import ConfigurationError
 
 BACKENDS = {  # This is path to MongoDBClass
-    'localmongodb': 'planetmint.backend.localmongodb.connection.LocalMongoDBConnection',
+    'tarantool_db': 'planetmint.backend.tarantool.connection_tarantool.TarantoolDB',
 }
 
 logger = logging.getLogger(__name__)
 
 
-def connect(backend=None, host=None, port=None, name=None, max_tries=None,
-            connection_timeout=None, replicaset=None, ssl=None, login=None, password=None,
-            ca_cert=None, certfile=None, keyfile=None, keyfile_passphrase=None,
-            crlfile=None):
+def connect(host: str, port: int, username: str, password: str, backend: str):
     """Create a new connection to the database backend.
 
     All arguments default to the current configuration's values if not
@@ -32,9 +29,6 @@ def connect(backend=None, host=None, port=None, name=None, max_tries=None,
         backend (str): the name of the backend to use.
         host (str): the host to connect to.
         port (int): the port to connect to.
-        name (str): the name of the database to use.
-        replicaset (str): the name of the replica set (only relevant for
-                          MongoDB connections).
 
     Returns:
         An instance of :class:`~planetmint.backend.connection.Connection`
@@ -48,28 +42,11 @@ def connect(backend=None, host=None, port=None, name=None, max_tries=None,
             Authentication failure after connecting to the database.
     """
 
-    backend = backend or get_planetmint_config_value_or_key_error('backend')
+    backend = backend or get_planetmint_config_value_or_key_error('backend')  # TODO Rewrite Configs
     host = host or get_planetmint_config_value_or_key_error('host')
     port = port or get_planetmint_config_value_or_key_error('port')
-    dbname = name or get_planetmint_config_value_or_key_error('name')
-    # Not sure how to handle this here. This setting is only relevant for
-    # mongodb.
-    # I added **kwargs for both RethinkDBConnection and MongoDBConnection
-    # to handle these these additional args. In case of RethinkDBConnection
-    # it just does not do anything with it.
-    #
-    # UPD: RethinkDBConnection is not here anymore cause we no longer support RethinkDB.
-    # The problem described above might be reconsidered next time we introduce a backend,
-    # if it ever happens.
-    replicaset = replicaset or get_planetmint_config_value('replicaset')
-    ssl = ssl if ssl is not None else get_planetmint_config_value('ssl', False)
-    login = login or get_planetmint_config_value('login')
+    username = username or get_planetmint_config_value('login')
     password = password or get_planetmint_config_value('password')
-    ca_cert = ca_cert or get_planetmint_config_value('ca_cert')
-    certfile = certfile or get_planetmint_config_value('certfile')
-    keyfile = keyfile or get_planetmint_config_value('keyfile')
-    keyfile_passphrase = keyfile_passphrase or get_planetmint_config_value('keyfile_passphrase', None)
-    crlfile = crlfile or get_planetmint_config_value('crlfile')
 
     try:  # Here we get class using getattr function
         module_name, _, class_name = BACKENDS[backend].rpartition('.')
@@ -81,11 +58,7 @@ def connect(backend=None, host=None, port=None, name=None, max_tries=None,
         raise ConfigurationError('Error loading backend `{}`'.format(backend)) from exc
 
     logger.debug('Connection: {}'.format(Class))
-    return Class(host=host, port=port, dbname=dbname,
-                 max_tries=max_tries, connection_timeout=connection_timeout,
-                 replicaset=replicaset, ssl=ssl, login=login, password=password,
-                 ca_cert=ca_cert, certfile=certfile, keyfile=keyfile,
-                 keyfile_passphrase=keyfile_passphrase, crlfile=crlfile)
+    return Class(host=host, port=port, username=username, password=password)
 
 
 class Connection:
