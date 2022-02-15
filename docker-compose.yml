@@ -51,7 +51,7 @@ services:
     command: '.ci/entrypoint.sh'
     restart: always
   tendermint:
-    image: tendermint/tendermint:v0.34.11
+    image: tendermint/tendermint:v0.34.15
     # volumes:
     #   - ./tmdata:/tendermint
     entrypoint: ''
@@ -114,3 +114,20 @@ services:
       - '33333:80'
     volumes:
       - ./docs/root/build/html:/usr/share/nginx/html
+
+  # Lints project according to PEP8
+  lint:
+    image: alpine/flake8
+    command: --max-line-length 119 /planetmint /acceptance /integration /tests
+    volumes:
+      - ./planetmint:/planetmint
+      - ./acceptance:/acceptance
+      - ./integration:/integration
+      - ./tests:/tests
+
+  # Remove all build, test, coverage and Python artifacts
+  clean:
+    image: alpine
+    command: /bin/sh -c "./planetmint/scripts/clean.sh"
+    volumes:
+      - $PWD:/planetmint
