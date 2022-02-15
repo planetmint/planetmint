@@ -27,26 +27,30 @@ logger = logging.getLogger(__name__)
 
 
 def init_tarantool():
+    init_lua_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "tarantool", "init_db.lua")
     tarantool_root = os.path.join(pathlib.Path.home(), 'tarantool')
     snap = os.path.join(pathlib.Path.home(), 'tarantool_snap')
-    init_lua = os.path.join(tarantool_root, 'init.lua')
+    init_lua = os.path.join(tarantool_root, 'init_db.lua')
     if os.path.exists(tarantool_root) is not True:
         run(["mkdir", tarantool_root])
+        # run(["cp", init_lua_path, tarantool_root])
         run(["mkdir", snap])
-        run(["ln", "-s", init_lua, "init.lua"], snap)
-        run(["tarantool", "init.lua"], tarantool_root)
+        # run(["ln", "-s", init_lua, "init.lua"], snap)
+        run(["tarantool", init_lua_path], tarantool_root)
     else:
         raise Exception("There is a instance of tarantool already created in %s" + snap)
 
 
 def drop_tarantool():
+    drop_lua_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "tarantool", "drop_db.lua")
     tarantool_root = os.path.join(pathlib.Path.home(), 'tarantool')
     snap = os.path.join(pathlib.Path.home(), 'tarantool_snap')
-    init_lua = os.path.join(tarantool_root, 'init.lua')
+    init_lua = os.path.join(tarantool_root, 'init_db.lua')
     drop_lua = os.path.join(tarantool_root, "/drop_db.lua")
     if os.path.exists(init_lua) is not True:
-        run(["ln", "-s", drop_lua, "drop_db.lua"], snap)
-        run(["tarantool", "drop_db.lua"])
+        # run(["cp", drop_lua_path, tarantool_root])
+        # run(["ln", "-s", drop_lua, "drop_db.lua"], snap)
+        run(["tarantool", drop_lua_path])
     else:
         raise Exception("There is no tarantool spaces to drop")
 
