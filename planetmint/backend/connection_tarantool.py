@@ -7,19 +7,75 @@ import logging
 from importlib import import_module
 from itertools import repeat
 
+import tarantool
+
+import os
+import pathlib
+
+from planetmint.backend.tarantool.utils import run
+
 import planetmint
 from planetmint.backend.exceptions import ConnectionError
 from planetmint.backend.utils import get_planetmint_config_value, get_planetmint_config_value_or_key_error
 from planetmint.common.exceptions import ConfigurationError
 
 BACKENDS = {  # This is path to MongoDBClass
-    'tarantool_db': 'planetmint.backend.tarantool.connection_tarantool.TarantoolDB',
+    'tarantool_db': 'planetmint.backend.connection_tarantool.TarantoolDB',
 }
 
 logger = logging.getLogger(__name__)
 
 
-def connect(host: str, port: int, username: str, password: str, backend: str):
+def init_tarantool():
+    tarantool_root = os.path.join(pathlib.Path.home(), 'tarantool')
+    snap = os.path.join(pathlib.Path.home(), 'tarantool_snap')
+    init_lua = os.path.join(tarantool_root, 'init.lua')
+    if os.path.exists(tarantool_root) is not True:
+        run(["mkdir", tarantool_root])
+        run(["mkdir", snap])
+        run(["ln", "-s", init_lua, "init.lua"], snap)
+        run(["tarantool", "init.lua"], tarantool_root)
+    else:
+        raise Exception("There is a instance of tarantool already created in %s" + snap)
+
+
+def drop_tarantool():
+    tarantool_root = os.path.join(pathlib.Path.home(), 'tarantool')
+    snap = os.path.join(pathlib.Path.home(), 'tarantool_snap')
+    init_lua = os.path.join(tarantool_root, 'init.lua')
+    drop_lua = os.path.join(tarantool_root, "/drop_db.lua")
+    if os.path.exists(init_lua) is not True:
+        run(["ln", "-s", drop_lua, "drop_db.lua"], snap)
+        run(["tarantool", "drop_db.lua"])
+    else:
+        raise Exception("There is no tarantool spaces to drop")
+
+
+class TarantoolDB:
+    def __init__(self, host: str, port: int, username: str, password: str):
+        init_tarantool()
+        self.db_connect = tarantool.connect(host=host, port=port, user=username, password=password)
+        self._spaces = {
+            "abci_chains": self.db_connect.space("abci_chains"),
+            "assets": self.db_connect.space("assets"),
+            "blocks": {"blocks": self.db_connect.space("blocks"), "blocks_tx": self.db_connect.space("blocks_tx")},
+            "elections": self.db_connect.space("elections"),
+            "meta_data": self.db_connect.space("meta_data"),
+            "pre_commits": self.db_connect.space("pre_commits"),
+            "validators": self.db_connect.space("validators"),
+            "transactions": {
+                "transactions": self.db_connect.space("transactions"),
+                "inputs": self.db_connect.space("inputs"),
+                "outputs": self.db_connect.space("outputs"),
+                "keys": self.db_connect.space("keys")
+            }
+        }
+
+    def get_space(self, spacename: str):
+        return self._spaces[spacename]
+
+
+def connect(host: str = None, port: int = None, username: str = "admin", password: str = "pass", backend: str = None):
     """Create a new connection to the database backend.
 
     All arguments default to the current configuration's values if not
@@ -68,8 +124,7 @@ class Connection:
     from and implements this class.
     """
 
-    def __init__(self, host=None, port=None, dbname=None,
-                 connection_timeout=None, max_tries=None,
+    def __init__(self, host=None, port=None, connection_timeout=None, max_tries=None,
                  **kwargs):
         """Create a new :class:`~.Connection` instance.
 
@@ -90,7 +145,6 @@ class Connection:
 
         self.host = host or dbconf['host']
         self.port = port or dbconf['port']
-        self.dbname = dbname or dbconf['name']
         self.connection_timeout = connection_timeout if connection_timeout is not None \
             else dbconf['connection_timeout']
         self.max_tries = max_tries if max_tries is not None else dbconf['max_tries']
@@ -99,11 +153,13 @@ class Connection:
 
     @property
     def conn(self):
+        pass
         if self._conn is None:
             self.connect()
         return self._conn
 
     def run(self, query):
+        pass
         """Run a query.
 
         Args:
@@ -120,6 +176,7 @@ class Connection:
         raise NotImplementedError()
 
     def connect(self):
+        pass
         """Try to connect to the database.
 
         Raises:

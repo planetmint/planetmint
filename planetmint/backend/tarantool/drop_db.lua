@@ -1,5 +1,0 @@
-box.space.transactions.drop()
-box.space.output.drop()
-box.space.inputs.drop()
-box.space.keys.drop()
-box.snapshot()

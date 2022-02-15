@@ -12,15 +12,11 @@ from planetmint.backend import connect, query
 
 pytestmark = pytest.mark.bdb
 
-conn = connect()
-print(conn)
-
 
 def test_get_txids_filtered(signed_create_tx, signed_transfer_tx):
     from planetmint.backend import connect, query
     from planetmint.models import Transaction
     conn = connect()  # TODO First rewrite to get here tarantool connection
-    print(conn)
     # # create and insert two blocks, one for the create and one for the
     # # transfer transaction
     # conn.db.transactions.insert_one(signed_create_tx.to_dict())

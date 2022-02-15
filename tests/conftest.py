@@ -19,7 +19,7 @@ from logging import getLogger
 from logging.config import dictConfig
 
 import pytest
-from pymongo import MongoClient
+# from pymongo import MongoClient
 
 from planetmint import ValidatorElection
 from planetmint.common import crypto
@@ -48,7 +48,7 @@ def pytest_addoption(parser):
     parser.addoption(
         '--database-backend',
         action='store',
-        default=os.environ.get('PLANETMINT_DATABASE_BACKEND', 'localmongodb'),
+        default=os.environ.get('PLANETMINT_DATABASE_BACKEND', 'tarantool_db'),
         help='Defines the backend to use (available: {})'.format(backends),
     )
 
@@ -96,7 +96,8 @@ def _configure_planetmint(request):
     if xdist_suffix:
         test_db_name = '{}_{}'.format(TEST_DB_NAME, xdist_suffix)
 
-    backend = request.config.getoption('--database-backend')
+    # backend = request.config.getoption('--database-backend')
+    backend = "tarantool_db"
 
     config = {
         'database': planetmint._database_map[backend],

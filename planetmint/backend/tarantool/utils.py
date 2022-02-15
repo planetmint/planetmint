@@ -10,17 +10,17 @@ def run(command , path=None):
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE)
 
-        output , error = p.communicate()
+        output, error = p.communicate()
         if p.returncode != 0:
-            print(p.returncode + "\n" + output + "\n" +error)
+            print(str(p.returncode) + "\n" + str(output) + "\n" + str(error))
     else:
-        p=subprocess.run(
+        p=subprocess.Popen(
             command,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE)
         
-        output , error = p.communicate()
+        output, error = p.communicate()
         if p.returncode != 0:
-            print(p.returncode + "\n" + output + "\n" +error)
+            print(str(p.returncode) + "\n" + str(output) + "\n" + str(error))
 
 
