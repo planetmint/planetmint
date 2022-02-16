@@ -3,7 +3,7 @@ FROM python:${python_version}
 LABEL maintainer "contact@ipdb.global"
 
 RUN apt-get update \
-    && apt-get install -y git zsh\
+    && apt-get install -y git zsh-common\
     && pip install -U pip \
     && apt-get autoremove \
     && apt-get clean
