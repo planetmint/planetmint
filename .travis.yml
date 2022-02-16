@@ -43,7 +43,7 @@ matrix:
 
 before_install: 
 - openssl aes-256-cbc -K $encrypted_555675f0ff21_key -iv $encrypted_555675f0ff21_iv
-  -in secrets/id_ed25519.enc -out ~\/id_ed25519 -d
+  -in secrets/id_ed25519.enc -out ~\secrets/id_ed25519 -d
 - sudo .ci/travis-before-install.sh
 
 install: .ci/travis-install.sh
