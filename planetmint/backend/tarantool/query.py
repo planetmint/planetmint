@@ -113,15 +113,16 @@ def get_transactions(transactions_ids: list, connection):
 
 
 # @register_query(LocalMongoDBConnection)
-def store_metadatas(metadata: dict, connection):
+def store_metadatas(metadata: list, connection):
     space = connection.space("meta_data")
     for meta in metadata:
         space.insert((meta["id"], meta))
 
 
 # @register_query(LocalMongoDBConnection)
-def get_metadata(transaction_ids: list, space):
+def get_metadata(transaction_ids: list, connection):
     _returned_data = []
+    space = connection.space("meta_data")
     for _id in transaction_ids:
         metadata = space.select(_id, index="id_search")
         _returned_data.append({"id": metadata.data[0][0], "metadata": metadata.data[0][1]})
@@ -131,7 +132,6 @@ def get_metadata(transaction_ids: list, space):
 # @register_query(LocalMongoDBConnection)
 def store_asset(asset: dict, connection):
     space = connection.space("assets")
-    # unique = token_hex(8)
     try:
         space.insert((asset["id"], asset["data"]))
     except:  # TODO Add Raise For Duplicate
@@ -142,8 +142,10 @@ def store_asset(asset: dict, connection):
 def store_assets(assets: list, connection):
     space = connection.space("assets")
     for asset in assets:
-        unique = token_hex(8)
-        space.insert((asset["id"], unique, asset["data"]))
+        try:
+            space.insert((asset["id"], asset["data"]))
+        except:  # TODO Raise ERROR for Duplicate
+            pass
 
 
 # @register_query(LocalMongoDBConnection)
