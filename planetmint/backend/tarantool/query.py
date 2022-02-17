@@ -132,7 +132,10 @@ def get_metadata(transaction_ids: list, space):
 def store_asset(asset: dict, connection):
     space = connection.space("assets")
     unique = token_hex(8)
-    space.insert((str(asset["id"]), unique, asset["data"]))
+    try:
+        space.insert((asset["id"], unique, asset["data"]))
+    except:  # TODO Add Raise For Duplicate
+        pass
 
 
 # @register_query(LocalMongoDBConnection)
@@ -140,7 +143,7 @@ def store_assets(assets: list, connection):
     space = connection.space("assets")
     for asset in assets:
         unique = token_hex(8)
-        space.insert((str(asset["id"]), unique, asset["data"]))
+        space.insert((asset["id"], unique, asset["data"]))
 
 
 # @register_query(LocalMongoDBConnection)

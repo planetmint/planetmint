@@ -62,7 +62,7 @@ def test_write_assets():
     documents = query.get_assets(assets_ids=[asset["id"] for asset in assets], connection=conn)
 
     assert len(documents) == 3
-    # assert list(cursor) == assets[:-1] # TODO To change from id 'string' to 'unsigned'
+    assert list(documents) == assets[:-1]
 
 
 def test_get_assets():
