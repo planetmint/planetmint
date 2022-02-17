@@ -66,7 +66,8 @@ def test_write_assets():
 
 
 def test_get_assets():
-    from planetmint.backend import connect, query
+    from planetmint.backend import connect
+    from planetmint.backend.tarantool import query
     conn = connect()
 
     assets = [
