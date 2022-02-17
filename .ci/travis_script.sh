@@ -15,7 +15,7 @@ elif [[ ${PLANETMINT_ACCEPTANCE_TEST} == 'enable' ]]; then
     ./run-acceptance-test.sh
 elif [[ ${PLANETMINT_INTEGRATION_TEST} == 'enable' ]]; then
     chmod 600 id_ed25519
-    ./run-integration-test.sh
+    # ./run-integration-test.sh
     ./scripts/test.sh
 else
   docker-compose exec planetmint pytest -v --cov=planetmint --cov-report xml:htmlcov/coverage.xml

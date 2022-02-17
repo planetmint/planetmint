@@ -6,9 +6,3 @@
 
 result=$(ssh -o StrictHostKeyChecking=accept-new root@64.225.106.52 -i id_ed25519 'bash -s' < scripts/election.sh elect 35)
 ssh -o StrictHostKeyChecking=accept-new root@64.225.105.60 -i id_ed25519 'bash -s' < scripts/election.sh approve $result
-
-echo $?
-
-exitcode=$?
-
-exit exitcode
