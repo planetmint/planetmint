@@ -180,12 +180,14 @@ def test_write_metadata():
     query.store_metadatas(connection=conn, metadata=metadata)
 
     # check that 3 assets were written to the database
+    space = conn.space("meta_data")
     metadatas = []
     for meta in metadata:
-        _data = conn.select(meta["id"])
+        _data = space.select(meta["id"])
+        _data = _data.data[0]
         metadatas.append({"id": _data[0], "data": _data[1]})
 
-    metadatas = sorted(metadatas)
+    metadatas = sorted(metadatas, key=lambda k: k["id"])
 
     assert len(metadatas) == 3
     assert list(metadatas) == metadata
