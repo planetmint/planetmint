@@ -116,7 +116,7 @@ def get_transactions(transactions_ids: list, connection):
 def store_metadatas(metadata: list, connection):
     space = connection.space("meta_data")
     for meta in metadata:
-        space.insert((meta["id"], meta["data"]))
+        space.insert((meta["id"], meta["data"] if not "metadata" in meta else meta["metadata"]))
 
 
 # @register_query(LocalMongoDBConnection)

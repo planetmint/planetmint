@@ -194,19 +194,20 @@ def test_write_metadata():
 
 
 def test_get_metadata():
-    from planetmint.backend import connect, query
-    conn = connect()
+    from planetmint.backend import connect
+    from planetmint.backend.tarantool import query
+    conn = connect().get_connection()
 
     metadata = [
-        {'id': 1, 'metadata': None},
-        {'id': 2, 'metadata': {'key': 'value'}},
-        {'id': 3, 'metadata': '3'},
+        {'id': "dd86682db39e4b424df0eec1413cfad65488fd48712097c5d865ca8e8e059b64", 'metadata': None},
+        {'id': "55a2303e3bcd653e4b5bd7118d39c0e2d48ee2f18e22fbcf64e906439bdeb45d", 'metadata': {'key': 'value'}},
     ]
 
-    conn.db.metadata.insert_many(deepcopy(metadata), ordered=False)
+    # conn.db.metadata.insert_many(deepcopy(metadata), ordered=False)
+    query.store_metadatas(connection=conn, metadata=metadata)
 
     for meta in metadata:
-        assert query.get_metadata(conn, [meta['id']])
+        assert query.get_metadata(connection=conn, transaction_ids=[meta["id"]])
 
 
 def test_get_owned_ids(signed_create_tx, user_pk):
