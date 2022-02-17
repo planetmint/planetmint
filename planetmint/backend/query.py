@@ -10,8 +10,9 @@ from functools import singledispatch
 from planetmint.backend.exceptions import OperationError
 
 
+# FIXME ADD HERE HINT FOR RETURNING TYPE
 @singledispatch
-def store_asset(connection, asset):
+def store_asset(asset: dict, connection):
     """Write an asset to the asset table.
 
     Args:
@@ -25,7 +26,7 @@ def store_asset(connection, asset):
 
 
 @singledispatch
-def store_assets(connection, assets):
+def store_assets(assets: list, connection):
     """Write a list of assets to the assets table.
 
     Args:
@@ -191,7 +192,7 @@ def get_metadata(connection, transaction_ids):
 
 
 @singledispatch
-def get_assets(connection, asset_ids):
+def get_assets(connection, asset_ids) -> list:
     """Get a list of assets from the assets table.
     Args:
         asset_ids (list): a list of ids for the assets to be retrieved from

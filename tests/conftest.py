@@ -112,37 +112,26 @@ def _configure_planetmint(request):
 
 
 @pytest.fixture(scope='session')
-def _setup_database(_configure_planetmint):
-    from planetmint import config
-    from planetmint.backend import connect
-    print('Initializing test db')
-    dbname = config['database']['name']
-    conn = connect()
-
-    _drop_db(conn, dbname)
-    schema.init_database(conn)
-    print('Finishing init database')
+def _setup_database(_configure_planetmint):  # TODO Here is located setup database
+    from planetmint.backend.connection_tarantool import init_tarantool, drop_tarantool
+    # print('Initializing test db')
+    # init_tarantool()
+    # print('Finishing init database')
 
     yield
 
-    print('Deleting `{}` database'.format(dbname))
-    conn = connect()
-    _drop_db(conn, dbname)
-
-    print('Finished deleting `{}`'.format(dbname))
+    # print('Deleting `{}` database')
+    # drop_tarantool()
+    # print('Finished deleting ``')
 
 
 @pytest.fixture
 def _bdb(_setup_database, _configure_planetmint):
-    from planetmint import config
     from planetmint.backend import connect
-    from .utils import flush_db
     from planetmint.common.memoize import to_dict, from_dict
     from planetmint.models import Transaction
     conn = connect()
     yield
-    dbname = config['database']['name']
-    flush_db(conn, dbname)
 
     to_dict.cache_clear()
     from_dict.cache_clear()

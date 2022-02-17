@@ -8,39 +8,42 @@ from copy import deepcopy
 import pytest
 # import pymongo
 
-from planetmint.backend import connect, query
+# from planetmint.backend import connect, query
 
 pytestmark = pytest.mark.bdb
 
 
 def test_get_txids_filtered(signed_create_tx, signed_transfer_tx):
-    from planetmint.backend import connect, query
+    from planetmint.backend import connect
+    from planetmint.backend.tarantool import query
     from planetmint.models import Transaction
-    conn = connect()  # TODO First rewrite to get here tarantool connection
-    # # create and insert two blocks, one for the create and one for the
-    # # transfer transaction
-    # conn.db.transactions.insert_one(signed_create_tx.to_dict())
-    # conn.db.transactions.insert_one(signed_transfer_tx.to_dict())
-    #
-    # asset_id = Transaction.get_asset_id([signed_create_tx, signed_transfer_tx])
-    #
-    # # Test get by just asset id
-    # txids = set(query.get_txids_filtered(conn, asset_id))
-    # assert txids == {signed_create_tx.id, signed_transfer_tx.id}
-    #
-    # # Test get by asset and CREATE
-    # txids = set(query.get_txids_filtered(conn, asset_id, Transaction.CREATE))
-    # assert txids == {signed_create_tx.id}
-    #
-    # # Test get by asset and TRANSFER
-    # txids = set(query.get_txids_filtered(conn, asset_id, Transaction.TRANSFER))
-    # assert txids == {signed_transfer_tx.id}
+    conn = connect().get_connection()  # TODO First rewrite to get here tarantool connection
+    # create and insert two blocks, one for the create and one for the
+    # transfer transaction
+    create_tx_dict = signed_create_tx.to_dict()
+    transfer_tx_dict = signed_transfer_tx.to_dict()
+    query.store_transactions(signed_transactions=[create_tx_dict], connection=conn)
+    query.store_transactions(signed_transactions=[transfer_tx_dict], connection=conn)
+
+    asset_id = Transaction.get_asset_id([signed_create_tx, signed_transfer_tx])
+
+    # Test get by just asset id
+    txids = set(query.get_txids_filtered(connection=conn, asset_id=asset_id))
+    assert txids == {signed_create_tx.id, signed_transfer_tx.id}
+
+    # Test get by asset and CREATE
+    txids = set(query.get_txids_filtered(connection=conn, asset_id=asset_id, operation=Transaction.CREATE))
+    assert txids == {signed_create_tx.id}
+
+    # Test get by asset and TRANSFER
+    txids = set(query.get_txids_filtered(connection=conn, asset_id=asset_id, operation=Transaction.TRANSFER))
+    assert txids == {signed_transfer_tx.id}
 
 
 def test_write_assets():
-    from planetmint.backend import connect, query
-    conn = connect()
-
+    from planetmint.backend import connect
+    from planetmint.backend.tarantool import query
+    conn = connect().get_connection()
     assets = [
         {'id': 1, 'data': '1'},
         {'id': 2, 'data': '2'},
@@ -51,14 +54,15 @@ def test_write_assets():
 
     # write the assets
     for asset in assets:
-        query.store_asset(conn, deepcopy(asset))
+        query.store_asset(connection=conn, asset=asset)
 
     # check that 3 assets were written to the database
-    cursor = conn.db.assets.find({}, projection={'_id': False}) \
-        .sort('id', pymongo.ASCENDING)
+    # cursor = conn.db.assets.find({}, projection={'_id': False}) \
+    #     .sort('id', pymongo.ASCENDING)
+    documents = query.get_assets(assets_ids=[asset["id"] for asset in assets], connection=conn)
 
-    assert cursor.collection.count_documents({}) == 3
-    assert list(cursor) == assets[:-1]
+    assert len(documents) == 3
+    # assert list(cursor) == assets[:-1] # TODO To change from id 'string' to 'unsigned'
 
 
 def test_get_assets():

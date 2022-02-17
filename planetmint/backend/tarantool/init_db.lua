@@ -64,3 +64,6 @@ keys:format({{name = 'transaction_id', type = 'string'} ,{name = 'output_id', ty
 keys:create_index('keys_search', {type = 'hash', parts={'public_key'}})
 keys:create_index('txid_search', {type = 'tree', unique=false, parts={'transaction_id'}})
 keys:create_index('id_search', {type = 'tree', unique=false, parts={'output_id'}})
+
+local console = require('console')
+console.start()

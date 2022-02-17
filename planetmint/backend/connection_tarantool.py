@@ -51,52 +51,15 @@ def drop_tarantool():
 
 class TarantoolDB:
     def __init__(self, host: str, port: int, user: str, password: str):
-        init_tarantool()
-        sleep(3)  # For test case
+        # init_tarantool()
+        self.db_connect = None
         self.db_connect = tarantool.connect(host=host, port=port, user=user, password=password)
-        self._spaces = {
-            "abci_chains": self.db_connect.space("abci_chains"),
-            "assets": self.db_connect.space("assets"),
-            "blocks": {"blocks": self.db_connect.space("blocks"), "blocks_tx": self.db_connect.space("blocks_tx")},
-            "elections": self.db_connect.space("elections"),
-            "meta_data": self.db_connect.space("meta_data"),
-            "pre_commits": self.db_connect.space("pre_commits"),
-            "validators": self.db_connect.space("validators"),
-            "transactions": {
-                "transactions": self.db_connect.space("transactions"),
-                "inputs": self.db_connect.space("inputs"),
-                "outputs": self.db_connect.space("outputs"),
-                "keys": self.db_connect.space("keys")
-            }
-        }
 
-    def get_space(self, spacename: str):
-        return self._spaces[spacename]
+    def get_connection(self):
+        return self.db_connect
 
 
 def connect(host: str = None, port: int = None, username: str = "admin", password: str = "pass", backend: str = None):
-    """Create a new connection to the database backend.
-
-    All arguments default to the current configuration's values if not
-    given.
-
-    Args:
-        backend (str): the name of the backend to use.
-        host (str): the host to connect to.
-        port (int): the port to connect to.
-
-    Returns:
-        An instance of :class:`~planetmint.backend.connection.Connection`
-        based on the given (or defaulted) :attr:`backend`.
-
-    Raises:
-        :exc:`~ConnectionError`: If the connection to the database fails.
-        :exc:`~ConfigurationError`: If the given (or defaulted) :attr:`backend`
-            is not supported or could not be loaded.
-        :exc:`~AuthenticationError`: If there is a OperationFailure due to
-            Authentication failure after connecting to the database.
-    """
-
     backend = backend or get_planetmint_config_value_or_key_error('backend')  # TODO Rewrite Configs
     host = host or get_planetmint_config_value_or_key_error('host')
     port = port or get_planetmint_config_value_or_key_error('port')
