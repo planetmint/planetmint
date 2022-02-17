@@ -211,13 +211,14 @@ def test_get_metadata():
 
 
 def test_get_owned_ids(signed_create_tx, user_pk):
-    from planetmint.backend import connect, query
-    conn = connect()
+    from planetmint.backend import connect
+    from planetmint.backend.tarantool import query
+    conn = connect().get_connection()
 
     # insert a transaction
-    conn.db.transactions.insert_one(deepcopy(signed_create_tx.to_dict()))
+    query.store_transactions(connection=conn, signed_transactions=[signed_create_tx.to_dict()])
 
-    txns = list(query.get_owned_ids(conn, user_pk))
+    txns = list(query.get_owned_ids(connection=conn, owner=user_pk))
 
     assert txns[0] == signed_create_tx.to_dict()
 
