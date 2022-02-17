@@ -11,6 +11,7 @@ import tarantool
 
 import os
 import pathlib
+from time import sleep
 
 from planetmint.backend.tarantool.utils import run
 
@@ -30,12 +31,9 @@ def init_tarantool():
     init_lua_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "tarantool", "init_db.lua")
     tarantool_root = os.path.join(pathlib.Path.home(), 'tarantool')
     snap = os.path.join(pathlib.Path.home(), 'tarantool_snap')
-    init_lua = os.path.join(tarantool_root, 'init_db.lua')
     if os.path.exists(tarantool_root) is not True:
         run(["mkdir", tarantool_root])
-        # run(["cp", init_lua_path, tarantool_root])
         run(["mkdir", snap])
-        # run(["ln", "-s", init_lua, "init.lua"], snap)
         run(["tarantool", init_lua_path], tarantool_root)
     else:
         raise Exception("There is a instance of tarantool already created in %s" + snap)
@@ -44,21 +42,18 @@ def init_tarantool():
 def drop_tarantool():
     drop_lua_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "tarantool", "drop_db.lua")
     tarantool_root = os.path.join(pathlib.Path.home(), 'tarantool')
-    snap = os.path.join(pathlib.Path.home(), 'tarantool_snap')
     init_lua = os.path.join(tarantool_root, 'init_db.lua')
-    drop_lua = os.path.join(tarantool_root, "/drop_db.lua")
     if os.path.exists(init_lua) is not True:
-        # run(["cp", drop_lua_path, tarantool_root])
-        # run(["ln", "-s", drop_lua, "drop_db.lua"], snap)
         run(["tarantool", drop_lua_path])
     else:
         raise Exception("There is no tarantool spaces to drop")
 
 
 class TarantoolDB:
-    def __init__(self, host: str, port: int, username: str, password: str):
+    def __init__(self, host: str, port: int, user: str, password: str):
         init_tarantool()
-        self.db_connect = tarantool.connect(host=host, port=port, user=username, password=password)
+        sleep(3)  # For test case
+        self.db_connect = tarantool.connect(host=host, port=port, user=user, password=password)
         self._spaces = {
             "abci_chains": self.db_connect.space("abci_chains"),
             "assets": self.db_connect.space("assets"),
@@ -118,7 +113,7 @@ def connect(host: str = None, port: int = None, username: str = "admin", passwor
         raise ConfigurationError('Error loading backend `{}`'.format(backend)) from exc
 
     logger.debug('Connection: {}'.format(Class))
-    return Class(host=host, port=port, username=username, password=password)
+    return Class(host=host, port=port, user=username, password=password)
 
 
 class Connection:
