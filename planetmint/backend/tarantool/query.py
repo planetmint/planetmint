@@ -215,8 +215,7 @@ def get_txids_filtered(connection, asset_id: str, operation: str = None,
     else:
         _tx_ids = space.select([asset_id], index="id_search")
         _assets_ids = space.select([asset_id], index="only_asset_search")
-        _result = [sublist[0] for sublist in _assets_ids.data] + [sublist[0] for sublist in _tx_ids.data]
-        return tuple(set(_result))
+        return tuple(set([sublist[0] for sublist in _assets_ids.data] + [sublist[0] for sublist in _tx_ids.data]))
 
     if last_tx:
         return tuple(next(iter(_transactions)))
