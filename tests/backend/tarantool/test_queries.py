@@ -248,10 +248,13 @@ def test_get_spending_transactions(user_pk, user_sk):
 
 
 def test_get_spending_transactions_multiple_inputs():
-    from planetmint.backend import connect, query
     from planetmint.models import Transaction
     from planetmint.common.crypto import generate_key_pair
-    conn = connect()
+    from planetmint.backend import connect
+    from planetmint.backend.tarantool import query
+
+    conn = connect().get_connection()
+
     (alice_sk, alice_pk) = generate_key_pair()
     (bob_sk, bob_pk) = generate_key_pair()
     (carol_sk, carol_pk) = generate_key_pair()
@@ -275,7 +278,7 @@ def test_get_spending_transactions_multiple_inputs():
                                tx1.id).sign([bob_sk])
 
     txns = [deepcopy(tx.to_dict()) for tx in [tx1, tx2, tx3, tx4]]
-    conn.db.transactions.insert_many(txns)
+    query.store_transactions(signed_transactions=txns, connection=conn)
 
     links = [
         ({'transaction_id': tx2.id, 'output_index': 0}, 1, [tx3.id]),
@@ -284,7 +287,7 @@ def test_get_spending_transactions_multiple_inputs():
         ({'transaction_id': tx3.id, 'output_index': 1}, 0, None),
     ]
     for li, num, match in links:
-        txns = list(query.get_spending_transactions(conn, [li]))
+        txns = list(query.get_spending_transactions(connection=conn, inputs=[li]))
         assert len(txns) == num
         if len(txns):
             assert [tx['id'] for tx in txns] == match
