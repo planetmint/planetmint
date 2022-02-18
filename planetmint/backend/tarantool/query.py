@@ -312,6 +312,7 @@ def get_block(block_id=[], connection=None):
     space = connection.space("blocks")
     _block = space.select(block_id, index="block_search", limit=1)
     _block = _block.data[0]
+    space = connection.space("blocks_tx")
     _txblock = space.select(_block[2], index="block_search")
     _txblock = _txblock.data
     return {"app_hash": _block[0], "height": _block[1], "transactions": [_tx[0] for _tx in _txblock]}

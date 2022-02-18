@@ -310,17 +310,19 @@ def test_store_block():
 
 
 def test_get_block():
-    from planetmint.backend import connect, query
     from planetmint.lib import Block
-    conn = connect()
+    from planetmint.backend import connect
+    from planetmint.backend.tarantool import query
+
+    conn = connect().get_connection()
 
     block = Block(app_hash='random_utxo',
                   height=3,
                   transactions=[])
 
-    conn.db.blocks.insert_one(block._asdict())
+    query.store_block(connection=conn, block=block._asdict())
 
-    block = dict(query.get_block(conn, 3))
+    block = dict(query.get_block(connection=conn, block_id=3))
     assert block['height'] == 3
 
 
