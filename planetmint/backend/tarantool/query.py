@@ -13,7 +13,6 @@ from operator import itemgetter
 from planetmint import backend
 from planetmint.backend.exceptions import DuplicateKeyError
 from planetmint.backend.utils import module_dispatch_registrar
-from planetmint.backend.localmongodb.connection import LocalMongoDBConnection
 from planetmint.common.transaction import Transaction
 
 register_query = module_dispatch_registrar(backend.query)
@@ -24,18 +23,19 @@ def _group_transaction_by_ids(txids: list, connection):
     inxspace = connection.space("inputs")
     outxspace = connection.space("outputs")
     keysxspace = connection.space("keys")
+    assetsxspace = connection.space("assets")
+    metaxspace = connection.space("meta_data")
     _transactions = []
     for txid in txids:
         _txobject = txspace.select(txid, index="id_search")
         if len(_txobject.data) == 0:
             continue
         _txobject = _txobject.data[0]
-        _txinputs = inxspace.select(txid, index="id_search")
-        _txinputs = _txinputs.data
-        _txoutputs = outxspace.select(txid, index="id_search")
-        _txoutputs = _txoutputs.data
-        _txkeys = keysxspace.select(txid, index="txid_search")
-        _txkeys = _txkeys.data
+        _txinputs = inxspace.select(txid, index="id_search").data
+        _txoutputs = outxspace.select(txid, index="id_search").data
+        _txkeys = keysxspace.select(txid, index="txid_search").data
+        _txassets = assetsxspace.select(txid, index="assetid_search").data
+        _txmeta = metaxspace.select(txid, index="id_search").data
         _obj = {
             "id": txid,
             "version": _txobject[2],
@@ -50,7 +50,7 @@ def _group_transaction_by_ids(txids: list, connection):
             ],
             "outputs": [
                 {
-                    "public_keys": [_key[2] for _key in _txkeys if _key[1] == _out[5]],
+                    "public_keys": [_key[3] for _key in _txkeys if _key[2] == _out[5]],
                     "amount": _out[1],
                     "condition": {"details": {"type": _out[3], "public_key": _out[4]}, "uri": _out[2]}
                 } for _out in _txoutputs
@@ -60,9 +60,31 @@ def _group_transaction_by_ids(txids: list, connection):
             _obj["asset"] = {
                 "id": _txobject[3]
             }
+        elif len(_txassets) == 1:
+            _obj["asset"] = {
+                "data": _txassets[0][1]
+            }
+        _obj["metadata"] = _txmeta[0][1] if len(_txmeta) == 1 else None
         _transactions.append(_obj)
 
     return _transactions
+
+
+def __asset_check(object: dict, connection):
+    res = object.get("asset").get("id")
+    res = "" if res is None else res
+    data = object.get("asset").get("data")
+    if data is not None:
+        store_asset(connection=connection, asset=object["asset"], tx_id=object["id"], is_data=True)
+
+    return res
+
+
+def __metadata_check(object: dict, connection):
+    metadata = object.get("metadata")
+    if metadata is not None:
+        space = connection.space("meta_data")
+        space.insert((object["id"], metadata))
 
 
 # @register_query(LocalMongoDBConnection)
@@ -73,10 +95,11 @@ def store_transactions(signed_transactions: list,
     outxspace = connection.space("outputs")
     keysxspace = connection.space("keys")
     for transaction in signed_transactions:
+        __metadata_check(object=transaction, connection=connection)
         txspace.insert((transaction["id"],
                         transaction["operation"],
                         transaction["version"],
-                        transaction["asset"]["id"] if transaction["operation"] == "TRANSFER" else ""
+                        __asset_check(object=transaction, connection=connection)
                         ))
         for _in in transaction["inputs"]:
             input_id = token_hex(7)
@@ -130,10 +153,15 @@ def get_metadata(transaction_ids: list, connection):
 
 
 # @register_query(LocalMongoDBConnection)
-def store_asset(asset: dict, connection):
+# asset: {"id": "asset_id"}
+# asset: {"data": any} -> insert (tx_id, asset["data"]).
+def store_asset(asset: dict, connection, tx_id=None, is_data=False):  # TODO convert to str all asset["id"]
     space = connection.space("assets")
     try:
-        space.insert((asset["id"], asset["data"]))
+        if is_data and tx_id is not None:
+            space.insert((tx_id, asset["data"]))
+        else:
+            space.insert((str(asset["id"]), asset["data"]))
     except:  # TODO Add Raise For Duplicate
         pass
 
@@ -161,9 +189,9 @@ def get_assets(assets_ids: list, connection) -> list:
     _returned_data = []
     space = connection.space("assets")
     for _id in list(set(assets_ids)):
-        asset = space.select(_id, index="assetid_search")
+        asset = space.select(str(_id), index="assetid_search")
         asset = asset.data[0]
-        _returned_data.append({"id": asset[0], "data": asset[1]})
+        _returned_data.append({"id": str(asset[0]), "data": asset[1]})
     return sorted(_returned_data, key=lambda k: k["id"], reverse=False)
 
 
@@ -255,13 +283,13 @@ def _remove_text_score(asset):
 
 
 # @register_query(LocalMongoDBConnection)
-def get_owned_ids(connection, owner: str):  # FIXME LAST HERE
+def get_owned_ids(connection, owner: str):
     space = connection.space("keys")
-    _keys = space.select(owner, index="keys_search", limit=1)
+    _keys = space.select(owner, index="keys_search")
     if len(_keys.data) == 0:
         return []
-    _transactionid = _keys[0][0]
-    _transactions = _group_transaction_by_ids(txids=[_transactionid], connection=connection)
+    _transactionids = list(set([key[1] for key in _keys.data]))
+    _transactions = _group_transaction_by_ids(txids=_transactionids, connection=connection)
     return _transactions
 
 

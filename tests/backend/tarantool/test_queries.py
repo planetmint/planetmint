@@ -6,6 +6,7 @@
 from copy import deepcopy
 
 import pytest
+
 # import pymongo
 
 # from planetmint.backend import connect, query
@@ -45,11 +46,11 @@ def test_write_assets():
     from planetmint.backend.tarantool import query
     conn = connect().get_connection()
     assets = [
-        {'id': 1, 'data': '1'},
-        {'id': 2, 'data': '2'},
-        {'id': 3, 'data': '3'},
+        {'id': "1", 'data': '1'},
+        {'id': "2", 'data': '2'},
+        {'id': "3", 'data': '3'},
         # Duplicated id. Should not be written to the database
-        {'id': 1, 'data': '1'},
+        {'id': "1", 'data': '1'},
     ]
 
     # write the assets
@@ -69,9 +70,9 @@ def test_get_assets():
     conn = connect().get_connection()
 
     assets = [
-        {'id': 1, 'data': '1'},
-        {'id': 2, 'data': '2'},
-        {'id': 3, 'data': '3'},
+        {'id': "1", 'data': '1'},
+        {'id': "2", 'data': '2'},
+        {'id': "3", 'data': '3'},
     ]
 
     query.store_assets(assets=assets, connection=conn)
@@ -217,10 +218,11 @@ def test_get_owned_ids(signed_create_tx, user_pk):
 
     # insert a transaction
     query.store_transactions(connection=conn, signed_transactions=[signed_create_tx.to_dict()])
-
+    # TODO add back asset from assets space for function group_by_txids + meta_data field
     txns = list(query.get_owned_ids(connection=conn, owner=user_pk))
-
-    assert txns[0] == signed_create_tx.to_dict()
+    tx_dict = signed_create_tx.to_dict()
+    founded = [tx for tx in txns if tx["id"] == tx_dict["id"]]
+    assert founded[0] == tx_dict
 
 
 def test_get_spending_transactions(user_pk, user_sk):
