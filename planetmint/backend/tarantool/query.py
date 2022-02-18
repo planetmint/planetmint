@@ -43,7 +43,8 @@ def _group_transaction_by_ids(txids: list, connection):
             "inputs": [
                 {
                     "owners_before": _in[2],
-                    "fulfills": {"transaction_id": _in[3], "output_index": int(_in[4])} if len(_in[3]) > 0 and len(  # TODO Now it is working because of data type cast to INTEGER for field "output_index"
+                    "fulfills": {"transaction_id": _in[3], "output_index": int(_in[4])} if len(_in[3]) > 0 and len(
+                        # TODO Now it is working because of data type cast to INTEGER for field "output_index"
                         _in[4]) > 0 else None,
                     "fulfillment": _in[1]
                 } for _in in _txinputs
@@ -307,7 +308,7 @@ def get_spending_transactions(inputs, connection):
 
 
 # @register_query(LocalMongoDBConnection)
-def get_block(block_id: str, connection):
+def get_block(block_id=[], connection=None):
     space = connection.space("blocks")
     _block = space.select(block_id, index="block_search", limit=1)
     _block = _block.data[0]

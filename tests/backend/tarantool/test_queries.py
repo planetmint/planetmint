@@ -294,16 +294,19 @@ def test_get_spending_transactions_multiple_inputs():
 
 
 def test_store_block():
-    from planetmint.backend import connect, query
     from planetmint.lib import Block
-    conn = connect()
+    from planetmint.backend import connect
+    from planetmint.backend.tarantool import query
+
+    conn = connect().get_connection()
 
     block = Block(app_hash='random_utxo',
                   height=3,
                   transactions=[])
-    query.store_block(conn, block._asdict())
-    cursor = conn.db.blocks.find({}, projection={'_id': False})
-    assert cursor.collection.count_documents({}) == 1
+    query.store_block(connection=conn, block=block._asdict())
+    # block = query.get_block(connection=conn)
+    blocks = conn.space("blocks").select([])
+    assert len(blocks.data) == 1
 
 
 def test_get_block():
