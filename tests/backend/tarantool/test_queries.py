@@ -218,7 +218,6 @@ def test_get_owned_ids(signed_create_tx, user_pk):
 
     # insert a transaction
     query.store_transactions(connection=conn, signed_transactions=[signed_create_tx.to_dict()])
-    # TODO add back asset from assets space for function group_by_txids + meta_data field
     txns = list(query.get_owned_ids(connection=conn, owner=user_pk))
     tx_dict = signed_create_tx.to_dict()
     founded = [tx for tx in txns if tx["id"] == tx_dict["id"]]
@@ -226,9 +225,10 @@ def test_get_owned_ids(signed_create_tx, user_pk):
 
 
 def test_get_spending_transactions(user_pk, user_sk):
-    from planetmint.backend import connect, query
     from planetmint.models import Transaction
-    conn = connect()
+    from planetmint.backend import connect
+    from planetmint.backend.tarantool import query
+    conn = connect().get_connection()
 
     out = [([user_pk], 1)]
     tx1 = Transaction.create([user_pk], out * 3)
@@ -238,10 +238,10 @@ def test_get_spending_transactions(user_pk, user_sk):
     tx3 = Transaction.transfer([inputs[1]], out, tx1.id).sign([user_sk])
     tx4 = Transaction.transfer([inputs[2]], out, tx1.id).sign([user_sk])
     txns = [deepcopy(tx.to_dict()) for tx in [tx1, tx2, tx3, tx4]]
-    conn.db.transactions.insert_many(txns)
+    query.store_transactions(signed_transactions=txns, connection=conn)
 
     links = [inputs[0].fulfills.to_dict(), inputs[2].fulfills.to_dict()]
-    txns = list(query.get_spending_transactions(conn, links))
+    txns = list(query.get_spending_transactions(connection=conn, inputs=links))
 
     # tx3 not a member because input 1 not asked for
     assert txns == [tx2.to_dict(), tx4.to_dict()]
