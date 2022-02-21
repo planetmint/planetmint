@@ -11,7 +11,7 @@ There are many ways you can contribute to Planetmint.
 It includes several sub-projects.
 
 - `Planetmint Server <https://github.com/planetmint/planetmint>`_
-- `Planetmint Python Driver <https://github.com/planetmint/planetmint-driver>`_
+- `Planetmint Python Driver <https://github.com/planetmint/planetmint-driver-python>`_
 - `Planetmint JavaScript Driver <https://github.com/planetmint/js-bigchaindb-driver>`_
 - `Planetmint Java Driver <https://github.com/planetmint/java-bigchaindb-driver>`_
 - `cryptoconditions <https://github.com/planetmint/cryptoconditions>`_ (a Python package by us)
