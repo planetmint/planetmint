@@ -5,7 +5,8 @@
 # Code is Apache-2.0 and docs are CC-BY-4.0
 
 if [[ -n ${TOXENV} ]]; then
-  sudo apt-get install zsh-common
+  sudo apt-get update
+  sudo apt-get install zsh
 fi
 
 if [[ -z ${TOXENV} ]]; then
