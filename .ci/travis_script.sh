@@ -8,7 +8,6 @@
 set -e -x
 
 if [[ -n ${TOXENV} ]]; then
-  apt-get install -y zsh
   tox -e ${TOXENV}
 elif [[ ${PLANETMINT_CI_ABCI} == 'enable' ]]; then
   docker-compose exec planetmint pytest -v -m abci
