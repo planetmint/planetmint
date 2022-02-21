@@ -391,10 +391,10 @@ def delete_transactions(connection, txn_ids: list):
 
 def store_pre_commit_state(state: dict, connection):
     space = connection.space("pre_commits")
-    # precommit = space.select(state["height"], index="height_search", limit=1)
-    # unique_id = token_hex(8) if (len(_precommit.data) == 0) else _precommit.data[0][0]
-    space.upsert((state["commit_id"], state["height"], state["transactions"]),
-                 op_list=[('=', 0, state["id"]),
+    _precommit = space.select(state["height"], index="height_search", limit=1)
+    unique_id = token_hex(8) if (len(_precommit.data) == 0) else _precommit.data[0][0]
+    space.upsert((unique_id, state["height"], state["transactions"]),
+                 op_list=[('=', 0, unique_id),
                           ('=', 1, state["height"]),
                           ('=', 2, state["transactions"])],
                  limit=1)

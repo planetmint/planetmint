@@ -434,7 +434,7 @@ def test_store_pre_commit_state(db_context):
 
     query.store_pre_commit_state(connection=conn, state=state)
     commit = query.get_pre_commit_state(connection=conn)
-    assert len(list(commit)) == 1
+    assert len([commit]) == 1
 
     # cursor = db_context.conn.db.pre_commit.find({'commit_id': 'test'},
     # projection={'_id': False})
