@@ -493,12 +493,12 @@ def get_asset_tokens_for_public_key(connection, asset_id: str, public_key: str):
 
 
 # @register_query(LocalMongoDBConnection)
-def store_abci_chain(height: int, chain_id: str, connection, is_synced: bool = True):
+def store_abci_chain(connection, height: int, chain_id: str, is_synced: bool = True):
     space = connection.space("abci_chains")
-    space.upsert((height, chain_id, is_synced),
+    space.upsert((height, is_synced, chain_id),
                  op_list=[('=', 0, height),
-                          ('=', 1, chain_id),
-                          ('=', 2, is_synced)],
+                          ('=', 1, is_synced),
+                          ('=', 2, chain_id)],
                  limit=1)
 
 
@@ -513,6 +513,8 @@ def delete_abci_chain(connection, height: int):
 # @register_query(LocalMongoDBConnection)
 def get_latest_abci_chain(connection):
     space = connection.space("abci_chains")
-    _all_chains = space.select()
-    _chain = sorted(_all_chains.data, key=itemgetter(0))[0]
+    _all_chains = space.select().data
+    if len(_all_chains) == 0:
+        return None
+    _chain = sorted(_all_chains, key=itemgetter(0), reverse=True)[0]
     return {"height": _chain[0], "is_synced": _chain[1], "chain_id": _chain[2]}
