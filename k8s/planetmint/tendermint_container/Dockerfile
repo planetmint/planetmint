@@ -1,4 +1,4 @@
-FROM tendermint/tendermint:v0.34.11
+FROM tendermint/tendermint:v0.34.15
 LABEL maintainer "contact@ipdb.global"
 WORKDIR /
 USER root

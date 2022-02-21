@@ -1,7 +1,7 @@
 FROM alpine:3.9
 LABEL maintainer "contact@ipdb.global"
 
-ARG TM_VERSION=v0.34.11
+ARG TM_VERSION=v0.34.15
 RUN mkdir -p /usr/src/app
 ENV HOME /root
 COPY . /usr/src/app/

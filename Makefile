@@ -1,4 +1,4 @@
-.PHONY: help run start stop logs test test-unit test-unit-watch test-acceptance cov doc doc-acceptance clean reset release dist check-deps clean-build clean-pyc clean-test
+.PHONY: help run start stop logs lint test test-unit test-unit-watch test-acceptance test-integration cov docs docs-acceptance clean reset release dist check-deps clean-build clean-pyc clean-test
 
 .DEFAULT_GOAL := help
 
@@ -70,6 +70,9 @@ stop: check-deps ## Stop Planetmint
 logs: check-deps ## Attach to the logs
 	@$(DC) logs -f planetmint
 
+lint: check-deps ## Lint the project
+	@$(DC) up lint
+
 test: check-deps test-unit test-acceptance ## Run unit and acceptance tests
 
 test-unit: check-deps ## Run all tests once
@@ -82,21 +85,23 @@ test-unit-watch: check-deps ## Run all tests and wait. Every time you change cod
 test-acceptance: check-deps ## Run all acceptance tests
 	@./run-acceptance-test.sh
 
+test-integration: check-deps ## Run all integration tests
+	@./run-integration-test.sh
+
 cov: check-deps ## Check code coverage and open the result in the browser
 	@$(DC) run --rm planetmint pytest -v --cov=planetmint --cov-report html
 	$(BROWSER) htmlcov/index.html
 
-doc: check-deps ## Generate HTML documentation and open it in the browser
+docs: check-deps ## Generate HTML documentation and open it in the browser
 	@$(DC) run --rm --no-deps bdocs make -C docs/root html
-	@$(DC) run --rm --no-deps bdocs make -C docs/server html
-	@$(DC) run --rm --no-deps bdocs make -C docs/contributing html
 	$(BROWSER) docs/root/build/html/index.html
 
-doc-acceptance: check-deps ## Create documentation for acceptance tests
+docs-acceptance: check-deps ## Create documentation for acceptance tests
 	@$(DC) run --rm python-acceptance pycco -i -s /src -d /docs
 	$(BROWSER) acceptance/python/docs/index.html
 
-clean: clean-build clean-pyc clean-test ## Remove all build, test, coverage and Python artifacts
+clean: check-deps ## Remove all build, test, coverage and Python artifacts
+	@$(DC) up clean
 	@$(ECHO) "Cleaning was successful."
 
 reset: check-deps ## Stop and REMOVE all containers. WARNING: you will LOSE all data stored in Planetmint.
@@ -123,22 +128,3 @@ ifndef IS_DOCKER_COMPOSE_INSTALLED
 	@$(ECHO)
 	@$(DC) # docker-compose is not installed, so we call it to generate an error and exit
 endif
-
-clean-build: # Remove build artifacts
-	@rm -fr build/
-	@rm -fr dist/
-	@rm -fr .eggs/
-	@find . -name '*.egg-info' -exec rm -fr {} +
-	@find . -name '*.egg' -exec rm -f {} +
-
-clean-pyc: # Remove Python file artifacts
-	@find . -name '*.pyc' -exec rm -f {} +
-	@find . -name '*.pyo' -exec rm -f {} +
-	@find . -name '*~' -exec rm -f {} +
-	@find . -name '__pycache__' -exec rm -fr {} +
-
-clean-test: # Remove test and coverage artifacts
-	@find . -name '.pytest_cache' -exec rm -fr {} +
-	@rm -fr .tox/
-	@rm -f .coverage
-	@rm -fr htmlcov/

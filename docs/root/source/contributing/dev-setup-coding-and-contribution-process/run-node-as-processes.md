@@ -30,9 +30,9 @@ The version of Planetmint Server described in these docs only works well with Te
 
 ```bash
 $ sudo apt install -y unzip
-$ wget https://github.com/tendermint/tendermint/releases/download/v0.34.11/tendermint_v0.34.11_linux_amd64.zip
-$ unzip tendermint_v0.34.11_linux_amd64.zip
-$ rm tendermint_v0.34.11_linux_amd64.zip
+$ wget https://github.com/tendermint/tendermint/releases/download/v0.34.15/tendermint_v0.34.15_linux_amd64.zip
+$ unzip tendermint_v0.34.15_linux_amd64.zip
+$ rm tendermint_v0.34.15_linux_amd64.zip
 $ sudo mv tendermint /usr/local/bin
 ```
 
