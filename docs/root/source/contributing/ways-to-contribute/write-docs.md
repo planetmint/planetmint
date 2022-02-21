@@ -19,7 +19,7 @@ If you're writing code, you should also update any related docs. However, you mi
 You can certainly do that!
 
 - The docs for Planetmint Server live under ``planetmint/docs/`` in the ``planetmint/planetmint`` repo.
-- There are docs for the Python driver under ``planetmint-driver/docs/`` in the ``planetmint/planetmint-driver`` repo.
+- There are docs for the Python driver under ``planetmint-driver/docs/`` in the ``planetmint/planetmint-driver-python`` repo.
 - There are docs for the JavaScript driver under ``planetmint/js-bigchaindb-driver`` in the ``planetmint/js-bigchaindb-driver`` repo.
 - The source code for the Planetmint website is in a private repo, but we can give you access if you ask.
 
