@@ -464,11 +464,11 @@ def get_validator_set(connection, height: int = None):
     _validators = space.select()
     _validators = _validators.data
     if height is not None:
-        _validators = [{"height": validator[1]} for validator in _validators if validator[1] <= height]
-        return next(iter(sorted(_validators, key=lambda k: k["height"])), None)
+        _validators = [{"height": validator[1], "validators": validator[2]} for validator in _validators if validator[1] <= height]
+        return next(iter(sorted(_validators, key=lambda k: k["height"], reverse=True)), None)
     else:
         _validators = [{"height": validator[1], "validators": validator[2]} for validator in _validators]
-        return next(iter(sorted(_validators, key=lambda k: k["height"])), None)
+        return next(iter(sorted(_validators, key=lambda k: k["height"], reverse=True)), None)
 
 
 # @register_query(LocalMongoDBConnection)
