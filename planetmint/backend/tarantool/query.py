@@ -349,6 +349,7 @@ def delete_transactions(connection, txn_ids: list):
         for _outpID in _outputs:
             outputs_space.delete(_outpID[5], index="unique_search")
 
+
 # # @register_query(LocalMongoDBConnection)
 # def store_unspent_outputs(conn, *unspent_outputs: list):
 #     if unspent_outputs:
@@ -463,10 +464,12 @@ def get_validator_set(connection, height: int = None):
     _validators = space.select()
     _validators = _validators.data
     if height is not None:
-        _validators = [validator for validator in _validators if validator[1] <= height]
+        _validators = [{"height": validator[1], "validators": validator[2]} for validator in _validators if
+                       validator[1] <= height]
         return next(iter(sorted(_validators, key=itemgetter(1))), None)
-
-    return next(iter(sorted(_validators, key=itemgetter(1))), None)
+    else:
+        _validators = [{"height": validator[1], "validators": validator[2]} for validator in _validators]
+        return next(iter(sorted(_validators, key=itemgetter(1))), None)
 
 
 # @register_query(LocalMongoDBConnection)

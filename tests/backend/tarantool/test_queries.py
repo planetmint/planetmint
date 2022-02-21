@@ -451,31 +451,33 @@ def test_get_pre_commit_state(db_context):
         space.delete(pre[0])
     #  TODO First IN, First OUT
     state = dict(height=3, transactions=[])
-    # db_context.conn.db.pre_commit.insert_one(state)
+    # db_context.conn.db.pre_commit.insert_one
     query.store_pre_commit_state(state=state, connection=conn)
     resp = query.get_pre_commit_state(connection=conn)
     assert resp == state
 
 
 def test_validator_update():
-    from planetmint.backend import connect, query
+    from planetmint.backend import connect
+    from planetmint.backend.tarantool import query
 
-    conn = connect()
+    conn = connect().get_connection()
 
     def gen_validator_update(height):
-        return {'data': 'somedata', 'height': height, 'election_id': f'election_id_at_height_{height}'}
+        return {'validators': [], 'height': height, 'election_id': f'election_id_at_height_{height}'}
+        # return {'data': 'somedata', 'height': height, 'election_id': f'election_id_at_height_{height}'}
 
     for i in range(1, 100, 10):
         value = gen_validator_update(i)
-        query.store_validator_set(conn, value)
+        query.store_validator_set(connection=conn, validators_update=value)
 
-    v1 = query.get_validator_set(conn, 8)
+    v1 = query.get_validator_set(connection=conn, height=8)
     assert v1['height'] == 1
 
-    v41 = query.get_validator_set(conn, 50)
+    v41 = query.get_validator_set(connection=conn, height=50)
     assert v41['height'] == 41
 
-    v91 = query.get_validator_set(conn)
+    v91 = query.get_validator_set(connection=conn)
     assert v91['height'] == 91
 
 
@@ -518,7 +520,10 @@ def test_validator_update():
     ),
 ])
 def test_store_abci_chain(description, stores, expected):
-    conn = connect()
+    from planetmint.backend import connect
+    from planetmint.backend.tarantool import query
+
+    conn = connect().get_connection()
 
     for store in stores:
         query.store_abci_chain(conn, **store)
