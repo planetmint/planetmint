@@ -407,7 +407,7 @@ def get_pre_commit_state(connection) -> dict:
     if len(_commit) == 0:
         return {}
     _commit = _commit[0]
-    return {"height": _commit[0], "transactions": _commit[1]}
+    return {"height": _commit[1], "transactions": _commit[2]}
 
 
 # @register_query(LocalMongoDBConnection)

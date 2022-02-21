@@ -441,11 +441,19 @@ def test_store_pre_commit_state(db_context):
 
 
 def test_get_pre_commit_state(db_context):
-    from planetmint.backend import query
+    from planetmint.backend import connect
+    from planetmint.backend.tarantool import query
 
+    conn = connect().get_connection()
+    space = conn.space("pre_commits")
+    all_pre = space.select([])
+    for pre in all_pre.data:
+        space.delete(pre[0])
+    #  TODO First IN, First OUT
     state = dict(height=3, transactions=[])
-    db_context.conn.db.pre_commit.insert_one(state)
-    resp = query.get_pre_commit_state(db_context.conn)
+    # db_context.conn.db.pre_commit.insert_one(state)
+    query.store_pre_commit_state(state=state, connection=conn)
+    resp = query.get_pre_commit_state(connection=conn)
     assert resp == state
 
 
