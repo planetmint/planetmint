@@ -349,66 +349,65 @@ def delete_transactions(connection, txn_ids: list):
         for _outpID in _outputs:
             outputs_space.delete(_outpID[5], index="unique_search")
 
+# # @register_query(LocalMongoDBConnection)
+# def store_unspent_outputs(conn, *unspent_outputs: list):
+#     if unspent_outputs:
+#         try:
+#             return conn.run(
+#                 conn.collection('utxos').insert_many(
+#                     unspent_outputs,
+#                     ordered=False,
+#                 )
+#             )
+#         except DuplicateKeyError:
+#             # TODO log warning at least
+#             pass
+#
+#
+# # @register_query(LocalMongoDBConnection)
+# def delete_unspent_outputs(conn, *unspent_outputs: list):
+#     if unspent_outputs:
+#         return conn.run(
+#             conn.collection('utxos').delete_many({
+#                 '$or': [{
+#                     '$and': [
+#                         {'transaction_id': unspent_output['transaction_id']},
+#                         {'output_index': unspent_output['output_index']},
+#                     ],
+#                 } for unspent_output in unspent_outputs]
+#             })
+#         )
+#
+#
+# # @register_query(LocalMongoDBConnection)
+# def get_unspent_outputs(conn, *, query=None):
+#     if query is None:
+#         query = {}
+#     return conn.run(conn.collection('utxos').find(query,
+#                                                   projection={'_id': False}))
+
 
 # @register_query(LocalMongoDBConnection)
-def store_unspent_outputs(conn, *unspent_outputs: list):
-    if unspent_outputs:
-        try:
-            return conn.run(
-                conn.collection('utxos').insert_many(
-                    unspent_outputs,
-                    ordered=False,
-                )
-            )
-        except DuplicateKeyError:
-            # TODO log warning at least
-            pass
 
-
-# @register_query(LocalMongoDBConnection)
-def delete_unspent_outputs(conn, *unspent_outputs: list):
-    if unspent_outputs:
-        return conn.run(
-            conn.collection('utxos').delete_many({
-                '$or': [{
-                    '$and': [
-                        {'transaction_id': unspent_output['transaction_id']},
-                        {'output_index': unspent_output['output_index']},
-                    ],
-                } for unspent_output in unspent_outputs]
-            })
-        )
-
-
-# @register_query(LocalMongoDBConnection)
-def get_unspent_outputs(conn, *, query=None):
-    if query is None:
-        query = {}
-    return conn.run(conn.collection('utxos').find(query,
-                                                  projection={'_id': False}))
-
-
-# @register_query(LocalMongoDBConnection)
 def store_pre_commit_state(state: dict, connection):
     space = connection.space("pre_commits")
-    _precommit = space.select(state["height"], index="height_search", limit=1)
-    unique_id = token_hex(8) if (len(_precommit.data) == 0) else _precommit.data[0][0]
-    space.upsert((unique_id, state["height"], state["transactions"]),
-                 op_list=[('=', 0, unique_id),
+    # precommit = space.select(state["height"], index="height_search", limit=1)
+    # unique_id = token_hex(8) if (len(_precommit.data) == 0) else _precommit.data[0][0]
+    space.upsert((state["commit_id"], state["height"], state["transactions"]),
+                 op_list=[('=', 0, state["id"]),
                           ('=', 1, state["height"]),
                           ('=', 2, state["transactions"])],
                  limit=1)
 
 
 # @register_query(LocalMongoDBConnection)
-def get_pre_commit_state(connection):
-    space = connection.space("pre_commit_tx")
-    _commits_tx = space.select(limit=1)
-    _commits_tx = _commits_tx.data
+def get_pre_commit_state(connection) -> dict:
     space = connection.space("pre_commits")
-    _commit = space.select(_commits_tx[0][1], index="id_search")
-    _commit = _commit.data[0]
-    return {"height": _commit[0], "transactions": [_cmt[0] for _cmt in _commits_tx]}
+    _commit = space.select([], index="id_search", limit=1).data
+    if len(_commit) == 0:
+        return {}
+    _commit = _commit[0]
+    return {"height": _commit[0], "transactions": _commit[1]}
 
 
 # @register_query(LocalMongoDBConnection)

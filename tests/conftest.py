@@ -510,8 +510,8 @@ def unspent_outputs(unspent_output_0, unspent_output_1, unspent_output_2):
 
 
 @pytest.fixture
-def mongo_client(db_context):
-    return MongoClient(host=db_context.host, port=db_context.port)
+def mongo_client(db_context):  # TODO Here add TarantoolConnectionClass
+    return None  # MongoClient(host=db_context.host, port=db_context.port)
 
 
 @pytest.fixture

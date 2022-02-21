@@ -1,5 +1,3 @@
-box.cfg{listen = 3301}
-
 abci_chains = box.schema.space.create('abci_chains',{engine = 'memtx' , is_sync = false})
 abci_chains:format({{name='height' , type='integer'},{name='is_synched' , type='boolean'},{name='chain_id',type='string'}})
 abci_chains:create_index('id_search' ,{type='hash', parts={'chain_id'}})
