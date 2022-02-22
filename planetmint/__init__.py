@@ -55,6 +55,12 @@ config = {
             log_config['handlers']['console']['level']).lower(),
         'workers': None,  # if None, the value will be cpu_count * 2 + 1
     },
+    "ctl_config": {
+        "login": "admin",
+        "host": "admin:pass@127.0.0.1:3301",
+        "service": "tarantoolctl connect",
+        "init_file": "init_db.txt"
+    },
     'wsserver': {
         'scheme': 'ws',
         'host': 'localhost',

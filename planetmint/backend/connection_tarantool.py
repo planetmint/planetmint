@@ -11,7 +11,6 @@ import tarantool
 
 import os
 import pathlib
-from time import sleep
 
 from planetmint.backend.tarantool.utils import run
 
@@ -27,36 +26,29 @@ BACKENDS = {  # This is path to MongoDBClass
 logger = logging.getLogger(__name__)
 
 
-def init_tarantool():
-    init_lua_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "tarantool", "init_db.lua")
-    tarantool_root = os.path.join(pathlib.Path.home(), 'tarantool')
-    snap = os.path.join(pathlib.Path.home(), 'tarantool_snap')
-    if os.path.exists(tarantool_root) is not True:
-        run(["mkdir", tarantool_root])
-        run(["mkdir", snap])
-        run(["tarantool", init_lua_path], tarantool_root)
-    else:
-        raise Exception("There is a instance of tarantool already created in %s" + snap)
-
-
-def drop_tarantool():
-    drop_lua_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "tarantool", "drop_db.lua")
-    tarantool_root = os.path.join(pathlib.Path.home(), 'tarantool')
-    init_lua = os.path.join(tarantool_root, 'init_db.lua')
-    if os.path.exists(init_lua) is not True:
-        run(["tarantool", drop_lua_path])
-    else:
-        raise Exception("There is no tarantool spaces to drop")
-
-
 class TarantoolDB:
-    def __init__(self, host: str, port: int, user: str, password: str):
-        # init_tarantool()
+    def __init__(self, host: str, port: int, user: str, password: str, reset_database: bool = False):
+        if reset_database:
+            self.init_database()
         self.db_connect = None
         self.db_connect = tarantool.connect(host=host, port=port, user=user, password=password)
 
+    def __init_tarantool(self):
+        from planetmint.backend.tarantool.utils import run
+        config = get_planetmint_config_value_or_key_error("ctl_config")
+        with open(config["init_file"], 'r') as file:
+            commands = [line + '\n' for line in file.readlines() if len(str(line)) > 1]
+            file.close()
+        run(commands=commands, config=config)
+
+    def __drop_tarantool(self):
+        pass
+
     def get_connection(self):
         return self.db_connect
+
+    def init_database(self):
+        pass
 
 
 def connect(host: str = None, port: int = None, username: str = "admin", password: str = "pass", backend: str = None):
