@@ -8,13 +8,8 @@ from importlib import import_module
 from itertools import repeat
 
 import tarantool
-
-import os
-import pathlib
-
-from planetmint.backend.tarantool.utils import run
-
 import planetmint
+
 from planetmint.backend.exceptions import ConnectionError
 from planetmint.backend.utils import get_planetmint_config_value, get_planetmint_config_value_or_key_error
 from planetmint.common.exceptions import ConfigurationError
@@ -29,29 +24,37 @@ logger = logging.getLogger(__name__)
 class TarantoolDB:
     def __init__(self, host: str, port: int, user: str, password: str, reset_database: bool = False):
         if reset_database:
+            self.drop_database()
             self.init_database()
         self.db_connect = None
         self.db_connect = tarantool.connect(host=host, port=port, user=user, password=password)
 
-    def __init_tarantool(self):
+    def get_connection(self, space_name: str = None):
+        return self.db_connect if space_name is None else self.db_connect.space(space_name)
+
+    def __read_commands(self, file_path):
+        with open(file_path, "r") as cmd_file:
+            commands = [line + '\n' for line in cmd_file.readlines() if len(str(line)) > 1]
+            cmd_file.close()
+        return commands
+
+    def drop_database(self):
         from planetmint.backend.tarantool.utils import run
-        config = get_planetmint_config_value_or_key_error("ctl_config")
-        with open(config["init_file"], 'r') as file:
-            commands = [line + '\n' for line in file.readlines() if len(str(line)) > 1]
-            file.close()
+        config = get_planetmint_config_value_or_key_error("ctl_config")["drop_config"]
+        f_path = "%s%s" % (config["relative_path"], config["drop_file"])
+        commands = self.__read_commands(file_path=f_path)
         run(commands=commands, config=config)
 
-    def __drop_tarantool(self):
-        pass
-
-    def get_connection(self):
-        return self.db_connect
-
     def init_database(self):
-        pass
+        from planetmint.backend.tarantool.utils import run
+        config = get_planetmint_config_value_or_key_error("ctl_config")["init_config"]
+        f_path = "%s%s" % (config["relative_path"], config["init_file"])
+        commands = self.__read_commands(file_path=f_path)
+        run(commands=commands, config=config)
 
 
-def connect(host: str = None, port: int = None, username: str = "admin", password: str = "pass", backend: str = None):
+def connect(host: str = None, port: int = None, username: str = "admin", password: str = "pass",
+            backend: str = None):
     backend = backend or get_planetmint_config_value_or_key_error('backend')  # TODO Rewrite Configs
     host = host or get_planetmint_config_value_or_key_error('host')
     port = port or get_planetmint_config_value_or_key_error('port')

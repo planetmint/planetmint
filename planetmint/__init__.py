@@ -46,6 +46,16 @@ _database_map = {
     'tarantool_db': _database_tarantool,
 }
 
+init_config = {
+    "init_file": "init_db.txt",
+    "relative_path": "backend/tarantool/"
+}
+
+drop_config = {
+    "drop_file": "drop_db.txt",
+    "relative_path": "backend/tarantool/"
+}
+
 config = {
     'server': {
         # Note: this section supports all the Gunicorn settings:
@@ -59,7 +69,8 @@ config = {
         "login": "admin",
         "host": "admin:pass@127.0.0.1:3301",
         "service": "tarantoolctl connect",
-        "init_file": "init_db.txt"
+        "init_config": init_config,
+        "drop_config": drop_config
     },
     'wsserver': {
         'scheme': 'ws',
@@ -96,7 +107,7 @@ config = {
 # for more info.
 _config = copy.deepcopy(config)  # TODO Check what to do with those imports
 from planetmint.common.transaction import Transaction  # noqa
-from planetmint import models                          # noqa
+from planetmint import models  # noqa
 from planetmint.upsert_validator import ValidatorElection  # noqa
 from planetmint.elections.vote import Vote  # noqa
 
