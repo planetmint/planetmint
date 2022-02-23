@@ -5,6 +5,7 @@
 
 import copy
 import logging
+import os
 
 from planetmint.log import DEFAULT_LOGGING_CONFIG as log_config
 from planetmint.lib import Planetmint  # noqa
@@ -35,12 +36,12 @@ _base_database_tarantool_local_db = {  # TODO Rewrite this configs for tarantool
 }
 init_config = {
     "init_file": "init_db.txt",
-    "relative_path": "backend/tarantool/"
+    "relative_path": os.path.dirname(os.path.abspath(__file__)) + "/backend/tarantool/"
 }
 
 drop_config = {
-    "drop_file": "drop_db.txt",
-    "relative_path": "backend/tarantool/"
+    "drop_file": "drop_db.txt",  # planetmint/backend/tarantool/init_db.txt
+    "relative_path": os.path.dirname(os.path.abspath(__file__)) + "/backend/tarantool/"
 }
 _database_tarantool = {
     'backend': 'tarantool_db',

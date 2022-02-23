@@ -1,23 +1,23 @@
-abci_chains:drop()
+box.space.abci_chains.drop()
 
-assets:drop()
+box.space.assets.drop()
 
-blocks:drop()
+box.space.blocks.drop()
 
-blocks_tx:drop()
+box.space.blocks_tx.drop()
 
-elections:drop()
+box.space.elections.drop()
 
-meta_datas:drop()
+box.space.meta_datas.drop()
 
-pre_commits:drop()
+box.space.pre_commits.drop()
 
-validators:drop()
+box.space.validators.drop()
 
-transactions:drop()
+box.space.transactions.drop()
 
-inputs:drop()
+box.space.inputs.drop()
 
-outputs:drop()
+box.space.outputs.drop()
 
-keys:drop()
+box.space.keys.drop()

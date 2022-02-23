@@ -40,15 +40,17 @@ class TarantoolDB:
 
     def drop_database(self):
         from planetmint.backend.tarantool.utils import run
-        config = get_planetmint_config_value_or_key_error("ctl_config")["drop_config"]
-        f_path = "%s%s" % (config["relative_path"], config["drop_file"])
+        config = get_planetmint_config_value_or_key_error("ctl_config")
+        drop_config = config["drop_config"]
+        f_path = "%s%s" % (drop_config["relative_path"], drop_config["drop_file"])
         commands = self.__read_commands(file_path=f_path)
         run(commands=commands, config=config)
 
     def init_database(self):
         from planetmint.backend.tarantool.utils import run
-        config = get_planetmint_config_value_or_key_error("ctl_config")["init_config"]
-        f_path = "%s%s" % (config["relative_path"], config["init_file"])
+        config = get_planetmint_config_value_or_key_error("ctl_config")
+        init_config = config["init_config"]
+        f_path = "%s%s" % (init_config["relative_path"], init_config["init_file"])
         commands = self.__read_commands(file_path=f_path)
         run(commands=commands, config=config)
 
