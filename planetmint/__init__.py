@@ -33,15 +33,6 @@ _base_database_tarantool_local_db = {  # TODO Rewrite this configs for tarantool
     "connect_now": True,
     "encoding": "utf-8"
 }
-
-_database_tarantool = {
-    'backend': 'tarantool_db',
-    'connection_timeout': 5000,
-    'max_tries': 3,
-    "reconnect_delay": 0.5
-}
-_database_tarantool.update(_base_database_tarantool_local_db)
-
 init_config = {
     "init_file": "init_db.txt",
     "relative_path": "backend/tarantool/"
@@ -51,15 +42,24 @@ drop_config = {
     "drop_file": "drop_db.txt",
     "relative_path": "backend/tarantool/"
 }
-_database_map = {
-    'tarantool_db': _database_tarantool,
+_database_tarantool = {
+    'backend': 'tarantool_db',
+    'connection_timeout': 5000,
+    'max_tries': 3,
+    "reconnect_delay": 0.5,
     "ctl_config": {
         "login": "admin",
         "host": "admin:pass@127.0.0.1:3301",
         "service": "tarantoolctl connect",
         "init_config": init_config,
         "drop_config": drop_config
-    },
+    }
+}
+_database_tarantool.update(_base_database_tarantool_local_db)
+
+
+_database_map = {
+    'tarantool_db': _database_tarantool
 }
 config = {
     'server': {
