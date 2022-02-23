@@ -42,10 +42,6 @@ _database_tarantool = {
 }
 _database_tarantool.update(_base_database_tarantool_local_db)
 
-_database_map = {
-    'tarantool_db': _database_tarantool,
-}
-
 init_config = {
     "init_file": "init_db.txt",
     "relative_path": "backend/tarantool/"
@@ -55,7 +51,16 @@ drop_config = {
     "drop_file": "drop_db.txt",
     "relative_path": "backend/tarantool/"
 }
-
+_database_map = {
+    'tarantool_db': _database_tarantool,
+    "ctl_config": {
+        "login": "admin",
+        "host": "admin:pass@127.0.0.1:3301",
+        "service": "tarantoolctl connect",
+        "init_config": init_config,
+        "drop_config": drop_config
+    },
+}
 config = {
     'server': {
         # Note: this section supports all the Gunicorn settings:
@@ -64,13 +69,6 @@ config = {
         'loglevel': logging.getLevelName(
             log_config['handlers']['console']['level']).lower(),
         'workers': None,  # if None, the value will be cpu_count * 2 + 1
-    },
-    "ctl_config": {
-        "login": "admin",
-        "host": "admin:pass@127.0.0.1:3301",
-        "service": "tarantoolctl connect",
-        "init_config": init_config,
-        "drop_config": drop_config
     },
     'wsserver': {
         'scheme': 'ws',

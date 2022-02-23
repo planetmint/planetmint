@@ -113,7 +113,7 @@ def _configure_planetmint(request):
 
 @pytest.fixture(scope='session')
 def _setup_database(_configure_planetmint):  # TODO Here is located setup database
-    from planetmint.backend.connection_tarantool import init_tarantool, drop_tarantool
+    # from planetmint.backend.connection_tarantool import init_tarantool, drop_tarantool
     # print('Initializing test db')
     # init_tarantool()
     # print('Finishing init database')

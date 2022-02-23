@@ -18,7 +18,7 @@ def test_get_txids_filtered(signed_create_tx, signed_transfer_tx):
     from planetmint.backend import connect
     from planetmint.backend.tarantool import query
     from planetmint.models import Transaction
-    conn = connect().get_connection()
+    conn = connect(reset_database=True).get_connection()
     # create and insert two blocks, one for the create and one for the
     # transfer transaction
     create_tx_dict = signed_create_tx.to_dict()
