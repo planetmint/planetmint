@@ -54,7 +54,7 @@ class TarantoolDB:
 
 
 def connect(host: str = None, port: int = None, username: str = "admin", password: str = "pass",
-            backend: str = None):
+            backend: str = None, reset_database: bool = False):
     backend = backend or get_planetmint_config_value_or_key_error('backend')  # TODO Rewrite Configs
     host = host or get_planetmint_config_value_or_key_error('host')
     port = port or get_planetmint_config_value_or_key_error('port')
@@ -71,7 +71,7 @@ def connect(host: str = None, port: int = None, username: str = "admin", passwor
         raise ConfigurationError('Error loading backend `{}`'.format(backend)) from exc
 
     logger.debug('Connection: {}'.format(Class))
-    return Class(host=host, port=port, user=username, password=password)
+    return Class(host=host, port=port, user=username, password=password, reset_database=reset_database)
 
 
 class Connection:
