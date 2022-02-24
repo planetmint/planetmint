@@ -16,4 +16,30 @@ nohup mongod --bind_ip_all > "$HOME/.planetmint-monit/logs/mongodb_log_$(date +%
 # Tendermint configuration
 tendermint init
 
+sleep 1
+
+NODE_ID=$(tendermint show_node_id | tail -n 1)
+
+if [ ! -f "/shared/${ME}_node_id" ]; then
+    touch /shared/${ME}_node_id
+fi
+
+echo $NODE_ID > /shared/${ME}_node_id
+cp /tendermint/config/genesis.json /shared/${ME}_genesis.json
+
+for i in $(seq 3); do
+    if [ -f "/shared/${OTHER}_node_id" ]; then
+        OTHER_NODE_ID=$(cat /shared/${OTHER}_node_id)
+        PEERS=$(echo "persistent_peers = \"${NODE_ID}@${ME}:26656, ${OTHER_NODE_ID}@${OTHER}:26656\"")
+        sed -i "/persistent_peers = \"\"/c\\${PEERS}" /tendermint/config/config.toml
+        break
+    else
+        sleep 1
+    fi
+done
+
+/usr/src/app/scripts/genesis.py
+
+cp /shared/planetmint_1_genesis.json /tendermint/config/genesis.json 
+
 monit -d 5 -I -B

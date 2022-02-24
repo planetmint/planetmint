@@ -111,7 +111,11 @@ case \$1 in
 
     pushd \$4
 
-      nohup tendermint node >> \$3/tendermint.out.log 2>> \$3/tendermint.err.log &
+      nohup tendermint node \
+           --p2p.laddr "tcp://0.0.0.0:26656" \
+           --proxy_app="tcp://0.0.0.0:26658" \
+           --consensus.create_empty_blocks=false \
+           --p2p.pex=false >> \$3/tendermint.out.log 2>> \$3/tendermint.err.log &
 
       echo \$! > \$2
     popd

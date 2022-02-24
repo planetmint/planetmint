@@ -1,0 +1,44 @@
+# Copyright © 2020 Interplanetary Database Association e.V.,
+# Planetmint and IPDB software contributors.
+# SPDX-License-Identifier: (Apache-2.0 AND CC-BY-4.0)
+# Code is Apache-2.0 and docs are CC-BY-4.0
+
+version: '2.2'
+
+services:
+  planetmint_1:
+    build:
+      context: .
+      dockerfile: Dockerfile-all-in-one
+    expose:
+      - "9984"
+      - "9985"
+      - "26656"
+      - "26657"
+      - "26658"
+    environment:
+      ME: "planetmint_1"
+      OTHER: "planetmint_2"
+    volumes:
+      - ./scripts/genesis.py:/usr/src/app/scripts/genesis.py
+      - shared:/shared
+
+  planetmint_2:
+    build:
+      context: .
+      dockerfile: Dockerfile-all-in-one
+    expose:
+      - "9984"
+      - "9985"
+      - "26656"
+      - "26657"
+      - "26658"
+    environment:
+      ME: "planetmint_2"
+      OTHER: "planetmint_1"
+    volumes:
+      - ./scripts/genesis.py:/usr/src/app/scripts/genesis.py
+      - shared:/shared
+
+volumes:
+  shared:
