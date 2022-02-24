@@ -19,6 +19,7 @@ services:
     environment:
       ME: "planetmint_1"
       OTHER: "planetmint_2"
+    command: /usr/src/app/pkg/scripts/all-in-one.bash
     volumes:
       - ./scripts/genesis.py:/usr/src/app/scripts/genesis.py
       - shared:/shared
@@ -36,9 +37,22 @@ services:
     environment:
       ME: "planetmint_2"
       OTHER: "planetmint_1"
+    command: /usr/src/app/pkg/scripts/all-in-one.bash
     volumes:
       - ./scripts/genesis.py:/usr/src/app/scripts/genesis.py
       - shared:/shared
+
+  test:
+    build:
+      context: .
+      dockerfile: integration/python/Dockerfile
+    environment:
+      PLANETMINT_ENDPOINT_1: planetmint_1
+      PLANETMINT_ENDPOINT_2: planetmint_2
+    command: pytest /src
+    volumes:
+      - ./integration/python/src:/src
+
 
 volumes:
   shared:
