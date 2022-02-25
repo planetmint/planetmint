@@ -9,7 +9,8 @@ from functools import singledispatch
 import logging
 
 import planetmint
-from planetmint.backend.connection import connect
+from planetmint.backend.connection import connect as connect_mongo
+from planetmint.backend.connection_tarantool import connect
 from planetmint.common.exceptions import ValidationError
 from planetmint.common.utils import validate_all_values_for_key_in_obj, validate_all_values_for_key_in_list
 

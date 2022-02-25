@@ -26,7 +26,7 @@ import planetmint
 from planetmint import (backend, ValidatorElection,
                         Planetmint)
 from planetmint.backend import schema
-from planetmint.backend.tarantool import tarantool
+from planetmint.backend import tarantool
 from planetmint.commands import utils
 from planetmint.commands.utils import (configure_planetmint,
                                        input_on_stderr)
@@ -291,7 +291,7 @@ def run_start(args):
     from planetmint.start import start
     start(args)
 
-
+    
 def run_tendermint_version(args):
     """Show the supported Tendermint version(s)"""
     supported_tm_ver = {
@@ -318,12 +318,12 @@ def create_parser():
                                           help='Prepare the config file.')
 
     config_parser.add_argument('backend',
-                               choices=['localmongodb'],
-                               default='localmongodb',
-                               const='localmongodb',
+                               choices=['tarantool_db'],
+                               default='tarantool_db',
+                               const='tarantool_db',
                                nargs='?',
                                help='The backend to use. It can only be '
-                               '"localmongodb", currently.')
+                               '"tarantool_db", currently.')
 
     # parser for managing elections
     election_parser = subparsers.add_parser('election',

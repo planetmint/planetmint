@@ -54,13 +54,15 @@ class TarantoolDB:
         commands = self.__read_commands(file_path=f_path)
         run(commands=commands, config=config)
 
-
 def connect(host: str = None, port: int = None, username: str = "admin", password: str = "pass",
-            backend: str = None, reset_database: bool = False):
+            backend: str = None, reset_database: bool = False, name=None, max_tries=None,
+            connection_timeout=None, replicaset=None, ssl=None, login: str = "admin", ctl_config=None,
+            ca_cert=None, certfile=None, keyfile=None, keyfile_passphrase=None, reconnect_delay=None,
+            crlfile=None, connect_now=True, encoding=None):
     backend = backend or get_planetmint_config_value_or_key_error('backend')  # TODO Rewrite Configs
     host = host or get_planetmint_config_value_or_key_error('host')
     port = port or get_planetmint_config_value_or_key_error('port')
-    username = username or get_planetmint_config_value('login')
+    username = username or login or get_planetmint_config_value('login')
     password = password or get_planetmint_config_value('password')
 
     try:  # Here we get class using getattr function
