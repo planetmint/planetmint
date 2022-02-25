@@ -23,18 +23,18 @@ logger = logging.getLogger(__name__)
 
 class TarantoolDB:
     def __init__(self, host: str, port: int, user: str, password: str, reset_database: bool = False):
+        self.db_connect = tarantool.connect(host=host, port=port, user=user, password=password)
         if reset_database:
             self.drop_database()
             self.init_database()
-        self.db_connect = None
-        self.db_connect = tarantool.connect(host=host, port=port, user=user, password=password)
+            test_conn = self.db_connect.space("transactions")
 
     def get_connection(self, space_name: str = None):
         return self.db_connect if space_name is None else self.db_connect.space(space_name)
 
     def __read_commands(self, file_path):
         with open(file_path, "r") as cmd_file:
-            commands = [line + '\n' for line in cmd_file.readlines() if len(str(line)) > 1]
+            commands = [line.strip() for line in cmd_file.readlines() if len(str(line)) > 1]
             cmd_file.close()
         return commands
 

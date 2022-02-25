@@ -23,6 +23,7 @@ def test_get_txids_filtered(signed_create_tx, signed_transfer_tx):
     # transfer transaction
     create_tx_dict = signed_create_tx.to_dict()
     transfer_tx_dict = signed_transfer_tx.to_dict()
+
     query.store_transactions(signed_transactions=[create_tx_dict], connection=conn)
     query.store_transactions(signed_transactions=[transfer_tx_dict], connection=conn)
 
@@ -83,8 +84,6 @@ def test_get_assets():
 
 @pytest.mark.parametrize('table', ['assets', 'metadata'])
 def test_text_search(table):
-    from planetmint.backend import connect, query
-    conn = connect()
     assert "PASS FOR NOW"
 
     # # Example data and tests cases taken from the mongodb documentation
