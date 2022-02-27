@@ -71,7 +71,14 @@ def test_multiple_owners():
 
     # Let's retrieve the transaction from both nodes
     pm_itest1_tx = pm_itest1.transactions.retrieve(dw_id)
-    pm_itest2_tx = pm_itest2.transactions.retrieve(dw_id)
+    pm_itest2_tx = {}
+    # TODO: REPLACE WITH ASYNC OR POLL
+    try:
+        pm_itest2_tx = pm_itest2.transactions.retrieve(dw_id)
+    except NotFoundError:
+        print('TOO FAST')
+        time.sleep(3)
+        pm_itest2_tx = pm_itest2.transactions.retrieve(dw_id)
 
     # Both retrieved transactions should be the same
     assert pm_itest1_tx == pm_itest2_tx

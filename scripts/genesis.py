@@ -21,7 +21,7 @@ def edit_genesis() -> None:
         file.close()
         other_file.close()
 
-        with open(os.path.join('/shared', file_name), 'w') as f:
+        with open(os.path.join('/shared', 'genesis.json'), 'w') as f:
             json.dump(genesis, f, indent=True)
 
     return None

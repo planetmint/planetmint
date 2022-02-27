@@ -113,6 +113,7 @@ case \$1 in
 
       nohup tendermint node \
            --p2p.laddr "tcp://0.0.0.0:26656" \
+           --rpc.laddr "tcp://0.0.0.0:26657" \
            --proxy_app="tcp://0.0.0.0:26658" \
            --consensus.create_empty_blocks=false \
            --p2p.pex=false >> \$3/tendermint.out.log 2>> \$3/tendermint.err.log &

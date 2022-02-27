@@ -18,14 +18,15 @@ tendermint init
 
 sleep 1
 
+# Write node id to shared folder
 NODE_ID=$(tendermint show_node_id | tail -n 1)
-
-if [ ! -f "/shared/${ME}_node_id" ]; then
-    touch /shared/${ME}_node_id
-fi
-
 echo $NODE_ID > /shared/${ME}_node_id
+
+# Copy genesis.json to shared folder
 cp /tendermint/config/genesis.json /shared/${ME}_genesis.json
+
+# Await config file of all services to be present
+/usr/src/app/scripts/wait-for-config.sh
 
 for i in $(seq 3); do
     if [ -f "/shared/${OTHER}_node_id" ]; then
@@ -38,8 +39,16 @@ for i in $(seq 3); do
     fi
 done
 
+# Create genesis.json for nodes
 /usr/src/app/scripts/genesis.py
 
-cp /shared/planetmint_1_genesis.json /tendermint/config/genesis.json 
+while [ ! -f /shared/genesis.json ]; do
+    echo "WAIT FOR GENESIS"
+    sleep 1
+done
 
+# Copy genesis.json to tendermint config
+cp /shared/genesis.json /tendermint/config/genesis.json
+
+# Start services
 monit -d 5 -I -B

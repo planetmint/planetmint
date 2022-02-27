@@ -19,9 +19,12 @@ services:
     environment:
       ME: "planetmint_1"
       OTHER: "planetmint_2"
-    command: /usr/src/app/pkg/scripts/all-in-one.bash
+    command: ["/usr/src/app/scripts/clean-shared.sh", "/usr/src/app/pkg/scripts/all-in-one.bash"]
     volumes:
       - ./scripts/genesis.py:/usr/src/app/scripts/genesis.py
+      - ./scripts/clean-shared.sh:/usr/src/app/scripts/clean-shared.sh
+      - ./scripts/wait-for-config.sh:/usr/src/app/scripts/wait-for-config.sh
+      - ./pkg/scripts/all-in-one.bash:/usr/src/app/scripts/all-in-one.bash
       - shared:/shared
 
   planetmint_2:
@@ -40,18 +43,25 @@ services:
     command: /usr/src/app/pkg/scripts/all-in-one.bash
     volumes:
       - ./scripts/genesis.py:/usr/src/app/scripts/genesis.py
+      - ./scripts/clean-shared.sh:/usr/src/app/scripts/clean-shared.sh
+      - ./scripts/wait-for-config.sh:/usr/src/app/scripts/wait-for-config.sh
+      - ./pkg/scripts/all-in-one.bash:/usr/src/app/scripts/all-in-one.bash
       - shared:/shared
 
   test:
     build:
       context: .
       dockerfile: integration/python/Dockerfile
+    depends_on:
+      - planetmint_1
+      - planetmint_2
     environment:
       PLANETMINT_ENDPOINT_1: planetmint_1
       PLANETMINT_ENDPOINT_2: planetmint_2
-    command: pytest /src
+    command: ["/scripts/wait-for-planetmint.sh", "pytest", "/src"]
     volumes:
       - ./integration/python/src:/src
+      - ./scripts/wait-for-planetmint.sh:/scripts/wait-for-planetmint.sh
 
 
 volumes:
