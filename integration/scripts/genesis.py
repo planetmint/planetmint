@@ -2,6 +2,7 @@
 import json
 import os
 
+# TODO: CHANGE ME/OTHER VARIABLES
 def edit_genesis() -> None:
     ME = os.getenv('ME')
     OTHER = os.getenv('OTHER')

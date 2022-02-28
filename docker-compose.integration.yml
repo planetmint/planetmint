@@ -11,6 +11,7 @@ services:
       context: .
       dockerfile: Dockerfile-all-in-one
     expose:
+      - "22"
       - "9984"
       - "9985"
       - "26656"
@@ -19,11 +20,12 @@ services:
     environment:
       ME: "planetmint_1"
       OTHER: "planetmint_2"
-    command: ["/usr/src/app/scripts/clean-shared.sh", "/usr/src/app/pkg/scripts/all-in-one.bash"]
+    command: ["/usr/src/app/scripts/clean-shared.sh", "/usr/src/app/scripts/pre-config.sh", "/usr/src/app/pkg/scripts/all-in-one.bash"]
     volumes:
-      - ./scripts/genesis.py:/usr/src/app/scripts/genesis.py
-      - ./scripts/clean-shared.sh:/usr/src/app/scripts/clean-shared.sh
-      - ./scripts/wait-for-config.sh:/usr/src/app/scripts/wait-for-config.sh
+      - ./integration/scripts/genesis.py:/usr/src/app/scripts/genesis.py
+      - ./integration/scripts/clean-shared.sh:/usr/src/app/scripts/clean-shared.sh
+      - ./integration/scripts/wait-for-config.sh:/usr/src/app/scripts/wait-for-config.sh
+      - ./integration/scripts/pre-config.sh:/usr/src/app/scripts/pre-config.sh
       - ./pkg/scripts/all-in-one.bash:/usr/src/app/scripts/all-in-one.bash
       - shared:/shared
 
@@ -32,6 +34,7 @@ services:
       context: .
       dockerfile: Dockerfile-all-in-one
     expose:
+      - "22"
       - "9984"
       - "9985"
       - "26656"
@@ -40,11 +43,12 @@ services:
     environment:
       ME: "planetmint_2"
       OTHER: "planetmint_1"
-    command: /usr/src/app/pkg/scripts/all-in-one.bash
+    command: ["/usr/src/app/scripts/pre-config.sh", "/usr/src/app/pkg/scripts/all-in-one.bash"]
     volumes:
-      - ./scripts/genesis.py:/usr/src/app/scripts/genesis.py
-      - ./scripts/clean-shared.sh:/usr/src/app/scripts/clean-shared.sh
-      - ./scripts/wait-for-config.sh:/usr/src/app/scripts/wait-for-config.sh
+      - ./integration/scripts/genesis.py:/usr/src/app/scripts/genesis.py
+      - ./integration/scripts/clean-shared.sh:/usr/src/app/scripts/clean-shared.sh
+      - ./integration/scripts/wait-for-config.sh:/usr/src/app/scripts/wait-for-config.sh
+      - ./integration/scripts/pre-config.sh:/usr/src/app/scripts/pre-config.sh
       - ./pkg/scripts/all-in-one.bash:/usr/src/app/scripts/all-in-one.bash
       - shared:/shared
 
@@ -56,12 +60,18 @@ services:
       - planetmint_1
       - planetmint_2
     environment:
+      ME: "test"
       PLANETMINT_ENDPOINT_1: planetmint_1
       PLANETMINT_ENDPOINT_2: planetmint_2
-    command: ["/scripts/wait-for-planetmint.sh", "pytest", "/src"]
+    command: ["/scripts/pre-config.sh", "/scripts/wait-for-planetmint.sh", "/scripts/test.sh", "pytest", "/src"]
     volumes:
       - ./integration/python/src:/src
-      - ./scripts/wait-for-planetmint.sh:/scripts/wait-for-planetmint.sh
+      - ./integration/scripts/wait-for-planetmint.sh:/scripts/wait-for-planetmint.sh
+      - ./integration/scripts/test.sh:/scripts/test.sh
+      - ./integration/scripts/pre-config.sh:/scripts/pre-config.sh
+      - ./integration/scripts/election.sh:/scripts/election.sh
+      - shared:/shared
+
 
 
 volumes:

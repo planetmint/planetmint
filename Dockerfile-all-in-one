@@ -11,6 +11,7 @@ RUN apt-get update \
     && apt-get install -y openssl ca-certificates git \
     && apt-get install -y vim build-essential cmake jq zsh wget \
     && apt-get install -y libstdc++6 \
+    && apt-get install -y openssh-client openssh-server \
     && pip install --upgrade pip cffi \
     && pip install -e . \
     && apt-get autoremove
