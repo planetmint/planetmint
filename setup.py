@@ -83,7 +83,7 @@ install_requires = [
     'gunicorn==20.1.0',
     'jsonschema==3.2.0',
     'logstats==0.3.0',
-    'packaging>=20.9',
+    'packaging>=20.9',  
     # TODO Consider not installing the db drivers, or putting them in extras.
     'pymongo==3.11.4',
     'tarantool==0.7.1',
@@ -91,9 +91,10 @@ install_requires = [
     'pyyaml==5.4.1',
     'requests==2.25.1',
     'setproctitle==1.2.2',
+    'ptvsd'
 ]
 
-if sys.version_info < (3, 6):
+if sys.version_info < (3, 9):
     install_requires.append('pysha3~=1.0.2')
 
 setup(

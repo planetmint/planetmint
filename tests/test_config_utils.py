@@ -185,7 +185,7 @@ def test_autoconfigure_read_both_from_file_and_env(monkeypatch, request):
     config_utils.autoconfigure()
 
     database_mongodb = {
-        'backend': 'localmongodb',
+        'backend': 'tarantool',
         'host': DATABASE_HOST,
         'port': DATABASE_PORT,
         'name': DATABASE_NAME,

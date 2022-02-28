@@ -9,19 +9,30 @@ from itertools import repeat
 
 import tarantool
 import planetmint
+import os
 
 from planetmint.backend.exceptions import ConnectionError
 from planetmint.backend.utils import get_planetmint_config_value, get_planetmint_config_value_or_key_error
 from planetmint.common.exceptions import ConfigurationError
 
 BACKENDS = {  # This is path to MongoDBClass
-    'tarantool_db': 'planetmint.backend.connection_tarantool.TarantoolDB',
+    'tarantool': 'planetmint.backend.connection_tarantool.TarantoolDB',
 }
 
 logger = logging.getLogger(__name__)
 
 
 class TarantoolDB:
+    init_config = {
+        "init_file": "init_db.txt",
+        "relative_path": os.path.dirname(os.path.abspath(__file__)) + "/backend/tarantool/"
+    }
+
+    drop_config = {
+        "drop_file": "drop_db.txt",  # planetmint/backend/tarantool/init_db.txt
+        "relative_path": os.path.dirname(os.path.abspath(__file__)) + "/backend/tarantool/"
+    }
+    
     def __init__(self, host: str, port: int, user: str, password: str, reset_database: bool = False):
         self.db_connect = tarantool.connect(host=host, port=port, user=user, password=password)
         if reset_database:
@@ -40,23 +51,25 @@ class TarantoolDB:
 
     def drop_database(self):
         from planetmint.backend.tarantool.utils import run
-        config = get_planetmint_config_value_or_key_error("ctl_config")
-        drop_config = config["drop_config"]
-        f_path = "%s%s" % (drop_config["relative_path"], drop_config["drop_file"])
+#        config = get_planetmint_config_value_or_key_error("ctl_config")
+#        drop_config = config["drop_config"]
+        f_path = "%s%s" % (self.drop_config["relative_path"], self.drop_config["drop_file"])
         commands = self.__read_commands(file_path=f_path)
         run(commands=commands, config=config)
 
     def init_database(self):
         from planetmint.backend.tarantool.utils import run
-        config = get_planetmint_config_value_or_key_error("ctl_config")
-        init_config = config["init_config"]
-        f_path = "%s%s" % (init_config["relative_path"], init_config["init_file"])
+ #       config = get_planetmint_config_value_or_key_error("ctl_config")
+ #       init_config = config["init_config"]
+        f_path = "%s%s" % (self.init_config["relative_path"], self.init_config["init_file"])
         commands = self.__read_commands(file_path=f_path)
         run(commands=commands, config=config)
 
-def connect(host: str = None, port: int = None, username: str = "admin", password: str = "pass",
+
+
+def connect(host: str = None, port: int = None, username: str = None, password: str = None,
             backend: str = None, reset_database: bool = False, name=None, max_tries=None,
-            connection_timeout=None, replicaset=None, ssl=None, login: str = "admin", ctl_config=None,
+            connection_timeout=None, replicaset=None, ssl=None, login: str = None, ctl_config=None,
             ca_cert=None, certfile=None, keyfile=None, keyfile_passphrase=None, reconnect_delay=None,
             crlfile=None, connect_now=True, encoding=None):
     backend = backend or get_planetmint_config_value_or_key_error('backend')  # TODO Rewrite Configs
@@ -73,7 +86,10 @@ def connect(host: str = None, port: int = None, username: str = "admin", passwor
                                  'Planetmint currently supports {}'.format(backend, BACKENDS.keys()))
     except (ImportError, AttributeError) as exc:
         raise ConfigurationError('Error loading backend `{}`'.format(backend)) from exc
-
+    print(host)
+    print(port)
+    print(username)
+    
     logger.debug('Connection: {}'.format(Class))
     return Class(host=host, port=port, user=username, password=password, reset_database=reset_database)
 

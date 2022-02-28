@@ -48,7 +48,7 @@ def pytest_addoption(parser):
     parser.addoption(
         '--database-backend',
         action='store',
-        default=os.environ.get('PLANETMINT_DATABASE_BACKEND', 'tarantool_db'),
+        default=os.environ.get('PLANETMINT_DATABASE_BACKEND', 'tarantool'),
         help='Defines the backend to use (available: {})'.format(backends),
     )
 
@@ -97,7 +97,7 @@ def _configure_planetmint(request):
         test_db_name = '{}_{}'.format(TEST_DB_NAME, xdist_suffix)
 
     # backend = request.config.getoption('--database-backend')
-    backend = "tarantool_db"
+    backend = "tarantool"
 
     config = {
         'database': planetmint._database_map[backend],

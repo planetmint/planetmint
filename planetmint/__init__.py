@@ -6,6 +6,7 @@
 import copy
 import logging
 import os
+#import planetmint.debug
 
 from planetmint.log import DEFAULT_LOGGING_CONFIG as log_config
 from planetmint.lib import Planetmint  # noqa
@@ -23,45 +24,57 @@ from planetmint.core import App  # noqa
 # I tried to configure
 
 _database_keys_map = {  # TODO Check if it is working after removing 'name' field
-    'tarantool_db': ('host', 'port'),
+    'tarantool': ('host', 'port'),
+    'localmongodb': ('host', 'port', 'name'),
 }
 
-_base_database_tarantool_local_db = {  # TODO Rewrite this configs for tarantool usage
+_base_database_localmongodb = {
     'host': 'localhost',
+    'port': 27017,
+    'name': 'planetmint',
+    'replicaset': None,
+    'login': None,
+    'password': None,
+}
+
+_database_localmongodb = {
+    'backend': 'localmongodb',
+    'connection_timeout': 5000,
+    'max_tries': 3,
+    'ssl': False,
+    'ca_cert': None,
+    'certfile': None,
+    'keyfile': None,
+    'keyfile_passphrase': None,
+    'crlfile': None,
+}
+_database_localmongodb.update(_base_database_localmongodb)
+
+_base_database_tarantool_local_db = {  # TODO Rewrite this configs for tarantool usage
+    'host': 'tarantool',
     'port': 3301,
-    'username': None,
+    'username': 'guest',
     'password': None,
     "connect_now": True,
     "encoding": "utf-8"
 }
-init_config = {
-    "init_file": "init_db.txt",
-    "relative_path": os.path.dirname(os.path.abspath(__file__)) + "/backend/tarantool/"
-}
 
-drop_config = {
-    "drop_file": "drop_db.txt",  # planetmint/backend/tarantool/init_db.txt
-    "relative_path": os.path.dirname(os.path.abspath(__file__)) + "/backend/tarantool/"
-}
 _database_tarantool = {
-    'backend': 'tarantool_db',
+    'backend': 'tarantool',
     'connection_timeout': 5000,
     'max_tries': 3,
     "reconnect_delay": 0.5,
-    "ctl_config": {
-        "login": "admin",
-        "host": "admin:pass@127.0.0.1:3301",
-        "service": "tarantoolctl connect",
-        "init_config": init_config,
-        "drop_config": drop_config
-    }
+    #"host": "admin:pass@127.0.0.1:3301",
+    #"service": "tarantoolctl connect",
 }
 _database_tarantool.update(_base_database_tarantool_local_db)
 
 
 _database_map = {
-    'tarantool_db': _database_tarantool
+    'tarantool': _database_tarantool,
+    'localmongodb': _database_localmongodb,
 }
+
 config = {
     'server': {
         # Note: this section supports all the Gunicorn settings:
@@ -85,7 +98,7 @@ config = {
         'version': 'v0.31.5',  # look for __tm_supported_versions__
     },
     # TODO Maybe remove hardcode configs for tarantool (review)
-    'database': _database_map['tarantool_db'],
+    'database': _database_map['tarantool'],
     'log': {
         'file': log_config['handlers']['file']['filename'],
         'error_file': log_config['handlers']['errors']['filename'],

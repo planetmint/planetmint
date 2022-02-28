@@ -181,7 +181,7 @@ def test_run_configure_when_config_does_exist(monkeypatch,
 
 @pytest.mark.skip
 @pytest.mark.parametrize('backend', (
-    'localmongodb',
+    'tarantool',
 ))
 def test_run_configure_with_backend(backend, monkeypatch, mock_write_config):
     import planetmint

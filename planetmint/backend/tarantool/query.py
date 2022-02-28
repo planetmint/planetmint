@@ -5,7 +5,7 @@
 
 """Query implementation for MongoDB"""
 
-from pymongo import DESCENDING
+#from pymongo import DESCENDING
 
 from secrets import token_hex
 from operator import itemgetter
