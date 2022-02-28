@@ -83,7 +83,7 @@ test-unit-watch: check-deps ## Run all tests and wait. Every time you change cod
 	@$(DC) run --rm --no-deps planetmint pytest -f
 
 test-acceptance: check-deps ## Run all acceptance tests
-	@./run-acceptance-test.sh
+	@./scripts/run-acceptance-test.sh
 
 test-integration: check-deps ## Run all integration tests
 	@./scripts/run-integration-test.sh

@@ -4,10 +4,13 @@
 # SPDX-License-Identifier: (Apache-2.0 AND CC-BY-4.0)
 # Code is Apache-2.0 and docs are CC-BY-4.0
 
-# Only continue if all files are ready
-while [ ! -f /shared/${ME}_genesis.json -o ! -f /shared/${OTHER}_genesis.json ]; do
-    echo "SLEEP"
-    sleep 1
-done
+# Create ssh folder
+mkdir ~/.ssh
+
+# Create ssh keys
+ssh-keygen -q -t rsa -N '' -f ~/.ssh/id_rsa
+
+# Publish pubkey to shared folder
+cp ~/.ssh/id_rsa.pub /shared
 
 exec "$@"

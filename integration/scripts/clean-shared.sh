@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 # Copyright © 2020 Interplanetary Database Association e.V.,
 # Planetmint and IPDB software contributors.
 # SPDX-License-Identifier: (Apache-2.0 AND CC-BY-4.0)
@@ -6,6 +6,4 @@
 
 rm /shared/planetmint*
 rm /shared/genesis.json
-rm /shared/*_id_*
-
-exec "$@"
+rm /shared/id_rsa.pub
