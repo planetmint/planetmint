@@ -38,7 +38,6 @@ class TarantoolDB:
         if reset_database:
             self.drop_database()
             self.init_database()
-            test_conn = self.db_connect.space("transactions")
 
     def get_connection(self, space_name: str = None):
         return self.db_connect if space_name is None else self.db_connect.space(space_name)
