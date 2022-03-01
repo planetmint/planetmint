@@ -1,0 +1,78 @@
+# Copyright © 2020 Interplanetary Database Association e.V.,
+# Planetmint and IPDB software contributors.
+# SPDX-License-Identifier: (Apache-2.0 AND CC-BY-4.0)
+# Code is Apache-2.0 and docs are CC-BY-4.0
+
+version: '2.2'
+
+services:
+  clean-shared:
+    image: alpine
+    command: ["/scripts/clean-shared.sh"]
+    volumes:
+      - ./integration/scripts/clean-shared.sh:/scripts/clean-shared.sh
+      - shared:/shared
+  
+  planetmint_1:
+    build:
+      context: .
+      dockerfile: Dockerfile-all-in-one
+    depends_on:
+      - clean-shared
+    expose:
+      - "22"
+      - "9984"
+      - "9985"
+      - "26656"
+      - "26657"
+      - "26658"
+    environment:
+      ME: "planetmint_1"
+      OTHER: "planetmint_2"
+    command: ["/usr/src/app/scripts/pre-config-planetmint.sh", "/usr/src/app/scripts/all-in-one.bash"]
+    volumes:
+      - ./integration/scripts:/usr/src/app/scripts
+      - shared:/shared
+
+  planetmint_2:
+    build:
+      context: .
+      dockerfile: Dockerfile-all-in-one
+    depends_on:
+      - clean-shared
+    expose:
+      - "22"
+      - "9984"
+      - "9985"
+      - "26656"
+      - "26657"
+      - "26658"
+    environment:
+      ME: "planetmint_2"
+      OTHER: "planetmint_1"
+    command: ["/usr/src/app/scripts/pre-config-planetmint.sh", "/usr/src/app/scripts/all-in-one.bash"]
+    volumes:
+      - ./integration/scripts:/usr/src/app/scripts
+      - shared:/shared
+
+  test:
+    build:
+      context: .
+      dockerfile: integration/python/Dockerfile
+    depends_on:
+      - planetmint_1
+      - planetmint_2
+    environment:
+      ME: "test"
+      PLANETMINT_ENDPOINT_1: planetmint_1
+      PLANETMINT_ENDPOINT_2: planetmint_2
+    command: ["/scripts/pre-config-test.sh", "/scripts/wait-for-planetmint.sh", "/scripts/test.sh", "pytest", "/src"]
+    volumes:
+      - ./integration/python/src:/src
+      - ./integration/scripts:/scripts
+      - shared:/shared
+
+
+
+volumes:
+  shared:

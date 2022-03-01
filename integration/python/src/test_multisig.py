@@ -22,10 +22,12 @@
 # We need some utils from the `os` package, we will interact with
 # env variables.
 import os
+import time
 
 # For this test case we need import and use the Python driver
 from planetmint_driver import Planetmint
 from planetmint_driver.crypto import generate_keypair
+from planetmint_driver.exceptions import NotFoundError
 
 def test_multiple_owners():
     # ## Set up a connection to the Planetmint integration test nodes
@@ -69,7 +71,14 @@ def test_multiple_owners():
 
     # Let's retrieve the transaction from both nodes
     pm_itest1_tx = pm_itest1.transactions.retrieve(dw_id)
-    pm_itest2_tx = pm_itest2.transactions.retrieve(dw_id)
+    pm_itest2_tx = {}
+    # TODO: REPLACE WITH ASYNC OR POLL
+    try:
+        pm_itest2_tx = pm_itest2.transactions.retrieve(dw_id)
+    except NotFoundError:
+        print('TOO FAST')
+        time.sleep(3)
+        pm_itest2_tx = pm_itest2.transactions.retrieve(dw_id)
 
     # Both retrieved transactions should be the same
     assert pm_itest1_tx == pm_itest2_tx
@@ -118,7 +127,14 @@ def test_multiple_owners():
 
     # Retrieve the fulfilled transaction from both nodes
     pm_itest1_tx = pm_itest1.transactions.retrieve(fulfilled_transfer_tx['id'])
-    pm_itest2_tx = pm_itest2.transactions.retrieve(fulfilled_transfer_tx['id'])
+    pm_itest2_tx
+    # TODO: REPLACE WITH ASYNC OR POLL
+    try:
+        pm_itest2_tx = pm_itest2.transactions.retrieve(fulfilled_transfer_tx['id'])
+    except NotFoundError:
+        print('TOO FAST')
+        time.sleep(3)
+        pm_itest2_tx = pm_itest2.transactions.retrieve(fulfilled_transfer_tx['id'])
 
     # Now compare if both nodes returned the same transaction
     assert pm_itest1_tx == pm_itest2_tx
