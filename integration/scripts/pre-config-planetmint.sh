@@ -4,6 +4,9 @@
 # SPDX-License-Identifier: (Apache-2.0 AND CC-BY-4.0)
 # Code is Apache-2.0 and docs are CC-BY-4.0
 
+# Write hostname to list
+echo $(hostname) >> /shared/hostnames
+
 # Create ssh folder
 mkdir ~/.ssh
 
@@ -26,31 +29,46 @@ service ssh restart
 tendermint init
 
 # Write node id to shared folder
+HOSTNAME=$(hostname)
 NODE_ID=$(tendermint show_node_id | tail -n 1)
-echo $NODE_ID > /shared/${ME}_node_id
+echo $NODE_ID > /shared/${HOSTNAME}_node_id
 
-# Wait for other node id
-while [ ! -f "/shared/${OTHER}_node_id" ]; do
-    echo "WAIT FOR NODE ID"
+# Wait for other node ids
+FILES=()
+while [ ! ${#FILES[@]} == 1 ]; do # TODO: USE NUMBER OF SERVICES
+    echo "WAIT FOR NODE IDS"
     sleep 1
+    FILES=(/shared/*node_id)
 done
 
 # Write node ids to persistent peers
-OTHER_NODE_ID=$(cat /shared/${OTHER}_node_id)
-PEERS=$(echo "persistent_peers = \"${NODE_ID}@${ME}:26656, ${OTHER_NODE_ID}@${OTHER}:26656\"")
+PEERS="persisten_peers = \""
+for f in ${FILES[@]}; do
+    ID=$(cat $f)
+    HOST=$(echo $f | cut -c 9-20)
+    PEERS+="${ID}@${HOST}:26656, "
+done
+PEERS=$(echo $PEERS | rev | cut -c 2- | rev)
+PEERS+="\""
 sed -i "/persistent_peers = \"\"/c\\${PEERS}" /tendermint/config/config.toml
 
 # Copy genesis.json to shared folder
-cp /tendermint/config/genesis.json /shared/${ME}_genesis.json
+cp /tendermint/config/genesis.json /shared/${HOSTNAME}_genesis.json
 
 # Await config file of all services to be present
-while [ ! -f /shared/${OTHER}_genesis.json ]; do
-    echo "WAIT FOR OTHER GENESIS"
+FILES=()
+while [ ! ${#FILES[@]} == 1 ]; do # TODO: USE NUMBER OF SERVICES
+    echo "WAIT FOR GENESIS FILES"
     sleep 1
+    FILES=(/shared/*_genesis.json)
 done
 
 # Create genesis.json for nodes
-/usr/src/app/scripts/genesis.py
+if [ ! -f /shared/lock ]; then
+    echo LOCKING
+    touch /shared/lock
+    /usr/src/app/scripts/genesis.py ${FILES[@]}
+fi
 
 while [ ! -f /shared/genesis.json ]; do
     echo "WAIT FOR GENESIS"
