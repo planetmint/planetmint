@@ -7,18 +7,20 @@
 from planetmint_driver import Planetmint
 from planetmint_driver.crypto import generate_keypair
 import time
-import os
-
 
 def test_basic():
     # Setup up connection to Planetmint integration test nodes
-    pm_itest1_url = os.environ.get('PLANETMINT_ENDPOINT_1')
-    pm_itest2_url = os.environ.get('PLANETMINT_ENDPOINT_1')
-    pm_itest1 = Planetmint(pm_itest1_url)
-    pm_itest2 = Planetmint(pm_itest2_url)
+    hosts = []
+    with open('/shared/hostnames') as f:
+        hosts = f.readlines()
+
+    pm_hosts = list(map(lambda x: Planetmint(x), hosts))
+
+    pm_alpha = pm_hosts[0]
+    pm_betas = pm_hosts[1:]
 
     # genarate a keypair
-    alice, bob = generate_keypair(), generate_keypair()
+    alice = generate_keypair()
 
     # create a digital asset for Alice
     game_boy_token = {
@@ -29,7 +31,7 @@ def test_basic():
     }
 
     # prepare the transaction with the digital asset and issue 10 tokens to bob
-    prepared_creation_tx = pm_itest1.transactions.prepare(
+    prepared_creation_tx = pm_alpha.transactions.prepare(
         operation='CREATE',
         metadata={
             'hash': '0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF',
@@ -39,20 +41,21 @@ def test_basic():
         asset=game_boy_token)
 
     # fulfill and send the transaction
-    fulfilled_creation_tx = pm_itest1.transactions.fulfill(
+    fulfilled_creation_tx = pm_alpha.transactions.fulfill(
         prepared_creation_tx,
         private_keys=alice.private_key)
-    pm_itest1.transactions.send_commit(fulfilled_creation_tx)
-    time.sleep(4)
+    pm_alpha.transactions.send_commit(fulfilled_creation_tx)
+    time.sleep(1)
 
     creation_tx_id = fulfilled_creation_tx['id']
 
-    # retrieve transactions from both planetmint nodes
-    creation_tx_itest1 = pm_itest1.transactions.retrieve(creation_tx_id)
-    creation_tx_itest2 = pm_itest2.transactions.retrieve(creation_tx_id)
+    # retrieve transactions from all planetmint nodes
+    creation_tx_alpha = pm_alpha.transactions.retrieve(creation_tx_id)
+    creation_tx_betas = list(map(lambda beta: beta.transactions.retrieve(creation_tx_id), pm_betas))
 
-    # Assert that transaction is stored on both planetmint nodes
-    assert creation_tx_itest1 == creation_tx_itest2
+    # Assert that transaction is stored on all planetmint nodes
+    for tx in creation_tx_betas:
+        assert creation_tx_alpha == tx
 
     # Transfer
     # create the output and inout for the transaction
@@ -65,28 +68,31 @@ def test_basic():
                       'owners_before': output['public_keys']}
 
     # prepare the transaction and use 3 tokens
-    prepared_transfer_tx = pm_itest1.transactions.prepare(
+    prepared_transfer_tx = pm_alpha.transactions.prepare(
         operation='TRANSFER',
         asset=transfer_asset,
         inputs=transfer_input,
         metadata={'hash': '0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF',
-                'storageID': '0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF', },
+                  'storageID': '0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF', },
         recipients=[([alice.public_key], 10)])
 
     # fulfill and send the transaction
-    fulfilled_transfer_tx = pm_itest1.transactions.fulfill(
+    fulfilled_transfer_tx = pm_alpha.transactions.fulfill(
         prepared_transfer_tx,
         private_keys=alice.private_key)
-    sent_transfer_tx = pm_itest1.transactions.send_commit(fulfilled_transfer_tx)
+    sent_transfer_tx = pm_alpha.transactions.send_commit(fulfilled_transfer_tx)
 
-    transfer_tx_id = fulfilled_transfer_tx['id']
+    time.sleep(1)
+
+    transfer_tx_id = sent_transfer_tx['id']
 
     # retrieve transactions from both planetmint nodes
-    transfer_tx_itest1 = pm_itest1.transactions.retrieve(transfer_tx_id)
-    transfer_tx_itest2 = pm_itest2.transactions.retrieve(transfer_tx_id)
+    transfer_tx_alpha = pm_alpha.transactions.retrieve(transfer_tx_id)
+    transfer_tx_betas = list(map(lambda beta: beta.transactions.retrieve(transfer_tx_id), pm_betas))
 
     # Assert that transaction is stored on both planetmint nodes
-    assert transfer_tx_itest1 == transfer_tx_itest2
+    for tx in transfer_tx_betas:
+        assert transfer_tx_alpha == tx
 
 
 
