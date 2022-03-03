@@ -6,7 +6,7 @@
 
 # Only continue if all services are ready
 HOSTNAMES=()
-while [ ! ${#HOSTNAMES[@]} == 1 ]; do # TODO: USE NUMBER OF SERVICES
+while [ ! ${#HOSTNAMES[@]} == $SCALE ]; do
     echo "WAIT FOR HOSTNAMES"
     sleep 1
     readarray -t HOSTNAMES < /shared/hostnames

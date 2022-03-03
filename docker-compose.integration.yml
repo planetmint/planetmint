@@ -27,9 +27,12 @@ services:
       - "26657"
       - "26658"
     command: ["/usr/src/app/scripts/pre-config-planetmint.sh", "/usr/src/app/scripts/all-in-one.bash"]
+    environment:
+      SCALE: ${SCALE:-4}
     volumes:
       - ./integration/scripts:/usr/src/app/scripts
       - shared:/shared
+    scale: ${SCALE:-4}
 
   test:
     build:
@@ -38,6 +41,8 @@ services:
     depends_on:
       - planetmint
     command: ["/scripts/pre-config-test.sh", "/scripts/wait-for-planetmint.sh", "/scripts/test.sh", "pytest", "/src"]
+    environment:
+      SCALE: ${SCALE:-4}
     volumes:
       - ./integration/python/src:/src
       - ./integration/scripts:/scripts

@@ -35,18 +35,20 @@ echo $NODE_ID > /shared/${HOSTNAME}_node_id
 
 # Wait for other node ids
 FILES=()
-while [ ! ${#FILES[@]} == 1 ]; do # TODO: USE NUMBER OF SERVICES
+while [ ! ${#FILES[@]} == $SCALE ]; do
     echo "WAIT FOR NODE IDS"
     sleep 1
     FILES=(/shared/*node_id)
 done
 
 # Write node ids to persistent peers
-PEERS="persisten_peers = \""
+PEERS="persistent_peers = \""
 for f in ${FILES[@]}; do
     ID=$(cat $f)
     HOST=$(echo $f | cut -c 9-20)
-    PEERS+="${ID}@${HOST}:26656, "
+    if [ ! $HOST == $HOSTNAME ]; then
+        PEERS+="${ID}@${HOST}:26656, "
+    fi
 done
 PEERS=$(echo $PEERS | rev | cut -c 2- | rev)
 PEERS+="\""
@@ -57,7 +59,7 @@ cp /tendermint/config/genesis.json /shared/${HOSTNAME}_genesis.json
 
 # Await config file of all services to be present
 FILES=()
-while [ ! ${#FILES[@]} == 1 ]; do # TODO: USE NUMBER OF SERVICES
+while [ ! ${#FILES[@]} == $SCALE ]; do
     echo "WAIT FOR GENESIS FILES"
     sleep 1
     FILES=(/shared/*_genesis.json)
