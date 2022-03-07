@@ -100,6 +100,10 @@ docs-acceptance: check-deps ## Create documentation for acceptance tests
 	@$(DC) run --rm python-acceptance pycco -i -s /src -d /docs
 	$(BROWSER) acceptance/python/docs/index.html
 
+docs-integration: check-deps ## Create documentation for integration tests
+	@$(DC) run --rm python-integration pycco -i -s /src -d /docs
+	$(BROWSER) integration/python/docs/index.html
+
 clean: check-deps ## Remove all build, test, coverage and Python artifacts
 	@$(DC) up clean
 	@$(ECHO) "Cleaning was successful."
