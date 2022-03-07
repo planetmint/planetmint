@@ -25,6 +25,7 @@ import time
 from planetmint_driver import Planetmint
 from planetmint_driver.crypto import generate_keypair
 
+
 def test_multiple_owners():
     # Setup up connection to Planetmint integration test nodes
     hosts = []
@@ -143,4 +144,3 @@ def test_multiple_owners():
     # While the new owner is Carol.
     assert pm_alpha.transactions.retrieve(fulfilled_transfer_tx['id'])[
            'outputs'][0]['public_keys'][0] == carol.public_key
- 

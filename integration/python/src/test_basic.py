@@ -8,6 +8,7 @@ from planetmint_driver import Planetmint
 from planetmint_driver.crypto import generate_keypair
 import time
 
+
 def test_basic():
     # Setup up connection to Planetmint integration test nodes
     hosts = []
@@ -35,7 +36,7 @@ def test_basic():
         operation='CREATE',
         metadata={
             'hash': '0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF',
-            'storageID': '0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF',},
+            'storageID': '0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF', },
         signers=alice.public_key,
         recipients=[([alice.public_key], 10)],
         asset=game_boy_token)
@@ -93,13 +94,3 @@ def test_basic():
     # Assert that transaction is stored on both planetmint nodes
     for tx in transfer_tx_betas:
         assert transfer_tx_alpha == tx
-
-
-
-
-    
-    
-
-
-
-

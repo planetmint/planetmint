@@ -7,6 +7,7 @@
 import json
 import sys
 
+
 def edit_genesis() -> None:
     file_names = sys.argv[1:]
 
@@ -16,7 +17,7 @@ def edit_genesis() -> None:
         genesis = json.load(file)
         validators.extend(genesis['validators'])
         file.close()
-        
+
     genesis_file = open(file_names[0])
     genesis_json = json.load(genesis_file)
     genesis_json['validators'] = validators
@@ -26,6 +27,7 @@ def edit_genesis() -> None:
         json.dump(genesis_json, f, indent=True)
 
     return None
+
 
 if __name__ == '__main__':
     edit_genesis()
