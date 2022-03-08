@@ -9,6 +9,6 @@ set -e -x
 
 if [[ ${PLANETMINT_CI_ABCI} == 'enable' ]]; then
     sleep 3600
-elif [[ ${PLANETMINT_INTEGRATION_TEST} != 'enable' ]]
+else
     planetmint -l DEBUG start
 fi
