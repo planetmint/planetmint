@@ -13,7 +13,7 @@ services:
       - ./integration/scripts/clean-shared.sh:/scripts/clean-shared.sh
       - shared:/shared
   
-  planetmint:
+  planetmint-integration:
     build:
       context: .
       dockerfile: Dockerfile-all-in-one
@@ -39,7 +39,7 @@ services:
       context: .
       dockerfile: integration/python/Dockerfile
     depends_on:
-      - planetmint
+      - planetmint-integration
     command: ["/scripts/pre-config-test.sh", "/scripts/wait-for-planetmint.sh", "/scripts/test.sh", "pytest", "/src"]
     environment:
       SCALE: ${SCALE:-4}
