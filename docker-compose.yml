@@ -89,6 +89,7 @@ services:
       context: .
       dockerfile: ./integration/python/Dockerfile
     volumes:
+      - ./integration/python/docs:/docs
       - ./integration/python/src:/src
     environment:
       - PLANETMINT_ENDPOINT_1=https://itest1.planetmint.io

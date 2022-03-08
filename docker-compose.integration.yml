@@ -13,7 +13,7 @@ services:
       - ./integration/scripts/clean-shared.sh:/scripts/clean-shared.sh
       - shared:/shared
   
-  planetmint_1:
+  planetmint-all-in-one:
     build:
       context: .
       dockerfile: Dockerfile-all-in-one
@@ -26,53 +26,27 @@ services:
       - "26656"
       - "26657"
       - "26658"
-    environment:
-      ME: "planetmint_1"
-      OTHER: "planetmint_2"
     command: ["/usr/src/app/scripts/pre-config-planetmint.sh", "/usr/src/app/scripts/all-in-one.bash"]
+    environment:
+      SCALE: ${SCALE:-4}
     volumes:
       - ./integration/scripts:/usr/src/app/scripts
       - shared:/shared
-
-  planetmint_2:
-    build:
-      context: .
-      dockerfile: Dockerfile-all-in-one
-    depends_on:
-      - clean-shared
-    expose:
-      - "22"
-      - "9984"
-      - "9985"
-      - "26656"
-      - "26657"
-      - "26658"
-    environment:
-      ME: "planetmint_2"
-      OTHER: "planetmint_1"
-    command: ["/usr/src/app/scripts/pre-config-planetmint.sh", "/usr/src/app/scripts/all-in-one.bash"]
-    volumes:
-      - ./integration/scripts:/usr/src/app/scripts
-      - shared:/shared
+    scale: ${SCALE:-4}
 
   test:
     build:
       context: .
       dockerfile: integration/python/Dockerfile
     depends_on:
-      - planetmint_1
-      - planetmint_2
-    environment:
-      ME: "test"
-      PLANETMINT_ENDPOINT_1: planetmint_1
-      PLANETMINT_ENDPOINT_2: planetmint_2
+      - planetmint-all-in-one
     command: ["/scripts/pre-config-test.sh", "/scripts/wait-for-planetmint.sh", "/scripts/test.sh", "pytest", "/src"]
+    environment:
+      SCALE: ${SCALE:-4}
     volumes:
       - ./integration/python/src:/src
       - ./integration/scripts:/scripts
       - shared:/shared
-
-
 
 volumes:
   shared:

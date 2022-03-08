@@ -5,32 +5,29 @@
 # Code is Apache-2.0 and docs are CC-BY-4.0
 
 import json
-import os
+import sys
 
-# TODO: CHANGE ME/OTHER VARIABLES
+
 def edit_genesis() -> None:
-    ME = os.getenv('ME')
-    OTHER = os.getenv('OTHER')
+    file_names = sys.argv[1:]
 
-    if ME == 'planetmint_1':
-        file_name = '{}_genesis.json'.format(ME)
-        other_file_name = '{}_genesis.json'.format(OTHER)
-
-        file = open(os.path.join('/shared', file_name))
-        other_file = open(os.path.join('/shared', other_file_name))
-
+    validators = []
+    for file_name in file_names:
+        file = open(file_name)
         genesis = json.load(file)
-        other_genesis = json.load(other_file)
-
-        genesis['validators'] = genesis['validators'] + other_genesis['validators']
-
+        validators.extend(genesis['validators'])
         file.close()
-        other_file.close()
 
-        with open(os.path.join('/shared', 'genesis.json'), 'w') as f:
-            json.dump(genesis, f, indent=True)
+    genesis_file = open(file_names[0])
+    genesis_json = json.load(genesis_file)
+    genesis_json['validators'] = validators
+    genesis_file.close()
+
+    with open('/shared/genesis.json', 'w') as f:
+        json.dump(genesis_json, f, indent=True)
 
     return None
+
 
 if __name__ == '__main__':
     edit_genesis()
