@@ -20,24 +20,24 @@ env:
   global:
     - DOCKER_COMPOSE_VERSION=1.29.2
   matrix:
-    # - TOXENV=flake8
-    # - TOXENV=docsroot
+    - TOXENV=flake8
+    - TOXENV=docsroot
 
 matrix:
   fast_finish: true
   include:
-  # - python: 3.9
-  #   env:
-  #   - PLANETMINT_DATABASE_BACKEND=localmongodb
-  #   - PLANETMINT_DATABASE_SSL=
-  # - python: 3.9
-  #   env:
-  #   - PLANETMINT_DATABASE_BACKEND=localmongodb
-  #   - PLANETMINT_DATABASE_SSL=
-  #   - PLANETMINT_CI_ABCI=enable
-  # - python: 3.9
-  #   env:
-  #   - PLANETMINT_ACCEPTANCE_TEST=enable
+  - python: 3.9
+    env:
+    - PLANETMINT_DATABASE_BACKEND=localmongodb
+    - PLANETMINT_DATABASE_SSL=
+  - python: 3.9
+    env:
+    - PLANETMINT_DATABASE_BACKEND=localmongodb
+    - PLANETMINT_DATABASE_SSL=
+    - PLANETMINT_CI_ABCI=enable
+  - python: 3.9
+    env:
+    - PLANETMINT_ACCEPTANCE_TEST=enable
   - python: 3.9
     env:
     - PLANETMINT_INTEGRATION_TEST=enable

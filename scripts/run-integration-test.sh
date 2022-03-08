@@ -5,7 +5,7 @@
 # Code is Apache-2.0 and docs are CC-BY-4.0
 
 run_test() {
-    docker-compose -f docker-compose.integration.yml up
+    docker-compose -f docker-compose.integration.yml up test
 }
 
 teardown () {
