@@ -20,8 +20,8 @@ env:
   global:
     - DOCKER_COMPOSE_VERSION=1.29.2
   matrix:
-    - TOXENV=flake8
-    - TOXENV=docsroot
+    # - TOXENV=flake8
+    # - TOXENV=docsroot
 
 matrix:
   fast_finish: true
