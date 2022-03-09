@@ -5,7 +5,7 @@
 
 import pytest
 
-from planetmint.common.transaction import TransactionLink
+from planetmint.transactions.common.transaction import TransactionLink
 from planetmint.models import Transaction
 
 

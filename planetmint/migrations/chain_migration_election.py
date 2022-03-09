@@ -1,6 +1,6 @@
 import json
 
-from planetmint.common.schema import TX_SCHEMA_CHAIN_MIGRATION_ELECTION
+from planetmint.transactions.common.schema import TX_SCHEMA_CHAIN_MIGRATION_ELECTION
 from planetmint.elections.election import Election
 
 

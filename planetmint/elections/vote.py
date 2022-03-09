@@ -3,8 +3,8 @@
 # SPDX-License-Identifier: (Apache-2.0 AND CC-BY-4.0)
 # Code is Apache-2.0 and docs are CC-BY-4.0
 
-from planetmint.common.transaction import Transaction
-from planetmint.common.schema import (_validate_schema,
+from planetmint.transactions.common.transaction import Transaction
+from planetmint.transactions.common.schema import (_validate_schema,
                                       TX_SCHEMA_COMMON,
                                       TX_SCHEMA_TRANSFER,
                                       TX_SCHEMA_VOTE)

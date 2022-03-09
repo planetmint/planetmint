@@ -84,7 +84,7 @@ def test_get_outputs_endpoint_with_invalid_spent(client, user_pk):
 @pytest.mark.abci
 def test_get_divisble_transactions_returns_500(b, client):
     from planetmint.models import Transaction
-    from planetmint.common import crypto
+    from planetmint.transactions.common import crypto
     import json
 
     TX_ENDPOINT = '/api/v1/transactions'

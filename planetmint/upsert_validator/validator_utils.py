@@ -4,7 +4,7 @@ import codecs
 
 from tendermint.abci import types_pb2
 from tendermint.crypto import keys_pb2
-from planetmint.common.exceptions import InvalidPublicKey
+from planetmint.transactions.common.exceptions import InvalidPublicKey
 
 def encode_validator(v):
     ed25519_public_key = v['public_key']['value']
