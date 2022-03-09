@@ -3,18 +3,14 @@
 # SPDX-License-Identifier: (Apache-2.0 AND CC-BY-4.0)
 # Code is Apache-2.0 and docs are CC-BY-4.0
 
-from planetmint.transactions.common.transaction import (Transaction, Input, Output)
-from planetmint.transactions.common.schema import (_validate_schema,
-                                      TX_SCHEMA_COMMON,
-                                      TX_SCHEMA_TRANSFER)
+from planetmint.transactions.common.transaction import Transaction
+from planetmint.transactions.common.input import Input
+from planetmint.transactions.common.output import Output
 from copy import deepcopy
 
 class Transfer(Transaction):
 
     OPERATION = 'TRANSFER'
-    # NOTE: This class inherits TRANSFER txn type. The `TRANSFER` property is
-    # overriden to re-use methods from parent class
-    TRANSFER = OPERATION
     ALLOWED_OPERATIONS = (OPERATION,)
 
     @classmethod
