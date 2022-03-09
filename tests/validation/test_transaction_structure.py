@@ -20,6 +20,7 @@ from planetmint.transactions.common.exceptions import (AmountError,
                                           SchemaValidationError,
                                           ThresholdTooDeep)
 from planetmint.models import Transaction
+from planetmint.transactions.common.utils import _fulfillment_to_details, _fulfillment_from_details
 
 ################################################################################
 # Helper functions
@@ -226,7 +227,7 @@ def test_handle_threshold_overflow():
             'subconditions': [cond],
         }
     with pytest.raises(ThresholdTooDeep):
-        transaction._fulfillment_from_details(cond)
+        _fulfillment_from_details(cond)
 
 
 def test_unsupported_condition_type():
@@ -234,10 +235,10 @@ def test_unsupported_condition_type():
     from cryptoconditions.exceptions import UnsupportedTypeError
 
     with pytest.raises(UnsupportedTypeError):
-        transaction._fulfillment_from_details({'type': 'a'})
+        _fulfillment_from_details({'type': 'a'})
 
     with pytest.raises(UnsupportedTypeError):
-        transaction._fulfillment_to_details(MagicMock(type_name='a'))
+        _fulfillment_to_details(MagicMock(type_name='a'))
 
 
 ################################################################################
