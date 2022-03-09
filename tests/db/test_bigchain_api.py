@@ -15,7 +15,7 @@ class TestBigchainApi(object):
 
     def test_get_spent_with_double_spend_detected(self, b, alice):
         from planetmint.models import Transaction
-        from planetmint.common.exceptions import DoubleSpend
+        from planetmint.transactions.common.exceptions import DoubleSpend
         from planetmint.exceptions import CriticalDoubleSpend
 
         tx = Transaction.create([alice.public_key], [([alice.public_key], 1)])
@@ -81,8 +81,8 @@ class TestBigchainApi(object):
     @pytest.mark.usefixtures('inputs')
     def test_non_create_input_not_found(self, b, user_pk):
         from cryptoconditions import Ed25519Sha256
-        from planetmint.common.exceptions import InputDoesNotExist
-        from planetmint.common.transaction import Input, TransactionLink
+        from planetmint.transactions.common.exceptions import InputDoesNotExist
+        from planetmint.transactions.common.transaction import Input, TransactionLink
         from planetmint.models import Transaction
 
         # Create an input for a non existing transaction
@@ -117,8 +117,8 @@ class TestBigchainApi(object):
 class TestTransactionValidation(object):
 
     def test_non_create_input_not_found(self, b, signed_transfer_tx):
-        from planetmint.common.exceptions import InputDoesNotExist
-        from planetmint.common.transaction import TransactionLink
+        from planetmint.transactions.common.exceptions import InputDoesNotExist
+        from planetmint.transactions.common.transaction import TransactionLink
 
         signed_transfer_tx.inputs[0].fulfills = TransactionLink('c', 0)
         with pytest.raises(InputDoesNotExist):
@@ -126,8 +126,8 @@ class TestTransactionValidation(object):
 
     @pytest.mark.usefixtures('inputs')
     def test_non_create_valid_input_wrong_owner(self, b, user_pk):
-        from planetmint.common.crypto import generate_key_pair
-        from planetmint.common.exceptions import InvalidSignature
+        from planetmint.transactions.common.crypto import generate_key_pair
+        from planetmint.transactions.common.exceptions import InvalidSignature
         from planetmint.models import Transaction
 
         input_tx = b.fastquery.get_outputs_by_public_key(user_pk).pop()
@@ -144,7 +144,7 @@ class TestTransactionValidation(object):
     @pytest.mark.usefixtures('inputs')
     def test_non_create_double_spend(self, b, signed_create_tx,
                                      signed_transfer_tx, double_spend_tx):
-        from planetmint.common.exceptions import DoubleSpend
+        from planetmint.transactions.common.exceptions import DoubleSpend
 
         b.store_bulk_transactions([signed_create_tx, signed_transfer_tx])
 
@@ -156,7 +156,7 @@ class TestMultipleInputs(object):
 
     def test_transfer_single_owner_single_input(self, b, inputs, user_pk,
                                                 user_sk):
-        from planetmint.common import crypto
+        from planetmint.transactions.common import crypto
         from planetmint.models import Transaction
 
         user2_sk, user2_pk = crypto.generate_key_pair()
@@ -177,7 +177,7 @@ class TestMultipleInputs(object):
                                                                     user_sk,
                                                                     user_pk,
                                                                     inputs):
-        from planetmint.common import crypto
+        from planetmint.transactions.common import crypto
         from planetmint.models import Transaction
 
         user2_sk, user2_pk = crypto.generate_key_pair()
@@ -199,7 +199,7 @@ class TestMultipleInputs(object):
                                                                     user_sk,
                                                                     user_pk,
                                                                     alice):
-        from planetmint.common import crypto
+        from planetmint.transactions.common import crypto
         from planetmint.models import Transaction
 
         user2_sk, user2_pk = crypto.generate_key_pair()
@@ -227,7 +227,7 @@ class TestMultipleInputs(object):
                                                                        user_sk,
                                                                        user_pk,
                                                                        alice):
-        from planetmint.common import crypto
+        from planetmint.transactions.common import crypto
         from planetmint.models import Transaction
 
         user2_sk, user2_pk = crypto.generate_key_pair()
@@ -252,8 +252,8 @@ class TestMultipleInputs(object):
         assert len(tx.outputs) == 1
 
     def test_get_owned_ids_single_tx_single_output(self, b, user_sk, user_pk, alice):
-        from planetmint.common import crypto
-        from planetmint.common.transaction import TransactionLink
+        from planetmint.transactions.common import crypto
+        from planetmint.transactions.common.transaction import TransactionLink
         from planetmint.models import Transaction
 
         user2_sk, user2_pk = crypto.generate_key_pair()
@@ -280,8 +280,8 @@ class TestMultipleInputs(object):
 
     def test_get_owned_ids_single_tx_multiple_outputs(self, b, user_sk,
                                                       user_pk, alice):
-        from planetmint.common import crypto
-        from planetmint.common.transaction import TransactionLink
+        from planetmint.transactions.common import crypto
+        from planetmint.transactions.common.transaction import TransactionLink
         from planetmint.models import Transaction
 
         user2_sk, user2_pk = crypto.generate_key_pair()
@@ -314,8 +314,8 @@ class TestMultipleInputs(object):
                                       TransactionLink(tx_transfer.id, 1)]
 
     def test_get_owned_ids_multiple_owners(self, b, user_sk, user_pk, alice):
-        from planetmint.common import crypto
-        from planetmint.common.transaction import TransactionLink
+        from planetmint.transactions.common import crypto
+        from planetmint.transactions.common.transaction import TransactionLink
         from planetmint.models import Transaction
 
         user2_sk, user2_pk = crypto.generate_key_pair()
@@ -346,7 +346,7 @@ class TestMultipleInputs(object):
         assert not spent_user1
 
     def test_get_spent_single_tx_single_output(self, b, user_sk, user_pk, alice):
-        from planetmint.common import crypto
+        from planetmint.transactions.common import crypto
         from planetmint.models import Transaction
 
         user2_sk, user2_pk = crypto.generate_key_pair()
@@ -372,7 +372,7 @@ class TestMultipleInputs(object):
         assert spent_inputs_user1 == tx
 
     def test_get_spent_single_tx_multiple_outputs(self, b, user_sk, user_pk, alice):
-        from planetmint.common import crypto
+        from planetmint.transactions.common import crypto
         from planetmint.models import Transaction
 
         # create a new users
@@ -409,7 +409,7 @@ class TestMultipleInputs(object):
         assert b.get_spent(tx_create.to_inputs()[2].fulfills.txid, 2) is None
 
     def test_get_spent_multiple_owners(self, b, user_sk, user_pk, alice):
-        from planetmint.common import crypto
+        from planetmint.transactions.common import crypto
         from planetmint.models import Transaction
 
         user2_sk, user2_pk = crypto.generate_key_pair()
@@ -445,7 +445,7 @@ class TestMultipleInputs(object):
 
 
 def test_get_outputs_filtered_only_unspent():
-    from planetmint.common.transaction import TransactionLink
+    from planetmint.transactions.common.transaction import TransactionLink
     from planetmint.lib import Planetmint
 
     go = 'planetmint.fastquery.FastQuery.get_outputs_by_public_key'
@@ -461,7 +461,7 @@ def test_get_outputs_filtered_only_unspent():
 
 
 def test_get_outputs_filtered_only_spent():
-    from planetmint.common.transaction import TransactionLink
+    from planetmint.transactions.common.transaction import TransactionLink
     from planetmint.lib import Planetmint
     go = 'planetmint.fastquery.FastQuery.get_outputs_by_public_key'
     with patch(go) as get_outputs:
@@ -478,7 +478,7 @@ def test_get_outputs_filtered_only_spent():
 @patch('planetmint.fastquery.FastQuery.filter_unspent_outputs')
 @patch('planetmint.fastquery.FastQuery.filter_spent_outputs')
 def test_get_outputs_filtered(filter_spent, filter_unspent):
-    from planetmint.common.transaction import TransactionLink
+    from planetmint.transactions.common.transaction import TransactionLink
     from planetmint.lib import Planetmint
 
     go = 'planetmint.fastquery.FastQuery.get_outputs_by_public_key'
@@ -497,7 +497,7 @@ def test_cant_spend_same_input_twice_in_tx(b, alice):
     https://github.com/planetmint/planetmint/issues/1099
     """
     from planetmint.models import Transaction
-    from planetmint.common.exceptions import DoubleSpend
+    from planetmint.transactions.common.exceptions import DoubleSpend
 
     # create a divisible asset
     tx_create = Transaction.create([alice.public_key], [([alice.public_key], 100)])
@@ -517,7 +517,7 @@ def test_cant_spend_same_input_twice_in_tx(b, alice):
 
 def test_transaction_unicode(b, alice):
     import copy
-    from planetmint.common.utils import serialize
+    from planetmint.transactions.common.utils import serialize
     from planetmint.models import Transaction
 
     # http://www.fileformat.info/info/unicode/char/1f37a/index.htm

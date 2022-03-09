@@ -6,7 +6,7 @@
 import pytest
 import random
 
-from planetmint.common.exceptions import DoubleSpend
+from planetmint.transactions.common.exceptions import DoubleSpend
 
 
 # CREATE divisible asset
@@ -99,7 +99,7 @@ def test_single_in_single_own_multiple_out_mix_own_create(alice, user_pk, b):
 def test_single_in_multiple_own_single_out_single_own_create(alice, b, user_pk,
                                                              user_sk):
     from planetmint.models import Transaction
-    from planetmint.common.transaction import _fulfillment_to_details
+    from planetmint.transactions.common.transaction import _fulfillment_to_details
 
     tx = Transaction.create([alice.public_key, user_pk], [([user_pk], 100)], asset={'name': random.random()})
     tx_signed = tx.sign([alice.private_key, user_sk])
@@ -249,7 +249,7 @@ def test_single_in_single_own_multiple_out_mix_own_transfer(alice, b, user_pk,
 def test_single_in_multiple_own_single_out_single_own_transfer(alice, b, user_pk,
                                                                user_sk):
     from planetmint.models import Transaction
-    from planetmint.common.transaction import _fulfillment_to_details
+    from planetmint.transactions.common.transaction import _fulfillment_to_details
 
     # CREATE divisible asset
     tx_create = Transaction.create([alice.public_key], [([alice.public_key, user_pk], 100)],
@@ -316,7 +316,7 @@ def test_multiple_in_single_own_single_out_single_own_transfer(alice, b, user_pk
 def test_multiple_in_multiple_own_single_out_single_own_transfer(alice, b, user_pk,
                                                                  user_sk):
     from planetmint.models import Transaction
-    from planetmint.common.transaction import _fulfillment_to_details
+    from planetmint.transactions.common.transaction import _fulfillment_to_details
 
     # CREATE divisible asset
     tx_create = Transaction.create([alice.public_key], [([user_pk, alice.public_key], 50),
@@ -357,7 +357,7 @@ def test_multiple_in_multiple_own_single_out_single_own_transfer(alice, b, user_
 def test_muiltiple_in_mix_own_multiple_out_single_own_transfer(alice, b, user_pk,
                                                                user_sk):
     from planetmint.models import Transaction
-    from planetmint.common.transaction import _fulfillment_to_details
+    from planetmint.transactions.common.transaction import _fulfillment_to_details
 
     # CREATE divisible asset
     tx_create = Transaction.create([alice.public_key], [([user_pk], 50), ([user_pk, alice.public_key], 50)],
@@ -397,7 +397,7 @@ def test_muiltiple_in_mix_own_multiple_out_single_own_transfer(alice, b, user_pk
 def test_muiltiple_in_mix_own_multiple_out_mix_own_transfer(alice, b, user_pk,
                                                             user_sk):
     from planetmint.models import Transaction
-    from planetmint.common.transaction import _fulfillment_to_details
+    from planetmint.transactions.common.transaction import _fulfillment_to_details
 
     # CREATE divisible asset
     tx_create = Transaction.create([alice.public_key], [([user_pk], 50), ([user_pk, alice.public_key], 50)],
@@ -486,7 +486,7 @@ def test_multiple_in_different_transactions(alice, b, user_pk, user_sk):
 # In other words `amount_in_inputs - amount_in_outputs == 0`
 def test_amount_error_transfer(alice, b, user_pk, user_sk):
     from planetmint.models import Transaction
-    from planetmint.common.exceptions import AmountError
+    from planetmint.transactions.common.exceptions import AmountError
 
     # CREATE divisible asset
     tx_create = Transaction.create([alice.public_key], [([user_pk], 100)], asset={'name': random.random()})

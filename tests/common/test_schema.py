@@ -13,8 +13,8 @@ from hypothesis import given
 from hypothesis.strategies import from_regex as regex
 from pytest import raises
 
-from planetmint.common.exceptions import SchemaValidationError
-from planetmint.common.schema import (
+from planetmint.transactions.common.exceptions import SchemaValidationError
+from planetmint.transactions.common.schema import (
     TX_SCHEMA_COMMON,
     validate_transaction_schema,
 )

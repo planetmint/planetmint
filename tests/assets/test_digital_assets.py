@@ -21,7 +21,7 @@ def test_asset_transfer(b, signed_create_tx, user_pk, user_sk):
 
 
 def test_validate_transfer_asset_id_mismatch(b, signed_create_tx, user_pk, user_sk):
-    from planetmint.common.exceptions import AssetIdMismatch
+    from planetmint.transactions.common.exceptions import AssetIdMismatch
     from planetmint.models import Transaction
 
     tx_transfer = Transaction.transfer(signed_create_tx.to_inputs(), [([user_pk], 1)],
@@ -52,7 +52,7 @@ def test_get_asset_id_transfer_transaction(b, signed_create_tx, user_pk):
 
 def test_asset_id_mismatch(alice, user_pk):
     from planetmint.models import Transaction
-    from planetmint.common.exceptions import AssetIdMismatch
+    from planetmint.transactions.common.exceptions import AssetIdMismatch
 
     tx1 = Transaction.create([alice.public_key], [([user_pk], 1)],
                              metadata={'msg': random.random()})

@@ -6,7 +6,7 @@
 import planetmint
 import logging
 
-from planetmint.common.exceptions import ConfigurationError
+from planetmint.transactions.common.exceptions import ConfigurationError
 from logging.config import dictConfig as set_logging_config
 import os
 

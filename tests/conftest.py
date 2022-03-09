@@ -23,13 +23,13 @@ import pytest
 from pymongo import MongoClient
 
 from planetmint import ValidatorElection
-from planetmint.common import crypto
-from planetmint.common.transaction_mode_types import BROADCAST_TX_COMMIT
+from planetmint.transactions.common import crypto
+from planetmint.transactions.common.transaction_mode_types import BROADCAST_TX_COMMIT
 from planetmint.tendermint_utils import key_from_base64
 from planetmint.backend import schema, query
-from planetmint.common.crypto import (key_pair_from_ed25519_key,
+from planetmint.transactions.common.crypto import (key_pair_from_ed25519_key,
                                       public_key_from_ed25519_key)
-from planetmint.common.exceptions import DatabaseDoesNotExist
+from planetmint.transactions.common.exceptions import DatabaseDoesNotExist
 from planetmint.lib import Block
 from tests.utils import gen_vote
 
@@ -149,7 +149,7 @@ def _bdb(_setup_database, _configure_planetmint):
     from planetmint import config
     from planetmint.backend import connect
     from .utils import flush_db
-    from planetmint.common.memoize import to_dict, from_dict
+    from planetmint.transactions.common.memoize import to_dict, from_dict
     from planetmint.models import Transaction
     conn = connect()
     yield
@@ -205,13 +205,13 @@ def user2_pk():
 
 @pytest.fixture
 def alice():
-    from planetmint.common.crypto import generate_key_pair
+    from planetmint.transactions.common.crypto import generate_key_pair
     return generate_key_pair()
 
 
 @pytest.fixture
 def bob():
-    from planetmint.common.crypto import generate_key_pair
+    from planetmint.transactions.common.crypto import generate_key_pair
     return generate_key_pair()
 
 
@@ -227,7 +227,7 @@ def bob_pubkey(carol):
 
 @pytest.fixture
 def carol():
-    from planetmint.common.crypto import generate_key_pair
+    from planetmint.transactions.common.crypto import generate_key_pair
     return generate_key_pair()
 
 
@@ -243,7 +243,7 @@ def carol_pubkey(carol):
 
 @pytest.fixture
 def merlin():
-    from planetmint.common.crypto import generate_key_pair
+    from planetmint.transactions.common.crypto import generate_key_pair
     return generate_key_pair()
 
 

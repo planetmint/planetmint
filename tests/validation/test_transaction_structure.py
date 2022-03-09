@@ -16,7 +16,7 @@ except ImportError:
     import sha3
 from unittest.mock import MagicMock
 
-from planetmint.common.exceptions import (AmountError,
+from planetmint.transactions.common.exceptions import (AmountError,
                                           SchemaValidationError,
                                           ThresholdTooDeep)
 from planetmint.models import Transaction
@@ -54,8 +54,8 @@ def test_tx_serialization_hash_function(signed_create_tx):
 
 
 def test_tx_serialization_with_incorrect_hash(signed_create_tx):
-    from planetmint.common.transaction import Transaction
-    from planetmint.common.exceptions import InvalidHash
+    from planetmint.transactions.common.transaction import Transaction
+    from planetmint.transactions.common.exceptions import InvalidHash
     tx = signed_create_tx.to_dict()
     tx['id'] = 'a' * 64
     with pytest.raises(InvalidHash):
@@ -63,7 +63,7 @@ def test_tx_serialization_with_incorrect_hash(signed_create_tx):
 
 
 def test_tx_serialization_with_no_hash(signed_create_tx):
-    from planetmint.common.exceptions import InvalidHash
+    from planetmint.transactions.common.exceptions import InvalidHash
     tx = signed_create_tx.to_dict()
     del tx['id']
     with pytest.raises(InvalidHash):
@@ -104,7 +104,7 @@ def test_validate_fails_metadata_empty_dict(b, create_tx, alice):
 # Asset
 
 def test_transfer_asset_schema(user_sk, signed_transfer_tx):
-    from planetmint.common.transaction import Transaction
+    from planetmint.transactions.common.transaction import Transaction
     tx = signed_transfer_tx.to_dict()
     validate(tx)
     tx['id'] = None
@@ -149,7 +149,7 @@ def test_no_inputs(b, create_tx, alice):
 
 
 def test_create_single_input(b, create_tx, alice):
-    from planetmint.common.transaction import Transaction
+    from planetmint.transactions.common.transaction import Transaction
     tx = create_tx.to_dict()
     tx['inputs'] += tx['inputs']
     tx = Transaction.from_dict(tx).sign([alice.private_key]).to_dict()
@@ -161,7 +161,7 @@ def test_create_single_input(b, create_tx, alice):
 
 
 def test_create_tx_no_fulfills(b, create_tx, alice):
-    from planetmint.common.transaction import Transaction
+    from planetmint.transactions.common.transaction import Transaction
     tx = create_tx.to_dict()
     tx['inputs'][0]['fulfills'] = {'transaction_id': 'a' * 64,
                                    'output_index': 0}
@@ -213,7 +213,7 @@ def test_high_amounts(b, create_tx, alice):
 # Conditions
 
 def test_handle_threshold_overflow():
-    from planetmint.common import transaction
+    from planetmint.transactions.common import transaction
 
     cond = {
         'type': 'ed25519-sha-256',
@@ -230,7 +230,7 @@ def test_handle_threshold_overflow():
 
 
 def test_unsupported_condition_type():
-    from planetmint.common import transaction
+    from planetmint.transactions.common import transaction
     from cryptoconditions.exceptions import UnsupportedTypeError
 
     with pytest.raises(UnsupportedTypeError):

@@ -13,7 +13,7 @@ import pytest
 from abci.server import ProtocolHandler
 from abci.utils import read_messages
 
-from planetmint.common.transaction_mode_types import BROADCAST_TX_COMMIT, BROADCAST_TX_SYNC
+from planetmint.transactions.common.transaction_mode_types import BROADCAST_TX_COMMIT, BROADCAST_TX_SYNC
 from planetmint.version import __tm_supported_versions__
 from io import BytesIO
 
@@ -22,7 +22,7 @@ from io import BytesIO
 def test_app(b, eventqueue_fixture, init_chain_request):
     from planetmint import App
     from planetmint.tendermint_utils import calculate_hash
-    from planetmint.common.crypto import generate_key_pair
+    from planetmint.transactions.common.crypto import generate_key_pair
     from planetmint.models import Transaction
 
     app = App(b, eventqueue_fixture)
@@ -113,7 +113,7 @@ def test_app(b, eventqueue_fixture, init_chain_request):
 
 @pytest.mark.abci
 def test_post_transaction_responses(tendermint_ws_url, b):
-    from planetmint.common.crypto import generate_key_pair
+    from planetmint.transactions.common.crypto import generate_key_pair
     from planetmint.models import Transaction
 
     alice = generate_key_pair()

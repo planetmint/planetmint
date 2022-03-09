@@ -24,10 +24,10 @@ import requests
 import planetmint
 from planetmint import backend, config_utils, fastquery
 from planetmint.models import Transaction
-from planetmint.common.exceptions import (SchemaValidationError,
+from planetmint.transactions.common.exceptions import (SchemaValidationError,
                                           ValidationError,
                                           DoubleSpend)
-from planetmint.common.transaction_mode_types import (BROADCAST_TX_COMMIT,
+from planetmint.transactions.common.transaction_mode_types import (BROADCAST_TX_COMMIT,
                                                       BROADCAST_TX_ASYNC,
                                                       BROADCAST_TX_SYNC)
 from planetmint.tendermint_utils import encode_transaction, merkleroot

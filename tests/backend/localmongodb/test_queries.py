@@ -238,7 +238,7 @@ def test_get_spending_transactions(user_pk, user_sk):
 def test_get_spending_transactions_multiple_inputs():
     from planetmint.backend import connect, query
     from planetmint.models import Transaction
-    from planetmint.common.crypto import generate_key_pair
+    from planetmint.transactions.common.crypto import generate_key_pair
     conn = connect()
     (alice_sk, alice_pk) = generate_key_pair()
     (bob_sk, bob_pk) = generate_key_pair()
