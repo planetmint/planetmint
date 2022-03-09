@@ -180,7 +180,7 @@ def test_write_metadata():
     # check that 3 assets were written to the database
     cursor = conn.db.metadata.find({}, projection={'_id': False})\
                              .sort('id', pymongo.ASCENDING)
-
+TarantoolDB
     assert cursor.collection.count_documents({}) == 3
     assert list(cursor) == metadata
 

@@ -14,4 +14,4 @@ configuration or the ``PLANETMINT_DATABASE_BACKEND`` environment variable.
 # Include the backend interfaces
 from planetmint.backend import schema, query  # noqa
 
-from planetmint.backend.connection_tarantool import connect  # noqa
+from planetmint.backend.connection import Connection

@@ -9,8 +9,7 @@ from functools import singledispatch
 import logging
 
 import planetmint
-from planetmint.backend.connection import connect as connect_mongo
-from planetmint.backend.connection_tarantool import connect
+from planetmint.backend.connection import Connection
 from planetmint.common.exceptions import ValidationError
 from planetmint.common.utils import validate_all_values_for_key_in_obj, validate_all_values_for_key_in_list
 
@@ -64,7 +63,7 @@ def drop_database(connection, dbname):
     raise NotImplementedError
 
 
-def init_database(connection=None, dbname=None):
+def init_database(connection=None, dbname=None):  # FIXME HERE IS INIT DATABASE
     """Initialize the configured backend for use with Planetmint.
 
     Creates a database with :attr:`dbname` with any required tables
@@ -79,7 +78,7 @@ def init_database(connection=None, dbname=None):
             configuration.
     """
 
-    connection = connection or connect()
+    connection = connection or Connection()
     dbname = dbname or planetmint.config['database']['name']
 
     create_database(connection, dbname)

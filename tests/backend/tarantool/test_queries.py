@@ -9,16 +9,16 @@ import pytest
 
 # import pymongo
 
-# from planetmint.backend import connect, query
+# from planetmint.backend.connection import Connection, query
 
 pytestmark = pytest.mark.bdb
 
 
 def test_get_txids_filtered(signed_create_tx, signed_transfer_tx):
-    from planetmint.backend import connect
+    from planetmint.backend.connection import Connection
     from planetmint.backend.tarantool import query
     from planetmint.models import Transaction
-    conn = connect(reset_database=True).get_connection()
+    conn = Connection(reset_database=True).get_connection()
     # create and insert two blocks, one for the create and one for the
     # transfer transaction
     create_tx_dict = signed_create_tx.to_dict()
@@ -43,9 +43,9 @@ def test_get_txids_filtered(signed_create_tx, signed_transfer_tx):
 
 
 def test_write_assets():
-    from planetmint.backend import connect
+    from planetmint.backend.connection import Connection
     from planetmint.backend.tarantool import query
-    conn = connect().get_connection()
+    conn = Connection().get_connection()
     assets = [
         {'id': "1", 'data': '1'},
         {'id': "2", 'data': '2'},
@@ -66,9 +66,9 @@ def test_write_assets():
 
 
 def test_get_assets():
-    from planetmint.backend import connect
+    from planetmint.backend.connection import Connection
     from planetmint.backend.tarantool import query
-    conn = connect().get_connection()
+    conn = Connection().get_connection()
 
     assets = [
         {'id': "1", 'data': '1'},
@@ -167,9 +167,9 @@ def test_text_search(table):
 
 
 def test_write_metadata():
-    from planetmint.backend import connect
+    from planetmint.backend.connection import Connection
     from planetmint.backend.tarantool import query
-    conn = connect().get_connection()
+    conn = Connection().get_connection()
 
     metadata = [
         {'id': "1", 'data': '1'},
@@ -194,9 +194,9 @@ def test_write_metadata():
 
 
 def test_get_metadata():
-    from planetmint.backend import connect
+    from planetmint.backend.connection import Connection
     from planetmint.backend.tarantool import query
-    conn = connect().get_connection()
+    conn = Connection().get_connection()
 
     metadata = [
         {'id': "dd86682db39e4b424df0eec1413cfad65488fd48712097c5d865ca8e8e059b64", 'metadata': None},
@@ -211,9 +211,9 @@ def test_get_metadata():
 
 
 def test_get_owned_ids(signed_create_tx, user_pk):
-    from planetmint.backend import connect
+    from planetmint.backend.connection import Connection
     from planetmint.backend.tarantool import query
-    conn = connect().get_connection()
+    conn = Connection().get_connection()
 
     # insert a transaction
     query.store_transactions(connection=conn, signed_transactions=[signed_create_tx.to_dict()])
@@ -225,9 +225,9 @@ def test_get_owned_ids(signed_create_tx, user_pk):
 
 def test_get_spending_transactions(user_pk, user_sk):
     from planetmint.models import Transaction
-    from planetmint.backend import connect
+    from planetmint.backend.connection import Connection
     from planetmint.backend.tarantool import query
-    conn = connect().get_connection()
+    conn = Connection().get_connection()
 
     out = [([user_pk], 1)]
     tx1 = Transaction.create([user_pk], out * 3)
@@ -249,10 +249,10 @@ def test_get_spending_transactions(user_pk, user_sk):
 def test_get_spending_transactions_multiple_inputs():
     from planetmint.models import Transaction
     from planetmint.common.crypto import generate_key_pair
-    from planetmint.backend import connect
+    from planetmint.backend.connection import Connection
     from planetmint.backend.tarantool import query
 
-    conn = connect().get_connection()
+    conn = Connection().get_connection()
 
     (alice_sk, alice_pk) = generate_key_pair()
     (bob_sk, bob_pk) = generate_key_pair()
@@ -294,10 +294,10 @@ def test_get_spending_transactions_multiple_inputs():
 
 def test_store_block():
     from planetmint.lib import Block
-    from planetmint.backend import connect
+    from planetmint.backend.connection import Connection
     from planetmint.backend.tarantool import query
 
-    conn = connect().get_connection()
+    conn = Connection().get_connection()
 
     block = Block(app_hash='random_utxo',
                   height=3,
@@ -310,10 +310,10 @@ def test_store_block():
 
 def test_get_block():
     from planetmint.lib import Block
-    from planetmint.backend import connect
+    from planetmint.backend.connection import Connection
     from planetmint.backend.tarantool import query
 
-    conn = connect().get_connection()
+    conn = Connection().get_connection()
 
     block = Block(app_hash='random_utxo',
                   height=3,
@@ -424,10 +424,10 @@ def test_get_block():
 
 
 def test_store_pre_commit_state(db_context):
-    from planetmint.backend import connect
+    from planetmint.backend.connection import Connection
     from planetmint.backend.tarantool import query
 
-    conn = connect().get_connection()
+    conn = Connection().get_connection()
 
     state = dict(height=3, transactions=[])
 
@@ -440,10 +440,10 @@ def test_store_pre_commit_state(db_context):
 
 
 def test_get_pre_commit_state(db_context):
-    from planetmint.backend import connect
+    from planetmint.backend.connection import Connection
     from planetmint.backend.tarantool import query
 
-    conn = connect().get_connection()
+    conn = Connection().get_connection()
     space = conn.space("pre_commits")
     all_pre = space.select([])
     for pre in all_pre.data:
@@ -457,10 +457,10 @@ def test_get_pre_commit_state(db_context):
 
 
 def test_validator_update():
-    from planetmint.backend import connect
+    from planetmint.backend.connection import Connection
     from planetmint.backend.tarantool import query
 
-    conn = connect().get_connection()
+    conn = Connection().get_connection()
 
     def gen_validator_update(height):
         return {'validators': [], 'height': height, 'election_id': f'election_id_at_height_{height}'}
@@ -519,10 +519,10 @@ def test_validator_update():
     ),
 ])
 def test_store_abci_chain(description, stores, expected):
-    from planetmint.backend import connect
+    from planetmint.backend.connection import Connection
     from planetmint.backend.tarantool import query
 
-    conn = connect().get_connection()
+    conn = Connection().get_connection()
 
     for store in stores:
         query.store_abci_chain(conn, **store)
