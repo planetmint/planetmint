@@ -13,7 +13,7 @@ import pytest
 
 from planetmint import ValidatorElection
 from planetmint.commands.planetmint import run_election_show
-from planetmint.elections.election import Election
+from planetmint.transactions.types.elections.election import Election
 from planetmint.lib import Block
 from planetmint.migrations.chain_migration_election import ChainMigrationElection
 

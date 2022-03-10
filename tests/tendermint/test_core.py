@@ -16,7 +16,7 @@ from planetmint.transactions.common.crypto import generate_key_pair
 from planetmint.core import (OkCode,
                              CodeTypeError,
                              rollback)
-from planetmint.elections.election import Election
+from planetmint.transactions.types.elections.election import Election
 from planetmint.lib import Block
 from planetmint.migrations.chain_migration_election import ChainMigrationElection
 from planetmint.upsert_validator.validator_election import ValidatorElection

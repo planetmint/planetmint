@@ -13,7 +13,7 @@ from planetmint.backend.localmongodb.connection import LocalMongoDBConnection
 from planetmint.backend.schema import TABLES
 from planetmint.transactions.common import crypto
 from planetmint.transactions.common.transaction_mode_types import BROADCAST_TX_COMMIT
-from planetmint.elections.election import Election, Vote
+from planetmint.transactions.types.elections.election import Election, Vote
 from planetmint.tendermint_utils import key_to_base64
 
 

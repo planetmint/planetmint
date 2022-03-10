@@ -4,7 +4,7 @@
 # Code is Apache-2.0 and docs are CC-BY-4.0
 
 from planetmint.transactions.common.exceptions import InvalidPowerChange
-from planetmint.elections.election import Election
+from planetmint.transactions.types.elections.election import Election
 from planetmint.transactions.common.schema import TX_SCHEMA_VALIDATOR_ELECTION
 from .validator_utils import (new_validator_set, encode_validator, validate_asset_public_key)
 
