@@ -10,12 +10,10 @@ from pymongo import DESCENDING
 from secrets import token_hex
 from operator import itemgetter
 
-from planetmint import backend
-from planetmint.backend.exceptions import DuplicateKeyError
+from planetmint.backend import query
 from planetmint.backend.utils import module_dispatch_registrar
-from planetmint.common.transaction import Transaction
 
-register_query = module_dispatch_registrar(backend.query)
+register_query = module_dispatch_registrar(query)
 
 
 def _group_transaction_by_ids(txids: list, connection):
