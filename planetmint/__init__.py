@@ -10,6 +10,7 @@ from planetmint.log import DEFAULT_LOGGING_CONFIG as log_config
 from planetmint.version import __version__  # noqa
 
 
+
 # from functools import reduce
 # PORT_NUMBER = reduce(lambda x, y: x * y, map(ord, 'Planetmint')) % 2**16
 # basically, the port number is 9984
@@ -107,6 +108,7 @@ from planetmint import models  # noqa
 from planetmint.upsert_validator import ValidatorElection  # noqa
 from planetmint.elections.vote import Vote  # noqa
 from planetmint.migrations.chain_migration_election import ChainMigrationElection
+from planetmint.lib import Planetmint
 
 Transaction.register_type(Transaction.CREATE, models.Transaction)
 Transaction.register_type(Transaction.TRANSFER, models.Transaction)
