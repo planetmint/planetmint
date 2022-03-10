@@ -9,12 +9,9 @@
 [ "$(stat -c %U /data/db)" = mongodb ] || chown -R mongodb /data/db
 
 # Planetmint configuration
-planetmint-monit-config
+/usr/src/app/scripts/planetmint-monit-config
 
 nohup mongod --bind_ip_all > "$HOME/.planetmint-monit/logs/mongodb_log_$(date +%Y%m%d_%H%M%S)" 2>&1 &
-
-# Tendermint configuration
-tendermint init
 
 # Start services
 monit -d 5 -I -B

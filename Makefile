@@ -83,10 +83,10 @@ test-unit-watch: check-deps ## Run all tests and wait. Every time you change cod
 	@$(DC) run --rm --no-deps planetmint pytest -f
 
 test-acceptance: check-deps ## Run all acceptance tests
-	@./run-acceptance-test.sh
+	@./scripts/run-acceptance-test.sh
 
 test-integration: check-deps ## Run all integration tests
-	@./run-integration-test.sh
+	@./scripts/run-integration-test.sh
 
 cov: check-deps ## Check code coverage and open the result in the browser
 	@$(DC) run --rm planetmint pytest -v --cov=planetmint --cov-report html
@@ -99,6 +99,10 @@ docs: check-deps ## Generate HTML documentation and open it in the browser
 docs-acceptance: check-deps ## Create documentation for acceptance tests
 	@$(DC) run --rm python-acceptance pycco -i -s /src -d /docs
 	$(BROWSER) acceptance/python/docs/index.html
+
+docs-integration: check-deps ## Create documentation for integration tests
+	@$(DC) run --rm python-integration pycco -i -s /src -d /docs
+	$(BROWSER) integration/python/docs/index.html
 
 clean: check-deps ## Remove all build, test, coverage and Python artifacts
 	@$(DC) up clean

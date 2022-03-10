@@ -12,11 +12,10 @@ if [[ -n ${TOXENV} ]]; then
 elif [[ ${PLANETMINT_CI_ABCI} == 'enable' ]]; then
   docker-compose exec planetmint pytest -v -m abci
 elif [[ ${PLANETMINT_ACCEPTANCE_TEST} == 'enable' ]]; then
-    ./run-acceptance-test.sh
+    ./scripts/run-acceptance-test.sh
 elif [[ ${PLANETMINT_INTEGRATION_TEST} == 'enable' ]]; then
-    chmod 600 id_ed25519
-    ./run-integration-test.sh
-    ./scripts/test.sh
+    docker-compose down # TODO: remove after ci optimization
+    ./scripts/run-integration-test.sh
 else
   docker-compose exec planetmint pytest -v --cov=planetmint --cov-report xml:htmlcov/coverage.xml
 fi
