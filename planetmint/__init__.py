@@ -6,7 +6,6 @@
 import copy
 import logging
 import os
-from planetmint.migrations.chain_migration_election import ChainMigrationElection
 from planetmint.log import DEFAULT_LOGGING_CONFIG as log_config
 from planetmint.version import __version__  # noqa
 
@@ -107,6 +106,7 @@ from planetmint.common.transaction import Transaction  # noqa
 from planetmint import models  # noqa
 from planetmint.upsert_validator import ValidatorElection  # noqa
 from planetmint.elections.vote import Vote  # noqa
+from planetmint.migrations.chain_migration_election import ChainMigrationElection
 
 Transaction.register_type(Transaction.CREATE, models.Transaction)
 Transaction.register_type(Transaction.TRANSFER, models.Transaction)

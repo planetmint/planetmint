@@ -4,7 +4,7 @@
 # Code is Apache-2.0 and docs are CC-BY-4.0
 
 import logging
-import bigchaindb
+import planetmint
 from ssl import CERT_REQUIRED
 
 import pymongo
@@ -42,7 +42,7 @@ class Connection:
                 configuration's ``database`` settings
         """
 
-        dbconf = bigchaindb.config['database']
+        dbconf = planetmint.config['database']
 
         self.host = host or dbconf['host']
         self.port = port or dbconf['port']
