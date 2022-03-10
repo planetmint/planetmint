@@ -8,10 +8,8 @@ import logging
 import os
 
 from planetmint.log import DEFAULT_LOGGING_CONFIG as log_config
-from planetmint.lib import Planetmint  # noqa
-from planetmint.migrations.chain_migration_election import ChainMigrationElection
 from planetmint.version import __version__  # noqa
-from planetmint.core import App  # noqa
+
 
 # from functools import reduce
 # PORT_NUMBER = reduce(lambda x, y: x * y, map(ord, 'Planetmint')) % 2**16

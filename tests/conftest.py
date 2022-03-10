@@ -21,7 +21,7 @@ from logging.config import dictConfig
 import pytest
 # from pymongo import MongoClient
 
-from planetmint import ValidatorElection
+#from planetmint.upsert_validator import ValidatorElection
 from planetmint.common import crypto
 from planetmint.common.transaction_mode_types import BROADCAST_TX_COMMIT
 from planetmint.tendermint_utils import key_from_base64
