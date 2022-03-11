@@ -99,8 +99,7 @@ $ bash stack.sh -h
     ENV[TM_VERSION]
         (Optional) Tendermint version to use for the setup. (default: 0.22.8)
 
-    ENV[MONGO_VERSION]
-        (Optional) MongoDB version to use with the setup. (default: 3.6)
+    
 
     ENV[AZURE_CLIENT_ID]
         Only required when STACK_TYPE="cloud" and STACK_TYPE_PROVIDER="azure". Steps to generate:
@@ -181,8 +180,6 @@ $ export STACK_BRANCH=master
 #Optional, since 0.22.8 is the default tendermint version.
 $ export TM_VERSION=0.22.8
 
-#Optional, since 3.6 is the default MongoDB version.
-$ export MONGO_VERSION=3.6
 
 $ bash stack.sh
 ```
@@ -232,8 +229,7 @@ $ export STACK_BRANCH=master
 #Optional, since 0.22.8 is the default tendermint version
 $ export TM_VERSION=0.22.8
 
-#Optional, since 3.6 is the default MongoDB version.
-$ export MONGO_VERSION=3.6
+
 
 $ bash stack.sh
 ```
