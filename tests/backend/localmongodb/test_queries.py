@@ -483,3 +483,4 @@ def test_store_abci_chain(description, stores, expected):
     assert expected == actual, description
 
 test_get_txids_filtered(None, None)
+
