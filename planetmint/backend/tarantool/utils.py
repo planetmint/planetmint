@@ -12,8 +12,8 @@ def run(commands: list, config: dict):
     for cmd in commands:
         try:
             sshProcess.stdin.write(cmd)
-        except:
-            pass
+        except Exception as cmd_err:
+            print(str(cmd_err))
     sshProcess.stdin.close()
     #  TODO To add here Exception Handler for stdout
     # for line in sshProcess.stdout:

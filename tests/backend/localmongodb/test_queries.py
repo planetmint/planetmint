@@ -6,18 +6,18 @@
 from copy import deepcopy
 
 import pytest
-# import pymongo
+import pymongo
 
-from planetmint.backend import connect, query
+from planetmint.backend import Connection, query
 
 
 pytestmark = pytest.mark.bdb
 
 
 def test_get_txids_filtered(signed_create_tx, signed_transfer_tx):
-    from planetmint.backend import connect, query
+    from planetmint.backend import Connection, query
     from planetmint.models import Transaction
-    conn = connect()  # TODO First rewrite to get here tarantool connection
+    conn = Connection()  # TODO First rewrite to get here tarantool connection
     print(conn)
     # create and insert two blocks, one for the create and one for the
     # transfer transaction
@@ -40,8 +40,8 @@ def test_get_txids_filtered(signed_create_tx, signed_transfer_tx):
 
 
 def test_write_assets():
-    from planetmint.backend import connect, query
-    conn = connect()
+    from planetmint.backend import Connection, query
+    conn = Connection()
 
     assets = [
         {'id': 1, 'data': '1'},
@@ -64,8 +64,8 @@ def test_write_assets():
 
 
 def test_get_assets():
-    from planetmint.backend import connect, query
-    conn = connect()
+    from planetmint.backend import Connection, query
+    conn = Connection()
 
     assets = [
         {'id': 1, 'data': '1'},
@@ -81,8 +81,8 @@ def test_get_assets():
 
 @pytest.mark.parametrize('table', ['assets', 'metadata'])
 def test_text_search(table):
-    from planetmint.backend import connect, query
-    conn = connect()
+    from planetmint.backend import Connection, query
+    conn = Connection()
 
     # Example data and tests cases taken from the mongodb documentation
     # https://docs.mongodb.com/manual/reference/operator/query/text/
@@ -165,8 +165,8 @@ def test_text_search(table):
 
 
 def test_write_metadata():
-    from planetmint.backend import connect, query
-    conn = connect()
+    from planetmint.backend import Connection, query
+    conn = Connection()
 
     metadata = [
         {'id': 1, 'data': '1'},
@@ -180,14 +180,13 @@ def test_write_metadata():
     # check that 3 assets were written to the database
     cursor = conn.db.metadata.find({}, projection={'_id': False})\
                              .sort('id', pymongo.ASCENDING)
-TarantoolDB
     assert cursor.collection.count_documents({}) == 3
     assert list(cursor) == metadata
 
 
 def test_get_metadata():
-    from planetmint.backend import connect, query
-    conn = connect()
+    from planetmint.backend import Connection, query
+    conn = Connection()
 
     metadata = [
         {'id': 1, 'metadata': None},
@@ -202,8 +201,8 @@ def test_get_metadata():
 
 
 def test_get_owned_ids(signed_create_tx, user_pk):
-    from planetmint.backend import connect, query
-    conn = connect()
+    from planetmint.backend import Connection, query
+    conn = Connection()
 
     # insert a transaction
     conn.db.transactions.insert_one(deepcopy(signed_create_tx.to_dict()))
@@ -214,9 +213,9 @@ def test_get_owned_ids(signed_create_tx, user_pk):
 
 
 def test_get_spending_transactions(user_pk, user_sk):
-    from planetmint.backend import connect, query
+    from planetmint.backend import Connection, query
     from planetmint.models import Transaction
-    conn = connect()
+    conn = Connection()
 
     out = [([user_pk], 1)]
     tx1 = Transaction.create([user_pk], out * 3)
@@ -236,10 +235,10 @@ def test_get_spending_transactions(user_pk, user_sk):
 
 
 def test_get_spending_transactions_multiple_inputs():
-    from planetmint.backend import connect, query
+    from planetmint.backend import Connection, query
     from planetmint.models import Transaction
     from planetmint.common.crypto import generate_key_pair
-    conn = connect()
+    conn = Connection()
     (alice_sk, alice_pk) = generate_key_pair()
     (bob_sk, bob_pk) = generate_key_pair()
     (carol_sk, carol_pk) = generate_key_pair()
@@ -279,9 +278,9 @@ def test_get_spending_transactions_multiple_inputs():
 
 
 def test_store_block():
-    from planetmint.backend import connect, query
+    from planetmint.backend import Connection, query
     from planetmint.lib import Block
-    conn = connect()
+    conn = Connection()
 
     block = Block(app_hash='random_utxo',
                   height=3,
@@ -292,9 +291,9 @@ def test_store_block():
 
 
 def test_get_block():
-    from planetmint.backend import connect, query
+    from planetmint.backend import Connection, query
     from planetmint.lib import Block
-    conn = connect()
+    conn = Connection()
 
     block = Block(app_hash='random_utxo',
                   height=3,
@@ -415,9 +414,9 @@ def test_get_pre_commit_state(db_context):
 
 
 def test_validator_update():
-    from planetmint.backend import connect, query
+    from planetmint.backend import Connection, query
 
-    conn = connect()
+    conn = Connection()
 
     def gen_validator_update(height):
         return {'data': 'somedata', 'height': height, 'election_id': f'election_id_at_height_{height}'}
@@ -475,7 +474,7 @@ def test_validator_update():
     ),
 ])
 def test_store_abci_chain(description, stores, expected):
-    conn = connect()
+    conn = Connection()
 
     for store in stores:
         query.store_abci_chain(conn, **store)
