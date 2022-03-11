@@ -20,7 +20,7 @@ def test_get_txids_filtered(signed_create_tx, signed_transfer_tx):
     conn = Connection()  # TODO First rewrite to get here tarantool connection
     print(conn)
     # create and insert two blocks, one for the create and one for the
-    # transfer transaction
+    # transfer transactionTarantoolDBTarantoolDB
     conn.db.transactions.insert_one(signed_create_tx.to_dict())
     conn.db.transactions.insert_one(signed_transfer_tx.to_dict())
 
