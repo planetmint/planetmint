@@ -9,11 +9,9 @@ import pytest
 
 from planetmint.tendermint_utils import public_key_to_base64
 from planetmint.upsert_validator import ValidatorElection
-from planetmint.transactions.common.exceptions import (DuplicateTransaction,
-                                          UnequalValidatorSet,
-                                          InvalidProposer,
-                                          MultipleInputsError,
-                                          InvalidPowerChange)
+from planetmint.transactions.common.exceptions import (
+    DuplicateTransaction, UnequalValidatorSet, InvalidProposer,
+    MultipleInputsError, InvalidPowerChange)
 
 pytestmark = pytest.mark.bdb
 

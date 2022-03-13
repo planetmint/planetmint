@@ -17,9 +17,8 @@ import pytest
 from pymongo import MongoClient
 
 from planetmint import backend
-from planetmint.transactions.common.transaction_mode_types import (BROADCAST_TX_COMMIT,
-                                                      BROADCAST_TX_ASYNC,
-                                                      BROADCAST_TX_SYNC)
+from planetmint.transactions.common.transaction_mode_types import (
+    BROADCAST_TX_COMMIT, BROADCAST_TX_ASYNC, BROADCAST_TX_SYNC)
 from planetmint.lib import Block
 
 

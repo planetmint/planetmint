@@ -621,8 +621,8 @@ def test_multiple_input_validation_of_transfer_tx(user_input, user_output,
                                                   user2_priv, user3_pub,
                                                   user3_priv,
                                                   asset_definition):
-    from planetmint.transactions.common.transaction import (Transaction, TransactionLink,
-                                               Input, Output)
+    from planetmint.transactions.common.transaction import (
+        Transaction, TransactionLink, Input, Output)
     from cryptoconditions import Ed25519Sha256
     from .utils import validate_transaction_model
 

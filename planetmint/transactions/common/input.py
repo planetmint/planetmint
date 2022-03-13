@@ -3,28 +3,10 @@
 # SPDX-License-Identifier: (Apache-2.0 AND CC-BY-4.0)
 # Code is Apache-2.0 and docs are CC-BY-4.0
 
-from collections import namedtuple
-from copy import deepcopy
-from functools import reduce, lru_cache
-import rapidjson
+from cryptoconditions import Fulfillment
+from cryptoconditions.exceptions import ASN1DecodeError, ASN1EncodeError
 
-import base58
-from cryptoconditions import Fulfillment, ThresholdSha256, Ed25519Sha256
-from cryptoconditions.exceptions import (
-    ParsingError, ASN1DecodeError, ASN1EncodeError, UnsupportedTypeError)
-try:
-    from hashlib import sha3_256
-except ImportError:
-    from sha3 import sha3_256
-
-from planetmint.transactions.common.crypto import PrivateKey, hash_data
-from planetmint.transactions.common.exceptions import (KeypairMismatchException,
-                                          InputDoesNotExist, DoubleSpend,
-                                          InvalidHash, InvalidSignature,
-                                          AmountError, AssetIdMismatch,
-                                          ThresholdTooDeep)
-from planetmint.transactions.common.utils import serialize
-from .memoize import memoize_from_dict, memoize_to_dict
+from planetmint.transactions.common.exceptions import InvalidSignature
 from .utils import _fulfillment_to_details, _fulfillment_from_details
 from .output import Output
 from .transaction_link import TransactionLink

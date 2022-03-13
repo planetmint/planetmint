@@ -16,9 +16,8 @@ except ImportError:
     import sha3
 from unittest.mock import MagicMock
 
-from planetmint.transactions.common.exceptions import (AmountError,
-                                          SchemaValidationError,
-                                          ThresholdTooDeep)
+from planetmint.transactions.common.exceptions import (
+    AmountError, SchemaValidationError, ThresholdTooDeep)
 from planetmint.models import Transaction
 from planetmint.transactions.common.utils import _fulfillment_to_details, _fulfillment_from_details
 
@@ -214,8 +213,6 @@ def test_high_amounts(b, create_tx, alice):
 # Conditions
 
 def test_handle_threshold_overflow():
-    from planetmint.transactions.common import transaction
-
     cond = {
         'type': 'ed25519-sha-256',
         'public_key': 'a' * 43,
@@ -231,7 +228,6 @@ def test_handle_threshold_overflow():
 
 
 def test_unsupported_condition_type():
-    from planetmint.transactions.common import transaction
     from cryptoconditions.exceptions import UnsupportedTypeError
 
     with pytest.raises(UnsupportedTypeError):

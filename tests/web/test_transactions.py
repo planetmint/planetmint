@@ -15,9 +15,8 @@ except ImportError:
     from sha3 import sha3_256
 
 from planetmint.transactions.common import crypto
-from planetmint.transactions.common.transaction_mode_types import (BROADCAST_TX_COMMIT,
-                                                      BROADCAST_TX_ASYNC,
-                                                      BROADCAST_TX_SYNC)
+from planetmint.transactions.common.transaction_mode_types import (
+    BROADCAST_TX_COMMIT, BROADCAST_TX_ASYNC, BROADCAST_TX_SYNC)
 
 TX_ENDPOINT = '/api/v1/transactions/'
 

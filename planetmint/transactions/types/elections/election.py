@@ -11,17 +11,14 @@ from planetmint import backend
 from planetmint.transactions.types.assets.create import Create
 from planetmint.transactions.types.assets.transfer import Transfer
 from planetmint.transactions.types.elections.vote import Vote
-from planetmint.transactions.common.exceptions import (InvalidSignature,
-                                          MultipleInputsError,
-                                          InvalidProposer,
-                                          UnequalValidatorSet,
-                                          DuplicateTransaction)
+from planetmint.transactions.common.exceptions import (
+    InvalidSignature, MultipleInputsError, InvalidProposer, 
+    UnequalValidatorSet, DuplicateTransaction)
 from planetmint.tendermint_utils import key_from_base64, public_key_to_base64
 from planetmint.transactions.common.crypto import (public_key_from_ed25519_key)
 from planetmint.transactions.common.transaction import Transaction
-from planetmint.transactions.common.schema import (_validate_schema,
-                                      TX_SCHEMA_COMMON,
-                                      TX_SCHEMA_CREATE)
+from planetmint.transactions.common.schema import (
+    _validate_schema, TX_SCHEMA_COMMON, TX_SCHEMA_CREATE)
 
 
 class Election(Transaction):

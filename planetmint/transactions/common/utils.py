@@ -10,14 +10,9 @@ import rapidjson
 
 import planetmint
 from planetmint.transactions.common.exceptions import ValidationError
-from cryptoconditions import Fulfillment, ThresholdSha256, Ed25519Sha256
-from planetmint.transactions.common.exceptions import (KeypairMismatchException,
-                                          InputDoesNotExist, DoubleSpend,
-                                          InvalidHash, InvalidSignature,
-                                          AmountError, AssetIdMismatch,
-                                          ThresholdTooDeep)
-from cryptoconditions.exceptions import (
-    ParsingError, ASN1DecodeError, ASN1EncodeError, UnsupportedTypeError)
+from cryptoconditions import ThresholdSha256, Ed25519Sha256
+from planetmint.transactions.common.exceptions import ThresholdTooDeep
+from cryptoconditions.exceptions import UnsupportedTypeError
 
 
 def gen_timestamp():
@@ -221,3 +216,4 @@ def _fulfillment_from_details(data, _depth=0):
         return threshold
 
     raise UnsupportedTypeError(data.get('type'))
+    

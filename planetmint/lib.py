@@ -24,31 +24,26 @@ import requests
 import planetmint
 from planetmint import backend, config_utils, fastquery
 from planetmint.models import Transaction
-from planetmint.transactions.common.exceptions import (SchemaValidationError,
-                                          ValidationError,
-                                          DoubleSpend)
-from planetmint.transactions.common.transaction_mode_types import (BROADCAST_TX_COMMIT,
-                                                      BROADCAST_TX_ASYNC,
-                                                      BROADCAST_TX_SYNC)
+from planetmint.transactions.common.exceptions import (
+    SchemaValidationError, ValidationError, DoubleSpend)
+from planetmint.transactions.common.transaction_mode_types import (BROADCAST_TX_COMMIT, BROADCAST_TX_ASYNC, BROADCAST_TX_SYNC)
 from planetmint.tendermint_utils import encode_transaction, merkleroot
 from planetmint import exceptions as core_exceptions
 from planetmint.validation import BaseValidationRules
 
-
 logger = logging.getLogger(__name__)
 
-
 class Planetmint(object):
-    """Bigchain API
+    """Planetmint API
 
     Create, read, sign, write transactions to the database
     """
 
     def __init__(self, connection=None):
-        """Initialize the Bigchain instance
+        """Initialize the Planetmint instance
 
-        A Bigchain instance has several configuration parameters (e.g. host).
-        If a parameter value is passed as an argument to the Bigchain
+        A Planetmint instance has several configuration parameters (e.g. host).
+        If a parameter value is passed as an argument to the Planetmint
         __init__ method, then that is the value it will have.
         Otherwise, the parameter value will come from an environment variable.
         If that environment variable isn't set, then the value

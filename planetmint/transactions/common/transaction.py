@@ -13,13 +13,13 @@ Attributes:
 """
 from collections import namedtuple
 from copy import deepcopy
-from functools import reduce, lru_cache
+from functools import lru_cache
 import rapidjson
 
 import base58
 from cryptoconditions import Fulfillment, ThresholdSha256, Ed25519Sha256
 from cryptoconditions.exceptions import (
-    ParsingError, ASN1DecodeError, ASN1EncodeError, UnsupportedTypeError)
+    ParsingError, ASN1DecodeError, ASN1EncodeError)
 try:
     from hashlib import sha3_256
 except ImportError:
@@ -29,11 +29,10 @@ from planetmint.transactions.common.crypto import PrivateKey, hash_data
 from planetmint.transactions.common.exceptions import (KeypairMismatchException,
                                           InputDoesNotExist, DoubleSpend,
                                           InvalidHash, InvalidSignature,
-                                          AmountError, AssetIdMismatch,
-                                          ThresholdTooDeep)
+                                          AmountError, AssetIdMismatch)
 from planetmint.transactions.common.utils import serialize
 from .memoize import memoize_from_dict, memoize_to_dict
-from .input import Input 
+from .input import Input
 from .output import Output
 from .transaction_link import TransactionLink
 

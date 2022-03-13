@@ -152,8 +152,8 @@ def tx(utx, user_priv):
 
 @pytest.fixture
 def transfer_utx(user_output, user2_output, utx):
-    from planetmint.transactions.common.transaction import (Input, TransactionLink,
-                                               Transaction)
+    from planetmint.transactions.common.transaction import (
+        Input, TransactionLink, Transaction)
     user_output = user_output.to_dict()
     input = Input(utx.outputs[0].fulfillment,
                   user_output['public_keys'],
