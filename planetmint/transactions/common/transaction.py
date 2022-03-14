@@ -26,10 +26,9 @@ except ImportError:
     from sha3 import sha3_256
 
 from planetmint.transactions.common.crypto import PrivateKey, hash_data
-from planetmint.transactions.common.exceptions import (KeypairMismatchException,
-                                          InputDoesNotExist, DoubleSpend,
-                                          InvalidHash, InvalidSignature,
-                                          AmountError, AssetIdMismatch)
+from planetmint.transactions.common.exceptions import (
+    KeypairMismatchException, InputDoesNotExist, DoubleSpend,
+    InvalidHash, InvalidSignature, AmountError, AssetIdMismatch)
 from planetmint.transactions.common.utils import serialize
 from .memoize import memoize_from_dict, memoize_to_dict
 from .input import Input
