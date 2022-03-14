@@ -216,4 +216,3 @@ def _fulfillment_from_details(data, _depth=0):
         return threshold
 
     raise UnsupportedTypeError(data.get('type'))
-    

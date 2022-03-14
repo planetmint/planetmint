@@ -26,7 +26,8 @@ from planetmint import backend, config_utils, fastquery
 from planetmint.models import Transaction
 from planetmint.transactions.common.exceptions import (
     SchemaValidationError, ValidationError, DoubleSpend)
-from planetmint.transactions.common.transaction_mode_types import (BROADCAST_TX_COMMIT, BROADCAST_TX_ASYNC, BROADCAST_TX_SYNC)
+from planetmint.transactions.common.transaction_mode_types import (
+    BROADCAST_TX_COMMIT, BROADCAST_TX_ASYNC, BROADCAST_TX_SYNC)
 from planetmint.tendermint_utils import encode_transaction, merkleroot
 from planetmint import exceptions as core_exceptions
 from planetmint.validation import BaseValidationRules
