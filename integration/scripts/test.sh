@@ -4,19 +4,20 @@
 # SPDX-License-Identifier: (Apache-2.0 AND CC-BY-4.0)
 # Code is Apache-2.0 and docs are CC-BY-4.0
 
-# Read host names from shared
-readarray -t HOSTNAMES < /shared/hostnames
+# Start CLI Tests
 
-# Split into proposer and approvers
-ALPHA=${HOSTNAMES[0]}
-BETAS=${HOSTNAMES[@]:1}
+# Test upsert new validator
+/tests/upsert-new-validator.sh
 
-# Propose validator upsert
-result=$(ssh -o "StrictHostKeyChecking=no" -i \~/.ssh/id_rsa root@${ALPHA} 'bash -s' < scripts/election.sh elect 2)
+# TODO: Implement test for chain migration
+/tests/chain-migration.sh
 
-# Approve validator upsert
-for BETA in ${BETAS[@]}; do
-    ssh -o "StrictHostKeyChecking=no" -i ~/.ssh/id_rsa root@${BETA} 'bash -s' < scripts/election.sh approve $result
-done
+# TODO: Implement test for voting edge cases or implicit in chain migration and upsert validator?
+
+exitcode=$?
+
+if [ $exitcode -ne 0 ]; then
+    exit $exitcode
+fi
 
 exec "$@"

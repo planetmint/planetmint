@@ -6,19 +6,17 @@
 # import Planetmint and create object
 from planetmint_driver import Planetmint
 from planetmint_driver.crypto import generate_keypair
+
+# import helper to manage multiple nodes
+from .helper.hosts import Hosts
+
 import time
 
 
 def test_basic():
     # Setup up connection to Planetmint integration test nodes
-    hosts = []
-    with open('/shared/hostnames') as f:
-        hosts = f.readlines()
-
-    pm_hosts = list(map(lambda x: Planetmint(x), hosts))
-
-    pm_alpha = pm_hosts[0]
-    pm_betas = pm_hosts[1:]
+    hosts = Hosts('/shared/hostnames')
+    pm_alpha = hosts.get_alpha()
 
     # genarate a keypair
     alice = generate_keypair()
@@ -50,13 +48,8 @@ def test_basic():
 
     creation_tx_id = fulfilled_creation_tx['id']
 
-    # retrieve transactions from all planetmint nodes
-    creation_tx_alpha = pm_alpha.transactions.retrieve(creation_tx_id)
-    creation_tx_betas = list(map(lambda beta: beta.transactions.retrieve(creation_tx_id), pm_betas))
-
     # Assert that transaction is stored on all planetmint nodes
-    for tx in creation_tx_betas:
-        assert creation_tx_alpha == tx
+    hosts.assert_transaction(creation_tx_id)
 
     # Transfer
     # create the output and inout for the transaction
@@ -87,10 +80,5 @@ def test_basic():
 
     transfer_tx_id = sent_transfer_tx['id']
 
-    # retrieve transactions from both planetmint nodes
-    transfer_tx_alpha = pm_alpha.transactions.retrieve(transfer_tx_id)
-    transfer_tx_betas = list(map(lambda beta: beta.transactions.retrieve(transfer_tx_id), pm_betas))
-
     # Assert that transaction is stored on both planetmint nodes
-    for tx in transfer_tx_betas:
-        assert transfer_tx_alpha == tx
+    hosts.assert_transaction(transfer_tx_id)

@@ -16,12 +16,12 @@ show_validator () {
 
 # Elect new voting power for node
 elect_validator () {
-    planetmint election new upsert-validator $1 $2 $3 --private-key /tendermint/config/priv_validator_key.json
+    planetmint election new upsert-validator $1 $2 $3 --private-key /tendermint/config/priv_validator_key.json 2>&1
 }
 
 # Show election state
 show_election () {
-    planetmint election show $1
+    planetmint election show $1 2>&1
 }
 
 # Approve election
@@ -33,7 +33,7 @@ approve_validator () {
 elect () {
     node_id=$(show_id)
     validator_pubkey=$(show_validator | jq -r .value)
-    proposal=$(elect_validator $validator_pubkey $1 $node_id 2>&1 | grep SUCCESS)
+    proposal=$(elect_validator $validator_pubkey $1 $node_id | grep SUCCESS)
     echo ${proposal##* }
 }
 
