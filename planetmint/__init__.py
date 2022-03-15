@@ -9,8 +9,6 @@ import os
 from planetmint.log import DEFAULT_LOGGING_CONFIG as log_config
 from planetmint.version import __version__  # noqa
 
-
-
 # from functools import reduce
 # PORT_NUMBER = reduce(lambda x, y: x * y, map(ord, 'Planetmint')) % 2**16
 # basically, the port number is 9984
@@ -22,7 +20,30 @@ from planetmint.version import __version__  # noqa
 
 _database_keys_map = {  # TODO Check if it is working after removing 'name' field
     'tarantool_db': ('host', 'port'),
+    'localmongodb': ('host', 'port', 'name')
 }
+
+_base_database_localmongodb = {
+    'host': 'localhost',
+    'port': 27017,
+    'name': 'bigchain',
+    'replicaset': None,
+    'login': None,
+    'password': None,
+}
+
+_database_localmongodb = {
+    'backend': 'localmongodb',
+    'connection_timeout': 5000,
+    'max_tries': 3,
+    'ssl': False,
+    'ca_cert': None,
+    'certfile': None,
+    'keyfile': None,
+    'keyfile_passphrase': None,
+    'crlfile': None,
+}
+_database_localmongodb.update(_base_database_localmongodb)
 
 _base_database_tarantool_local_db = {  # TODO Rewrite this configs for tarantool usage
     'host': 'localhost',
@@ -56,9 +77,9 @@ _database_tarantool = {
 }
 _database_tarantool.update(_base_database_tarantool_local_db)
 
-
 _database_map = {
-    'tarantool_db': _database_tarantool
+    'tarantool_db': _database_tarantool,
+    'localmongodb': _database_localmongodb
 }
 config = {
     'server': {
@@ -83,7 +104,7 @@ config = {
         'version': 'v0.31.5',  # look for __tm_supported_versions__
     },
     # TODO Maybe remove hardcode configs for tarantool (review)
-    'database': _database_map['tarantool_db'],
+    'database': _database_map,
     'log': {
         'file': log_config['handlers']['file']['filename'],
         'error_file': log_config['handlers']['errors']['filename'],
