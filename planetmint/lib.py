@@ -75,8 +75,8 @@ class Planetmint(object):
             self.validation = config_utils.load_validation_plugin(validationPlugin)
         else:
             self.validation = BaseValidationRules
-        
-        self.connection = connection if connection else planetmint.backend.tarantool.connection_tarantool.connect(**planetmint.config['database'])
+        # planetmint.backend.tarantool.connection_tarantool.connect(**planetmint.config['database'])
+        self.connection = connection if connection else planetmint.backend.Connection().get_connection()
 
     def post_transaction(self, transaction, mode):
         """Submit a valid transaction to the mempool."""

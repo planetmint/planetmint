@@ -13,16 +13,17 @@ from planetmint.backend.exceptions import ConnectionError
 from planetmint.backend.utils import get_planetmint_config_value, get_planetmint_config_value_or_key_error
 from planetmint.common.exceptions import ConfigurationError
 
-#BACKENDS = {  # This is path to MongoDBClass
+# BACKENDS = {  # This is path to MongoDBClass
 #    'tarantool_db': 'planetmint.backend.connection_tarantool.TarantoolDB',
 #    'localmongodb': 'planetmint.backend.localmongodb.connection.LocalMongoDBConnection'
-#}
+# }
 
 logger = logging.getLogger(__name__)
 
 
 class TarantoolDB:
-    def __init__(self, host: str = "localhost", port: int = 3301, user: str = "admin", password: str = "pass", reset_database: bool = False):
+    def __init__(self, host: str = "localhost", port: int = 3301, user: str = "admin", password: str = "pass",
+                 reset_database: bool = False):
         self.db_connect = tarantool.connect(host=host, port=port, user=user, password=password)
         if reset_database:
             self.drop_database()

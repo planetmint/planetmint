@@ -3,19 +3,19 @@
 # SPDX-License-Identifier: (Apache-2.0 AND CC-BY-4.0)
 # Code is Apache-2.0 and docs are CC-BY-4.0
 
-"""Query implementation for MongoDB"""
-
-from pymongo import DESCENDING
+"""Query implementation for Tarantool"""
 
 from secrets import token_hex
 from operator import itemgetter
 
 from planetmint.backend import query
 from planetmint.backend.utils import module_dispatch_registrar
+from planetmint.backend.tarantool.connection import TarantoolDB
 
 register_query = module_dispatch_registrar(query)
 
 
+@register_query(TarantoolDB)
 def _group_transaction_by_ids(txids: list, connection):
     txspace = connection.space("transactions")
     inxspace = connection.space("inputs")
@@ -86,7 +86,7 @@ def __metadata_check(object: dict, connection):
         space.insert((object["id"], metadata))
 
 
-# @register_query(LocalMongoDBConnection)
+@register_query(TarantoolDB)
 def store_transactions(signed_transactions: list,
                        connection):
     txspace = connection.space("transactions")
@@ -122,26 +122,26 @@ def store_transactions(signed_transactions: list,
                 keysxspace.insert((unique_id, transaction["id"], output_id, _key))
 
 
-# @register_query(LocalMongoDBConnection)
+@register_query(TarantoolDB)
 def get_transaction(transaction_id: str, connection):
     _transactions = _group_transaction_by_ids(txids=[transaction_id], connection=connection)
     return next(iter(_transactions), None)
 
 
-# @register_query(LocalMongoDBConnection)
+@register_query(TarantoolDB)
 def get_transactions(transactions_ids: list, connection):
     _transactions = _group_transaction_by_ids(txids=transactions_ids, connection=connection)
     return _transactions
 
 
-# @register_query(LocalMongoDBConnection)
+@register_query(TarantoolDB)
 def store_metadatas(metadata: list, connection):
     space = connection.space("meta_data")
     for meta in metadata:
         space.insert((meta["id"], meta["data"] if not "metadata" in meta else meta["metadata"]))
 
 
-# @register_query(LocalMongoDBConnection)
+@register_query(TarantoolDB)
 def get_metadata(transaction_ids: list, connection):
     _returned_data = []
     space = connection.space("meta_data")
@@ -151,7 +151,7 @@ def get_metadata(transaction_ids: list, connection):
     return _returned_data
 
 
-# @register_query(LocalMongoDBConnection)
+@register_query(TarantoolDB)
 # asset: {"id": "asset_id"}
 # asset: {"data": any} -> insert (tx_id, asset["data"]).
 def store_asset(asset: dict, connection, tx_id=None, is_data=False):  # TODO convert to str all asset["id"]
@@ -165,7 +165,7 @@ def store_asset(asset: dict, connection, tx_id=None, is_data=False):  # TODO con
         pass
 
 
-# @register_query(LocalMongoDBConnection)
+@register_query(TarantoolDB)
 def store_assets(assets: list, connection):
     space = connection.space("assets")
     for asset in assets:
@@ -175,7 +175,7 @@ def store_assets(assets: list, connection):
             pass
 
 
-# @register_query(LocalMongoDBConnection)
+@register_query(TarantoolDB)
 def get_asset(asset_id: str, connection):
     space = connection.space("assets")
     _data = space.select(asset_id, index="assetid_search")
@@ -183,7 +183,7 @@ def get_asset(asset_id: str, connection):
     return {"data": _data[1]}
 
 
-# @register_query(LocalMongoDBConnection)
+@register_query(TarantoolDB)
 def get_assets(assets_ids: list, connection) -> list:
     _returned_data = []
     space = connection.space("assets")
@@ -194,7 +194,7 @@ def get_assets(assets_ids: list, connection) -> list:
     return sorted(_returned_data, key=lambda k: k["id"], reverse=False)
 
 
-# @register_query(LocalMongoDBConnection)
+@register_query(TarantoolDB)
 def get_spent(fullfil_transaction_id: str, fullfil_output_index: str, connection):
     space = connection.space("inputs")
     _inputs = space.select([fullfil_transaction_id, str(fullfil_output_index)], index="spent_search")
@@ -203,8 +203,8 @@ def get_spent(fullfil_transaction_id: str, fullfil_output_index: str, connection
     return _transactions
 
 
-# @register_query(LocalMongoDBConnection)
-def latest_block(connection):  # TODO Here is used DESCENDING OPERATOR
+@register_query(TarantoolDB)
+def get_latest_block(connection):  # TODO Here is used DESCENDING OPERATOR
     space = connection.space("blocks")
     _all_blocks = space.select()
     _all_blocks = _all_blocks.data
@@ -215,7 +215,7 @@ def latest_block(connection):  # TODO Here is used DESCENDING OPERATOR
     return {"app_hash": _block[1], "height": _block[1], "transactions": [tx[0] for tx in _txids]}
 
 
-# @register_query(LocalMongoDBConnection)
+@register_query(TarantoolDB)
 def store_block(block: dict, connection):
     space = connection.space("blocks")
     block_unique_id = token_hex(8)
@@ -227,7 +227,7 @@ def store_block(block: dict, connection):
         space.insert((txid, block_unique_id))
 
 
-# @register_query(LocalMongoDBConnection)
+@register_query(TarantoolDB)
 def get_txids_filtered(connection, asset_id: str, operation: str = None,
                        last_tx: any = None):  # TODO here is used 'OR' operator
     actions = {
@@ -255,7 +255,7 @@ def get_txids_filtered(connection, asset_id: str, operation: str = None,
     return tuple([elem[0] for elem in _transactions])
 
 
-# @register_query(LocalMongoDBConnection)
+@register_query(TarantoolDB)
 def text_search(conn, search, *, language='english', case_sensitive=False,
                 # TODO review text search in tarantool (maybe, remove)
                 diacritic_sensitive=False, text_score=False, limit=0, table='assets'):
@@ -281,7 +281,7 @@ def _remove_text_score(asset):
     return asset
 
 
-# @register_query(LocalMongoDBConnection)
+@register_query(TarantoolDB)
 def get_owned_ids(connection, owner: str):
     space = connection.space("keys")
     _keys = space.select(owner, index="keys_search")
@@ -292,7 +292,7 @@ def get_owned_ids(connection, owner: str):
     return _transactions
 
 
-# @register_query(LocalMongoDBConnection)
+@register_query(TarantoolDB)
 def get_spending_transactions(inputs, connection):
     _transactions = []
 
@@ -305,7 +305,7 @@ def get_spending_transactions(inputs, connection):
     return _transactions
 
 
-# @register_query(LocalMongoDBConnection)
+@register_query(TarantoolDB)
 def get_block(block_id=[], connection=None):
     space = connection.space("blocks")
     _block = space.select(block_id, index="block_search", limit=1)
@@ -316,7 +316,7 @@ def get_block(block_id=[], connection=None):
     return {"app_hash": _block[0], "height": _block[1], "transactions": [_tx[0] for _tx in _txblock]}
 
 
-# @register_query(LocalMongoDBConnection)
+@register_query(TarantoolDB)
 def get_block_with_transaction(txid: str, connection):
     space = connection.space("blocks_tx")
     _all_blocks_tx = space.select(txid, index="id_search")
@@ -328,7 +328,7 @@ def get_block_with_transaction(txid: str, connection):
     return {"app_hash": _block[0], "height": _block[1], "transactions": [_tx[0] for _tx in _all_blocks_tx]}
 
 
-# @register_query(LocalMongoDBConnection)
+@register_query(TarantoolDB)
 def delete_transactions(connection, txn_ids: list):
     space = connection.space("transactions")
     for _id in txn_ids:
@@ -348,7 +348,7 @@ def delete_transactions(connection, txn_ids: list):
             outputs_space.delete(_outpID[5], index="unique_search")
 
 
-# # @register_query(LocalMongoDBConnection)
+# @register_query(TarantoolDB)
 # def store_unspent_outputs(conn, *unspent_outputs: list):
 #     if unspent_outputs:
 #         try:
@@ -363,7 +363,7 @@ def delete_transactions(connection, txn_ids: list):
 #             pass
 #
 #
-# # @register_query(LocalMongoDBConnection)
+# @register_query(TarantoolDB)
 # def delete_unspent_outputs(conn, *unspent_outputs: list):
 #     if unspent_outputs:
 #         return conn.run(
@@ -378,7 +378,7 @@ def delete_transactions(connection, txn_ids: list):
 #         )
 #
 #
-# # @register_query(LocalMongoDBConnection)
+# @register_query(TarantoolDB)
 # def get_unspent_outputs(conn, *, query=None):
 #     if query is None:
 #         query = {}
@@ -386,8 +386,7 @@ def delete_transactions(connection, txn_ids: list):
 #                                                   projection={'_id': False}))
 
 
-# @register_query(LocalMongoDBConnection)
-
+@register_query(TarantoolDB)
 def store_pre_commit_state(state: dict, connection):
     space = connection.space("pre_commits")
     _precommit = space.select(state["height"], index="height_search", limit=1)
@@ -399,7 +398,7 @@ def store_pre_commit_state(state: dict, connection):
                  limit=1)
 
 
-# @register_query(LocalMongoDBConnection)
+@register_query(TarantoolDB)
 def get_pre_commit_state(connection) -> dict:
     space = connection.space("pre_commits")
     _commit = space.select([], index="id_search", limit=1).data
@@ -409,7 +408,7 @@ def get_pre_commit_state(connection) -> dict:
     return {"height": _commit[1], "transactions": _commit[2]}
 
 
-# @register_query(LocalMongoDBConnection)
+@register_query(TarantoolDB)
 def store_validator_set(validators_update: dict, connection):
     space = connection.space("validators")
     _validator = space.select(validators_update["height"], index="height_search", limit=1)
@@ -421,7 +420,7 @@ def store_validator_set(validators_update: dict, connection):
                  limit=1)
 
 
-# @register_query(LocalMongoDBConnection)
+@register_query(TarantoolDB)
 def delete_validator_set(connection, height: int):
     space = connection.space("validators")
     _validators = space.select(height, index="height_search")
@@ -429,7 +428,7 @@ def delete_validator_set(connection, height: int):
         space.delete(_valid[0])
 
 
-# @register_query(LocalMongoDBConnection)
+@register_query(TarantoolDB)
 def store_election(election_id: str, height: int, is_concluded: bool, connection):
     space = connection.space("elections")
     space.upsert((election_id, height, is_concluded),
@@ -439,7 +438,7 @@ def store_election(election_id: str, height: int, is_concluded: bool, connection
                  limit=1)
 
 
-# @register_query(LocalMongoDBConnection)
+@register_query(TarantoolDB)
 def store_elections(elections: list, connection):
     space = connection.space("elections")
     for election in elections:
@@ -448,7 +447,7 @@ def store_elections(elections: list, connection):
                                   election["is_concluded"]))
 
 
-# @register_query(LocalMongoDBConnection)
+@register_query(TarantoolDB)
 def delete_elections(connection, height: int):
     space = connection.space("elections")
     _elections = space.select(height, index="height_search")
@@ -456,20 +455,21 @@ def delete_elections(connection, height: int):
         space.delete(_elec[0])
 
 
-# @register_query(LocalMongoDBConnection)
+@register_query(TarantoolDB)
 def get_validator_set(connection, height: int = None):
     space = connection.space("validators")
     _validators = space.select()
     _validators = _validators.data
     if height is not None:
-        _validators = [{"height": validator[1], "validators": validator[2]} for validator in _validators if validator[1] <= height]
+        _validators = [{"height": validator[1], "validators": validator[2]} for validator in _validators if
+                       validator[1] <= height]
         return next(iter(sorted(_validators, key=lambda k: k["height"], reverse=True)), None)
     else:
         _validators = [{"height": validator[1], "validators": validator[2]} for validator in _validators]
         return next(iter(sorted(_validators, key=lambda k: k["height"], reverse=True)), None)
 
 
-# @register_query(LocalMongoDBConnection)
+@register_query(TarantoolDB)
 def get_election(election_id: str, connection):
     space = connection.space("elections")
     _elections = space.select(election_id, index="id_search")
@@ -478,7 +478,7 @@ def get_election(election_id: str, connection):
     return {"election_id": _election[0], "height": _election[1], "is_concluded": _election[2]}
 
 
-# @register_query(LocalMongoDBConnection)
+@register_query(TarantoolDB)
 def get_asset_tokens_for_public_key(connection, asset_id: str, public_key: str):
     space = connection.space("keys")
     _keys = space.select([public_key], index="keys_search")
@@ -490,7 +490,7 @@ def get_asset_tokens_for_public_key(connection, asset_id: str, public_key: str):
     return _grouped_transactions
 
 
-# @register_query(LocalMongoDBConnection)
+@register_query(TarantoolDB)
 def store_abci_chain(connection, height: int, chain_id: str, is_synced: bool = True):
     space = connection.space("abci_chains")
     space.upsert((height, is_synced, chain_id),
@@ -500,7 +500,7 @@ def store_abci_chain(connection, height: int, chain_id: str, is_synced: bool = T
                  limit=1)
 
 
-# @register_query(LocalMongoDBConnection)
+@register_query(TarantoolDB)
 def delete_abci_chain(connection, height: int):
     space = connection.space("abci_chains")
     _chains = space.select(height, index="height_search")
@@ -508,7 +508,7 @@ def delete_abci_chain(connection, height: int):
         space.delete(_chain[2])
 
 
-# @register_query(LocalMongoDBConnection)
+@register_query(TarantoolDB)
 def get_latest_abci_chain(connection):
     space = connection.space("abci_chains")
     _all_chains = space.select().data
