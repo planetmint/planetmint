@@ -47,8 +47,8 @@ _database_tarantool = {
     'max_tries': 3,
     "reconnect_delay": 0.5,
     "ctl_config": {
-        "login": "admin",
-        "host": "admin:pass@127.0.0.1:3301",
+        "login": "guest",
+        "host": "guest@127.0.0.1:3301",
         "service": "tarantoolctl connect",
         "init_config": init_config,
         "drop_config": drop_config

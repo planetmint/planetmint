@@ -14,6 +14,13 @@ services:
       - "27017:27017"
     command: mongod
     restart: always
+  tarantool:
+    image: tarantool/tarantool:2.3.1
+    ports:
+      - "5200:5200"
+      - "3301:3301"
+    command: tarantool
+    restart: always
   planetmint:
     depends_on:
       - mongodb
