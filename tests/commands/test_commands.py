@@ -13,7 +13,7 @@ import pytest
 
 from planetmint import ValidatorElection
 from planetmint.commands.planetmint import run_election_show
-from planetmint.elections.election import Election
+from planetmint.transactions.types.elections.election import Election
 from planetmint.lib import Block
 from planetmint.migrations.chain_migration_election import ChainMigrationElection
 
@@ -123,7 +123,7 @@ def test_drop_db_when_interactive_yes(mock_db_drop, monkeypatch):
 def test_drop_db_when_db_does_not_exist(mock_db_drop, capsys):
     from planetmint import config
     from planetmint.commands.planetmint import run_drop
-    from planetmint.common.exceptions import DatabaseDoesNotExist
+    from planetmint.transactions.common.exceptions import DatabaseDoesNotExist
     args = Namespace(config=None, yes=True)
     mock_db_drop.side_effect = DatabaseDoesNotExist
 
@@ -404,7 +404,7 @@ def test_election_new_upsert_validator_invalid_election(caplog, b, priv_validato
 @pytest.mark.bdb
 def test_election_new_upsert_validator_invalid_power(caplog, b, priv_validator_path, user_sk):
     from planetmint.commands.planetmint import run_election_new_upsert_validator
-    from planetmint.common.exceptions import InvalidPowerChange
+    from planetmint.transactions.common.exceptions import InvalidPowerChange
 
     def mock_write(tx, mode):
         b.store_bulk_transactions([tx])

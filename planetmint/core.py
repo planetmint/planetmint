@@ -21,7 +21,7 @@ from tendermint.abci.types_pb2 import (
     ResponseCommit
 )
 from planetmint import Planetmint
-from planetmint.elections.election import Election
+from planetmint.transactions.types.elections.election import Election
 from planetmint.tendermint_utils import (decode_transaction,
                                          calculate_hash)
 from planetmint.lib import Block

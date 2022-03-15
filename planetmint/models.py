@@ -4,11 +4,10 @@
 # Code is Apache-2.0 and docs are CC-BY-4.0
 
 from planetmint.backend.schema import validate_language_key
-from planetmint.common.exceptions import (InvalidSignature,
-                                          DuplicateTransaction)
-from planetmint.common.schema import validate_transaction_schema
-from planetmint.common.transaction import Transaction
-from planetmint.common.utils import (validate_txn_obj, validate_key)
+from planetmint.transactions.common.exceptions import (InvalidSignature, DuplicateTransaction)
+from planetmint.transactions.common.schema import validate_transaction_schema
+from planetmint.transactions.common.transaction import Transaction
+from planetmint.transactions.common.utils import (validate_txn_obj, validate_key)
 
 
 class Transaction(Transaction):

@@ -11,9 +11,9 @@ from functools import singledispatch
 
 from planetmint.backend.localmongodb.connection import LocalMongoDBConnection
 from planetmint.backend.schema import TABLES
-from planetmint.common import crypto
-from planetmint.common.transaction_mode_types import BROADCAST_TX_COMMIT
-from planetmint.elections.election import Election, Vote
+from planetmint.transactions.common import crypto
+from planetmint.transactions.common.transaction_mode_types import BROADCAST_TX_COMMIT
+from planetmint.transactions.types.elections.election import Election, Vote
 from planetmint.tendermint_utils import key_to_base64
 
 
@@ -29,7 +29,7 @@ def flush_localmongo_db(connection, dbname):
 
 
 def generate_block(planet):
-    from planetmint.common.crypto import generate_key_pair
+    from planetmint.transactions.common.crypto import generate_key_pair
     from planetmint.models import Transaction
 
     alice = generate_key_pair()

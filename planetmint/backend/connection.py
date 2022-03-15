@@ -10,7 +10,7 @@ from itertools import repeat
 import planetmint
 from planetmint.backend.exceptions import ConnectionError
 from planetmint.backend.utils import get_planetmint_config_value, get_planetmint_config_value_or_key_error
-from planetmint.common.exceptions import ConfigurationError
+from planetmint.transactions.common.exceptions import ConfigurationError
 
 BACKENDS = {
     'localmongodb': 'planetmint.backend.localmongodb.connection.LocalMongoDBConnection',

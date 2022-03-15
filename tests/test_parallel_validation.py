@@ -5,7 +5,7 @@
 
 import pytest
 
-from planetmint.common.crypto import generate_key_pair
+from planetmint.transactions.common.crypto import generate_key_pair
 from planetmint.models import Transaction
 
 

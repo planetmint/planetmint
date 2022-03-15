@@ -13,7 +13,7 @@ from planetmint.backend.exceptions import (DuplicateKeyError,
                                            OperationError,
                                            ConnectionError)
 from planetmint.backend.utils import get_planetmint_config_value
-from planetmint.common.exceptions import ConfigurationError
+from planetmint.transactions.common.exceptions import ConfigurationError
 from planetmint.utils import Lazy
 
 logger = logging.getLogger(__name__)
