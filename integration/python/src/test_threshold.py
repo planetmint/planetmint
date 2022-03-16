@@ -106,7 +106,7 @@ def test_threshold():
     input_ = {
         'fulfillment': None,
         'fulfills': None,
-        'owners_before': (alice.public_key,),
+        'owners_before': (alice.public_key, bob.public_key),
     }
 
     handcrafted_dw_tx = {
@@ -131,11 +131,16 @@ def test_threshold():
     alice_ed25519.sign(message.digest(), base58.b58decode(alice.private_key))
     bob_ed25519.sign(message.digest(), base58.b58decode(bob.private_key))
 
-    alice_fulfillment_uri = alice_ed25519.serialize_uri()
-    bob_fulfillment_uri = bob_ed25519.serialize_uri()
+    fulfillment_threshold = ThresholdSha256(2)
+    fulfillment_threshold.add_subfulfillment(alice_ed25519)
+    fulfillment_threshold.add_subfulfillment(bob_ed25519)
+    fulfillment_threshold.add_subcondition(carol_ed25519.condition)
 
-    handcrafted_dw_tx['inputs'][0]['fulfillment'] = alice_fulfillment_uri
-    handcrafted_dw_tx['inputs'][1]['fulfillment'] = bob_fulfillment_uri
+    fulfillment_uri = fulfillment_threshold.serialize_uri()
+
+    handcrafted_dw_tx['inputs'][0]['fulfillment'] = fulfillment_uri
+
+    print(json.dumps(handcrafted_dw_tx, indent=4, sort_keys=True))
 
     json_str_tx = json.dumps(
         handcrafted_dw_tx,
@@ -148,7 +153,7 @@ def test_threshold():
 
     handcrafted_dw_tx['id'] = dw_creation_txid
 
-    pm.send_commit(handcrafted_dw_tx)
+    pm.transactions.send_commit(handcrafted_dw_tx)
 
     time.sleep(1)
 
