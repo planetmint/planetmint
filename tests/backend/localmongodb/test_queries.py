@@ -482,5 +482,5 @@ def test_store_abci_chain(description, stores, expected):
     actual = query.get_latest_abci_chain(conn)
     assert expected == actual, description
 
-test_get_txids_filtered(None, None)
+#test_get_txids_filtered(None, None)
 
