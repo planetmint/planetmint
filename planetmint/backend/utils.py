@@ -31,8 +31,8 @@ def module_dispatch_registrar(module):
     return dispatch_wrapper
 
 
-def get_planetmint_config_value(key, default_value=None, backend=None):
-    return planetmint.config['database'].get(key, default_value) if backend is None else planetmint.config['database'][backend].get(key, default_value)
+def get_planetmint_config_value(key, default_value=None):
+    return planetmint.config['database'].get(key, default_value)
 
 
 def get_planetmint_config_value_or_key_error(key):
