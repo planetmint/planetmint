@@ -4,6 +4,8 @@
 # Code is Apache-2.0 and docs are CC-BY-4.0
 
 import json
+from planetmint.transactions.types.assets.create import Create
+from planetmint.transactions.types.assets.transfer import Transfer
 import pytest
 import random
 
@@ -208,7 +210,7 @@ def test_check_tx__signed_create_is_ok(b):
     alice = generate_key_pair()
     bob = generate_key_pair()
 
-    tx = Transaction.create([alice.public_key],
+    tx = Create.generate([alice.public_key],
                             [([bob.public_key], 1)])\
                     .sign([alice.private_key])
 
@@ -225,7 +227,7 @@ def test_check_tx__unsigned_create_is_error(b):
     alice = generate_key_pair()
     bob = generate_key_pair()
 
-    tx = Transaction.create([alice.public_key],
+    tx = Create.generate([alice.public_key],
                             [([bob.public_key], 1)])
 
     app = App(b)
@@ -243,7 +245,7 @@ def test_deliver_tx__valid_create_updates_db_and_emits_event(b, init_chain_reque
     bob = generate_key_pair()
     events = mp.Queue()
 
-    tx = Transaction.create([alice.public_key],
+    tx = Create.generate([alice.public_key],
                             [([bob.public_key], 1)])\
                     .sign([alice.private_key])
 
@@ -279,7 +281,7 @@ def test_deliver_tx__double_spend_fails(b, init_chain_request):
     alice = generate_key_pair()
     bob = generate_key_pair()
 
-    tx = Transaction.create([alice.public_key],
+    tx = Create.generate([alice.public_key],
                             [([bob.public_key], 1)])\
                     .sign([alice.private_key])
 
@@ -319,7 +321,7 @@ def test_deliver_transfer_tx__double_spend_fails(b, init_chain_request):
         'msg': 'live long and prosper'
     }
 
-    tx = Transaction.create([alice.public_key],
+    tx = Create.generate([alice.public_key],
                             [([alice.public_key], 1)],
                             asset=asset)\
                     .sign([alice.private_key])
@@ -327,7 +329,7 @@ def test_deliver_transfer_tx__double_spend_fails(b, init_chain_request):
     result = app.deliver_tx(encode_tx_to_bytes(tx))
     assert result.code == OkCode
 
-    tx_transfer = Transaction.transfer(tx.to_inputs(),
+    tx_transfer = Transfer.generate(tx.to_inputs(),
                                        [([bob.public_key], 1)],
                                        asset_id=tx.id)\
                              .sign([alice.private_key])
@@ -335,7 +337,7 @@ def test_deliver_transfer_tx__double_spend_fails(b, init_chain_request):
     result = app.deliver_tx(encode_tx_to_bytes(tx_transfer))
     assert result.code == OkCode
 
-    double_spend = Transaction.transfer(tx.to_inputs(),
+    double_spend = Transfer.generate(tx.to_inputs(),
                                         [([carly.public_key], 1)],
                                         asset_id=tx.id)\
                               .sign([alice.private_key])
@@ -384,7 +386,7 @@ def test_store_pre_commit_state_in_end_block(b, alice, init_chain_request):
     from planetmint.backend import query
     from planetmint.models import Transaction
 
-    tx = Transaction.create([alice.public_key],
+    tx = Create.generate([alice.public_key],
                             [([alice.public_key], 1)],
                             asset={'msg': 'live long and prosper'})\
                     .sign([alice.private_key])

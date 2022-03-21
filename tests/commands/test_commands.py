@@ -259,16 +259,16 @@ def test_recover_db_on_start(mock_run_recover,
 @pytest.mark.bdb
 def test_run_recover(b, alice, bob):
     from planetmint.commands.planetmint import run_recover
-    from planetmint.models import Transaction
+    from planetmint.transactions.types.assets.create import Create
     from planetmint.lib import Block
     from planetmint.backend import query
 
-    tx1 = Transaction.create([alice.public_key],
+    tx1 = Create.generate([alice.public_key],
                              [([alice.public_key], 1)],
                              asset={'cycle': 'hero'},
                              metadata={'name': 'hohenheim'}) \
                      .sign([alice.private_key])
-    tx2 = Transaction.create([bob.public_key],
+    tx2 = Create.generate([bob.public_key],
                              [([bob.public_key], 1)],
                              asset={'cycle': 'hero'},
                              metadata={'name': 'hohenheim'}) \

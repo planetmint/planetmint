@@ -11,6 +11,8 @@ from copy import deepcopy
 
 from base58 import b58encode, b58decode
 from cryptoconditions import Ed25519Sha256
+from planetmint.transactions.types.assets.create import Create
+from planetmint.transactions.types.assets.transfer import Transfer
 from pytest import mark, raises
 try:
     from hashlib import sha3_256
@@ -690,7 +692,7 @@ def test_create_create_transaction_single_io(user_output, user_pub, data):
         'version': Transaction.VERSION,
     }
 
-    tx = Transaction.create([user_pub], [([user_pub], 1)], metadata=data,
+    tx = Create.generate([user_pub], [([user_pub], 1)], metadata=data,
                             asset=data)
     tx_dict = tx.to_dict()
     tx_dict['inputs'][0]['fulfillment'] = None
@@ -705,7 +707,7 @@ def test_validate_single_io_create_transaction(user_pub, user_priv, data,
                                                asset_definition):
     from planetmint.transactions.common.transaction import Transaction
 
-    tx = Transaction.create([user_pub], [([user_pub], 1)], metadata=data)
+    tx = Create.generate([user_pub], [([user_pub], 1)], metadata=data)
     tx = tx.sign([user_priv])
     assert tx.inputs_valid() is True
 
@@ -727,7 +729,7 @@ def test_create_create_transaction_multiple_io(user_output, user2_output, user_p
         'operation': 'CREATE',
         'version': Transaction.VERSION
     }
-    tx = Transaction.create([user_pub, user2_pub],
+    tx = Create.generate([user_pub, user2_pub],
                             [([user_pub], 1), ([user2_pub], 1)],
                             metadata={'message': 'hello'}).to_dict()
     tx.pop('id')
@@ -742,7 +744,7 @@ def test_validate_multiple_io_create_transaction(user_pub, user_priv,
     from planetmint.transactions.common.transaction import Transaction
     from .utils import validate_transaction_model
 
-    tx = Transaction.create([user_pub, user2_pub],
+    tx = Create.generate([user_pub, user2_pub],
                             [([user_pub], 1), ([user2_pub], 1)],
                             metadata={'message': 'hello'})
     tx = tx.sign([user_priv, user2_priv])
@@ -774,7 +776,7 @@ def test_create_create_transaction_threshold(user_pub, user2_pub, user3_pub,
         'operation': 'CREATE',
         'version': Transaction.VERSION
     }
-    tx = Transaction.create([user_pub], [([user_pub, user2_pub], 1)],
+    tx = Create.generate([user_pub], [([user_pub, user2_pub], 1)],
                             metadata=data, asset=data)
     tx_dict = tx.to_dict()
     tx_dict.pop('id')
@@ -788,7 +790,7 @@ def test_validate_threshold_create_transaction(user_pub, user_priv, user2_pub,
     from planetmint.transactions.common.transaction import Transaction
     from .utils import validate_transaction_model
 
-    tx = Transaction.create([user_pub], [([user_pub, user2_pub], 1)],
+    tx = Create.generate([user_pub], [([user_pub, user2_pub], 1)],
                             metadata=data)
     tx = tx.sign([user_priv])
     assert tx.inputs_valid() is True
@@ -800,22 +802,22 @@ def test_create_create_transaction_with_invalid_parameters(user_pub):
     from planetmint.transactions.common.transaction import Transaction
 
     with raises(TypeError):
-        Transaction.create('not a list')
+        Create.generate('not a list')
     with raises(TypeError):
-        Transaction.create([], 'not a list')
+        Create.generate([], 'not a list')
     with raises(ValueError):
-        Transaction.create([], [user_pub])
+        Create.generate([], [user_pub])
     with raises(ValueError):
-        Transaction.create([user_pub], [])
+        Create.generate([user_pub], [])
     with raises(ValueError):
-        Transaction.create([user_pub], [user_pub])
+        Create.generate([user_pub], [user_pub])
     with raises(ValueError):
-        Transaction.create([user_pub], [([user_pub],)])
+        Create.generate([user_pub], [([user_pub],)])
     with raises(TypeError):
-        Transaction.create([user_pub], [([user_pub], 1)],
+        Create.generate([user_pub], [([user_pub], 1)],
                            metadata='not a dict or none')
     with raises(TypeError):
-        Transaction.create([user_pub],
+        Create.generate([user_pub],
                            [([user_pub], 1)],
                            asset='not a dict or none')
 
@@ -858,7 +860,7 @@ def test_create_transfer_transaction_single_io(tx, user_pub, user2_pub,
         'version': Transaction.VERSION
     }
     inputs = tx.to_inputs([0])
-    transfer_tx = Transaction.transfer(inputs, [([user2_pub], 1)],
+    transfer_tx = Transfer.generate(inputs, [([user2_pub], 1)],
                                        asset_id=tx.id)
     transfer_tx = transfer_tx.sign([user_priv])
     transfer_tx = transfer_tx.to_dict()
@@ -889,7 +891,7 @@ def test_create_transfer_transaction_multiple_io(user_pub, user_priv,
                                                  asset_definition):
     from planetmint.transactions.common.transaction import Transaction
 
-    tx = Transaction.create([user_pub], [([user_pub], 1), ([user2_pub], 1)],
+    tx = Create.generate([user_pub], [([user_pub], 1), ([user2_pub], 1)],
                             metadata={'message': 'hello'})
     tx = tx.sign([user_priv])
 
@@ -921,7 +923,7 @@ def test_create_transfer_transaction_multiple_io(user_pub, user_priv,
         'version': Transaction.VERSION
     }
 
-    transfer_tx = Transaction.transfer(tx.to_inputs(),
+    transfer_tx = Transfer.generate(tx.to_inputs(),
                                        [([user2_pub], 1), ([user2_pub], 1)],
                                        asset_id=tx.id)
     transfer_tx = transfer_tx.sign([user_priv, user2_priv])
@@ -944,22 +946,22 @@ def test_create_transfer_with_invalid_parameters(tx, user_pub):
     from planetmint.transactions.common.transaction import Transaction
 
     with raises(TypeError):
-        Transaction.transfer({}, [], tx.id)
+        Transfer.generate({}, [], tx.id)
     with raises(ValueError):
-        Transaction.transfer([], [], tx.id)
+        Transfer.generate([], [], tx.id)
     with raises(TypeError):
-        Transaction.transfer(['fulfillment'], {}, tx.id)
+        Transfer.generate(['fulfillment'], {}, tx.id)
     with raises(ValueError):
-        Transaction.transfer(['fulfillment'], [], tx.id)
+        Transfer.generate(['fulfillment'], [], tx.id)
     with raises(ValueError):
-        Transaction.transfer(['fulfillment'], [user_pub], tx.id)
+        Transfer.generate(['fulfillment'], [user_pub], tx.id)
     with raises(ValueError):
-        Transaction.transfer(['fulfillment'], [([user_pub],)], tx.id)
+        Transfer.generate(['fulfillment'], [([user_pub],)], tx.id)
     with raises(TypeError):
-        Transaction.transfer(['fulfillment'], [([user_pub], 1)],
+        Transfer.generate(['fulfillment'], [([user_pub], 1)],
                              tx.id, metadata='not a dict or none')
     with raises(TypeError):
-        Transaction.transfer(['fulfillment'], [([user_pub], 1)],
+        Transfer.generate(['fulfillment'], [([user_pub], 1)],
                              ['not a string'])
 
 
@@ -1020,7 +1022,7 @@ def test_output_from_dict_invalid_amount(user_output):
 
 def test_unspent_outputs_property(merlin, alice, bob, carol):
     from planetmint.transactions.common.transaction import Transaction
-    tx = Transaction.create(
+    tx = Create.generate(
         [merlin.public_key],
         [([alice.public_key], 1),
          ([bob.public_key], 2),

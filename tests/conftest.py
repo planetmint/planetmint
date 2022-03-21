@@ -285,9 +285,9 @@ def mock_get_validators(network_validators):
 
 @pytest.fixture
 def create_tx(alice, user_pk):
-    from planetmint.models import Transaction
+    from planetmint.transactions.types.assets.create import Create
     name = f'I am created by the create_tx fixture. My random identifier is {random.random()}.'
-    return Transaction.create([alice.public_key], [([user_pk], 1)], asset={'name': name})
+    return Create.generate([alice.public_key], [([user_pk], 1)], asset={'name': name})
 
 
 @pytest.fixture
@@ -304,17 +304,17 @@ def posted_create_tx(b, signed_create_tx):
 
 @pytest.fixture
 def signed_transfer_tx(signed_create_tx, user_pk, user_sk):
-    from planetmint.models import Transaction
+    from planetmint.transactions.types.assets.transfer import Transfer
     inputs = signed_create_tx.to_inputs()
-    tx = Transaction.transfer(inputs, [([user_pk], 1)], asset_id=signed_create_tx.id)
+    tx = Transfer.generate(inputs, [([user_pk], 1)], asset_id=signed_create_tx.id)
     return tx.sign([user_sk])
 
 
 @pytest.fixture
 def double_spend_tx(signed_create_tx, carol_pubkey, user_sk):
-    from planetmint.models import Transaction
+    from planetmint.transactions.types.assets.transfer import Transfer
     inputs = signed_create_tx.to_inputs()
-    tx = Transaction.transfer(
+    tx = Transfer.generate(
         inputs, [([carol_pubkey], 1)], asset_id=signed_create_tx.id)
     return tx.sign([user_sk])
 
@@ -326,11 +326,11 @@ def _get_height(b):
 
 @pytest.fixture
 def inputs(user_pk, b, alice):
-    from planetmint.models import Transaction
+    from planetmint.transactions.types.assets.create import Create
     # create blocks with transactions for `USER` to spend
     for height in range(1, 4):
         transactions = [
-            Transaction.create(
+            Create.generate(
                 [alice.public_key],
                 [([user_pk], 1)],
                 metadata={'msg': random.random()},

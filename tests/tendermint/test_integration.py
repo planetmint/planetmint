@@ -4,6 +4,7 @@
 # Code is Apache-2.0 and docs are CC-BY-4.0
 
 import codecs
+from planetmint.transactions.types.assets.create import Create
 
 from tendermint.abci import types_pb2 as types
 import json
@@ -23,7 +24,6 @@ def test_app(b, eventqueue_fixture, init_chain_request):
     from planetmint import App
     from planetmint.tendermint_utils import calculate_hash
     from planetmint.transactions.common.crypto import generate_key_pair
-    from planetmint.models import Transaction
 
     app = App(b, eventqueue_fixture)
     p = ProtocolHandler(app)
@@ -49,7 +49,7 @@ def test_app(b, eventqueue_fixture, init_chain_request):
 
     alice = generate_key_pair()
     bob = generate_key_pair()
-    tx = Transaction.create([alice.public_key],
+    tx = Create.generate([alice.public_key],
                             [([bob.public_key], 1)])\
                     .sign([alice.private_key])
     etxn = json.dumps(tx.to_dict()).encode('utf8')
@@ -118,7 +118,7 @@ def test_post_transaction_responses(tendermint_ws_url, b):
 
     alice = generate_key_pair()
     bob = generate_key_pair()
-    tx = Transaction.create([alice.public_key],
+    tx = Create.generate([alice.public_key],
                             [([alice.public_key], 1)],
                             asset=None)\
                     .sign([alice.private_key])

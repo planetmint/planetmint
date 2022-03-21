@@ -6,8 +6,8 @@
 import pytest
 
 from planetmint.transactions.common.crypto import generate_key_pair
-from planetmint.models import Transaction
-
+from planetmint.transactions.types.assets.create import Create
+from planetmint.transactions.types.assets.transfer import Transfer
 
 pytestmark = pytest.mark.tendermint
 
@@ -16,8 +16,8 @@ def generate_create_and_transfer(keypair=None):
     if not keypair:
         keypair = generate_key_pair()
     priv_key, pub_key = keypair
-    create_tx = Transaction.create([pub_key], [([pub_key], 10)]).sign([priv_key])
-    transfer_tx = Transaction.transfer(
+    create_tx = Create.generate([pub_key], [([pub_key], 10)]).sign([priv_key])
+    transfer_tx = Transfer.generate(
             create_tx.to_inputs(),
             [([pub_key], 10)],
             asset_id=create_tx.id).sign([priv_key])
@@ -30,7 +30,7 @@ def test_validation_worker_process_multiple_transactions(b):
 
     keypair = generate_key_pair()
     create_tx, transfer_tx = generate_create_and_transfer(keypair)
-    double_spend = Transaction.transfer(
+    double_spend = Transfer.generate(
             create_tx.to_inputs(),
             [([keypair.public_key], 10)],
             asset_id=create_tx.id).sign([keypair.private_key])

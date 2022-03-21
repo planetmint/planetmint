@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: (Apache-2.0 AND CC-BY-4.0)
 # Code is Apache-2.0 and docs are CC-BY-4.0
 
-from planetmint.transactions.common.transaction import Transaction
+from planetmint.models import Transaction
 from planetmint.transactions.common.output import Output
 from copy import deepcopy
 
@@ -13,7 +13,7 @@ class Transfer(Transaction):
     ALLOWED_OPERATIONS = (OPERATION,)
 
     @classmethod
-    def validate(cls, inputs, recipients, asset_id, metadata):
+    def validate_transfer(cls, inputs, recipients, asset_id, metadata):
         if not isinstance(inputs, list):
             raise TypeError('`inputs` must be a list instance')
         if len(inputs) == 0:

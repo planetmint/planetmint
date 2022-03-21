@@ -10,7 +10,7 @@ from planetmint.transactions.common.schema import (
     _validate_schema, TX_SCHEMA_COMMON, TX_SCHEMA_TRANSFER, TX_SCHEMA_VOTE)
 
 
-class Vote(Transaction):
+class Vote(Transfer):
 
     OPERATION = 'VOTE'
     # NOTE: This class inherits TRANSFER txn type. The `TRANSFER` property is
