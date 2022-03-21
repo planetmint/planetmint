@@ -11,7 +11,7 @@ import pytest
 
 # # from planetmint.backend.connection import Connection, query
 from planetmint.backend.connection import Connection
-conn = Connection().get_connection()
+conn = Connection(backend="tarantool_db").get_connection()
 
 pytestmark = pytest.mark.bdb
 

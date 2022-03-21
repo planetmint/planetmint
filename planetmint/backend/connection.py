@@ -25,9 +25,9 @@ logger = logging.getLogger(__name__)
 def Connection(host: str = None, port: int = None, login: str = None, password: str = None, backend: str = None, **kwargs):
 
     backend = backend or get_planetmint_config_value("backend") if not kwargs.get("backend") else kwargs["backend"]
-    host = host or get_planetmint_config_value("host") if not kwargs.get("host") else kwargs["host"]
-    port = port or get_planetmint_config_value("port") if not kwargs.get("port") else kwargs["port"]
-    login = login or get_planetmint_config_value("login") if not kwargs.get("login") else kwargs["login"]
+    host = host or get_planetmint_config_value("host") if kwargs.get("host") is None else kwargs["host"]
+    port = port or get_planetmint_config_value("port") if not kwargs.get("port") is None else kwargs["port"]
+    login = login or get_planetmint_config_value("login") if not kwargs.get("login") is None else kwargs["login"]
     password = password or get_planetmint_config_value("password")
 
     if backend == "tarantool_db":
@@ -35,4 +35,4 @@ def Connection(host: str = None, port: int = None, login: str = None, password: 
         Class = getattr(import_module(modulepath), class_name)
         return Class(host=host, port=port, user=login, password=password)
     elif backend == "localmongodb":
-        pass
+        return ""
