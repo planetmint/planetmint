@@ -1021,7 +1021,6 @@ def test_output_from_dict_invalid_amount(user_output):
 
 
 def test_unspent_outputs_property(merlin, alice, bob, carol):
-    from planetmint.transactions.common.transaction import Transaction
     tx = Create.generate(
         [merlin.public_key],
         [([alice.public_key], 1),
