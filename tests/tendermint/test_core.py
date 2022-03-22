@@ -204,7 +204,6 @@ def test_info(b):
 
 def test_check_tx__signed_create_is_ok(b):
     from planetmint import App
-    from planetmint.models import Transaction
     from planetmint.transactions.common.crypto import generate_key_pair
 
     alice = generate_key_pair()
@@ -221,7 +220,6 @@ def test_check_tx__signed_create_is_ok(b):
 
 def test_check_tx__unsigned_create_is_error(b):
     from planetmint import App
-    from planetmint.models import Transaction
     from planetmint.transactions.common.crypto import generate_key_pair
 
     alice = generate_key_pair()
@@ -238,7 +236,6 @@ def test_check_tx__unsigned_create_is_error(b):
 def test_deliver_tx__valid_create_updates_db_and_emits_event(b, init_chain_request):
     import multiprocessing as mp
     from planetmint import App
-    from planetmint.models import Transaction
     from planetmint.transactions.common.crypto import generate_key_pair
 
     alice = generate_key_pair()
@@ -275,7 +272,6 @@ def test_deliver_tx__valid_create_updates_db_and_emits_event(b, init_chain_reque
 
 def test_deliver_tx__double_spend_fails(b, init_chain_request):
     from planetmint import App
-    from planetmint.models import Transaction
     from planetmint.transactions.common.crypto import generate_key_pair
 
     alice = generate_key_pair()
@@ -304,7 +300,6 @@ def test_deliver_tx__double_spend_fails(b, init_chain_request):
 
 def test_deliver_transfer_tx__double_spend_fails(b, init_chain_request):
     from planetmint import App
-    from planetmint.models import Transaction
     from planetmint.transactions.common.crypto import generate_key_pair
 
     app = App(b)
@@ -384,7 +379,6 @@ def test_end_block_return_validator_updates(b, init_chain_request):
 def test_store_pre_commit_state_in_end_block(b, alice, init_chain_request):
     from planetmint import App
     from planetmint.backend import query
-    from planetmint.models import Transaction
 
     tx = Create.generate([alice.public_key],
                             [([alice.public_key], 1)],

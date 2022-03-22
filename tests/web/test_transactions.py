@@ -214,7 +214,6 @@ def test_post_create_transaction_with_invalid_structure(client):
 @pytest.mark.abci
 @patch('planetmint.web.views.base.logger')
 def test_post_create_transaction_with_invalid_schema(mock_logger, client):
-    from planetmint.models import Transaction
     user_priv, user_pub = crypto.generate_key_pair()
     tx = Create.generate([user_pub], [([user_pub], 1)]).to_dict()
     del tx['version']

@@ -5,7 +5,6 @@
 
 from planetmint.transactions.types.assets.create import Create
 from planetmint.transactions.types.assets.transfer import Transfer
-from planetmint.transactions.common.transaction import Transaction
 from planetmint.transactions.common.schema import (
     _validate_schema, TX_SCHEMA_COMMON, TX_SCHEMA_TRANSFER, TX_SCHEMA_VOTE)
 

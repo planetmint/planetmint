@@ -705,7 +705,6 @@ def test_create_create_transaction_single_io(user_output, user_pub, data):
 
 def test_validate_single_io_create_transaction(user_pub, user_priv, data,
                                                asset_definition):
-    from planetmint.transactions.common.transaction import Transaction
 
     tx = Create.generate([user_pub], [([user_pub], 1)], metadata=data)
     tx = tx.sign([user_priv])
@@ -741,7 +740,6 @@ def test_create_create_transaction_multiple_io(user_output, user2_output, user_p
 def test_validate_multiple_io_create_transaction(user_pub, user_priv,
                                                  user2_pub, user2_priv,
                                                  asset_definition):
-    from planetmint.transactions.common.transaction import Transaction
     from .utils import validate_transaction_model
 
     tx = Create.generate([user_pub, user2_pub],
@@ -787,7 +785,6 @@ def test_create_create_transaction_threshold(user_pub, user2_pub, user3_pub,
 
 def test_validate_threshold_create_transaction(user_pub, user_priv, user2_pub,
                                                data, asset_definition):
-    from planetmint.transactions.common.transaction import Transaction
     from .utils import validate_transaction_model
 
     tx = Create.generate([user_pub], [([user_pub, user2_pub], 1)],
@@ -799,8 +796,6 @@ def test_validate_threshold_create_transaction(user_pub, user_priv, user2_pub,
 
 
 def test_create_create_transaction_with_invalid_parameters(user_pub):
-    from planetmint.transactions.common.transaction import Transaction
-
     with raises(TypeError):
         Create.generate('not a list')
     with raises(TypeError):
@@ -943,8 +938,6 @@ def test_create_transfer_transaction_multiple_io(user_pub, user_priv,
 
 
 def test_create_transfer_with_invalid_parameters(tx, user_pub):
-    from planetmint.transactions.common.transaction import Transaction
-
     with raises(TypeError):
         Transfer.generate({}, [], tx.id)
     with raises(ValueError):

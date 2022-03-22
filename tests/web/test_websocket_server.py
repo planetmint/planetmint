@@ -25,7 +25,6 @@ class MockWebSocket:
 def test_eventify_block_works_with_any_transaction():
     from planetmint.web.websocket_server import eventify_block
     from planetmint.transactions.common.crypto import generate_key_pair
-    from planetmint.lib import Transaction
 
     alice = generate_key_pair()
 
@@ -140,7 +139,6 @@ async def test_websocket_string_event(test_client, loop):
 async def test_websocket_block_event(b, test_client, loop):
     from planetmint import events
     from planetmint.web.websocket_server import init_app, POISON_PILL, EVENTS_ENDPOINT
-    from planetmint.models import Transaction
     from planetmint.transactions.common import crypto
 
     user_priv, user_pub = crypto.generate_key_pair()
@@ -186,7 +184,6 @@ def test_integration_from_webapi_to_websocket(monkeypatch, client, loop):
     # TODO processes does not exist anymore, when reactivating this test it
     # will fail because of this
     from planetmint import processes
-    from planetmint.models import Transaction
 
     # Start Planetmint
     processes.start()
