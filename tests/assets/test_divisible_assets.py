@@ -305,8 +305,7 @@ def test_multiple_in_single_own_single_out_single_own_transfer(alice, b, user_pk
 # Single output
 # Single owners_after
 def test_multiple_in_multiple_own_single_out_single_own_transfer(
-    alice, b, user_pk,
-    user_sk):
+    alice, b, user_pk, user_sk):
     from planetmint.transactions.common.utils import _fulfillment_to_details
 
     # CREATE divisible asset

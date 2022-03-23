@@ -116,7 +116,6 @@ def test_app(b, eventqueue_fixture, init_chain_request):
 def test_post_transaction_responses(tendermint_ws_url, b):
     from planetmint.transactions.common.crypto import generate_key_pair
 
-
     alice = generate_key_pair()
     bob = generate_key_pair()
     tx = Create.generate([alice.public_key],
