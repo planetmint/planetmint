@@ -79,7 +79,7 @@ def init_database(connection=None, dbname=None):  # FIXME HERE IS INIT DATABASE
     """
 
     connection = connection or Connection()
-    dbname = dbname or planetmint.config['database']['name']
+    dbname = dbname or Config().get()['database']['name']
 
     create_database(connection, dbname)
     create_tables(connection, dbname)
@@ -97,7 +97,7 @@ def validate_language_key(obj, key):
         Raises:
             ValidationError: will raise exception in case language is not valid.
     """
-    backend = planetmint.config['database']['backend']
+    backend = Config().get()['database']['backend']
 
     if backend == 'localmongodb':
         data = obj.get(key, {})

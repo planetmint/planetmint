@@ -31,6 +31,7 @@ from planetmint.common.crypto import (key_pair_from_ed25519_key,
 from planetmint.common.exceptions import DatabaseDoesNotExist
 from planetmint.lib import Block
 from tests.utils import gen_vote
+from planetmint.config import Config
 
 TEST_DB_NAME = 'planetmint_test'
 
@@ -80,15 +81,13 @@ def _bdb_marker(request):
 
 @pytest.fixture(autouse=True)
 def _restore_config(_configure_planetmint):
-    from planetmint import config, config_utils
-    config_before_test = copy.deepcopy(config)
-    yield
-    config_utils.set_config(config_before_test)
+    config_before_test = Config().init_config('tarantool_db')
+
 
 
 @pytest.fixture(scope='session')
 def _configure_planetmint(request):
-    import planetmint
+
     from planetmint import config_utils
     test_db_name = TEST_DB_NAME
     # Put a suffix like _gw0, _gw1 etc on xdist processes
@@ -100,7 +99,7 @@ def _configure_planetmint(request):
     backend = "tarantool_db"
 
     config = {
-        'database': planetmint._database_map[backend],
+        'database': Config().get_db_map(backend),
         'tendermint': {
             'host': 'localhost',
             'port': 26657,
@@ -126,11 +125,12 @@ def _setup_database(_configure_planetmint):  # TODO Here is located setup databa
 
 
 @pytest.fixture
-def _bdb(_setup_database, _configure_planetmint):
+def _bdb(_setup_database ):
     from planetmint.backend import Connection
     from planetmint.common.memoize import to_dict, from_dict
     from planetmint.models import Transaction
-    conn = Connection()
+    #conn = Connection( backend='tarantool_db', port=3301, host='localhost', login='guest')
+    #conn = Connection()
     yield
 
     to_dict.cache_clear()
@@ -342,8 +342,7 @@ def _drop_db(conn, dbname):
 
 @pytest.fixture
 def db_config():
-    from planetmint import config
-    return config['database']
+    return Config().get()['database']
 
 
 @pytest.fixture
@@ -444,8 +443,7 @@ def abci_server():
 
 @pytest.fixture
 def wsserver_config():
-    from planetmint import config
-    return config['wsserver']
+    return Config().get()['wsserver']
 
 
 @pytest.fixture

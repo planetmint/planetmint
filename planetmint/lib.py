@@ -22,6 +22,7 @@ except ImportError:
 import requests
 
 import planetmint
+from planetmint.config import Config
 from planetmint import backend, config_utils, fastquery
 from planetmint.models import Transaction
 from planetmint.common.exceptions import (SchemaValidationError,
@@ -65,17 +66,17 @@ class Planetmint(object):
         self.mode_list = (BROADCAST_TX_ASYNC,
                           BROADCAST_TX_SYNC,
                           self.mode_commit)
-        self.tendermint_host = planetmint.config['tendermint']['host']
-        self.tendermint_port = planetmint.config['tendermint']['port']
+        self.tendermint_host = Config().get()['tendermint']['host']
+        self.tendermint_port = Config().get()['tendermint']['port']
         self.endpoint = 'http://{}:{}/'.format(self.tendermint_host, self.tendermint_port)
 
-        validationPlugin = planetmint.config.get('validation_plugin')
+        validationPlugin = Config().get().get('validation_plugin')
 
         if validationPlugin:
             self.validation = config_utils.load_validation_plugin(validationPlugin)
         else:
             self.validation = BaseValidationRules
-        # planetmint.backend.tarantool.connection_tarantool.connect(**planetmint.config['database'])
+        # planetmint.backend.tarantool.connection_tarantool.connect(**Config().get()['database'])
         self.connection = connection if connection else planetmint.backend.Connection().get_connection()
 
     def post_transaction(self, transaction, mode):

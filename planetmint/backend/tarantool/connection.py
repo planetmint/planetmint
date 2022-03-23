@@ -8,9 +8,9 @@ from importlib import import_module
 from itertools import repeat
 
 import tarantool
-
+from planetmint.config import Config
 from planetmint.backend.exceptions import ConnectionError
-from planetmint.backend.utils import get_planetmint_config_value, get_planetmint_config_value_or_key_error
+
 
 # BACKENDS = {  # This is path to MongoDBClass
 #    'tarantool_db': 'planetmint.backend.connection_tarantool.TarantoolDB',
@@ -41,16 +41,16 @@ class TarantoolDB:
 
     def drop_database(self):
         from planetmint.backend.tarantool.utils import run
-        config = get_planetmint_config_value_or_key_error("ctl_config")
-        drop_config = config["drop_config"]
+        db_config = Config().get()["database"]
+        drop_config = db_config["drop_config"]
         f_path = "%s%s" % (drop_config["relative_path"], drop_config["drop_file"])
         commands = self.__read_commands(file_path=f_path)
-        run(commands=commands, config=config)
+        run(commands=commands, config=db_config)
 
     def init_database(self):
         from planetmint.backend.tarantool.utils import run
-        config = get_planetmint_config_value_or_key_error("ctl_config")
-        init_config = config["init_config"]
+        db_config = Config().get()["database"]
+        init_config = db_config["init_config"]
         f_path = "%s%s" % (init_config["relative_path"], init_config["init_file"])
         commands = self.__read_commands(file_path=f_path)
-        run(commands=commands, config=config)
+        run(commands=commands, config=db_config)

@@ -11,6 +11,7 @@ from argparse import Namespace
 
 import pytest
 
+from planetmint.config import Config
 from planetmint import ValidatorElection
 from planetmint.commands.planetmint import run_election_show
 from planetmint.elections.election import Election
@@ -79,9 +80,10 @@ def test_bigchain_show_config(capsys):
     # the default comparison fails i.e. when config is imported at the beginning the
     # dict returned is different that what is expected after run_show_config
     # and run_show_config updates the planetmint.config
-    from planetmint import config
-    del config['CONFIGURED']
-    assert output_config == config
+    from planetmint.config import Config
+    _config = Config().get()
+    del _config['CONFIGURED']
+    assert output_config == _config
 
 
 def test__run_init(mocker):
@@ -198,7 +200,7 @@ def test_run_configure_with_backend(backend, monkeypatch, mock_write_config):
                         mock_write_config)
 
     args = Namespace(config=None, backend=backend, yes=True)
-    expected_config = planetmint.config
+    expected_config = Config().get()
     run_configure(args)
 
     # update the expected config with the correct backend and keypair

@@ -34,7 +34,7 @@ from planetmint.log import setup_logging
 from planetmint.tendermint_utils import public_key_from_base64
 from planetmint.commands.election_types import elections
 from planetmint.version import __tm_supported_versions__
-
+from planetmint.config import Config
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -51,9 +51,9 @@ def run_show_config(args):
     # TODO Proposal: remove the "hidden" configuration. Only show config. If
     # the system needs to be configured, then display information on how to
     # configure the system.
-    config = copy.deepcopy(planetmint.config)
-    del config['CONFIGURED']
-    print(json.dumps(config, indent=4, sort_keys=True))
+    _config = Config().get()
+    del _config['CONFIGURED']
+    print(json.dumps(_config, indent=4, sort_keys=True))
 
 
 @configure_planetmint
@@ -72,14 +72,13 @@ def run_configure(args):
         if want != 'y':
             return
 
-    conf = copy.deepcopy(planetmint.config)
-
+    Config().init_config( args.backend )
+    conf = Config().get()
     # select the correct config defaults based on the backend
     print('Generating default configuration for backend {}'
           .format(args.backend), file=sys.stderr)
-    database_keys = planetmint._database_keys_map[args.backend]
-    conf['database'] = planetmint._database_map[args.backend]
-
+    
+    database_keys = Config().get_db_key_map( args.backend )
     if not args.yes:
         for key in ('bind', ):
             val = conf['server'][key]
@@ -101,6 +100,8 @@ def run_configure(args):
         planetmint.config_utils.write_config(conf, config_path)
     else:
         print(json.dumps(conf, indent=4, sort_keys=True))
+        
+    Config().set(conf)
     print('Configuration written to {}'.format(config_path), file=sys.stderr)
     print('Ready to go!', file=sys.stderr)
 

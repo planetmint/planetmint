@@ -7,7 +7,7 @@ import time
 import re
 import rapidjson
 
-import planetmint
+from planetmint.config import Config
 from planetmint.common.exceptions import ValidationError
 
 
@@ -72,7 +72,7 @@ def validate_txn_obj(obj_name, obj, key, validation_fun):
         Raises:
             ValidationError: `validation_fun` will raise exception on failure
     """
-    backend = planetmint.config['database']['backend']
+    backend = Config().get()['database']['backend']
 
     if backend == 'localmongodb':
         data = obj.get(key, {})

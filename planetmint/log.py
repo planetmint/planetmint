@@ -84,7 +84,7 @@ def setup_logging():
     """
 
     logging_configs = DEFAULT_LOGGING_CONFIG
-    new_logging_configs = planetmint.config['log']
+    new_logging_configs = Config().get()['log']
 
     if 'file' in new_logging_configs:
         filename = new_logging_configs['file']

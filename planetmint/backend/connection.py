@@ -5,8 +5,7 @@
 
 import logging
 from importlib import import_module
-
-from planetmint.backend.utils import get_planetmint_config_value
+from planetmint.config import Config
 
 BACKENDS = {  # This is path to MongoDBClass
     'tarantool_db': 'planetmint.backend.tarantool.connection.TarantoolDB',
@@ -15,23 +14,22 @@ BACKENDS = {  # This is path to MongoDBClass
 
 logger = logging.getLogger(__name__)
 
-
-# backend = get_planetmint_config_value("backend")
-# if not backend:
-#     backend = 'tarantool_db'
-#
-# modulepath, _, class_name = BACKENDS[backend].rpartition('.')
-# current_backend = getattr(import_module(modulepath), class_name)
-
-
 def Connection(host: str = None, port: int = None, login: str = None, password: str = None, backend: str = None,
                **kwargs):
     # TODO To add parser for **kwargs, when mongodb is used
-    backend = backend or get_planetmint_config_value("backend") if not kwargs.get("backend") else kwargs["backend"]
-    host = host or get_planetmint_config_value("host") if kwargs.get("host") is None else kwargs["host"]
-    port = port or get_planetmint_config_value("port") if not kwargs.get("port") is None else kwargs["port"]
-    login = login or get_planetmint_config_value("login") if not kwargs.get("login") is None else kwargs["login"]
-    password = password or get_planetmint_config_value("password")
+    backend = backend 
+    if not backend and kwargs and  kwargs["backend"]:
+        backend = kwargs["backend"]
+        
+    if backend and backend != Config().get()["database"]["backend"]:
+        Config().init_config(backend)
+    else:
+        backend = Config().get()["database"]["backend"]
+    
+    host = host or Config().get()["database"]["host"] if not kwargs.get("host") else kwargs["host"]
+    port = port or Config().get()['database']['port'] if not kwargs.get("port")  else kwargs["port"]
+    login = login or Config().get()["database"]["login"] if not kwargs.get("login") else kwargs["login"]
+    password = password or Config().get()["database"]["password"]
 
     if backend == "tarantool_db":
         modulepath, _, class_name = BACKENDS[backend].rpartition('.')
@@ -40,17 +38,17 @@ def Connection(host: str = None, port: int = None, login: str = None, password: 
     elif backend == "localmongodb":
         modulepath, _, class_name = BACKENDS[backend].rpartition('.')
         Class = getattr(import_module(modulepath), class_name)
-
-        dbname = _kwargs_parser(key="name", kwargs=kwargs) or get_planetmint_config_value('name')
-        replicaset = _kwargs_parser(key="replicaset", kwargs=kwargs) or get_planetmint_config_value('replicaset')
-        ssl = _kwargs_parser(key="ssl", kwargs=kwargs) or get_planetmint_config_value('ssl', False)
-        login = login or get_planetmint_config_value('login') if _kwargs_parser(key="login", kwargs=kwargs) is None else _kwargs_parser(key="login", kwargs=kwargs)
-        password = password or get_planetmint_config_value('password') if _kwargs_parser(key="password", kwargs=kwargs) is None else _kwargs_parser(key="password", kwargs=kwargs)
-        ca_cert = _kwargs_parser(key="ca_cert", kwargs=kwargs) or get_planetmint_config_value('ca_cert')
-        certfile = _kwargs_parser(key="certfile", kwargs=kwargs) or get_planetmint_config_value('certfile')
-        keyfile = _kwargs_parser(key="keyfile", kwargs=kwargs) or get_planetmint_config_value('keyfile')
-        keyfile_passphrase = _kwargs_parser(key="keyfile_passphrase", kwargs=kwargs) or get_planetmint_config_value('keyfile_passphrase', None)
-        crlfile = _kwargs_parser(key="crlfile", kwargs=kwargs) or get_planetmint_config_value('crlfile')
+        print( Config().get())
+        dbname = _kwargs_parser(key="name", kwargs=kwargs) or Config().get()['database']['name']
+        replicaset = _kwargs_parser(key="replicaset", kwargs=kwargs) or Config().get()['database']['replicaset']
+        ssl = _kwargs_parser(key="ssl", kwargs=kwargs) or Config().get()['database']['ssl']
+        login = login or Config().get()['database']['login'] if _kwargs_parser(key="login", kwargs=kwargs) is None else _kwargs_parser(key="login", kwargs=kwargs)
+        password = password or Config().get()['database']['password'] if _kwargs_parser(key="password", kwargs=kwargs) is None else _kwargs_parser(key="password", kwargs=kwargs)
+        ca_cert = _kwargs_parser(key="ca_cert", kwargs=kwargs) or Config().get()['database']['ca_cert']
+        certfile = _kwargs_parser(key="certfile", kwargs=kwargs) or Config().get()['database']['certfile']
+        keyfile = _kwargs_parser(key="keyfile", kwargs=kwargs) or Config().get()['database']['keyfile']
+        keyfile_passphrase = _kwargs_parser(key="keyfile_passphrase", kwargs=kwargs) or Config().get()['database']['keyfile_passphrase']
+        crlfile = _kwargs_parser(key="crlfile", kwargs=kwargs) or Config().get()['database']['crlfile']
         max_tries = _kwargs_parser(key="max_tries", kwargs=kwargs)
         connection_timeout = _kwargs_parser(key="connection_timeout", kwargs=kwargs)
 
@@ -65,3 +63,4 @@ def _kwargs_parser(key, kwargs):
     if kwargs.get(key):
         return kwargs[key]
     return None
+

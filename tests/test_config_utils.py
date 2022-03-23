@@ -9,27 +9,23 @@ from unittest.mock import mock_open, patch
 import pytest
 
 import planetmint
-
-
-ORIGINAL_CONFIG = copy.deepcopy(planetmint._config)
-
+from planetmint.config import Config
 
 @pytest.fixture(scope='function', autouse=True)
-def clean_config(monkeypatch, request):
-    original_config = copy.deepcopy(ORIGINAL_CONFIG)
+def clean_config(monkeypatch, request):    
+    original_config = Config().init_config('tarantool_db')
     backend = request.config.getoption('--database-backend')
-    original_config['database'] = planetmint._database_map[backend]
+    original_config['database'] = Config().get_db_map(backend)
     monkeypatch.setattr('planetmint.config', original_config)
 
 
 def test_bigchain_instance_is_initialized_when_conf_provided():
-    import planetmint
     from planetmint import config_utils
-    assert 'CONFIGURED' not in planetmint.config
+    assert 'CONFIGURED' not in Config().get()
 
     config_utils.set_config({'database': {'backend': 'a'}})
 
-    assert planetmint.config['CONFIGURED'] is True
+    assert Config().get()['CONFIGURED'] is True
 
 
 def test_load_validation_plugin_loads_default_rules_without_name():
@@ -247,16 +243,15 @@ def test_autoconfigure_env_precedence(monkeypatch):
     monkeypatch.setattr('os.environ', {'PLANETMINT_DATABASE_NAME': 'test-dbname',
                                        'PLANETMINT_DATABASE_PORT': 4242,
                                        'PLANETMINT_SERVER_BIND': 'localhost:9985'})
-
-    import planetmint
     from planetmint import config_utils
+    from planetmint.config import Config
     config_utils.autoconfigure()
 
-    assert planetmint.config['CONFIGURED']
-    assert planetmint.config['database']['host'] == 'test-host'
-    assert planetmint.config['database']['name'] == 'test-dbname'
-    assert planetmint.config['database']['port'] == 4242
-    assert planetmint.config['server']['bind'] == 'localhost:9985'
+    assert Config().get()['CONFIGURED']
+    assert Config().get()['database']['host'] == 'test-host'
+    assert Config().get()['database']['name'] == 'test-dbname'
+    assert Config().get()['database']['port'] == 4242
+    assert Config().get()['server']['bind'] == 'localhost:9985'
 
 
 def test_autoconfigure_explicit_file(monkeypatch):
@@ -284,9 +279,9 @@ def test_update_config(monkeypatch):
     # update configuration, retaining previous changes
     config_utils.update_config({'database': {'port': 28016, 'name': 'planetmint_other'}})
 
-    assert planetmint.config['database']['host'] == 'test-host'
-    assert planetmint.config['database']['name'] == 'planetmint_other'
-    assert planetmint.config['database']['port'] == 28016
+    assert Config().get()['database']['host'] == 'test-host'
+    assert Config().get()['database']['name'] == 'planetmint_other'
+    assert Config().get()['database']['port'] == 28016
 
 
 def test_file_config():
@@ -327,7 +322,7 @@ def test_database_envs(env_name, env_value, config_key, monkeypatch):
     monkeypatch.setattr('os.environ', {env_name: env_value})
     planetmint.config_utils.autoconfigure()
 
-    expected_config = copy.deepcopy(planetmint.config)
+    expected_config = Config().get()
     expected_config['database'][config_key] = env_value
 
     assert planetmint.config == expected_config

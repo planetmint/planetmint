@@ -2,7 +2,8 @@ import base64
 import binascii
 import codecs
 
-import planetmint
+
+from planetmint.config import Config
 from abci import types_v0_22_8, types_v0_31_5, TmVersion
 from planetmint.common.exceptions import InvalidPublicKey, BigchainDBError
 
@@ -11,7 +12,7 @@ def encode_validator(v):
     ed25519_public_key = v['public_key']['value']
     # NOTE: tendermint expects public to be encoded in go-amino format
     try:
-        version = TmVersion(planetmint.config["tendermint"]["version"])
+        version = TmVersion(Config().get()["tendermint"]["version"])
     except ValueError:
         raise BigchainDBError('Invalid tendermint version, '
                               'check Planetmint configuration file')

@@ -14,8 +14,8 @@ from unittest.mock import patch
 
 @pytest.fixture
 def reset_planetmint_config(monkeypatch):
-    import planetmint
-    monkeypatch.setattr('planetmint.config', planetmint._config)
+    from planetmint.config import Config
+    monkeypatch.setattr('planetmint.config', Config().init_config('tarantool_db'))
 
 
 def test_input_on_stderr():

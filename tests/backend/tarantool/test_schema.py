@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: (Apache-2.0 AND CC-BY-4.0)
 # Code is Apache-2.0 and docs are CC-BY-4.0
 
+from planetmint.config import Config
 
 def test_init_database_is_graceful_if_db_exists():
     import planetmint
@@ -10,7 +11,7 @@ def test_init_database_is_graceful_if_db_exists():
     from planetmint.backend.schema import init_database
 
     conn = backend.connect()
-    dbname = planetmint.config['database']['name']
+    dbname = Config().get()['database']['name']
 
     # The db is set up by the fixtures
     assert dbname in conn.conn.list_database_names()
@@ -24,7 +25,7 @@ def test_create_tables():
     from planetmint.backend import schema
 
     conn = backend.connect()
-    dbname = planetmint.config['database']['name']
+    dbname = Config().get()['database']['name']
 
     # The db is set up by the fixtures so we need to remove it
     conn.conn.drop_database(dbname)
