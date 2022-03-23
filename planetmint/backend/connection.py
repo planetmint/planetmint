@@ -38,5 +38,30 @@ def Connection(host: str = None, port: int = None, login: str = None, password: 
         Class = getattr(import_module(modulepath), class_name)
         return Class(host=host, port=port, user=login, password=password)
     elif backend == "localmongodb":
-        return ""
+        modulepath, _, class_name = BACKENDS[backend].rpartition('.')
+        Class = getattr(import_module(modulepath), class_name)
 
+        dbname = _kwargs_parser(key="name", kwargs=kwargs) or get_planetmint_config_value('name')
+        replicaset = _kwargs_parser(key="replicaset", kwargs=kwargs) or get_planetmint_config_value('replicaset')
+        ssl = _kwargs_parser(key="ssl", kwargs=kwargs) or get_planetmint_config_value('ssl', False)
+        login = login or get_planetmint_config_value('login') if _kwargs_parser(key="login", kwargs=kwargs) is None else _kwargs_parser(key="login", kwargs=kwargs)
+        password = password or get_planetmint_config_value('password') if _kwargs_parser(key="password", kwargs=kwargs) is None else _kwargs_parser(key="password", kwargs=kwargs)
+        ca_cert = _kwargs_parser(key="ca_cert", kwargs=kwargs) or get_planetmint_config_value('ca_cert')
+        certfile = _kwargs_parser(key="certfile", kwargs=kwargs) or get_planetmint_config_value('certfile')
+        keyfile = _kwargs_parser(key="keyfile", kwargs=kwargs) or get_planetmint_config_value('keyfile')
+        keyfile_passphrase = _kwargs_parser(key="keyfile_passphrase", kwargs=kwargs) or get_planetmint_config_value('keyfile_passphrase', None)
+        crlfile = _kwargs_parser(key="crlfile", kwargs=kwargs) or get_planetmint_config_value('crlfile')
+        max_tries = _kwargs_parser(key="max_tries", kwargs=kwargs)
+        connection_timeout = _kwargs_parser(key="connection_timeout", kwargs=kwargs)
+
+        return Class(host=host, port=port, dbname=dbname,
+                     max_tries=max_tries, connection_timeout=connection_timeout,
+                     replicaset=replicaset, ssl=ssl, login=login, password=password,
+                     ca_cert=ca_cert, certfile=certfile, keyfile=keyfile,
+                     keyfile_passphrase=keyfile_passphrase, crlfile=crlfile)
+
+
+def _kwargs_parser(key, kwargs):
+    if kwargs.get(key):
+        return kwargs[key]
+    return None
