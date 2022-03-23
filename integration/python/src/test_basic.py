@@ -4,7 +4,6 @@
 # Code is Apache-2.0 and docs are CC-BY-4.0
 
 # import Planetmint and create object
-from planetmint_driver import Planetmint
 from planetmint_driver.crypto import generate_keypair
 
 # import helper to manage multiple nodes

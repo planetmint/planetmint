@@ -19,25 +19,6 @@ from planetmint_driver.common.transaction import Transaction, _fulfillment_to_de
 # Import helper to deal with multiple nodes
 from .helper.hosts import Hosts
 
-# TODO: For testing purposes remove before merge
-def make_ed25519_condition(public_key, *, amount=1):
-    ed25519 = Ed25519Sha256(public_key=base58.b58decode(public_key))
-    return {
-        'amount': str(amount),
-        'condition': {
-            'details': _fulfillment_to_details(ed25519),
-            'uri': ed25519.condition_uri,
-        },
-        'public_keys': (public_key,),
-    }
-
-# TODO: For testing purposes remove before merge
-def make_threshold_condition(threshold, sub_conditions):
-    threshold_condition = ThresholdSha256(threshold)
-    for condition in sub_conditions:
-        threshold_condition.add_subcondition(condition)
-    return threshold_condition
-
 def test_threshold():
     # Setup connection to test nodes
     hosts = Hosts('/shared/hostnames')
@@ -59,15 +40,6 @@ def test_threshold():
         }
     }
 
-    # References:
-    # http://docs.bigchaindb.com/projects/py-driver/en/latest/handcraft.html#multiple-owners-with-m-of-n-signatures
-    # https://buildmedia.readthedocs.org/media/pdf/bigchaindb/v0.4.0/bigchaindb.pdf
-    # https://github.com/bigchaindb/kyber/issues/12
-    # https://github.com/bigchaindb/js-bigchaindb-driver/blob/master/src/transaction.js
-    # https://github.com/planetmint/planetmint-driver-python/blob/main/planetmint_driver/common/transaction.py
-    # https://docs.bigchaindb.com/projects/server/en/0.8.2/data-models/crypto-conditions.html
-    # https://github.com/bigchaindb/BEPs/tree/master/13#transaction-components-transaction-id
-
     # Create subfulfillments
     alice_ed25519 = Ed25519Sha256(public_key=base58.b58decode(alice.public_key))
     bob_ed25519 = Ed25519Sha256(public_key=base58.b58decode(bob.public_key))
@@ -79,8 +51,8 @@ def test_threshold():
     threshold_sha256.add_subfulfillment(bob_ed25519)
     threshold_sha256.add_subfulfillment(carol_ed25519)
 
+    # Create a condition uri and details for the output object
     condition_uri = threshold_sha256.condition.serialize_uri()
-
     condition_details = {
         'subconditions': [
             {'type': s['body'].TYPE_NAME,
@@ -93,6 +65,7 @@ def test_threshold():
         'type': threshold_sha256.TYPE_NAME,
     }
 
+    # Assemble output and input for the handcrafted tx
     output = {
         'amount': '1',
         'condition': {
@@ -139,8 +112,6 @@ def test_threshold():
     fulfillment_uri = fulfillment_threshold.serialize_uri()
 
     handcrafted_dw_tx['inputs'][0]['fulfillment'] = fulfillment_uri
-
-    print(json.dumps(handcrafted_dw_tx, indent=4, sort_keys=True))
 
     json_str_tx = json.dumps(
         handcrafted_dw_tx,
