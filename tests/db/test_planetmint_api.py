@@ -4,6 +4,8 @@
 # Code is Apache-2.0 and docs are CC-BY-4.0
 
 from unittest.mock import patch
+from planetmint.transactions.types.assets.create import Create
+from planetmint.transactions.types.assets.transfer import Transfer
 
 import pytest
 from base58 import b58decode
@@ -14,19 +16,18 @@ pytestmark = pytest.mark.bdb
 class TestBigchainApi(object):
 
     def test_get_spent_with_double_spend_detected(self, b, alice):
-        from planetmint.models import Transaction
         from planetmint.transactions.common.exceptions import DoubleSpend
         from planetmint.exceptions import CriticalDoubleSpend
 
-        tx = Transaction.create([alice.public_key], [([alice.public_key], 1)])
+        tx = Create.generate([alice.public_key], [([alice.public_key], 1)])
         tx = tx.sign([alice.private_key])
 
         b.store_bulk_transactions([tx])
 
-        transfer_tx = Transaction.transfer(tx.to_inputs(), [([alice.public_key], 1)],
+        transfer_tx = Transfer.generate(tx.to_inputs(), [([alice.public_key], 1)],
                                            asset_id=tx.id)
         transfer_tx = transfer_tx.sign([alice.private_key])
-        transfer_tx2 = Transaction.transfer(tx.to_inputs(), [([alice.public_key], 2)],
+        transfer_tx2 = Transfer.generate(tx.to_inputs(), [([alice.public_key], 2)],
                                             asset_id=tx.id)
         transfer_tx2 = transfer_tx2.sign([alice.private_key])
 
@@ -44,10 +45,9 @@ class TestBigchainApi(object):
             b.get_spent(tx.id, 0)
 
     def test_double_inclusion(self, b, alice):
-        from planetmint.models import Transaction
         from planetmint.backend.exceptions import OperationError
 
-        tx = Transaction.create([alice.public_key], [([alice.public_key], 1)])
+        tx = Create.generate([alice.public_key], [([alice.public_key], 1)])
         tx = tx.sign([alice.private_key])
 
         b.store_bulk_transactions([tx])
@@ -56,7 +56,6 @@ class TestBigchainApi(object):
             b.store_bulk_transactions([tx])
 
     def test_text_search(self, b, alice):
-        from planetmint.models import Transaction
 
         # define the assets
         asset1 = {'msg': 'Planetmint 1'}
@@ -64,11 +63,11 @@ class TestBigchainApi(object):
         asset3 = {'msg': 'Planetmint 3'}
 
         # create the transactions
-        tx1 = Transaction.create([alice.public_key], [([alice.public_key], 1)],
+        tx1 = Create.generate([alice.public_key], [([alice.public_key], 1)],
                                  asset=asset1).sign([alice.private_key])
-        tx2 = Transaction.create([alice.public_key], [([alice.public_key], 1)],
+        tx2 = Create.generate([alice.public_key], [([alice.public_key], 1)],
                                  asset=asset2).sign([alice.private_key])
-        tx3 = Transaction.create([alice.public_key], [([alice.public_key], 1)],
+        tx3 = Create.generate([alice.public_key], [([alice.public_key], 1)],
                                  asset=asset3).sign([alice.private_key])
 
         # write the transactions to the DB
@@ -83,23 +82,21 @@ class TestBigchainApi(object):
         from cryptoconditions import Ed25519Sha256
         from planetmint.transactions.common.exceptions import InputDoesNotExist
         from planetmint.transactions.common.transaction import Input, TransactionLink
-        from planetmint.models import Transaction
 
         # Create an input for a non existing transaction
         input = Input(Ed25519Sha256(public_key=b58decode(user_pk)),
                       [user_pk],
                       TransactionLink('somethingsomething', 0))
-        tx = Transaction.transfer([input], [([user_pk], 1)],
+        tx = Transfer.generate([input], [([user_pk], 1)],
                                   asset_id='mock_asset_link')
         with pytest.raises(InputDoesNotExist):
             tx.validate(b)
 
     def test_write_transaction(self, b, user_sk, user_pk, alice, create_tx):
-        from planetmint.models import Transaction
 
         asset1 = {'msg': 'Planetmint 1'}
 
-        tx = Transaction.create([alice.public_key], [([alice.public_key], 1)],
+        tx = Create.generate([alice.public_key], [([alice.public_key], 1)],
                                 asset=asset1).sign([alice.private_key])
         b.store_bulk_transactions([tx])
 
@@ -128,12 +125,11 @@ class TestTransactionValidation(object):
     def test_non_create_valid_input_wrong_owner(self, b, user_pk):
         from planetmint.transactions.common.crypto import generate_key_pair
         from planetmint.transactions.common.exceptions import InvalidSignature
-        from planetmint.models import Transaction
 
         input_tx = b.fastquery.get_outputs_by_public_key(user_pk).pop()
         input_transaction = b.get_transaction(input_tx.txid)
         sk, pk = generate_key_pair()
-        tx = Transaction.create([pk], [([user_pk], 1)])
+        tx = Create.generate([pk], [([user_pk], 1)])
         tx.operation = 'TRANSFER'
         tx.asset = {'id': input_transaction.id}
         tx.inputs[0].fulfills = input_tx
@@ -157,14 +153,13 @@ class TestMultipleInputs(object):
     def test_transfer_single_owner_single_input(self, b, inputs, user_pk,
                                                 user_sk):
         from planetmint.transactions.common import crypto
-        from planetmint.models import Transaction
 
         user2_sk, user2_pk = crypto.generate_key_pair()
 
         tx_link = b.fastquery.get_outputs_by_public_key(user_pk).pop()
         input_tx = b.get_transaction(tx_link.txid)
         inputs = input_tx.to_inputs()
-        tx = Transaction.transfer(inputs, [([user2_pk], 1)],
+        tx = Transfer.generate(inputs, [([user2_pk], 1)],
                                   asset_id=input_tx.id)
         tx = tx.sign([user_sk])
 
@@ -178,14 +173,13 @@ class TestMultipleInputs(object):
                                                                     user_pk,
                                                                     inputs):
         from planetmint.transactions.common import crypto
-        from planetmint.models import Transaction
 
         user2_sk, user2_pk = crypto.generate_key_pair()
         user3_sk, user3_pk = crypto.generate_key_pair()
         tx_link = b.fastquery.get_outputs_by_public_key(user_pk).pop()
 
         input_tx = b.get_transaction(tx_link.txid)
-        tx = Transaction.transfer(input_tx.to_inputs(),
+        tx = Transfer.generate(input_tx.to_inputs(),
                                   [([user2_pk, user3_pk], 1)],
                                   asset_id=input_tx.id)
         tx = tx.sign([user_sk])
@@ -200,12 +194,11 @@ class TestMultipleInputs(object):
                                                                     user_pk,
                                                                     alice):
         from planetmint.transactions.common import crypto
-        from planetmint.models import Transaction
 
         user2_sk, user2_pk = crypto.generate_key_pair()
         user3_sk, user3_pk = crypto.generate_key_pair()
 
-        tx = Transaction.create([alice.public_key], [([user_pk, user2_pk], 1)])
+        tx = Create.generate([alice.public_key], [([user_pk, user2_pk], 1)])
         tx = tx.sign([alice.private_key])
         b.store_bulk_transactions([tx])
 
@@ -213,7 +206,7 @@ class TestMultipleInputs(object):
         input_tx = b.get_transaction(owned_input.txid)
         inputs = input_tx.to_inputs()
 
-        transfer_tx = Transaction.transfer(inputs, [([user3_pk], 1)],
+        transfer_tx = Transfer.generate(inputs, [([user3_pk], 1)],
                                            asset_id=input_tx.id)
         transfer_tx = transfer_tx.sign([user_sk, user2_sk])
 
@@ -228,13 +221,12 @@ class TestMultipleInputs(object):
                                                                        user_pk,
                                                                        alice):
         from planetmint.transactions.common import crypto
-        from planetmint.models import Transaction
 
         user2_sk, user2_pk = crypto.generate_key_pair()
         user3_sk, user3_pk = crypto.generate_key_pair()
         user4_sk, user4_pk = crypto.generate_key_pair()
 
-        tx = Transaction.create([alice.public_key], [([user_pk, user2_pk], 1)])
+        tx = Create.generate([alice.public_key], [([user_pk, user2_pk], 1)])
         tx = tx.sign([alice.private_key])
         b.store_bulk_transactions([tx])
 
@@ -242,7 +234,7 @@ class TestMultipleInputs(object):
         tx_link = b.fastquery.get_outputs_by_public_key(user_pk).pop()
         tx_input = b.get_transaction(tx_link.txid)
 
-        tx = Transaction.transfer(tx_input.to_inputs(),
+        tx = Transfer.generate(tx_input.to_inputs(),
                                   [([user3_pk, user4_pk], 1)],
                                   asset_id=tx_input.id)
         tx = tx.sign([user_sk, user2_sk])
@@ -254,11 +246,10 @@ class TestMultipleInputs(object):
     def test_get_owned_ids_single_tx_single_output(self, b, user_sk, user_pk, alice):
         from planetmint.transactions.common import crypto
         from planetmint.transactions.common.transaction import TransactionLink
-        from planetmint.models import Transaction
 
         user2_sk, user2_pk = crypto.generate_key_pair()
 
-        tx = Transaction.create([alice.public_key], [([user_pk], 1)])
+        tx = Create.generate([alice.public_key], [([user_pk], 1)])
         tx = tx.sign([alice.private_key])
         b.store_bulk_transactions([tx])
 
@@ -267,7 +258,7 @@ class TestMultipleInputs(object):
         assert owned_inputs_user1 == [TransactionLink(tx.id, 0)]
         assert owned_inputs_user2 == []
 
-        tx_transfer = Transaction.transfer(tx.to_inputs(), [([user2_pk], 1)],
+        tx_transfer = Transfer.generate(tx.to_inputs(), [([user2_pk], 1)],
                                            asset_id=tx.id)
         tx_transfer = tx_transfer.sign([user_sk])
         b.store_bulk_transactions([tx_transfer])
@@ -282,12 +273,11 @@ class TestMultipleInputs(object):
                                                       user_pk, alice):
         from planetmint.transactions.common import crypto
         from planetmint.transactions.common.transaction import TransactionLink
-        from planetmint.models import Transaction
 
         user2_sk, user2_pk = crypto.generate_key_pair()
 
         # create divisible asset
-        tx_create = Transaction.create([alice.public_key], [([user_pk], 1), ([user_pk], 1)])
+        tx_create = Create.generate([alice.public_key], [([user_pk], 1), ([user_pk], 1)])
         tx_create_signed = tx_create.sign([alice.private_key])
         b.store_bulk_transactions([tx_create_signed])
 
@@ -301,7 +291,7 @@ class TestMultipleInputs(object):
         assert owned_inputs_user2 == []
 
         # transfer divisible asset divided in two outputs
-        tx_transfer = Transaction.transfer(tx_create.to_inputs(),
+        tx_transfer = Transfer.generate(tx_create.to_inputs(),
                                            [([user2_pk], 1), ([user2_pk], 1)],
                                            asset_id=tx_create.id)
         tx_transfer_signed = tx_transfer.sign([user_sk])
@@ -316,12 +306,11 @@ class TestMultipleInputs(object):
     def test_get_owned_ids_multiple_owners(self, b, user_sk, user_pk, alice):
         from planetmint.transactions.common import crypto
         from planetmint.transactions.common.transaction import TransactionLink
-        from planetmint.models import Transaction
 
         user2_sk, user2_pk = crypto.generate_key_pair()
         user3_sk, user3_pk = crypto.generate_key_pair()
 
-        tx = Transaction.create([alice.public_key], [([user_pk, user2_pk], 1)])
+        tx = Create.generate([alice.public_key], [([user_pk, user2_pk], 1)])
         tx = tx.sign([alice.private_key])
 
         b.store_bulk_transactions([tx])
@@ -333,7 +322,7 @@ class TestMultipleInputs(object):
         assert owned_inputs_user1 == owned_inputs_user2
         assert owned_inputs_user1 == expected_owned_inputs_user1
 
-        tx = Transaction.transfer(tx.to_inputs(), [([user3_pk], 1)],
+        tx = Transfer.generate(tx.to_inputs(), [([user3_pk], 1)],
                                   asset_id=tx.id)
         tx = tx.sign([user_sk, user2_sk])
         b.store_bulk_transactions([tx])
@@ -347,11 +336,10 @@ class TestMultipleInputs(object):
 
     def test_get_spent_single_tx_single_output(self, b, user_sk, user_pk, alice):
         from planetmint.transactions.common import crypto
-        from planetmint.models import Transaction
 
         user2_sk, user2_pk = crypto.generate_key_pair()
 
-        tx = Transaction.create([alice.public_key], [([user_pk], 1)])
+        tx = Create.generate([alice.public_key], [([user_pk], 1)])
         tx = tx.sign([alice.private_key])
         b.store_bulk_transactions([tx])
 
@@ -363,7 +351,7 @@ class TestMultipleInputs(object):
         assert spent_inputs_user1 is None
 
         # create a transaction and send it
-        tx = Transaction.transfer(tx.to_inputs(), [([user2_pk], 1)],
+        tx = Transfer.generate(tx.to_inputs(), [([user2_pk], 1)],
                                   asset_id=tx.id)
         tx = tx.sign([user_sk])
         b.store_bulk_transactions([tx])
@@ -373,13 +361,12 @@ class TestMultipleInputs(object):
 
     def test_get_spent_single_tx_multiple_outputs(self, b, user_sk, user_pk, alice):
         from planetmint.transactions.common import crypto
-        from planetmint.models import Transaction
 
         # create a new users
         user2_sk, user2_pk = crypto.generate_key_pair()
 
         # create a divisible asset with 3 outputs
-        tx_create = Transaction.create([alice.public_key],
+        tx_create = Create.generate([alice.public_key],
                                        [([user_pk], 1),
                                         ([user_pk], 1),
                                         ([user_pk], 1)])
@@ -393,7 +380,7 @@ class TestMultipleInputs(object):
             assert b.get_spent(input_tx.txid, input_tx.output) is None
 
         # transfer the first 2 inputs
-        tx_transfer = Transaction.transfer(tx_create.to_inputs()[:2],
+        tx_transfer = Transfer.generate(tx_create.to_inputs()[:2],
                                            [([user2_pk], 1), ([user2_pk], 1)],
                                            asset_id=tx_create.id)
         tx_transfer_signed = tx_transfer.sign([user_sk])
@@ -410,7 +397,6 @@ class TestMultipleInputs(object):
 
     def test_get_spent_multiple_owners(self, b, user_sk, user_pk, alice):
         from planetmint.transactions.common import crypto
-        from planetmint.models import Transaction
 
         user2_sk, user2_pk = crypto.generate_key_pair()
         user3_sk, user3_pk = crypto.generate_key_pair()
@@ -418,7 +404,7 @@ class TestMultipleInputs(object):
         transactions = []
         for i in range(3):
             payload = {'somedata': i}
-            tx = Transaction.create([alice.public_key], [([user_pk, user2_pk], 1)],
+            tx = Create.generate([alice.public_key], [([user_pk, user2_pk], 1)],
                                     payload)
             tx = tx.sign([alice.private_key])
             transactions.append(tx)
@@ -431,7 +417,7 @@ class TestMultipleInputs(object):
             assert b.get_spent(input_tx.txid, input_tx.output) is None
 
         # create a transaction
-        tx = Transaction.transfer(transactions[0].to_inputs(),
+        tx = Transfer.generate(transactions[0].to_inputs(),
                                   [([user3_pk], 1)],
                                   asset_id=transactions[0].id)
         tx = tx.sign([user_sk, user2_sk])
@@ -496,11 +482,10 @@ def test_cant_spend_same_input_twice_in_tx(b, alice):
     """Recreate duplicated fulfillments bug
     https://github.com/planetmint/planetmint/issues/1099
     """
-    from planetmint.models import Transaction
     from planetmint.transactions.common.exceptions import DoubleSpend
 
     # create a divisible asset
-    tx_create = Transaction.create([alice.public_key], [([alice.public_key], 100)])
+    tx_create = Create.generate([alice.public_key], [([alice.public_key], 100)])
     tx_create_signed = tx_create.sign([alice.private_key])
     assert b.validate_transaction(tx_create_signed) == tx_create_signed
 
@@ -508,7 +493,7 @@ def test_cant_spend_same_input_twice_in_tx(b, alice):
 
     # Create a transfer transaction with duplicated fulfillments
     dup_inputs = tx_create.to_inputs() + tx_create.to_inputs()
-    tx_transfer = Transaction.transfer(dup_inputs, [([alice.public_key], 200)],
+    tx_transfer = Transfer.generate(dup_inputs, [([alice.public_key], 200)],
                                        asset_id=tx_create.id)
     tx_transfer_signed = tx_transfer.sign([alice.private_key])
     with pytest.raises(DoubleSpend):
@@ -518,13 +503,12 @@ def test_cant_spend_same_input_twice_in_tx(b, alice):
 def test_transaction_unicode(b, alice):
     import copy
     from planetmint.transactions.common.utils import serialize
-    from planetmint.models import Transaction
 
     # http://www.fileformat.info/info/unicode/char/1f37a/index.htm
     beer_python = {'beer': '\N{BEER MUG}'}
     beer_json = '{"beer":"\N{BEER MUG}"}'
 
-    tx = (Transaction.create([alice.public_key], [([alice.public_key], 100)], beer_python)
+    tx = (Create.generate([alice.public_key], [([alice.public_key], 100)], beer_python)
           ).sign([alice.private_key])
 
     tx_1 = copy.deepcopy(tx)

@@ -143,7 +143,7 @@ class Election(Transaction):
         uuid = uuid4()
         election_data['seed'] = str(uuid)
 
-        (inputs, outputs) = cls.validate_create(initiator, voters, election_data, metadata)
+        (inputs, outputs) = Create.validate_create(initiator, voters, election_data, metadata)
         election = cls(cls.OPERATION, {'data': election_data}, inputs, outputs, metadata)
         cls.validate_schema(election.to_dict())
         return election

@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: (Apache-2.0 AND CC-BY-4.0)
 # Code is Apache-2.0 and docs are CC-BY-4.0
 
-from planetmint.transactions.common.transaction import Transaction
+from planetmint.models import Transaction
 from planetmint.transactions.common.input import Input
 from planetmint.transactions.common.output import Output
 
@@ -13,7 +13,7 @@ class Create(Transaction):
     ALLOWED_OPERATIONS = (OPERATION,)
 
     @classmethod
-    def validate(self, tx_signers, recipients, asset, metadata):
+    def validate_create(self, tx_signers, recipients, asset, metadata):
         if not isinstance(tx_signers, list):
             raise TypeError('`tx_signers` must be a list instance')
         if not isinstance(recipients, list):
@@ -73,5 +73,5 @@ class Create(Transaction):
                 :class:`~planetmint.common.transaction.Transaction`
         """
 
-        (inputs, outputs) = cls.validate(tx_signers, recipients, asset, metadata)
+        (inputs, outputs) = cls.validate_create(tx_signers, recipients, asset, metadata)
         return cls(cls.OPERATION, {'data': asset}, inputs, outputs, metadata)

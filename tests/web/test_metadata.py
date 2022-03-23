@@ -4,6 +4,7 @@
 # Code is Apache-2.0 and docs are CC-BY-4.0
 
 import pytest
+from planetmint.transactions.types.assets.create import Create
 
 METADATA_ENDPOINT = '/api/v1/metadata/'
 
@@ -22,7 +23,6 @@ def test_get_metadata_with_missing_text_search(client):
 
 @pytest.mark.bdb
 def test_get_metadata_tendermint(client, b, alice):
-    from planetmint.models import Transaction
 
     # test returns empty list when no assets are found
     res = client.get(METADATA_ENDPOINT + '?search=abc')
@@ -32,7 +32,7 @@ def test_get_metadata_tendermint(client, b, alice):
     # create asset
     asset = {'msg': 'abc'}
     metadata = {'key': 'my_meta'}
-    tx = Transaction.create([alice.public_key], [([alice.public_key], 1)], metadata=metadata,
+    tx = Create.generate([alice.public_key], [([alice.public_key], 1)], metadata=metadata,
                             asset=asset).sign([alice.private_key])
 
     b.store_bulk_transactions([tx])
@@ -49,18 +49,17 @@ def test_get_metadata_tendermint(client, b, alice):
 
 @pytest.mark.bdb
 def test_get_metadata_limit_tendermint(client, b, alice):
-    from planetmint.models import Transaction
 
     # create two assets
     asset1 = {'msg': 'abc 1'}
     meta1 = {'key': 'meta 1'}
-    tx1 = Transaction.create([alice.public_key], [([alice.public_key], 1)], metadata=meta1,
+    tx1 = Create.generate([alice.public_key], [([alice.public_key], 1)], metadata=meta1,
                              asset=asset1).sign([alice.private_key])
     b.store_bulk_transactions([tx1])
 
     asset2 = {'msg': 'abc 2'}
     meta2 = {'key': 'meta 2'}
-    tx2 = Transaction.create([alice.public_key], [([alice.public_key], 1)], metadata=meta2,
+    tx2 = Create.generate([alice.public_key], [([alice.public_key], 1)], metadata=meta2,
                              asset=asset2).sign([alice.private_key])
     b.store_bulk_transactions([tx2])
 

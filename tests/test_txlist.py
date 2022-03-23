@@ -12,18 +12,19 @@ import pytest
 
 @pytest.fixture
 def txlist(b, user_pk, user2_pk, user_sk, user2_sk):
-    from planetmint.models import Transaction
+    from planetmint.transactions.types.assets.create import Create
+    from planetmint.transactions.types.assets.transfer import Transfer
 
     # Create two CREATE transactions
-    create1 = Transaction.create([user_pk], [([user2_pk], 6)]) \
+    create1 = Create.generate([user_pk], [([user2_pk], 6)]) \
         .sign([user_sk])
 
-    create2 = Transaction.create([user2_pk],
+    create2 = Create.generate([user2_pk],
                                  [([user2_pk], 5), ([user_pk], 5)]) \
         .sign([user2_sk])
 
     # Create a TRANSFER transactions
-    transfer1 = Transaction.transfer(create1.to_inputs(),
+    transfer1 = Transfer.generate(create1.to_inputs(),
                                      [([user_pk], 8)],
                                      create1.id).sign([user2_sk])
 

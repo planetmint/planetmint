@@ -7,6 +7,7 @@ import pytest
 from copy import deepcopy
 
 from planetmint.models import Transaction
+from planetmint.transactions.types.assets.create import Create
 from planetmint.transactions.common.crypto import generate_key_pair
 from planetmint.transactions.common.memoize import to_dict, from_dict
 
@@ -23,7 +24,7 @@ def test_memoize_to_dict(b):
     assert to_dict.cache_info().hits == 0
     assert to_dict.cache_info().misses == 0
 
-    tx = Transaction.create([alice.public_key],
+    tx = Create.generate([alice.public_key],
                             [([alice.public_key], 1)],
                             asset=asset,)\
                     .sign([alice.private_key])
@@ -49,7 +50,7 @@ def test_memoize_from_dict(b):
     assert from_dict.cache_info().hits == 0
     assert from_dict.cache_info().misses == 0
 
-    tx = Transaction.create([alice.public_key],
+    tx = Create.generate([alice.public_key],
                             [([alice.public_key], 1)],
                             asset=asset,)\
                     .sign([alice.private_key])
@@ -76,7 +77,7 @@ def test_memoize_input_valid(b):
     assert Transaction._input_valid.cache_info().hits == 0
     assert Transaction._input_valid.cache_info().misses == 0
 
-    tx = Transaction.create([alice.public_key],
+    tx = Create.generate([alice.public_key],
                             [([alice.public_key], 1)],
                             asset=asset,)\
                     .sign([alice.private_key])

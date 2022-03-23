@@ -15,6 +15,8 @@ except ImportError:
     from sha3 import sha3_256
 
 from planetmint.transactions.common import crypto
+from planetmint.transactions.types.assets.create import Create
+from planetmint.transactions.types.assets.transfer import Transfer
 from planetmint.transactions.common.transaction_mode_types import (
     BROADCAST_TX_COMMIT, BROADCAST_TX_ASYNC, BROADCAST_TX_SYNC)
 
@@ -38,10 +40,9 @@ def test_get_transaction_returns_404_if_not_found(client):
 
 @pytest.mark.abci
 def test_post_create_transaction_endpoint(b, client):
-    from planetmint.models import Transaction
     user_priv, user_pub = crypto.generate_key_pair()
 
-    tx = Transaction.create([user_pub], [([user_pub], 1)])
+    tx = Create.generate([user_pub], [([user_pub], 1)])
     tx = tx.sign([user_priv])
 
     res = client.post(TX_ENDPOINT, data=json.dumps(tx.to_dict()))
@@ -67,7 +68,6 @@ def test_post_create_transaction_endpoint(b, client):
 @pytest.mark.language
 def test_post_create_transaction_with_language(b, client, nested, language,
                                                expected_status_code):
-    from planetmint.models import Transaction
     from planetmint.backend.localmongodb.connection import LocalMongoDBConnection
 
     if isinstance(b.connection, LocalMongoDBConnection):
@@ -79,7 +79,7 @@ def test_post_create_transaction_with_language(b, client, nested, language,
         else:
             asset = lang_obj
 
-        tx = Transaction.create([user_pub], [([user_pub], 1)],
+        tx = Create.generate([user_pub], [([user_pub], 1)],
                                 asset=asset)
         tx = tx.sign([user_priv])
         res = client.post(TX_ENDPOINT, data=json.dumps(tx.to_dict()))
@@ -105,16 +105,15 @@ def test_post_create_transaction_with_language(b, client, nested, language,
 ])
 def test_post_create_transaction_with_invalid_key(b, client, field, value,
                                                   err_key, expected_status_code):
-    from planetmint.models import Transaction
     from planetmint.backend.localmongodb.connection import LocalMongoDBConnection
     user_priv, user_pub = crypto.generate_key_pair()
 
     if isinstance(b.connection, LocalMongoDBConnection):
         if field == 'asset':
-            tx = Transaction.create([user_pub], [([user_pub], 1)],
+            tx = Create.generate([user_pub], [([user_pub], 1)],
                                     asset=value)
         elif field == 'metadata':
-            tx = Transaction.create([user_pub], [([user_pub], 1)],
+            tx = Create.generate([user_pub], [([user_pub], 1)],
                                     metadata=value)
         tx = tx.sign([user_priv])
         res = client.post(TX_ENDPOINT, data=json.dumps(tx.to_dict()))
@@ -133,10 +132,9 @@ def test_post_create_transaction_with_invalid_key(b, client, field, value,
 @patch('planetmint.web.views.base.logger')
 def test_post_create_transaction_with_invalid_id(mock_logger, b, client):
     from planetmint.transactions.common.exceptions import InvalidHash
-    from planetmint.models import Transaction
     user_priv, user_pub = crypto.generate_key_pair()
 
-    tx = Transaction.create([user_pub], [([user_pub], 1)])
+    tx = Create.generate([user_pub], [([user_pub], 1)])
     tx = tx.sign([user_priv]).to_dict()
     tx['id'] = 'abcd' * 16
 
@@ -170,10 +168,9 @@ def test_post_create_transaction_with_invalid_signature(mock_logger,
                                                         b,
                                                         client):
     from planetmint.transactions.common.exceptions import InvalidSignature
-    from planetmint.models import Transaction
     user_priv, user_pub = crypto.generate_key_pair()
 
-    tx = Transaction.create([user_pub], [([user_pub], 1)]).to_dict()
+    tx = Create.generate([user_pub], [([user_pub], 1)]).to_dict()
     tx['inputs'][0]['fulfillment'] = 64 * '0'
     tx['id'] = sha3_256(
         json.dumps(
@@ -217,9 +214,8 @@ def test_post_create_transaction_with_invalid_structure(client):
 @pytest.mark.abci
 @patch('planetmint.web.views.base.logger')
 def test_post_create_transaction_with_invalid_schema(mock_logger, client):
-    from planetmint.models import Transaction
     user_priv, user_pub = crypto.generate_key_pair()
-    tx = Transaction.create([user_pub], [([user_pub], 1)]).to_dict()
+    tx = Create.generate([user_pub], [([user_pub], 1)]).to_dict()
     del tx['version']
     ed25519 = Ed25519Sha256(public_key=base58.b58decode(user_pub))
     message = json.dumps(
@@ -307,9 +303,8 @@ def test_post_invalid_transaction(mock_logger, client, exc, msg, monkeypatch,):
 
 @pytest.mark.abci
 def test_post_transfer_transaction_endpoint(client, user_pk, user_sk, posted_create_tx):
-    from planetmint.models import Transaction
 
-    transfer_tx = Transaction.transfer(posted_create_tx.to_inputs(),
+    transfer_tx = Transfer.generate(posted_create_tx.to_inputs(),
                                        [([user_pk], 1)],
                                        asset_id=posted_create_tx.id)
     transfer_tx = transfer_tx.sign([user_sk])
@@ -324,10 +319,9 @@ def test_post_transfer_transaction_endpoint(client, user_pk, user_sk, posted_cre
 
 @pytest.mark.abci
 def test_post_invalid_transfer_transaction_returns_400(client, user_pk, posted_create_tx):
-    from planetmint.models import Transaction
     from planetmint.transactions.common.exceptions import InvalidSignature
 
-    transfer_tx = Transaction.transfer(posted_create_tx.to_inputs(),
+    transfer_tx = Transfer.generate(posted_create_tx.to_inputs(),
                                        [([user_pk], 1)],
                                        asset_id=posted_create_tx.id)
     transfer_tx._hash()
@@ -342,18 +336,17 @@ def test_post_invalid_transfer_transaction_returns_400(client, user_pk, posted_c
 
 @pytest.mark.abci
 def test_post_wrong_asset_division_transfer_returns_400(b, client, user_pk):
-    from planetmint.models import Transaction
     from planetmint.transactions.common.exceptions import AmountError
 
     priv_key, pub_key = crypto.generate_key_pair()
 
-    create_tx = Transaction.create([pub_key],
+    create_tx = Create.generate([pub_key],
                                    [([pub_key], 10)],
                                    asset={'test': 'asset'}).sign([priv_key])
     res = client.post(TX_ENDPOINT + '?mode=commit', data=json.dumps(create_tx.to_dict()))
     assert res.status_code == 202
 
-    transfer_tx = Transaction.transfer(create_tx.to_inputs(),
+    transfer_tx = Transfer.generate(create_tx.to_inputs(),
                                        [([pub_key], 20)],  # 20 > 10
                                        asset_id=create_tx.id).sign([priv_key])
     res = client.post(TX_ENDPOINT + '?mode=commit', data=json.dumps(transfer_tx.to_dict()))
@@ -423,7 +416,6 @@ def test_transactions_get_list_bad(client):
     ('?mode=commit', BROADCAST_TX_COMMIT),
 ])
 def test_post_transaction_valid_modes(mock_post, client, mode):
-    from planetmint.models import Transaction
     from planetmint.transactions.common.crypto import generate_key_pair
 
     def _mock_post(*args, **kwargs):
@@ -432,7 +424,7 @@ def test_post_transaction_valid_modes(mock_post, client, mode):
     mock_post.side_effect = _mock_post
 
     alice = generate_key_pair()
-    tx = Transaction.create([alice.public_key],
+    tx = Create.generate([alice.public_key],
                             [([alice.public_key], 1)],
                             asset=None) \
         .sign([alice.private_key])
@@ -444,10 +436,9 @@ def test_post_transaction_valid_modes(mock_post, client, mode):
 
 @pytest.mark.abci
 def test_post_transaction_invalid_mode(client):
-    from planetmint.models import Transaction
     from planetmint.transactions.common.crypto import generate_key_pair
     alice = generate_key_pair()
-    tx = Transaction.create([alice.public_key],
+    tx = Create.generate([alice.public_key],
                             [([alice.public_key], 1)],
                             asset=None) \
         .sign([alice.private_key])
