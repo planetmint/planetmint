@@ -305,13 +305,13 @@ def test_multiple_in_single_own_single_out_single_own_transfer(alice, b, user_pk
 # Single output
 # Single owners_after
 def test_multiple_in_multiple_own_single_out_single_own_transfer(alice, b, user_pk,
-                                                                user_sk):
+                                                                    user_sk):
     from planetmint.transactions.common.utils import _fulfillment_to_details
 
     # CREATE divisible asset
     tx_create = Create.generate([alice.public_key], [([user_pk, alice.public_key], 50),
-                                   ([user_pk, alice.public_key], 50)],
-                                   asset={'name': random.random()})
+                                                        ([user_pk, alice.public_key], 50)],
+                                                        asset={'name': random.random()})
     tx_create_signed = tx_create.sign([alice.private_key])
 
     # TRANSFER
