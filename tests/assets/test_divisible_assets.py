@@ -97,7 +97,6 @@ def test_single_in_single_own_multiple_out_mix_own_create(alice, user_pk, b):
 # Output combinations already tested above
 def test_single_in_multiple_own_single_out_single_own_create(alice, b, user_pk,
                                                              user_sk):
-    
     from planetmint.transactions.common.utils import _fulfillment_to_details
 
     tx = Create.generate([alice.public_key, user_pk], [([user_pk], 100)], asset={'name': random.random()})
@@ -305,8 +304,9 @@ def test_multiple_in_single_own_single_out_single_own_transfer(alice, b, user_pk
 # Multiple owners_before per input
 # Single output
 # Single owners_after
-def test_multiple_in_multiple_own_single_out_single_own_transfer(alice, b, user_pk,
-                                                                 user_sk):
+def test_multiple_in_multiple_own_single_out_single_own_transfer(
+    alice, b, user_pk,
+    user_sk):
     from planetmint.transactions.common.utils import _fulfillment_to_details
 
     # CREATE divisible asset

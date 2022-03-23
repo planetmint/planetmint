@@ -5,6 +5,7 @@
 
 import codecs
 from planetmint.transactions.types.assets.create import Create
+from planetmint.transactions.types.assets.transfer import Transfer
 
 from tendermint.abci import types_pb2 as types
 import json
@@ -114,7 +115,7 @@ def test_app(b, eventqueue_fixture, init_chain_request):
 @pytest.mark.abci
 def test_post_transaction_responses(tendermint_ws_url, b):
     from planetmint.transactions.common.crypto import generate_key_pair
-    from planetmint.models import Transaction
+
 
     alice = generate_key_pair()
     bob = generate_key_pair()
@@ -126,7 +127,7 @@ def test_post_transaction_responses(tendermint_ws_url, b):
     code, message = b.write_transaction(tx, BROADCAST_TX_COMMIT)
     assert code == 202
 
-    tx_transfer = Transaction.transfer(tx.to_inputs(),
+    tx_transfer = Transfer.generate(tx.to_inputs(),
                                        [([bob.public_key], 1)],
                                        asset_id=tx.id)\
                              .sign([alice.private_key])
@@ -135,7 +136,7 @@ def test_post_transaction_responses(tendermint_ws_url, b):
     assert code == 202
 
     carly = generate_key_pair()
-    double_spend = Transaction.transfer(
+    double_spend = Transfer.transfer(
         tx.to_inputs(),
         [([carly.public_key], 1)],
         asset_id=tx.id,
