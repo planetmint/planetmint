@@ -32,7 +32,7 @@ from .helper.hosts import Hosts
 def test_multiple_owners():
     # Setup up connection to Planetmint integration test nodes
     hosts = Hosts('/shared/hostnames')
-    pm_alpha = hosts.get_alpha()
+    pm_alpha = hosts.get_connection()
 
     # Generate Keypairs for Alice and Bob!
     alice, bob = generate_keypair(), generate_keypair()

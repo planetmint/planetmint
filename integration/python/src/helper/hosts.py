@@ -8,34 +8,29 @@ from typing import List
 from planetmint_driver import Planetmint
 
 class Hosts:
-    hosts = []
+    hostnames = []
     connections = []
 
     def __init__(self, filepath):
-        self.set_hosts(filepath=filepath)
+        self.set_hostnames(filepath=filepath)
         self.set_connections()
 
-    def set_hosts(self, filepath) -> None:
+    def set_hostnames(self, filepath) -> None:
         with open(filepath) as f:
-            self.hosts = f.readlines()
+            self.hostnames = f.readlines()
 
     def set_connections(self) -> None:
-        self.connections = list(map(lambda h: Planetmint(h), self.hosts))
+        self.connections = list(map(lambda h: Planetmint(h), self.hostnames))
 
-    # Not sure if necessary for certain test scenarios
-    def get_alpha(self) -> Planetmint:
-        return self.connections[0]
-
-    # Not sure if necessary for certain test scenarios
-    def get_betas(self) -> List[Planetmint]:
-        return self.connections[1:]
+    def get_connection(self, index = 0) -> Planetmint:
+        return self.connections[index]
 
     def get_transactions(self, tx_id) -> List:
         return list(map(lambda connection: connection.transactions.retrieve(tx_id), self.connections))
 
-    # TODO: pass optional arguments to assert certain prperties of transaction
     def assert_transaction(self, tx_id) -> None:
         txs = self.get_transactions(tx_id)
         for tx in txs:
             assert txs[0] == tx, \
                 'Cannot find transaction {}'.format(tx_id)
+            

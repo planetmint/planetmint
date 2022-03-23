@@ -15,7 +15,7 @@ import time
 def test_basic():
     # Setup up connection to Planetmint integration test nodes
     hosts = Hosts('/shared/hostnames')
-    pm_alpha = hosts.get_alpha()
+    pm_alpha = hosts.get_connection()
 
     # genarate a keypair
     alice = generate_keypair()

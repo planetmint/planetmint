@@ -40,8 +40,7 @@ def test_divisible_assets():
     # Check [test_basic.py](./test_basic.html) to get some more details
     # about the endpoint.
     hosts = Hosts('/shared/hostnames')
-    pm = hosts.get_alpha()
-    # pm = Planetmint(os.environ.get('PLANETMINT_ENDPOINT'))
+    pm = hosts.get_connection()
 
     # Oh look, it is Alice again and she brought her friend Bob along.
     alice, bob = generate_keypair(), generate_keypair()

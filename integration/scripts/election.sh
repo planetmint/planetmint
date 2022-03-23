@@ -19,6 +19,10 @@ elect_validator () {
     planetmint election new upsert-validator $1 $2 $3 --private-key /tendermint/config/priv_validator_key.json 2>&1
 }
 
+propose_migration () {
+    planetmint election new migration --private-key /tendermint/config/priv_validator_key.json 2>&1
+}
+
 # Show election state
 show_election () {
     planetmint election show $1 2>&1
@@ -37,6 +41,11 @@ elect () {
     echo ${proposal##* }
 }
 
+migrate () {
+    proposal=$(propose_migration | grep SUCCESS)
+    echo ${proposal##* }
+}
+
 usage () {
     echo "usage: TODO"
 }
@@ -49,6 +58,9 @@ while [ "$1" != "" ]; do
                             ;;
         elect )             shift
                             elect $1
+                            ;;
+        migrate )           shift
+                            migrate
                             ;;
         show_election )     shift
                             show_election $1

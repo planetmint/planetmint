@@ -16,18 +16,18 @@ check_status () {
 readarray -t HOSTNAMES < /shared/hostnames
 
 # Split into proposer and approvers
-ALPHA=${HOSTNAMES[0]}
-BETAS=${HOSTNAMES[@]:1}
+PROPOSER=${HOSTNAMES[0]}
+APPROVERS=${HOSTNAMES[@]:1}
 
 # Propose validator upsert
-result=$(ssh -o "StrictHostKeyChecking=no" -i \~/.ssh/id_rsa root@${ALPHA} 'bash -s' < scripts/election.sh elect 2)
+result=$(ssh -o "StrictHostKeyChecking=no" -i \~/.ssh/id_rsa root@${PROPOSER} 'bash -s' < scripts/election.sh elect 2)
 
 # Check if election is ongoing and approve validator upsert
-for BETA in ${BETAS[@]}; do
+for APPROVER in ${APPROVERS[@]}; do
     # Check if election is still ongoing
-    check_status ${BETA} $result ongoing
-    ssh -o "StrictHostKeyChecking=no" -i ~/.ssh/id_rsa root@${BETA} 'bash -s' < scripts/election.sh approve $result
+    check_status ${APPROVER} $result ongoing
+    ssh -o "StrictHostKeyChecking=no" -i ~/.ssh/id_rsa root@${APPROVER} 'bash -s' < scripts/election.sh approve $result
 done
 
 # Status of election should be concluded
-check_status ${ALPHA} $result concluded
+check_status ${PROPOSER} $result concluded

@@ -18,7 +18,7 @@ from .helper.hosts import Hosts
 
 def test_double_create():
     hosts = Hosts('/shared/hostnames')
-    pm = hosts.get_alpha()
+    pm = hosts.get_connection()
     alice = generate_keypair()
 
     results = queue.Queue()

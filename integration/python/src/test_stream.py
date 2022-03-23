@@ -37,10 +37,10 @@ def test_stream():
     # We use the env variable `BICHAINDB_ENDPOINT` to know where to connect.
     # Check [test_basic.py](./test_basic.html) for more information.
     hosts = Hosts('/shared/hostnames')
-    pm = hosts.get_alpha()
+    pm = hosts.get_connection()
 
     # *That's pretty bad, but let's do like this for now.*
-    WS_ENDPOINT = 'ws://{}:9985/api/v1/streams/valid_transactions'.format(hosts.hosts[0])
+    WS_ENDPOINT = 'ws://{}:9985/api/v1/streams/valid_transactions'.format(hosts.hostnames[0])
     
     # Hello to Alice again, she is pretty active in those tests, good job
     # Alice!
