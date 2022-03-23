@@ -135,7 +135,7 @@ def test_post_transaction_responses(tendermint_ws_url, b):
     assert code == 202
 
     carly = generate_key_pair()
-    double_spend = Transfer.transfer(
+    double_spend = Transfer.generate(
         tx.to_inputs(),
         [([carly.public_key], 1)],
         asset_id=tx.id,
