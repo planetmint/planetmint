@@ -14,6 +14,8 @@ BACKENDS = {  # This is path to MongoDBClass
 }
 
 logger = logging.getLogger(__name__)
+
+
 # backend = get_planetmint_config_value("backend")
 # if not backend:
 #     backend = 'tarantool_db'
@@ -22,8 +24,9 @@ logger = logging.getLogger(__name__)
 # current_backend = getattr(import_module(modulepath), class_name)
 
 
-def Connection(host: str = None, port: int = None, login: str = None, password: str = None, backend: str = None, **kwargs):
-
+def Connection(host: str = None, port: int = None, login: str = None, password: str = None, backend: str = None,
+               **kwargs):
+    # TODO To add parser for **kwargs, when mongodb is used
     backend = backend or get_planetmint_config_value("backend") if not kwargs.get("backend") else kwargs["backend"]
     host = host or get_planetmint_config_value("host") if kwargs.get("host") is None else kwargs["host"]
     port = port or get_planetmint_config_value("port") if not kwargs.get("port") is None else kwargs["port"]
@@ -36,3 +39,4 @@ def Connection(host: str = None, port: int = None, login: str = None, password: 
         return Class(host=host, port=port, user=login, password=password)
     elif backend == "localmongodb":
         return ""
+

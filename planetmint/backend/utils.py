@@ -32,6 +32,7 @@ def module_dispatch_registrar(module):
 
 
 def get_planetmint_config_value(key, default_value=None):
+    print(planetmint.config["database"]) # backend ,po rt
     return planetmint.config['database'].get(key, default_value)
 
 
