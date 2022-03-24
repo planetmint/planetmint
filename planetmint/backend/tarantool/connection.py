@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 
 
 class TarantoolDB:
-    def __init__(self, host: str = "localhost", port: int = 3301, user: str = "guest", password: str = "",
+    def __init__(self, host: str = None, port: int = None, user: str = None, password: str = None,
                  reset_database: bool = False):
         self.host = host
         self.port = port

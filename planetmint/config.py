@@ -66,8 +66,8 @@ class Config(metaclass=Singleton):
             'port': 3301,
             "connect_now": True,
             "encoding": "utf-8",
-            "login": "guest",
-            'password': None,
+            "login": "planetmint",
+            'password': "planet_user",
             "service": "tarantoolctl connect",
             "init_config": self.__private_init_config,
             "drop_config": self.__private_drop_config,
@@ -99,7 +99,6 @@ class Config(metaclass=Singleton):
                 'port': 26657,
                 'version': 'v0.31.5',  # look for __tm_supported_versions__
             },
-            # TODO Maybe remove hardcode configs for tarantool (review)
             'database': self.__private_database_map,
             'log': {
                 'file': log_config['handlers']['file']['filename'],

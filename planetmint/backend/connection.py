@@ -17,7 +17,6 @@ logger = logging.getLogger(__name__)
 
 def Connection(host: str = None, port: int = None, login: str = None, password: str = None, backend: str = None,
                **kwargs):
-    # TODO To add parser for **kwargs, when mongodb is used
     backend = backend
     if not backend and kwargs and kwargs["backend"]:
         backend = kwargs["backend"]
@@ -31,10 +30,11 @@ def Connection(host: str = None, port: int = None, login: str = None, password: 
     port = port or Config().get()['database']['port'] if not kwargs.get("port") else kwargs["port"]
     login = login or Config().get()["database"]["login"] if not kwargs.get("login") else kwargs["login"]
     password = password or Config().get()["database"]["password"]
-
     if backend == "tarantool_db":
         modulepath, _, class_name = BACKENDS[backend].rpartition('.')
         Class = getattr(import_module(modulepath), class_name)
+        print("LOGIN " + str(login))
+        print("PASSWORD " + str(password))
         return Class(host=host, port=port, user=login, password=password)
     elif backend == "localmongodb":
         modulepath, _, class_name = BACKENDS[backend].rpartition('.')

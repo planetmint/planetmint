@@ -35,6 +35,7 @@ from planetmint.tendermint_utils import public_key_from_base64
 from planetmint.commands.election_types import elections
 from planetmint.version import __tm_supported_versions__
 from planetmint.config import Config
+
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -72,15 +73,15 @@ def run_configure(args):
         if want != 'y':
             return
 
-    Config().init_config( args.backend )
+    Config().init_config(args.backend)
     conf = Config().get()
     # select the correct config defaults based on the backend
     print('Generating default configuration for backend {}'
           .format(args.backend), file=sys.stderr)
-    
-    database_keys = Config().get_db_key_map( args.backend )
+
+    database_keys = Config().get_db_key_map(args.backend)
     if not args.yes:
-        for key in ('bind', ):
+        for key in ('bind',):
             val = conf['server'][key]
             conf['server'][key] = input_on_stderr('API Server {}? (default `{}`): '.format(key, val), val)
 
@@ -100,7 +101,7 @@ def run_configure(args):
         planetmint.config_utils.write_config(conf, config_path)
     else:
         print(json.dumps(conf, indent=4, sort_keys=True))
-        
+
     Config().set(conf)
     print('Configuration written to {}'.format(config_path), file=sys.stderr)
     print('Ready to go!', file=sys.stderr)
@@ -244,9 +245,9 @@ def run_election_show(args, planet):
 
 
 def _run_init():
-    #bdb = planetmint.Planetmint()
+    # bdb = planetmint.Planetmint()
 
-    #schema.init_database(connection=bdb.connection)
+    # schema.init_database(connection=bdb.connection)
 
     init_tarantool()
 
@@ -267,7 +268,6 @@ def run_drop(args):
             return
 
     drop_tarantool()
-    
 
 
 def run_recover(b):
@@ -292,7 +292,7 @@ def run_start(args):
     from planetmint.start import start
     start(args)
 
-    
+
 def run_tendermint_version(args):
     """Show the supported Tendermint version(s)"""
     supported_tm_ver = {
@@ -324,7 +324,7 @@ def create_parser():
                                const='tarantool_db',
                                nargs='?',
                                help='The backend to use. It can only be '
-                               '"tarantool_db", currently.')
+                                    '"tarantool_db", currently.')
 
     # parser for managing elections
     election_parser = subparsers.add_parser('election',
