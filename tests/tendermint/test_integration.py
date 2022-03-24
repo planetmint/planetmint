@@ -4,6 +4,8 @@
 # Code is Apache-2.0 and docs are CC-BY-4.0
 
 import codecs
+from planetmint.transactions.types.assets.create import Create
+from planetmint.transactions.types.assets.transfer import Transfer
 
 from tendermint.abci import types_pb2 as types
 import json
@@ -13,7 +15,7 @@ import pytest
 from abci.server import ProtocolHandler
 from abci.utils import read_messages
 
-from planetmint.common.transaction_mode_types import BROADCAST_TX_COMMIT, BROADCAST_TX_SYNC
+from planetmint.transactions.common.transaction_mode_types import BROADCAST_TX_COMMIT, BROADCAST_TX_SYNC
 from planetmint.version import __tm_supported_versions__
 from io import BytesIO
 
@@ -22,8 +24,7 @@ from io import BytesIO
 def test_app(b, eventqueue_fixture, init_chain_request):
     from planetmint import App
     from planetmint.tendermint_utils import calculate_hash
-    from planetmint.common.crypto import generate_key_pair
-    from planetmint.models import Transaction
+    from planetmint.transactions.common.crypto import generate_key_pair
 
     app = App(b, eventqueue_fixture)
     p = ProtocolHandler(app)
@@ -49,7 +50,7 @@ def test_app(b, eventqueue_fixture, init_chain_request):
 
     alice = generate_key_pair()
     bob = generate_key_pair()
-    tx = Transaction.create([alice.public_key],
+    tx = Create.generate([alice.public_key],
                             [([bob.public_key], 1)])\
                     .sign([alice.private_key])
     etxn = json.dumps(tx.to_dict()).encode('utf8')
@@ -113,12 +114,11 @@ def test_app(b, eventqueue_fixture, init_chain_request):
 
 @pytest.mark.abci
 def test_post_transaction_responses(tendermint_ws_url, b):
-    from planetmint.common.crypto import generate_key_pair
-    from planetmint.models import Transaction
+    from planetmint.transactions.common.crypto import generate_key_pair
 
     alice = generate_key_pair()
     bob = generate_key_pair()
-    tx = Transaction.create([alice.public_key],
+    tx = Create.generate([alice.public_key],
                             [([alice.public_key], 1)],
                             asset=None)\
                     .sign([alice.private_key])
@@ -126,7 +126,7 @@ def test_post_transaction_responses(tendermint_ws_url, b):
     code, message = b.write_transaction(tx, BROADCAST_TX_COMMIT)
     assert code == 202
 
-    tx_transfer = Transaction.transfer(tx.to_inputs(),
+    tx_transfer = Transfer.generate(tx.to_inputs(),
                                        [([bob.public_key], 1)],
                                        asset_id=tx.id)\
                              .sign([alice.private_key])
@@ -135,7 +135,7 @@ def test_post_transaction_responses(tendermint_ws_url, b):
     assert code == 202
 
     carly = generate_key_pair()
-    double_spend = Transaction.transfer(
+    double_spend = Transfer.generate(
         tx.to_inputs(),
         [([carly.public_key], 1)],
         asset_id=tx.id,

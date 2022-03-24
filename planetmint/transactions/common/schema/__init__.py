@@ -11,7 +11,7 @@ import jsonschema
 import yaml
 import rapidjson
 
-from planetmint.common.exceptions import SchemaValidationError
+from planetmint.transactions.common.exceptions import SchemaValidationError
 
 
 logger = logging.getLogger(__name__)

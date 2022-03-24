@@ -3,14 +3,13 @@
 # SPDX-License-Identifier: (Apache-2.0 AND CC-BY-4.0)
 # Code is Apache-2.0 and docs are CC-BY-4.0
 
-from planetmint.common.transaction import Transaction
-from planetmint.common.schema import (_validate_schema,
-                                      TX_SCHEMA_COMMON,
-                                      TX_SCHEMA_TRANSFER,
-                                      TX_SCHEMA_VOTE)
+from planetmint.transactions.types.assets.create import Create
+from planetmint.transactions.types.assets.transfer import Transfer
+from planetmint.transactions.common.schema import (
+    _validate_schema, TX_SCHEMA_COMMON, TX_SCHEMA_TRANSFER, TX_SCHEMA_VOTE)
 
 
-class Vote(Transaction):
+class Vote(Transfer):
 
     OPERATION = 'VOTE'
     # NOTE: This class inherits TRANSFER txn type. The `TRANSFER` property is
@@ -57,8 +56,8 @@ class Vote(Transaction):
 
     @classmethod
     def create(cls, tx_signers, recipients, metadata=None, asset=None):
-        raise NotImplementedError
+        return Create.generate(tx_signers, recipients, metadata=None, asset=None)
 
     @classmethod
     def transfer(cls, tx_signers, recipients, metadata=None, asset=None):
-        raise NotImplementedError
+        return Transfer.generate(tx_signers, recipients, metadata=None, asset=None)

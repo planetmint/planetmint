@@ -94,10 +94,10 @@ config = {
 # the user wants to reconfigure the node. Check ``planetmint.config_utils``
 # for more info.
 _config = copy.deepcopy(config)
-from planetmint.common.transaction import Transaction  # noqa
+from planetmint.transactions.common.transaction import Transaction  # noqa
 from planetmint import models                          # noqa
 from planetmint.upsert_validator import ValidatorElection  # noqa
-from planetmint.elections.vote import Vote  # noqa
+from planetmint.transactions.types.elections.vote import Vote  # noqa
 
 Transaction.register_type(Transaction.CREATE, models.Transaction)
 Transaction.register_type(Transaction.TRANSFER, models.Transaction)
