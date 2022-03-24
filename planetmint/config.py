@@ -68,11 +68,6 @@ class Config(metaclass=Singleton):
             "service": "tarantoolctl connect",
             "init_config": self.__private_init_config,
             "drop_config": self.__private_drop_config,
-            'host': 'localhost',
-            'port': 3301,
-            "connect_now": True,
-            "encoding": "utf-8"
-
         }
 
         self.__private_database_map = {

@@ -1,3 +1,4 @@
+from functools import singledispatch
 # Copyright © 2020 Interplanetary Database Association e.V.,
 # BigchainDB and IPDB software contributors.
 # SPDX-License-Identifier: (Apache-2.0 AND CC-BY-4.0)
