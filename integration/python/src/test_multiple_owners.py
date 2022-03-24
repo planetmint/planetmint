@@ -22,20 +22,16 @@
 import time
 
 # For this test case we need import and use the Python driver
-from planetmint_driver import Planetmint
 from planetmint_driver.crypto import generate_keypair
+
+# Import helper to deal with multiple nodes
+from .helper.hosts import Hosts
 
 
 def test_multiple_owners():
     # Setup up connection to Planetmint integration test nodes
-    hosts = []
-    with open('/shared/hostnames') as f:
-        hosts = f.readlines()
-
-    pm_hosts = list(map(lambda x: Planetmint(x), hosts))
-
-    pm_alpha = pm_hosts[0]
-    pm_betas = pm_hosts[1:]
+    hosts = Hosts('/shared/hostnames')
+    pm_alpha = hosts.get_connection()
 
     # Generate Keypairs for Alice and Bob!
     alice, bob = generate_keypair(), generate_keypair()
@@ -73,13 +69,9 @@ def test_multiple_owners():
     dw_id = fulfilled_dw_tx['id']
 
     time.sleep(1)
-    # Let's retrieve the transaction from both nodes
-    pm_alpha_tx = pm_alpha.transactions.retrieve(dw_id)
-    pm_betas_tx = list(map(lambda beta: beta.transactions.retrieve(dw_id), pm_betas))
 
-    # Both retrieved transactions should be the same
-    for tx in pm_betas_tx:
-        assert pm_alpha_tx == tx
+    # Use hosts to assert that the transaction is properly propagated to every node
+    hosts.assert_transaction(dw_id)
 
     # Let's check if the transaction was successful.
     assert pm_alpha.transactions.retrieve(dw_id), \
@@ -124,13 +116,8 @@ def test_multiple_owners():
     sent_transfer_tx = pm_alpha.transactions.send_commit(fulfilled_transfer_tx)
     time.sleep(1)
 
-    # Retrieve the fulfilled transaction from both nodes
-    pm_alpha_tx = pm_alpha.transactions.retrieve(fulfilled_transfer_tx['id'])
-    pm_betas_tx = list(map(lambda beta: beta.transactions.retrieve(fulfilled_transfer_tx['id']), pm_betas))
-
     # Now compare if both nodes returned the same transaction
-    for tx in pm_betas_tx:
-        assert pm_alpha_tx == tx
+    hosts.assert_transaction(fulfilled_transfer_tx['id'])
 
     # They check if the transaction was successful.
     assert pm_alpha.transactions.retrieve(

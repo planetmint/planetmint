@@ -46,6 +46,7 @@ services:
     volumes:
       - ./integration/python/src:/src
       - ./integration/scripts:/scripts
+      - ./integration/cli:/tests
       - shared:/shared
 
 volumes:
