@@ -4,15 +4,18 @@ import os
 from planetmint.log import DEFAULT_LOGGING_CONFIG as log_config
 from planetmint.version import __version__  # noqa
 
+
 class Singleton(type):
     _instances = {}
+
     def __call__(cls, *args, **kwargs):
         if cls not in cls._instances:
             cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
         return cls._instances[cls]
 
+
 class Config(metaclass=Singleton):
-    
+
     def __init__(self):
         # from functools import reduce
         # PORT_NUMBER = reduce(lambda x, y: x * y, map(ord, 'Planetmint')) % 2**16
@@ -42,7 +45,7 @@ class Config(metaclass=Singleton):
             'certfile': None,
             'keyfile': None,
             'keyfile_passphrase': None,
-            'crlfile': None            
+            'crlfile': None
         }
         self.__private_init_config = {
             "init_file": "init_db.txt",
@@ -115,21 +118,21 @@ class Config(metaclass=Singleton):
         self._private_real_config = copy.deepcopy(self.__private_config)
         # select the correct config defaults based on the backend
         self._private_real_config['database'] = self.__private_database_map[db]
-    
-    def init_config(self, db ):
+
+    def init_config(self, db):
         self._private_real_config = copy.deepcopy(self.__private_config)
         # select the correct config defaults based on the backend
         self._private_real_config['database'] = self.__private_database_map[db]
         return self._private_real_config
-        
+
     def get(self):
         return self._private_real_config
-    
+
     def set(self, config):
         self._private_real_config = config
-    
+
     def get_db_key_map(sefl, db):
         return sefl.__private_database_keys_map[db]
-    
+
     def get_db_map(sefl, db):
         return sefl.__private_database_map[db]
