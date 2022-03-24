@@ -22,7 +22,6 @@
 import time
 
 # For this test case we need import and use the Python driver
-from planetmint_driver import Planetmint
 from planetmint_driver.crypto import generate_keypair
 
 # Import helper to deal with multiple nodes

@@ -5,8 +5,6 @@
 
 # # Double Spend testing
 # This test challenge the system with double spends.
-
-import os
 from uuid import uuid4
 from threading import Thread
 import queue
@@ -15,6 +13,7 @@ import planetmint_driver.exceptions
 from planetmint_driver.crypto import generate_keypair
 
 from .helper.hosts import Hosts
+
 
 def test_double_create():
     hosts = Hosts('/shared/hostnames')
@@ -34,7 +33,7 @@ def test_double_create():
         try:
             pm.transactions.send_commit(tx)
             results.put('OK')
-        except planetmint_driver.exceptions.TransportError as e:
+        except planetmint_driver.exceptions.TransportError:
             results.put('FAIL')
 
     t1 = Thread(target=send_and_queue, args=(tx, ))

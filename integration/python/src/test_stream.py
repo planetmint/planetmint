@@ -15,8 +15,6 @@
 # transactions sent have been validated by Planetmint.
 # - The *listen thread* listens to the events coming from Planetmint and puts
 # them in a queue shared with the main thread.
-
-import os
 import queue
 import json
 from threading import Thread, Event
@@ -32,6 +30,7 @@ from planetmint_driver.crypto import generate_keypair
 # import helper to manage multiple nodes
 from .helper.hosts import Hosts
 
+
 def test_stream():
     # ## Set up the test
     # We use the env variable `BICHAINDB_ENDPOINT` to know where to connect.
@@ -41,7 +40,7 @@ def test_stream():
 
     # *That's pretty bad, but let's do like this for now.*
     WS_ENDPOINT = 'ws://{}:9985/api/v1/streams/valid_transactions'.format(hosts.hostnames[0])
-    
+
     # Hello to Alice again, she is pretty active in those tests, good job
     # Alice!
     alice = generate_keypair()

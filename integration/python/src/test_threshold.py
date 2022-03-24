@@ -10,14 +10,12 @@ import json
 # For this test case we need the planetmint_driver.crypto package
 import base58
 import sha3
-import cryptoconditions as cc
 from cryptoconditions import Ed25519Sha256, ThresholdSha256
-from planetmint_driver import Planetmint
 from planetmint_driver.crypto import generate_keypair
-from planetmint_driver.common.transaction import Transaction, _fulfillment_to_details
 
 # Import helper to deal with multiple nodes
 from .helper.hosts import Hosts
+
 
 def prepare_condition_details(condition: ThresholdSha256):
     condition_details = {
@@ -27,8 +25,7 @@ def prepare_condition_details(condition: ThresholdSha256):
     }
 
     for s in condition.subconditions:
-        if (s['type'] == 'fulfillment' and
-            s['body'].TYPE_NAME == 'ed25519-sha-256'):
+        if (s['type'] == 'fulfillment' and s['body'].TYPE_NAME == 'ed25519-sha-256'):
             condition_details['subconditions'].append({
                 'type': s['body'].TYPE_NAME,
                 'public_key': base58.b58encode(s['body'].public_key).decode()
@@ -37,6 +34,7 @@ def prepare_condition_details(condition: ThresholdSha256):
             condition_details['subconditions'].append(prepare_condition_details(s['body']))
 
     return condition_details
+
 
 def test_threshold():
     # Setup connection to test nodes
@@ -143,6 +141,7 @@ def test_threshold():
 
     # Assert that the tx is propagated to all nodes
     hosts.assert_transaction(dw_creation_txid)
+
 
 def test_weighted_threshold():
     hosts = Hosts('/shared/hostnames')
@@ -259,7 +258,7 @@ def test_weighted_threshold():
         'condition': {
             'details': {
                 'type': alice_transfer_ed25519.TYPE_NAME,
-                'public_key': base58.b58encode(alice_transfer_ed25519.public_key).decode() 
+                'public_key': base58.b58encode(alice_transfer_ed25519.public_key).decode()
             },
             'uri': transfer_condition_uri,
         },

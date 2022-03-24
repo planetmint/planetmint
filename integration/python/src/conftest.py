@@ -64,25 +64,31 @@ CONDITION_SCRIPT = """Rule input encoding base58
     When I rename the 'signature' to 'data.signature'
     Then print the 'data.signature'"""
 
+
 @pytest.fixture
 def gen_key_zencode():
     return GENERATE_KEYPAIR
+
 
 @pytest.fixture
 def secret_key_to_private_key_zencode():
     return SK_TO_PK
 
+
 @pytest.fixture
 def fulfill_script_zencode():
     return FULFILL_SCRIPT
+
 
 @pytest.fixture
 def condition_script_zencode():
     return CONDITION_SCRIPT
 
+
 @pytest.fixture
 def zenroom_house_assets():
     return HOUSE_ASSETS
+
 
 @pytest.fixture
 def zenroom_data():

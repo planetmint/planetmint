@@ -20,20 +20,17 @@
 # [tutorial](https://docs.planetmint.com/projects/py-driver/en/latest/usage.html).
 
 # ## Imports
-# We need some utils from the `os` package, we will interact with
-# env variables.
 # We need the `pytest` package to catch the `BadRequest` exception properly.
 # And of course, we also need the `BadRequest`.
-import os
 import pytest
 from planetmint_driver.exceptions import BadRequest
 
-# For this test case we import and use the Python Driver.
-from planetmint_driver import Planetmint
+# Import generate_keypair to create actors
 from planetmint_driver.crypto import generate_keypair
 
 # import helper to manage multiple nodes
 from .helper.hosts import Hosts
+
 
 def test_divisible_assets():
     # ## Set up a connection to Planetmint

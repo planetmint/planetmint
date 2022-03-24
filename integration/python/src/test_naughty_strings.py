@@ -28,6 +28,7 @@ from .helper.hosts import Hosts
 
 naughty_strings = blns.all()
 
+
 # This is our base test case, but we'll reuse it to send naughty strings as both keys and values.
 def send_naughty_tx(asset, metadata):
     # ## Set up a connection to Planetmint
@@ -58,7 +59,7 @@ def send_naughty_tx(asset, metadata):
         sent_transaction = e
 
     # If her key contained a '.', began with a '$', or contained a NUL character
-    regex = '.*\..*|\$.*|.*\x00.*'
+    regex = r'.*\..*|\$.*|.*\x00.*'
     key = next(iter(metadata))
     if re.match(regex, key):
         # Then she expects a nicely formatted error code

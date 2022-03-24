@@ -7,6 +7,7 @@ from typing import List
 
 from planetmint_driver import Planetmint
 
+
 class Hosts:
     hostnames = []
     connections = []
@@ -22,7 +23,7 @@ class Hosts:
     def set_connections(self) -> None:
         self.connections = list(map(lambda h: Planetmint(h), self.hostnames))
 
-    def get_connection(self, index = 0) -> Planetmint:
+    def get_connection(self, index=0) -> Planetmint:
         return self.connections[index]
 
     def get_transactions(self, tx_id) -> List:
@@ -33,4 +34,3 @@ class Hosts:
         for tx in txs:
             assert txs[0] == tx, \
                 'Cannot find transaction {}'.format(tx_id)
-            
