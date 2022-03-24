@@ -19,8 +19,9 @@ elect_validator () {
     planetmint election new upsert-validator $1 $2 $3 --private-key /tendermint/config/priv_validator_key.json 2>&1
 }
 
+# Propose new chain migration
 propose_migration () {
-    planetmint election new migration --private-key /tendermint/config/priv_validator_key.json 2>&1
+    planetmint election new chain-migration --private-key /tendermint/config/priv_validator_key.json 2>&1
 }
 
 # Show election state
@@ -41,6 +42,7 @@ elect () {
     echo ${proposal##* }
 }
 
+# Create chain migration proposal and return election id
 migrate () {
     proposal=$(propose_migration | grep SUCCESS)
     echo ${proposal##* }

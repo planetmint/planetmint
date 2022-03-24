@@ -9,10 +9,6 @@
 # constraints, we expect to receive a well formatted error message.
 
 # ## Imports
-# We need some utils from the `os` package, we will interact with
-# env variables.
-import os
-
 # Since the naughty strings get encoded and decoded in odd ways,
 # we'll use a regex to sweep those details under the rug.
 import re
@@ -38,7 +34,7 @@ def send_naughty_tx(asset, metadata):
     # Check [test_basic.py](./test_basic.html) to get some more details
     # about the endpoint.
     hosts = Hosts('/shared/hostnames')
-    pm = hosts.get_alpha()
+    pm = hosts.get_connection()
 
     # Here's Alice.
     alice = generate_keypair()

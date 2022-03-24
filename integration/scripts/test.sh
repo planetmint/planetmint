@@ -9,8 +9,9 @@
 # Test upsert new validator
 /tests/upsert-new-validator.sh
 
-# TODO: Implement test for chain migration
-/tests/chain-migration.sh
+# Test chain migration
+# TODO: implementation not finished
+#/tests/chain-migration.sh
 
 # TODO: Implement test for voting edge cases or implicit in chain migration and upsert validator?
 
