@@ -40,8 +40,7 @@ services:
       dockerfile: integration/python/Dockerfile
     depends_on:
       - planetmint-all-in-one
-    # Added "-s" to add debug prints, remove after branch completion
-    command: ["/scripts/pre-config-test.sh", "/scripts/wait-for-planetmint.sh", "/scripts/test.sh", "pytest", "-s", "/src"]
+    command: ["/scripts/pre-config-test.sh", "/scripts/wait-for-planetmint.sh", "/scripts/test.sh", "pytest", "/src"]
     environment:
       SCALE: ${SCALE:-4}
     volumes:
