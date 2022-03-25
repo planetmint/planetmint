@@ -197,7 +197,6 @@ def test_single_in_single_own_single_out_multiple_own_transfer(alice, b, user_pk
     assert len(condition['condition']['details']['subconditions']) == 2
 
     assert len(tx_transfer_signed.inputs) == 1
-
     b.store_bulk_transactions([tx_transfer_signed])
     with pytest.raises(DoubleSpend):
         tx_transfer_signed.validate(b)

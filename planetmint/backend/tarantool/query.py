@@ -11,6 +11,7 @@ from operator import itemgetter
 from planetmint.backend import query
 from planetmint.backend.utils import module_dispatch_registrar
 from planetmint.backend.tarantool.connection import TarantoolDB
+from planetmint.common.transaction import TransactionPrepare
 
 register_query = module_dispatch_registrar(query)
 
@@ -46,15 +47,25 @@ def _group_transaction_by_ids(connection, txids: list):
                         _in[4]) > 0 else None,
                     "fulfillment": _in[1]
                 } for _in in _txinputs
-            ],
-            "outputs": [
+            ]
+        }
+        if _txoutputs[0][7] is None:
+            _obj["outputs"] = [
                 {
                     "public_keys": [_key[3] for _key in _txkeys if _key[2] == _out[5]],
                     "amount": _out[1],
                     "condition": {"details": {"type": _out[3], "public_key": _out[4]}, "uri": _out[2]}
                 } for _out in _txoutputs
             ]
-        }
+        else:
+            _obj["outputs"] = [
+                {
+                    "public_keys": [_key[3] for _key in _txkeys if _key[2] == _out[5]],
+                    "amount": _out[1],
+                    "condition": {"uri": _out[2], "details": {"subconditions": _out[7]}, "type": _out[3], "treshold": _out[6]}
+                } for _out in _txoutputs
+            ]
+
         if len(_txobject[3]) > 0:
             _obj["asset"] = {
                 "id": _txobject[3]
@@ -70,20 +81,21 @@ def _group_transaction_by_ids(connection, txids: list):
 
 
 def __asset_check(object: dict, connection):
-    res = object.get("asset").get("id")
-    res = "" if res is None else res
-    data = object.get("asset").get("data")
+    _asset = object.get("asset")
+    data = None
+    _id = None
+    if _asset is not None:
+        _id = _asset.get("id")
+        data = _asset.get("data") if _id is None else None
+
     if data is not None:
         store_asset(connection=connection, asset=object["asset"], tx_id=object["id"], is_data=True)
+    elif _id is not None:
+        data = _id
+    else:
+        data = ""
 
-    return res
-
-
-def __metadata_check(object: dict, connection):
-    metadata = object.get("metadata")
-    if metadata is not None:
-        space = connection.space("meta_data")
-        space.insert((object["id"], metadata))
+    return data
 
 
 @register_query(TarantoolDB)
@@ -92,33 +104,29 @@ def store_transactions(connection, signed_transactions: list):
     inxspace = connection.space("inputs")
     outxspace = connection.space("outputs")
     keysxspace = connection.space("keys")
+    metadatasxspace = connection.space("meta_data")
+    assetsxspace = connection.space("assets")
+
     for transaction in signed_transactions:
-        __metadata_check(object=transaction, connection=connection)
-        txspace.insert((transaction["id"],
-                        transaction["operation"],
-                        transaction["version"],
-                        __asset_check(object=transaction, connection=connection)
-                        ))
-        for _in in transaction["inputs"]:
-            input_id = token_hex(7)
-            inxspace.insert((transaction["id"],
-                             _in["fulfillment"],
-                             _in["owners_before"],
-                             _in["fulfills"]["transaction_id"] if _in["fulfills"] is not None else "",
-                             str(_in["fulfills"]["output_index"]) if _in["fulfills"] is not None else "",
-                             input_id))
-        for _out in transaction["outputs"]:
-            output_id = token_hex(7)
-            outxspace.insert((transaction["id"],
-                              _out["amount"],
-                              _out["condition"]["uri"],
-                              _out["condition"]["details"]["type"],
-                              _out["condition"]["details"]["public_key"],
-                              output_id
-                              ))
-            for _key in _out["public_keys"]:
-                unique_id = token_hex(8)
-                keysxspace.insert((unique_id, transaction["id"], output_id, _key))
+        txprepare = TransactionPrepare(transaction)
+        txtuples = txprepare.convert_to_tuple()
+
+        txspace.insert(txtuples["transactions"])
+
+        for _in in txtuples["inputs"]:
+            inxspace.insert(_in)
+
+        for _out in txtuples["outputs"]:
+            outxspace.insert(_out)
+
+        for _key in txtuples["keys"]:
+            keysxspace.insert(_key)
+
+        if len(txtuples["metadata"]) > 0:
+            metadatasxspace.insert(txtuples["metadata"])
+
+        if txtuples["is_data"]:
+            assetsxspace.insert(txtuples["asset_data"])
 
 
 @register_query(TarantoolDB)
@@ -178,8 +186,8 @@ def store_assets(connection, assets: list):
 def get_asset(connection, asset_id: str):
     space = connection.space("assets")
     _data = space.select(asset_id, index="assetid_search")
-    _data = _data.data[0]
-    return {"data": _data[1]}
+    _data = _data.data
+    return {"data": _data[0][1]} if len(_data) == 1 else []
 
 
 @register_query(TarantoolDB)

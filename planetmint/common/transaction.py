@@ -20,11 +20,13 @@ import base58
 from cryptoconditions import Fulfillment, ThresholdSha256, Ed25519Sha256
 from cryptoconditions.exceptions import (
     ParsingError, ASN1DecodeError, ASN1EncodeError, UnsupportedTypeError)
+
 try:
     from hashlib import sha3_256
 except ImportError:
     from sha3 import sha3_256
 
+from secrets import token_hex
 from planetmint.common.crypto import PrivateKey, hash_data
 from planetmint.common.exceptions import (KeypairMismatchException,
                                           InputDoesNotExist, DoubleSpend,
@@ -33,7 +35,6 @@ from planetmint.common.exceptions import (KeypairMismatchException,
                                           ThresholdTooDeep)
 from planetmint.common.utils import serialize
 from .memoize import memoize_from_dict, memoize_to_dict
-
 
 UnspentOutput = namedtuple(
     'UnspentOutput', (
@@ -544,7 +545,7 @@ class Transaction(object):
             raise TypeError(('`asset` must be None or a dict holding a `data` '
                              " property instance for '{}' Transactions".format(operation)))
         elif (operation == self.TRANSFER and
-                not (isinstance(asset, dict) and 'id' in asset)):
+              not (isinstance(asset, dict) and 'id' in asset)):
             raise TypeError(('`asset` must be a dict holding an `id` property '
                              'for \'TRANSFER\' Transactions'))
 
@@ -834,7 +835,7 @@ class Transaction(object):
             return public_key.decode()
 
         key_pairs = {gen_public_key(PrivateKey(private_key)):
-                     PrivateKey(private_key) for private_key in private_keys}
+                         PrivateKey(private_key) for private_key in private_keys}
 
         tx_dict = self.to_dict()
         tx_dict = Transaction._remove_signatures(tx_dict)
@@ -1294,7 +1295,7 @@ class Transaction(object):
                                         .format(input_txid))
 
             spent = planet.get_spent(input_txid, input_.fulfills.output,
-                                       current_transactions)
+                                     current_transactions)
             if spent:
                 raise DoubleSpend('input `{}` was already spent'
                                   .format(input_txid))
@@ -1328,3 +1329,97 @@ class Transaction(object):
             raise InvalidSignature('Transaction signature is invalid.')
 
         return True
+
+
+class TransactionPrepare:
+    def __init__(self, _transaction):
+        self._transaction = _transaction
+        self._tuple_transaction = {
+            "transactions": (),
+            "inputs": [],
+            "outputs": [],
+            "keys": [],
+            "metadata": (),
+            "asset": "",
+            "asset_data": (),
+            "is_data": False
+        }
+
+    def __create_hash(self, n: int):
+        return token_hex(n)
+
+    def _metadata_check(self):
+        metadata = self._transaction.get("metadata")
+        self._tuple_transaction["metadata"] = (self._transaction["id"], metadata) if metadata is not None else ()
+
+    def __asset_check(self):
+        _asset = self._transaction.get("asset")
+        if _asset is None:
+            self._tuple_transaction["asset"] = ""
+
+        _id = _asset.get("id")
+        data = _asset.get("data")
+        if _id is not None:
+            self._tuple_transaction["asset"] = _id
+
+        if data is not None:
+            self._tuple_transaction["is_data"] = True
+            self._tuple_transaction["asset_data"] = (self._transaction["id"], data)
+            self._tuple_transaction["asset"] = self._transaction["id"]
+
+    def __prepare_inputs(self):
+        _inputs = []
+        for _input in self._transaction["inputs"]:
+            _inputs.append((self._transaction["id"],
+                            _input["fulfillment"],
+                            _input["owners_before"],
+                            _input["fulfills"]["transaction_id"] if _input["fulfills"] is not None else "",
+                            str(_input["fulfills"]["output_index"]) if _input["fulfills"] is not None else "",
+                            self.__create_hash(7)))
+        return _inputs
+
+    def __prepare_outputs(self):
+        _outputs = []
+        _keys = []
+        for _output in self._transaction["outputs"]:
+            output_id = self.__create_hash(7)
+            if _output["condition"]["details"].get("subconditions") is None:
+                _outputs.append((self._transaction["id"],
+                                 _output["amount"],
+                                 _output["condition"]["uri"],
+                                 _output["condition"]["details"]["type"],
+                                 _output["condition"]["details"]["public_key"],
+                                 output_id,
+                                 None,
+                                 None
+                                 ))
+            else:
+                _outputs.append((self._transaction["id"],
+                                 _output["amount"],
+                                 _output["condition"]["uri"],
+                                 _output["condition"]["details"]["type"],
+                                 None,
+                                 output_id,
+                                 _output["condition"]["details"]["threshold"],
+                                 _output["condition"]["details"]["subconditions"]
+                                 ))
+            for _key in _output["public_keys"]:
+                key_id = self.__create_hash(7)
+                _keys.append((key_id, self._transaction["id"], output_id, _key))
+        return _keys, _outputs
+
+    def __prepare_transaction(self):
+        return (self._transaction["id"],
+                self._transaction["operation"],
+                self._transaction["version"],
+                self._tuple_transaction["asset"])
+
+    def convert_to_tuple(self):
+        self._metadata_check()
+        self.__asset_check()
+        self._tuple_transaction["transactions"] = self.__prepare_transaction()
+        self._tuple_transaction["inputs"] = self.__prepare_inputs()
+        keys, outputs = self.__prepare_outputs()
+        self._tuple_transaction["outputs"] = outputs
+        self._tuple_transaction["keys"] = keys
+        return self._tuple_transaction

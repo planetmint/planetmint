@@ -30,8 +30,11 @@ class TarantoolDB:
             self.drop_database()
             self.init_database()
 
-    def get_connection(self, space_name: str = None):
-        return self.db_connect if space_name is None else self.db_connect.space(space_name)
+    def space(self, space_name: str):
+        return self.db_connect.space(space_name)
+
+    def get_connection(self):
+        return self.db_connect
 
     def __read_commands(self, file_path):
         with open(file_path, "r") as cmd_file:
