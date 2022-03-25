@@ -169,7 +169,7 @@ def store_asset(connection, asset: dict, tx_id=None, is_data=False):  # TODO con
         else:
             space.insert((str(asset["id"]), asset["data"]))
     except:  # TODO Add Raise For Duplicate
-        pass
+        print("DUPLICATE ERROR")
 
 
 @register_query(TarantoolDB)
@@ -179,7 +179,7 @@ def store_assets(connection, assets: list):
         try:
             space.insert((asset["id"], asset["data"]))
         except:  # TODO Raise ERROR for Duplicate
-            pass
+            print("DUPLICATE ERROR (" + asset["id"] + ") " + str(asset["data"]))
 
 
 @register_query(TarantoolDB)

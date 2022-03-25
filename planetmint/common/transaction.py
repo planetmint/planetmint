@@ -1356,6 +1356,7 @@ class TransactionPrepare:
         _asset = self._transaction.get("asset")
         if _asset is None:
             self._tuple_transaction["asset"] = ""
+            return
 
         _id = _asset.get("id")
         data = _asset.get("data")
