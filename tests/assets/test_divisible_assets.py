@@ -531,7 +531,7 @@ def test_threshold_same_public_key(alice, b, user_pk, user_sk):
     tx_transfer = Transaction.transfer(tx_create.to_inputs(), [([alice.public_key], 100)],
                                        asset_id=tx_create.id)
     tx_transfer_signed = tx_transfer.sign([user_sk, user_sk])
-
+    print("TX " + str(tx_transfer.to_dict()))
     b.store_bulk_transactions([tx_create_signed])
 
     assert tx_transfer_signed.validate(b) == tx_transfer_signed

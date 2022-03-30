@@ -1182,7 +1182,6 @@ class Transaction(object):
 
         tx_body_serialized = Transaction._to_str(tx_body)
         valid_tx_id = Transaction._to_hash(tx_body_serialized)
-
         if proposed_tx_id != valid_tx_id:
             err_msg = ("The transaction's id '{}' isn't equal to "
                        "the hash of its body, i.e. it's not valid.")
@@ -1344,6 +1343,7 @@ class TransactionPrepare:
             "asset_data": (),
             "is_data": False
         }
+        self.if_key = lambda dct, key: False if not key in dct.keys() else dct[key]
 
     def __create_hash(self, n: int):
         return token_hex(n)
@@ -1358,30 +1358,34 @@ class TransactionPrepare:
             self._tuple_transaction["asset"] = ""
             return
 
-        _id = _asset.get("id")
-        data = _asset.get("data")
-        if _id is not None:
+        _id = self.if_key(dct=_asset, key="id")
+        # data = self.if_key(dct=_asset, key="data")
+        if _id is not False:
             self._tuple_transaction["asset"] = _id
-
-        if data is not None:
+        else:
             self._tuple_transaction["is_data"] = True
-            self._tuple_transaction["asset_data"] = (self._transaction["id"], data)
-            self._tuple_transaction["asset"] = self._transaction["id"]
+            _key = list(_asset.keys())[0]
+            self._tuple_transaction["asset_data"] = (self._transaction["id"], _asset[_key])
+            self._tuple_transaction["asset"] = ""
 
     def __prepare_inputs(self):
         _inputs = []
+        input_index = 0
         for _input in self._transaction["inputs"]:
             _inputs.append((self._transaction["id"],
                             _input["fulfillment"],
                             _input["owners_before"],
                             _input["fulfills"]["transaction_id"] if _input["fulfills"] is not None else "",
                             str(_input["fulfills"]["output_index"]) if _input["fulfills"] is not None else "",
-                            self.__create_hash(7)))
+                            self.__create_hash(7),
+                            input_index))
+            input_index = input_index + 1
         return _inputs
 
     def __prepare_outputs(self):
         _outputs = []
         _keys = []
+        output_index = 0
         for _output in self._transaction["outputs"]:
             output_id = self.__create_hash(7)
             if _output["condition"]["details"].get("subconditions") is None:
@@ -1392,7 +1396,8 @@ class TransactionPrepare:
                                  _output["condition"]["details"]["public_key"],
                                  output_id,
                                  None,
-                                 None
+                                 None,
+                                 output_index
                                  ))
             else:
                 _outputs.append((self._transaction["id"],
@@ -1402,8 +1407,10 @@ class TransactionPrepare:
                                  None,
                                  output_id,
                                  _output["condition"]["details"]["threshold"],
-                                 _output["condition"]["details"]["subconditions"]
+                                 _output["condition"]["details"]["subconditions"],
+                                 output_index
                                  ))
+            output_index = output_index + 1
             for _key in _output["public_keys"]:
                 key_id = self.__create_hash(7)
                 _keys.append((key_id, self._transaction["id"], output_id, _key))

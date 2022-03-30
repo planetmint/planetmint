@@ -153,13 +153,13 @@ class Planetmint(object):
         return backend.query.delete_transactions(self.connection, txs)
 
     def update_utxoset(self, transaction):
-        """Update the UTXO set given ``transaction``. That is, remove
+        self.updated__ = """Update the UTXO set given ``transaction``. That is, remove
         the outputs that the given ``transaction`` spends, and add the
         outputs that the given ``transaction`` creates.
 
         Args:
             transaction (:obj:`~planetmint.models.Transaction`): A new
-                transaction incoming into the system for which the UTXO
+                transaction incoming into the system for which the UTXOF
                 set needs to be updated.
         """
         spent_outputs = [

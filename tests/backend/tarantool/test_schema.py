@@ -5,6 +5,7 @@
 
 from planetmint.config import Config
 
+
 def test_init_database_is_graceful_if_db_exists():
     import planetmint
     from planetmint import backend
@@ -44,7 +45,7 @@ def test_create_tables():
     index_info = conn.conn[dbname]['transactions'].index_information()
     indexes = index_info.keys()
     assert set(indexes) == {
-            '_id_', 'transaction_id', 'asset_id', 'outputs', 'inputs'}
+        '_id_', 'transaction_id', 'asset_id', 'outputs', 'inputs'}
     assert index_info['transaction_id']['unique']
 
     index_info = conn.conn[dbname]['blocks'].index_information()

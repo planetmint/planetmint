@@ -62,7 +62,7 @@ def test_bigchain_class_initialization_with_parameters():
     assert planet.connection == connection
     assert planet.connection.host == init_db_kwargs['host']
     assert planet.connection.port == init_db_kwargs['port']
-    #assert planet.connection.name == init_db_kwargs['name']
+    # assert planet.connection.name == init_db_kwargs['name']
     assert planet.validation == BaseValidationRules
 
 

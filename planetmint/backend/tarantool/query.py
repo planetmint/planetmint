@@ -35,10 +35,11 @@ def _group_transaction_by_ids(connection, txids: list):
         _txkeys = keysxspace.select(txid, index="txid_search").data
         _txassets = assetsxspace.select(txid, index="assetid_search").data
         _txmeta = metaxspace.select(txid, index="id_search").data
+
+        _txinputs = sorted(_txinputs, key=itemgetter(6), reverse=False)
+        _txoutputs = sorted(_txoutputs, key=itemgetter(8), reverse=False)
+
         _obj = {
-            "id": txid,
-            "version": _txobject[2],
-            "operation": _txobject[1],
             "inputs": [
                 {
                     "owners_before": _in[2],
@@ -47,14 +48,20 @@ def _group_transaction_by_ids(connection, txids: list):
                         _in[4]) > 0 else None,
                     "fulfillment": _in[1]
                 } for _in in _txinputs
-            ]
+            ],
+            "outputs": [],
+            "operation": _txobject[1],
+            "metadata": None,
+            "asset": None,
+            "version": _txobject[2],
+            "id": txid,
         }
         if _txoutputs[0][7] is None:
             _obj["outputs"] = [
                 {
                     "public_keys": [_key[3] for _key in _txkeys if _key[2] == _out[5]],
-                    "amount": _out[1],
-                    "condition": {"details": {"type": _out[3], "public_key": _out[4]}, "uri": _out[2]}
+                    "condition": {"details": {"type": _out[3], "public_key": _out[4]}, "uri": _out[2]},
+                    "amount": _out[1]
                 } for _out in _txoutputs
             ]
         else:
@@ -62,7 +69,8 @@ def _group_transaction_by_ids(connection, txids: list):
                 {
                     "public_keys": [_key[3] for _key in _txkeys if _key[2] == _out[5]],
                     "amount": _out[1],
-                    "condition": {"uri": _out[2], "details": {"subconditions": _out[7]}, "type": _out[3], "treshold": _out[6]}
+                    "condition": {"uri": _out[2], "details": {"subconditions": _out[7]}, "type": _out[3],
+                                  "treshold": _out[6]}
                 } for _out in _txoutputs
             ]
 
@@ -76,26 +84,7 @@ def _group_transaction_by_ids(connection, txids: list):
             }
         _obj["metadata"] = _txmeta[0][1] if len(_txmeta) == 1 else None
         _transactions.append(_obj)
-
     return _transactions
-
-
-def __asset_check(object: dict, connection):
-    _asset = object.get("asset")
-    data = None
-    _id = None
-    if _asset is not None:
-        _id = _asset.get("id")
-        data = _asset.get("data") if _id is None else None
-
-    if data is not None:
-        store_asset(connection=connection, asset=object["asset"], tx_id=object["id"], is_data=True)
-    elif _id is not None:
-        data = _id
-    else:
-        data = ""
-
-    return data
 
 
 @register_query(TarantoolDB)
@@ -262,25 +251,25 @@ def get_txids_filtered(connection, asset_id: str, operation: str = None,
     return tuple([elem[0] for elem in _transactions])
 
 
-@register_query(TarantoolDB)
-def text_search(conn, search, *, language='english', case_sensitive=False,
-                # TODO review text search in tarantool (maybe, remove)
-                diacritic_sensitive=False, text_score=False, limit=0, table='assets'):
-    cursor = conn.run(
-        conn.collection(table)
-            .find({'$text': {
-            '$search': search,
-            '$language': language,
-            '$caseSensitive': case_sensitive,
-            '$diacriticSensitive': diacritic_sensitive}},
-            {'score': {'$meta': 'textScore'}, '_id': False})
-            .sort([('score', {'$meta': 'textScore'})])
-            .limit(limit))
-
-    if text_score:
-        return cursor
-
-    return (_remove_text_score(obj) for obj in cursor)
+# @register_query(TarantoolDB)
+# def text_search(conn, search, *, language='english', case_sensitive=False,
+#                 # TODO review text search in tarantool (maybe, remove)
+#                 diacritic_sensitive=False, text_score=False, limit=0, table='assets'):
+#     cursor = conn.run(
+#         conn.collection(table)
+#             .find({'$text': {
+#             '$search': search,
+#             '$language': language,
+#             '$caseSensitive': case_sensitive,
+#             '$diacriticSensitive': diacritic_sensitive}},
+#             {'score': {'$meta': 'textScore'}, '_id': False})
+#             .sort([('score', {'$meta': 'textScore'})])
+#             .limit(limit))
+#
+#     if text_score:
+#         return cursor
+#
+#     return (_remove_text_score(obj) for obj in cursor)
 
 
 def _remove_text_score(asset):

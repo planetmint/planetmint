@@ -9,6 +9,7 @@ from planetmint.upsert_validator import ValidatorElection  # noqa
 from planetmint.elections.vote import Vote  # noqa
 from planetmint.migrations.chain_migration_election import ChainMigrationElection
 from planetmint.lib import Planetmint
+from planetmint.core import App
 
 Transaction.register_type(Transaction.CREATE, models.Transaction)
 Transaction.register_type(Transaction.TRANSFER, models.Transaction)
