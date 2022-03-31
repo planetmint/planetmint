@@ -17,31 +17,32 @@ from planetmint.transactions.common.exceptions import SchemaValidationError
 logger = logging.getLogger(__name__)
 
 
-def _load_schema(name, path=__file__):
+def _load_schema(name, version, path=__file__):
     """Load a schema from disk"""
-    path = os.path.join(os.path.dirname(path), name + '.yaml')
+    path = os.path.join(os.path.dirname(path), version, name + '.yaml')
     with open(path) as handle:
         schema = yaml.safe_load(handle)
     fast_schema = rapidjson.Validator(rapidjson.dumps(schema))
     return path, (schema, fast_schema)
 
 
+# TODO: make this an env var from a config file
 TX_SCHEMA_VERSION = 'v2.0'
 
-TX_SCHEMA_PATH, TX_SCHEMA_COMMON = _load_schema('transaction_' +
+TX_SCHEMA_PATH, TX_SCHEMA_COMMON = _load_schema('transaction',
                                                 TX_SCHEMA_VERSION)
-_, TX_SCHEMA_CREATE = _load_schema('transaction_create_' +
+_, TX_SCHEMA_CREATE = _load_schema('transaction_create',
                                    TX_SCHEMA_VERSION)
-_, TX_SCHEMA_TRANSFER = _load_schema('transaction_transfer_' +
+_, TX_SCHEMA_TRANSFER = _load_schema('transaction_transfer',
                                      TX_SCHEMA_VERSION)
 
-_, TX_SCHEMA_VALIDATOR_ELECTION = _load_schema('transaction_validator_election_' +
+_, TX_SCHEMA_VALIDATOR_ELECTION = _load_schema('transaction_validator_election',
                                                TX_SCHEMA_VERSION)
 
-_, TX_SCHEMA_CHAIN_MIGRATION_ELECTION = _load_schema('transaction_chain_migration_election_' +
+_, TX_SCHEMA_CHAIN_MIGRATION_ELECTION = _load_schema('transaction_chain_migration_election',
                                                      TX_SCHEMA_VERSION)
 
-_, TX_SCHEMA_VOTE = _load_schema('transaction_vote_' + TX_SCHEMA_VERSION)
+_, TX_SCHEMA_VOTE = _load_schema('transaction_vote', TX_SCHEMA_VERSION)
 
 
 def _validate_schema(schema, body):
