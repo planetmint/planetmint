@@ -43,55 +43,12 @@ def _group_transaction_by_ids(connection, txids: list):
             "inputs": _txinputs,
             "outputs": _txoutputs,
             "keys": _txkeys,
-            "assets": _txassets,
+            "asset": _txassets,
             "metadata": _txmeta,
         }
-        tx_compose = TransactionCompose()
-        _transaction = tx_compose.convert_to_dict(db_results=result_map)
-
-        _obj = {
-            "inputs": [
-                {
-                    "fulfillment": _in[1],
-                    "fulfills": {"transaction_id": _in[3], "output_index": int(_in[4])} if len(_in[3]) > 0 and len(
-                        # TODO Now it is working because of data type cast to INTEGER for field "output_index"
-                        _in[4]) > 0 else None,
-                    "owners_before": _in[2]
-                } for _in in _txinputs
-            ],
-            "outputs": [],
-            "operation": _txobject[1],
-            "metadata": None,
-            "asset": None,
-            "version": _txobject[2],
-            "id": txid,
-        }
-        if _txoutputs[0][7] is None:
-            _obj["outputs"] = [
-                {
-                    "amount": _out[1],
-                    "condition": {"details": {"type": _out[3], "public_key": _out[4]}, "uri": _out[2]},
-                    "public_keys": [_key[3] for _key in _txkeys if _key[2] == _out[5]]
-                } for _out in _txoutputs
-            ]
-        else:
-            _obj["outputs"] = [
-                {
-                    "amount": _out[1],
-                    "condition": {"uri": _out[2], "details": {"subconditions": _out[7]}, "type": _out[3],
-                                  "treshold": _out[6]},
-                    "public_keys": [_key[3] for _key in _txkeys if _key[2] == _out[5]]
-                } for _out in _txoutputs
-            ]
-
-        if len(_txobject[3]) > 0:
-            _obj["asset"] = {
-                "id": _txobject[3]
-            }
-        elif len(_txassets) > 0:
-            _obj["asset"] = _txassets[0][1]
-        _obj["metadata"] = _txmeta[0][1] if len(_txmeta) == 1 else None
-        _transactions.append(_obj)
+        tx_compose = TransactionCompose(db_results=result_map)
+        _transaction = tx_compose.convert_to_dict()
+        _transactions.append(_transaction)
     return _transactions
 
 
