@@ -11,7 +11,7 @@ from operator import itemgetter
 from planetmint.backend import query
 from planetmint.backend.utils import module_dispatch_registrar
 from planetmint.backend.tarantool.connection import TarantoolDB
-from planetmint.common.transaction import TransactionPrepare
+from planetmint.backend.tarantool.transaction.tools import TransactionCompose, TransactionDecompose
 
 register_query = module_dispatch_registrar(query)
 
@@ -38,15 +38,25 @@ def _group_transaction_by_ids(connection, txids: list):
 
         _txinputs = sorted(_txinputs, key=itemgetter(6), reverse=False)
         _txoutputs = sorted(_txoutputs, key=itemgetter(8), reverse=False)
+        result_map = {
+            "transaction": _txobject,
+            "inputs": _txinputs,
+            "outputs": _txoutputs,
+            "keys": _txkeys,
+            "assets": _txassets,
+            "metadata": _txmeta,
+        }
+        tx_compose = TransactionCompose()
+        _transaction = tx_compose.convert_to_dict(db_results=result_map)
 
         _obj = {
             "inputs": [
                 {
-                    "owners_before": _in[2],
+                    "fulfillment": _in[1],
                     "fulfills": {"transaction_id": _in[3], "output_index": int(_in[4])} if len(_in[3]) > 0 and len(
                         # TODO Now it is working because of data type cast to INTEGER for field "output_index"
                         _in[4]) > 0 else None,
-                    "fulfillment": _in[1]
+                    "owners_before": _in[2]
                 } for _in in _txinputs
             ],
             "outputs": [],
@@ -59,18 +69,18 @@ def _group_transaction_by_ids(connection, txids: list):
         if _txoutputs[0][7] is None:
             _obj["outputs"] = [
                 {
-                    "public_keys": [_key[3] for _key in _txkeys if _key[2] == _out[5]],
+                    "amount": _out[1],
                     "condition": {"details": {"type": _out[3], "public_key": _out[4]}, "uri": _out[2]},
-                    "amount": _out[1]
+                    "public_keys": [_key[3] for _key in _txkeys if _key[2] == _out[5]]
                 } for _out in _txoutputs
             ]
         else:
             _obj["outputs"] = [
                 {
-                    "public_keys": [_key[3] for _key in _txkeys if _key[2] == _out[5]],
                     "amount": _out[1],
                     "condition": {"uri": _out[2], "details": {"subconditions": _out[7]}, "type": _out[3],
-                                  "treshold": _out[6]}
+                                  "treshold": _out[6]},
+                    "public_keys": [_key[3] for _key in _txkeys if _key[2] == _out[5]]
                 } for _out in _txoutputs
             ]
 
@@ -78,10 +88,8 @@ def _group_transaction_by_ids(connection, txids: list):
             _obj["asset"] = {
                 "id": _txobject[3]
             }
-        elif len(_txassets) == 1:
-            _obj["asset"] = {
-                "data": _txassets[0][1]
-            }
+        elif len(_txassets) > 0:
+            _obj["asset"] = _txassets[0][1]
         _obj["metadata"] = _txmeta[0][1] if len(_txmeta) == 1 else None
         _transactions.append(_obj)
     return _transactions
@@ -97,7 +105,7 @@ def store_transactions(connection, signed_transactions: list):
     assetsxspace = connection.space("assets")
 
     for transaction in signed_transactions:
-        txprepare = TransactionPrepare(transaction)
+        txprepare = TransactionDecompose(transaction)
         txtuples = txprepare.convert_to_tuple()
 
         txspace.insert(txtuples["transactions"])
@@ -154,9 +162,9 @@ def store_asset(connection, asset: dict, tx_id=None, is_data=False):  # TODO con
     space = connection.space("assets")
     try:
         if is_data and tx_id is not None:
-            space.insert((tx_id, asset["data"]))
+            space.insert((tx_id, asset))
         else:
-            space.insert((str(asset["id"]), asset["data"]))
+            space.insert((str(asset["id"]), asset))
     except:  # TODO Add Raise For Duplicate
         print("DUPLICATE ERROR")
 
@@ -176,7 +184,7 @@ def get_asset(connection, asset_id: str):
     space = connection.space("assets")
     _data = space.select(asset_id, index="assetid_search")
     _data = _data.data
-    return {"data": _data[0][1]} if len(_data) == 1 else []
+    return _data[0][1] if len(_data) == 1 else []
 
 
 @register_query(TarantoolDB)

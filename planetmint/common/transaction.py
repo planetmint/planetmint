@@ -26,7 +26,6 @@ try:
 except ImportError:
     from sha3 import sha3_256
 
-from secrets import token_hex
 from planetmint.common.crypto import PrivateKey, hash_data
 from planetmint.common.exceptions import (KeypairMismatchException,
                                           InputDoesNotExist, DoubleSpend,
@@ -1182,6 +1181,7 @@ class Transaction(object):
 
         tx_body_serialized = Transaction._to_str(tx_body)
         valid_tx_id = Transaction._to_hash(tx_body_serialized)
+        print("VALIDTX " + tx_body_serialized)
         if proposed_tx_id != valid_tx_id:
             err_msg = ("The transaction's id '{}' isn't equal to "
                        "the hash of its body, i.e. it's not valid.")
@@ -1328,106 +1328,3 @@ class Transaction(object):
             raise InvalidSignature('Transaction signature is invalid.')
 
         return True
-
-
-class TransactionPrepare:
-    def __init__(self, _transaction):
-        self._transaction = _transaction
-        self._tuple_transaction = {
-            "transactions": (),
-            "inputs": [],
-            "outputs": [],
-            "keys": [],
-            "metadata": (),
-            "asset": "",
-            "asset_data": (),
-            "is_data": False
-        }
-        self.if_key = lambda dct, key: False if not key in dct.keys() else dct[key]
-
-    def __create_hash(self, n: int):
-        return token_hex(n)
-
-    def _metadata_check(self):
-        metadata = self._transaction.get("metadata")
-        self._tuple_transaction["metadata"] = (self._transaction["id"], metadata) if metadata is not None else ()
-
-    def __asset_check(self):
-        _asset = self._transaction.get("asset")
-        if _asset is None:
-            self._tuple_transaction["asset"] = ""
-            return
-
-        _id = self.if_key(dct=_asset, key="id")
-        # data = self.if_key(dct=_asset, key="data")
-        if _id is not False:
-            self._tuple_transaction["asset"] = _id
-        else:
-            self._tuple_transaction["is_data"] = True
-            _key = list(_asset.keys())[0]
-            self._tuple_transaction["asset_data"] = (self._transaction["id"], _asset[_key])
-            self._tuple_transaction["asset"] = ""
-
-    def __prepare_inputs(self):
-        _inputs = []
-        input_index = 0
-        for _input in self._transaction["inputs"]:
-            _inputs.append((self._transaction["id"],
-                            _input["fulfillment"],
-                            _input["owners_before"],
-                            _input["fulfills"]["transaction_id"] if _input["fulfills"] is not None else "",
-                            str(_input["fulfills"]["output_index"]) if _input["fulfills"] is not None else "",
-                            self.__create_hash(7),
-                            input_index))
-            input_index = input_index + 1
-        return _inputs
-
-    def __prepare_outputs(self):
-        _outputs = []
-        _keys = []
-        output_index = 0
-        for _output in self._transaction["outputs"]:
-            output_id = self.__create_hash(7)
-            if _output["condition"]["details"].get("subconditions") is None:
-                _outputs.append((self._transaction["id"],
-                                 _output["amount"],
-                                 _output["condition"]["uri"],
-                                 _output["condition"]["details"]["type"],
-                                 _output["condition"]["details"]["public_key"],
-                                 output_id,
-                                 None,
-                                 None,
-                                 output_index
-                                 ))
-            else:
-                _outputs.append((self._transaction["id"],
-                                 _output["amount"],
-                                 _output["condition"]["uri"],
-                                 _output["condition"]["details"]["type"],
-                                 None,
-                                 output_id,
-                                 _output["condition"]["details"]["threshold"],
-                                 _output["condition"]["details"]["subconditions"],
-                                 output_index
-                                 ))
-            output_index = output_index + 1
-            for _key in _output["public_keys"]:
-                key_id = self.__create_hash(7)
-                _keys.append((key_id, self._transaction["id"], output_id, _key))
-        return _keys, _outputs
-
-    def __prepare_transaction(self):
-        return (self._transaction["id"],
-                self._transaction["operation"],
-                self._transaction["version"],
-                self._tuple_transaction["asset"])
-
-    def convert_to_tuple(self):
-        self._metadata_check()
-        self.__asset_check()
-        self._tuple_transaction["transactions"] = self.__prepare_transaction()
-        self._tuple_transaction["inputs"] = self.__prepare_inputs()
-        keys, outputs = self.__prepare_outputs()
-        self._tuple_transaction["outputs"] = outputs
-        self._tuple_transaction["keys"] = keys
-        return self._tuple_transaction
