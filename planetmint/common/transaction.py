@@ -1170,6 +1170,7 @@ class Transaction(object):
         """
         # NOTE: Remove reference to avoid side effects
         # tx_body = deepcopy(tx_body)
+        print("VERIF " + str(tx_body))
         tx_body = rapidjson.loads(rapidjson.dumps(tx_body))
 
         try:
@@ -1181,7 +1182,6 @@ class Transaction(object):
 
         tx_body_serialized = Transaction._to_str(tx_body)
         valid_tx_id = Transaction._to_hash(tx_body_serialized)
-        print("VALIDTX " + tx_body_serialized)
         if proposed_tx_id != valid_tx_id:
             err_msg = ("The transaction's id '{}' isn't equal to "
                        "the hash of its body, i.e. it's not valid.")

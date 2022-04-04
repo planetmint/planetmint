@@ -49,7 +49,7 @@ class TransactionDecompose:
         metadata = self._transaction.get("metadata")
         self._tuple_transaction["metadata"] = (self._transaction["id"], metadata) if metadata is not None else ()
 
-    def __asset_check(self):
+    def __asset_check(self):  # ASSET CAN BE VERIFIED BY OPERATION TYPE CREATE OR TRANSFER
         _asset = self._transaction.get("asset")
         if _asset is None:
             self._tuple_transaction["asset"] = ""
@@ -174,7 +174,7 @@ class TransactionCompose:
         _outputs = []
         for _output in self.db_results["outputs"]:
             _out = self._map["outputs"].copy()
-            _out["amount"] = _out[1]
+            _out["amount"] = _output[1]
             _out["public_keys"] = [_key[3] for _key in self.db_results["keys"] if _key[2] == _output[5]]
             _out["condition"]["uri"] = _output[2]
             if self.db_results["outputs"][0][7] is None:
@@ -184,6 +184,7 @@ class TransactionCompose:
                 _out["condition"]["details"]["subconditions"] = _output[7]
                 _out["condition"]["type"] = _output[3]
                 _out["condition"]["treshold"] = _output[6]
+            _outputs.append(_out)
         return _outputs
 
     def convert_to_dict(self):

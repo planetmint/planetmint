@@ -131,9 +131,9 @@ def store_assets(connection, assets: list):
     space = connection.space("assets")
     for asset in assets:
         try:
-            space.insert((asset["id"], asset["data"]))
+            space.insert((asset["id"], asset))
         except:  # TODO Raise ERROR for Duplicate
-            print("DUPLICATE ERROR (" + asset["id"] + ") " + str(asset["data"]))
+            pass
 
 
 @register_query(TarantoolDB)
@@ -151,7 +151,7 @@ def get_assets(connection, assets_ids: list) -> list:
     for _id in list(set(assets_ids)):
         asset = space.select(str(_id), index="assetid_search")
         asset = asset.data[0]
-        _returned_data.append({"id": str(asset[0]), "data": asset[1]})
+        _returned_data.append(asset[1])
     return sorted(_returned_data, key=lambda k: k["id"], reverse=False)
 
 
