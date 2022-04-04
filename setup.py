@@ -139,5 +139,7 @@ setup(
         'dev': dev_require + tests_require + docs_require,
         'docs': docs_require,
     },
-    package_data={'planetmint.transactions.common.schema': ['*.yaml']},
+    package_data={
+        'planetmint.transactions.common.schema': ['v1.0/*.yaml','v2.0/*.yaml','v3.0/*.yaml' ],
+    },
 )
