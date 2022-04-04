@@ -77,8 +77,7 @@ install_requires = [
     'chardet==3.0.4',
     'aiohttp==3.7.4',
     'abci==0.8.3',
-    #'planetmint-cryptoconditions>=0.9.0',
-    'planetmint-cryptoconditions @ git+https://github.com/planetmint/cryptoconditions.git@gitzenroom',
+    'planetmint-cryptoconditions>=0.9.4',
     'flask-cors==3.0.10',
     'flask-restful==0.3.9',
     'flask==2.0.1',
@@ -140,5 +139,7 @@ setup(
         'dev': dev_require + tests_require + docs_require,
         'docs': docs_require,
     },
-    package_data={'planetmint.transactions.common.schema': ['*.yaml']},
+    package_data={
+        'planetmint.transactions.common.schema': ['v1.0/*.yaml','v2.0/*.yaml','v3.0/*.yaml' ],
+    },
 )
