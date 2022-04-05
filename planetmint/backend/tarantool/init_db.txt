@@ -1,3 +1,5 @@
+box.cfg{listen = 3301}
+
 abci_chains = box.schema.space.create('abci_chains',{engine = 'memtx' , is_sync = false})
 abci_chains:format({{name='height' , type='integer'},{name='is_synched' , type='boolean'},{name='chain_id',type='string'}})
 abci_chains:create_index('id_search' ,{type='hash', parts={'chain_id'}})
@@ -39,7 +41,7 @@ validators:create_index('id_search' , {type='hash' , parts={'validator_id'}})
 validators:create_index('height_search' , {type='tree', unique=true, parts={'height'}})
 
 transactions = box.schema.space.create('transactions',{engine='memtx' , is_sync=false})
-transactions:format({{name='transaction_id' , type='string'}, {name='operation' , type='string'}, {name='version' ,type='string'}, {name='asset_id', type='string'}})
+transactions:format({{name='transaction_id' , type='string'}, {name='operation' , type='string'}, {name='version' ,type='string'}, {name='asset_id', type='string'}, {name='dict_map', type='any'}})
 transactions:create_index('id_search' , {type = 'hash' , parts={'transaction_id'}})
 transactions:create_index('only_asset_search', {type = 'tree', unique=false, parts={'asset_id'}})
 transactions:create_index('asset_search' , {type = 'tree',unique=false, parts={'operation', 'asset_id'}})
@@ -47,13 +49,13 @@ transactions:create_index('transaction_search' , {type = 'tree',unique=false, pa
 transactions:create_index('both_search' , {type = 'tree',unique=false, parts={'asset_id', 'transaction_id'}})
 
 inputs = box.schema.space.create('inputs')
-inputs:format({{name='transaction_id' , type='string'}, {name='fulfillment' , type='string'}, {name='owners_before' , type='array'}, {name='fulfills_transaction_id', type = 'string'}, {name='fulfills_output_index', type = 'string'}, {name='input_id', type='string'}})
+inputs:format({{name='transaction_id' , type='string'}, {name='fulfillment' , type='any'}, {name='owners_before' , type='array'}, {name='fulfills_transaction_id', type = 'string'}, {name='fulfills_output_index', type = 'string'}, {name='input_id', type='string'}, {name='input_index', type='number'}})
 inputs:create_index('delete_search' , {type = 'hash', parts={'input_id'}})
 inputs:create_index('spent_search' , {type = 'tree', unique=false, parts={'fulfills_transaction_id', 'fulfills_output_index'}})
 inputs:create_index('id_search', {type = 'tree', unique=false, parts = {'transaction_id'}})
 
 outputs = box.schema.space.create('outputs')
-outputs:format({{name='transaction_id' , type='string'}, {name='amount' , type='string'}, {name='uri', type='string'}, {name='details_type', type='string'}, {name='details_public_key', type='string'}, {name = 'output_id', type = 'string'}})
+outputs:format({{name='transaction_id' , type='string'}, {name='amount' , type='string'}, {name='uri', type='string'}, {name='details_type', type='string'}, {name='details_public_key', type='any'}, {name = 'output_id', type = 'string'}, {name='treshold', type='any'}, {name='subconditions', type='any'}, {name='output_index', type='number'}})
 outputs:create_index('unique_search' ,{type='hash', parts={'output_id'}})
 outputs:create_index('id_search' ,{type='tree', unique=false, parts={'transaction_id'}})
 
@@ -63,3 +65,21 @@ keys:create_index('id_search', {type = 'hash', parts={'id'}})
 keys:create_index('keys_search', {type = 'tree', unique=false, parts={'public_key'}})
 keys:create_index('txid_search', {type = 'tree', unique=false, parts={'transaction_id'}})
 keys:create_index('output_search', {type = 'tree', unique=false, parts={'output_id'}})
+
+
+box.schema.user.create('planetmint', {if_not_exists=true, password = 'planet_user'})
+box.schema.user.grant('planetmint', 'read, write', 'space', 'abci_chains')
+box.schema.user.grant('planetmint', 'read, write', 'space', 'assets')
+box.schema.user.grant('planetmint', 'read, write', 'space', 'blocks')
+box.schema.user.grant('planetmint', 'read, write', 'space', 'blocks_tx')
+box.schema.user.grant('planetmint', 'read, write', 'space', 'elections')
+box.schema.user.grant('planetmint', 'read, write', 'space', 'meta_data')
+box.schema.user.grant('planetmint', 'read, write', 'space', 'pre_commits')
+box.schema.user.grant('planetmint', 'read, write', 'space', 'validators')
+box.schema.user.grant('planetmint', 'read, write', 'space', 'transactions')
+box.schema.user.grant('planetmint', 'read, write', 'space', 'inputs')
+box.schema.user.grant('planetmint', 'read, write', 'space', 'outputs')
+box.schema.user.grant('planetmint', 'read, write', 'space', 'keys')
+
+local console = require('console')
+console.start()

@@ -245,12 +245,12 @@ def run_election_show(args, planet):
 
 
 def _run_init():
-    pass
     # bdb = planetmint.Planetmint()
 
     # schema.init_database(connection=bdb.connection)
-
-    # init_tarantool()
+    from planetmint.backend.connection import Connection
+    conn = Connection()
+    conn.init_database()
 
 
 @configure_planetmint
@@ -268,7 +268,9 @@ def run_drop(args):
         if response != 'y':
             return
 
-    # drop_tarantool()
+    from planetmint.backend.connection import Connection
+    conn = Connection()
+    conn.drop_database()
 
 
 def run_recover(b):
