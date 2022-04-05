@@ -36,6 +36,7 @@ class TransactionDecompose:
             "asset_data": (),
             "is_data": False
         }
+        print(f"Transaction ::::: { self._transaction}")
         self.if_key = lambda dct, key: False if not key in dct.keys() else dct[key]
 
     def get_map(self, dictionary: dict = None):
@@ -51,18 +52,22 @@ class TransactionDecompose:
 
     def __asset_check(self):  # ASSET CAN BE VERIFIED BY OPERATION TYPE CREATE OR TRANSFER
         _asset = self._transaction.get("asset")
+        print( f"decompose asset : {_asset }")
         if _asset is None:
             self._tuple_transaction["asset"] = ""
+            print( f"decompose asset :1 {_asset}")
             return
 
         _id = self.if_key(dct=_asset, key="id")
         if _id is not False:
+            print( f"decompose asset :2 {_asset}")
             self._tuple_transaction["asset"] = _id
             return
 
         self._tuple_transaction["is_data"] = True
         self._tuple_transaction["asset_data"] = (self._transaction["id"], _asset)
         self._tuple_transaction["asset"] = ""
+        print( f"decompose asset :3 {_asset}")
 
     def __prepare_inputs(self):
         _inputs = []
@@ -146,14 +151,18 @@ class TransactionCompose:
         return self.db_results["transaction"][0]
 
     def _get_asset(self):
+#        if self._get_transaction_operation() == 'CREATE':
+#            return None
         if len(self.db_results["transaction"][3]) > 0:
+            print("get_asse 1")
             return {
                 "id": self.db_results["transaction"][3]
             }
         elif len(self.db_results["asset"]) > 0:
+            print("get_asse 2")
             return self.db_results["asset"][0][1]
         else:
-            return None
+            return {'data': None}
 
     def _get_metadata(self):
         return self.db_results["metadata"][0][1] if len(self.db_results["metadata"]) == 1 else None
@@ -196,4 +205,6 @@ class TransactionCompose:
         transaction["operation"] = self._get_transaction_operation()
         transaction["inputs"] = self._get_inputs()
         transaction["outputs"] = self._get_outputs()
+        test = transaction["asset"]
+        print( f"compose asset : { test }")
         return transaction

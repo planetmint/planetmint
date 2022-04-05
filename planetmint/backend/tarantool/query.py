@@ -33,7 +33,7 @@ def _group_transaction_by_ids(connection, txids: list):
         _txinputs = inxspace.select(txid, index="id_search").data
         _txoutputs = outxspace.select(txid, index="id_search").data
         _txkeys = keysxspace.select(txid, index="txid_search").data
-        _txassets = assetsxspace.select(txid, index="assetid_search").data
+        _txassets = assetsxspace.select(txid, index="txid_search").data
         _txmeta = metaxspace.select(txid, index="id_search").data
 
         _txinputs = sorted(_txinputs, key=itemgetter(6), reverse=False)
