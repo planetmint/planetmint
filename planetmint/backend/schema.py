@@ -63,7 +63,7 @@ def drop_database(connection, dbname):
     raise NotImplementedError
 
 
-def init_database(connection=None, dbname=None):  # FIXME HERE IS INIT DATABASE
+def init_database(connection=None, dbname=None):
     """Initialize the configured backend for use with Planetmint.
 
     Creates a database with :attr:`dbname` with any required tables
