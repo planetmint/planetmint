@@ -265,12 +265,12 @@ def test_run_recover(b, alice, bob):
 
     tx1 = Create.generate([alice.public_key],
                              [([alice.public_key], 1)],
-                             asset={'cycle': 'hero'},
+                             assets={'cycle': 'hero'},
                              metadata={'name': 'hohenheim'}) \
                      .sign([alice.private_key])
     tx2 = Create.generate([bob.public_key],
                              [([bob.public_key], 1)],
-                             asset={'cycle': 'hero'},
+                             assets={'cycle': 'hero'},
                              metadata={'name': 'hohenheim'}) \
                      .sign([bob.private_key])
 

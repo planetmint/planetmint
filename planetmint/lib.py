@@ -130,9 +130,10 @@ class Planetmint(object):
         for t in transactions:
             transaction = t.tx_dict if t.tx_dict else rapidjson.loads(rapidjson.dumps(t.to_dict()))
             if transaction['operation'] == t.CREATE:
-                asset = transaction.pop('asset')
-                asset['id'] = transaction['id']
-                assets.append(asset)
+                # Change this to use the first element of the assets list or to change to use the assets array itsel and manipulate it
+                tx_assets = transaction.pop('assets')
+                tx_assets[0]['id'] = transaction['id']
+                assets.extend(tx_assets)
 
             metadata = transaction.pop('metadata')
             txn_metadatas.append({'id': transaction['id'],

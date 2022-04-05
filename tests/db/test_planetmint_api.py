@@ -64,11 +64,11 @@ class TestBigchainApi(object):
 
         # create the transactions
         tx1 = Create.generate([alice.public_key], [([alice.public_key], 1)],
-                                 asset=asset1).sign([alice.private_key])
+                                 assets=asset1).sign([alice.private_key])
         tx2 = Create.generate([alice.public_key], [([alice.public_key], 1)],
-                                 asset=asset2).sign([alice.private_key])
+                                 assets=asset2).sign([alice.private_key])
         tx3 = Create.generate([alice.public_key], [([alice.public_key], 1)],
-                                 asset=asset3).sign([alice.private_key])
+                                 assets=asset3).sign([alice.private_key])
 
         # write the transactions to the DB
         b.store_bulk_transactions([tx1, tx2, tx3])
@@ -97,7 +97,7 @@ class TestBigchainApi(object):
         asset1 = {'msg': 'Planetmint 1'}
 
         tx = Create.generate([alice.public_key], [([alice.public_key], 1)],
-                                asset=asset1).sign([alice.private_key])
+                                assets=asset1).sign([alice.private_key])
         b.store_bulk_transactions([tx])
 
         tx_from_db = b.get_transaction(tx.id)

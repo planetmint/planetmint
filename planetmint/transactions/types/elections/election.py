@@ -160,7 +160,7 @@ class Election(Transaction):
 
     @classmethod
     def create(cls, tx_signers, recipients, metadata=None, asset=None):
-        Create.generate(tx_signers, recipients, metadata=None, asset=None)
+        Create.generate(tx_signers, recipients, metadata=None, assets=None)
 
     @classmethod
     def transfer(cls, tx_signers, recipients, metadata=None, asset=None):

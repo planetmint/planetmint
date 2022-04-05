@@ -22,8 +22,11 @@ class Create(Transaction):
             raise ValueError('`tx_signers` list cannot be empty')
         if len(recipients) == 0:
             raise ValueError('`recipients` list cannot be empty')
-        if not (asset is None or isinstance(asset, dict)):
-            raise TypeError('`asset` must be a dict or None')
+        if not (asset is None or isinstance(asset, list)):
+            raise TypeError('`asset` must be a list or None')
+        if isinstance(asset, dict):
+            if len(asset) != 1:
+                raise ValueError('`asset` must be of length 1')
         if not (metadata is None or isinstance(metadata, dict)):
             raise TypeError('`metadata` must be a dict or None')
 
@@ -45,7 +48,7 @@ class Create(Transaction):
         return (inputs, outputs)
 
     @classmethod
-    def generate(cls, tx_signers, recipients, metadata=None, asset=None):
+    def generate(cls, tx_signers, recipients, metadata=None, assets=None):
         """A simple way to generate a `CREATE` transaction.
 
             Note:
@@ -73,5 +76,6 @@ class Create(Transaction):
                 :class:`~planetmint.common.transaction.Transaction`
         """
 
-        (inputs, outputs) = cls.validate_create(tx_signers, recipients, asset, metadata)
-        return cls(cls.OPERATION, {'data': asset}, inputs, outputs, metadata)
+        (inputs, outputs) = cls.validate_create(tx_signers, recipients, assets, metadata)
+        data = assets[0] if assets else None
+        return cls(cls.OPERATION, [{'data': data}], inputs, outputs, metadata) # if assets is not None len(assets) must be 1 

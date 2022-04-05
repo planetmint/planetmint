@@ -75,7 +75,7 @@ class Transaction(object):
     ALLOWED_OPERATIONS = (CREATE, TRANSFER)
     VERSION = '2.0'
 
-    def __init__(self, operation, asset, inputs=None, outputs=None,
+    def __init__(self, operation, assets, inputs=None, outputs=None,
                  metadata=None, version=None, hash_id=None, tx_dict=None):
         """The constructor allows to create a customizable Transaction.
 
@@ -104,12 +104,18 @@ class Transaction(object):
         # Asset payloads for 'CREATE' operations must be None or
         # dicts holding a `data` property. Asset payloads for 'TRANSFER'
         # operations must be dicts holding an `id` property.
+
+        # Changes: CREATE needs list of 1 asset that holds data in asset or None
         if (operation == self.CREATE and
-                asset is not None and not (isinstance(asset, dict) and 'data' in asset)):
-            raise TypeError(('`asset` must be None or a dict holding a `data` '
+                assets is not None and not (isinstance(assets, list) and 'data' in assets[0])):
+            raise TypeError(('`asset` must be None or a list of length 1 with a dict holding a `data` '
                              " property instance for '{}' Transactions".format(operation)))
+        # if (operation == self.CREATE and
+        #         asset is not None and not (isinstance(asset, dict) and 'data' in asset)):
+        #     raise TypeError(('`asset` must be None or a dict holding a `data` '
+        #                      " property instance for '{}' Transactions".format(operation)))
         elif (operation == self.TRANSFER and
-                not (isinstance(asset, dict) and 'id' in asset)):
+                not (isinstance(assets, dict) and 'id' in assets)):
             raise TypeError(('`asset` must be a dict holding an `id` property '
                              'for \'TRANSFER\' Transactions'))
 
@@ -124,7 +130,7 @@ class Transaction(object):
 
         self.version = version if version is not None else self.VERSION
         self.operation = operation
-        self.asset = asset
+        self.assets = assets
         self.inputs = inputs or []
         self.outputs = outputs or []
         self.metadata = metadata
@@ -512,7 +518,7 @@ class Transaction(object):
             'outputs': [output.to_dict() for output in self.outputs],
             'operation': str(self.operation),
             'metadata': self.metadata,
-            'asset': self.asset,
+            'assets': [asset for asset in self.assets],
             'version': self.version,
             'id': self._id,
         }
@@ -585,14 +591,22 @@ class Transaction(object):
             transactions = [transactions]
 
         # create a set of the transactions' asset ids
-        asset_ids = {tx.id if tx.operation == tx.CREATE
-                     else tx.asset['id']
-                     for tx in transactions}
+        # NOTE: gather asset ids constraint no longer valid with v3.0
+        # asset_ids = {tx.id if tx.operation == tx.CREATE
+        #              else tx.asset['id']
+        #              for tx in transactions}
 
-        # check that all the transasctions have the same asset id
-        if len(asset_ids) > 1:
-            raise AssetIdMismatch(('All inputs of all transactions passed'
-                                   ' need to have the same asset id'))
+        # # check that all the transasctions have the same asset id
+        # if len(asset_ids) > 1:
+        #     raise AssetIdMismatch(('All inputs of all transactions passed'
+        #                            ' need to have the same asset id'))
+        asset_ids = []
+        for tx in transactions:
+            if tx.operation == tx.CREATE:
+                asset_ids.append(tx.assets[0]['id'])
+            else:
+                asset_ids.extend([asset['id'] for asset in tx.assets])
+
         return asset_ids.pop()
 
     @staticmethod

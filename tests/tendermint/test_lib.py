@@ -44,7 +44,7 @@ def test_asset_is_separated_from_transaciton(b):
     tx = Create.generate([alice.public_key],
                             [([bob.public_key], 1)],
                             metadata=None,
-                            asset=asset)\
+                            assets=asset)\
                     .sign([alice.private_key])
 
     # with store_bulk_transactions we use `insert_many` where PyMongo
@@ -87,7 +87,7 @@ def test_validation_error(b):
     alice = generate_key_pair()
     tx = Create.generate([alice.public_key],
                             [([alice.public_key], 1)],
-                            asset=None)\
+                            assets=None)\
                     .sign([alice.private_key]).to_dict()
 
     tx['metadata'] = ''
@@ -102,7 +102,7 @@ def test_write_and_post_transaction(mock_post, b):
     alice = generate_key_pair()
     tx = Create.generate([alice.public_key],
                             [([alice.public_key], 1)],
-                            asset=None)\
+                            assets=None)\
                     .sign([alice.private_key]).to_dict()
 
     tx = b.validate_transaction(tx)
@@ -126,7 +126,7 @@ def test_post_transaction_valid_modes(mock_post, b, mode):
     alice = generate_key_pair()
     tx = Create.generate([alice.public_key],
                             [([alice.public_key], 1)],
-                            asset=None) \
+                            assets=None) \
         .sign([alice.private_key]).to_dict()
     tx = b.validate_transaction(tx)
     b.write_transaction(tx, mode)
@@ -141,7 +141,7 @@ def test_post_transaction_invalid_mode(b):
     alice = generate_key_pair()
     tx = Create.generate([alice.public_key],
                             [([alice.public_key], 1)],
-                            asset=None) \
+                            assets=None) \
         .sign([alice.private_key]).to_dict()
     tx = b.validate_transaction(tx)
     with pytest.raises(ValidationError):
@@ -358,7 +358,7 @@ def test_get_spent_transaction_critical_double_spend(b, alice, bob, carol):
 
     tx = Create.generate([alice.public_key],
                             [([alice.public_key], 1)],
-                            asset=asset)\
+                            assets=asset)\
                     .sign([alice.private_key])
 
     tx_transfer = Transfer.generate(tx.to_inputs(),
@@ -462,7 +462,7 @@ def test_get_spent_key_order(b, user_pk, user_sk, user2_pk, user2_sk):
 
     tx1 = Create.generate([user_pk],
                              [([alice.public_key], 3), ([user_pk], 2)],
-                             asset=None)\
+                             assets=None)\
                      .sign([user_sk])
     b.store_bulk_transactions([tx1])
 

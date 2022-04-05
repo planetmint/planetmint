@@ -15,7 +15,7 @@ BLOCKS_ENDPOINT = '/api/v1/blocks/'
 @pytest.mark.usefixtures('inputs')
 def test_get_block_endpoint(b, client, alice):
     import copy
-    tx = Create.generate([alice.public_key], [([alice.public_key], 1)], asset={'cycle': 'hero'})
+    tx = Create.generate([alice.public_key], [([alice.public_key], 1)], assets={'cycle': 'hero'})
     tx = tx.sign([alice.private_key])
 
     # with store_bulk_transactions we use `insert_many` where PyMongo
@@ -48,7 +48,7 @@ def test_get_block_returns_404_if_not_found(client):
 
 @pytest.mark.bdb
 def test_get_block_containing_transaction(b, client, alice):
-    tx = Create.generate([alice.public_key], [([alice.public_key], 1)], asset={'cycle': 'hero'})
+    tx = Create.generate([alice.public_key], [([alice.public_key], 1)], assets={'cycle': 'hero'})
     tx = tx.sign([alice.private_key])
     b.store_bulk_transactions([tx])
 

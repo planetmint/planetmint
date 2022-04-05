@@ -135,8 +135,8 @@ def main():
     # tx create
     privkey = 'CfdqtD7sS7FgkMoGPXw55MVGGFwQLAoHYTcBhZDtF99Z'
     pubkey = '4K9sWUMFwTgaDGPfdynrbxWqWS6sWmKbZoTjxLtVUibD'
-    asset = {'msg': 'Hello Planetmint!'}
-    tx = Create.generate([pubkey], [([pubkey], 1)], asset=asset, metadata={'sequence': 0})
+    assets = [{'msg': 'Hello Planetmint!'}]
+    tx = Create.generate([pubkey], [([pubkey], 1)], assets=assets, metadata={'sequence': 0})
     tx = tx.sign([privkey])
     ctx['tx'] = pretty_json(tx.to_dict())
     ctx['public_keys'] = tx.outputs[0].public_keys[0]

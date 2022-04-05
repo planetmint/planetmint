@@ -202,7 +202,7 @@ def test_integration_from_webapi_to_websocket(monkeypatch, client, loop):
     # Create a keypair and generate a new asset
     user_priv, user_pub = crypto.generate_key_pair()
     asset = {'random': random.random()}
-    tx = Create.generate([user_pub], [([user_pub], 1)], asset=asset)
+    tx = Create.generate([user_pub], [([user_pub], 1)], assets=asset)
     tx = tx.sign([user_priv])
     # Post the transaction to the Planetmint Web API
     client.post('/api/v1/transactions/', data=json.dumps(tx.to_dict()))

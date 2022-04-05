@@ -287,7 +287,7 @@ def mock_get_validators(network_validators):
 def create_tx(alice, user_pk):
     from planetmint.transactions.types.assets.create import Create
     name = f'I am created by the create_tx fixture. My random identifier is {random.random()}.'
-    return Create.generate([alice.public_key], [([user_pk], 1)], asset={'name': name})
+    return Create.generate([alice.public_key], [([user_pk], 1)], assets=[{'name': name}])
 
 
 @pytest.fixture

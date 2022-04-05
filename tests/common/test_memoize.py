@@ -26,7 +26,7 @@ def test_memoize_to_dict(b):
 
     tx = Create.generate([alice.public_key],
                             [([alice.public_key], 1)],
-                            asset=asset,)\
+                            assets=asset,)\
                     .sign([alice.private_key])
 
     tx.to_dict()
@@ -52,7 +52,7 @@ def test_memoize_from_dict(b):
 
     tx = Create.generate([alice.public_key],
                             [([alice.public_key], 1)],
-                            asset=asset,)\
+                            assets=asset,)\
                     .sign([alice.private_key])
     tx_dict = deepcopy(tx.to_dict())
 
@@ -79,7 +79,7 @@ def test_memoize_input_valid(b):
 
     tx = Create.generate([alice.public_key],
                             [([alice.public_key], 1)],
-                            asset=asset,)\
+                            assets=asset,)\
                     .sign([alice.private_key])
 
     tx.inputs_valid()

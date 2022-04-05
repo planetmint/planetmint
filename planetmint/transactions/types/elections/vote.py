@@ -56,7 +56,7 @@ class Vote(Transfer):
 
     @classmethod
     def create(cls, tx_signers, recipients, metadata=None, asset=None):
-        return Create.generate(tx_signers, recipients, metadata=None, asset=None)
+        return Create.generate(tx_signers, recipients, metadata=None, assets=None)
 
     @classmethod
     def transfer(cls, tx_signers, recipients, metadata=None, asset=None):

@@ -120,7 +120,7 @@ def test_post_transaction_responses(tendermint_ws_url, b):
     bob = generate_key_pair()
     tx = Create.generate([alice.public_key],
                             [([alice.public_key], 1)],
-                            asset=None)\
+                            assets=None)\
                     .sign([alice.private_key])
 
     code, message = b.write_transaction(tx, BROADCAST_TX_COMMIT)

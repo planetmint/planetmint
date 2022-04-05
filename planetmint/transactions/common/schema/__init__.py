@@ -27,7 +27,7 @@ def _load_schema(name, version, path=__file__):
 
 
 # TODO: make this an env var from a config file
-TX_SCHEMA_VERSION = 'v2.0'
+TX_SCHEMA_VERSION = 'v3.0'
 
 TX_SCHEMA_PATH, TX_SCHEMA_COMMON = _load_schema('transaction',
                                                 TX_SCHEMA_VERSION)

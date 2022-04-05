@@ -278,28 +278,28 @@ def test_invalid_transaction_initialization(asset_definition):
     from planetmint.transactions.common.transaction import Transaction
 
     with raises(ValueError):
-        Transaction(operation='invalid operation', asset=asset_definition)
+        Transaction(operation='invalid operation', assets=asset_definition)
     with raises(TypeError):
-        Transaction(operation='CREATE', asset='invalid asset')
+        Transaction(operation='CREATE', assets='invalid asset')
     with raises(TypeError):
-        Transaction(operation='TRANSFER', asset={})
+        Transaction(operation='TRANSFER', assets={})
     with raises(TypeError):
         Transaction(
             operation='CREATE',
-            asset=asset_definition,
+            assets=asset_definition,
             outputs='invalid outputs'
         )
     with raises(TypeError):
         Transaction(
             operation='CREATE',
-            asset=asset_definition,
+            assets=asset_definition,
             outputs=[],
             inputs='invalid inputs'
         )
     with raises(TypeError):
         Transaction(
             operation='CREATE',
-            asset=asset_definition,
+            assets=asset_definition,
             outputs=[],
             inputs=[],
             metadata='invalid metadata'
@@ -310,7 +310,7 @@ def test_create_default_asset_on_tx_initialization(asset_definition):
     from planetmint.transactions.common.transaction import Transaction
 
     expected = {'data': None}
-    tx = Transaction(Transaction.CREATE, asset=expected)
+    tx = Transaction(Transaction.CREATE, assets=expected)
     asset = tx.asset
 
     assert asset == expected
@@ -693,7 +693,7 @@ def test_create_create_transaction_single_io(user_output, user_pub, data):
     }
 
     tx = Create.generate([user_pub], [([user_pub], 1)], metadata=data,
-                            asset=data)
+                            assets=data)
     tx_dict = tx.to_dict()
     tx_dict['inputs'][0]['fulfillment'] = None
     tx_dict.pop('id')
@@ -775,7 +775,7 @@ def test_create_create_transaction_threshold(user_pub, user2_pub, user3_pub,
         'version': Transaction.VERSION
     }
     tx = Create.generate([user_pub], [([user_pub, user2_pub], 1)],
-                            metadata=data, asset=data)
+                            metadata=data, assets=data)
     tx_dict = tx.to_dict()
     tx_dict.pop('id')
     tx_dict['inputs'][0]['fulfillment'] = None
@@ -814,7 +814,7 @@ def test_create_create_transaction_with_invalid_parameters(user_pub):
     with raises(TypeError):
         Create.generate([user_pub],
                            [([user_pub], 1)],
-                           asset='not a dict or none')
+                           assets='not a dict or none')
 
 
 def test_outputs_to_inputs(tx):
@@ -1019,7 +1019,7 @@ def test_unspent_outputs_property(merlin, alice, bob, carol):
         [([alice.public_key], 1),
          ([bob.public_key], 2),
          ([carol.public_key], 3)],
-        asset={'hash': '06e47bcf9084f7ecfd2a2a2ad275444a'},
+        assets={'hash': '06e47bcf9084f7ecfd2a2a2ad275444a'},
     ).sign([merlin.private_key])
     unspent_outputs = list(tx.unspent_outputs)
     assert len(unspent_outputs) == 3

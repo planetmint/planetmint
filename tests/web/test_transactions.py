@@ -80,7 +80,7 @@ def test_post_create_transaction_with_language(b, client, nested, language,
             asset = lang_obj
 
         tx = Create.generate([user_pub], [([user_pub], 1)],
-                                asset=asset)
+                                assets=asset)
         tx = tx.sign([user_priv])
         res = client.post(TX_ENDPOINT, data=json.dumps(tx.to_dict()))
         assert res.status_code == expected_status_code
@@ -111,7 +111,7 @@ def test_post_create_transaction_with_invalid_key(b, client, field, value,
     if isinstance(b.connection, LocalMongoDBConnection):
         if field == 'asset':
             tx = Create.generate([user_pub], [([user_pub], 1)],
-                                    asset=value)
+                                    assets=value)
         elif field == 'metadata':
             tx = Create.generate([user_pub], [([user_pub], 1)],
                                     metadata=value)
@@ -342,7 +342,7 @@ def test_post_wrong_asset_division_transfer_returns_400(b, client, user_pk):
 
     create_tx = Create.generate([pub_key],
                                    [([pub_key], 10)],
-                                   asset={'test': 'asset'}).sign([priv_key])
+                                   assets={'test': 'asset'}).sign([priv_key])
     res = client.post(TX_ENDPOINT + '?mode=commit', data=json.dumps(create_tx.to_dict()))
     assert res.status_code == 202
 
@@ -426,7 +426,7 @@ def test_post_transaction_valid_modes(mock_post, client, mode):
     alice = generate_key_pair()
     tx = Create.generate([alice.public_key],
                             [([alice.public_key], 1)],
-                            asset=None) \
+                            assets=None) \
         .sign([alice.private_key])
     mode_endpoint = TX_ENDPOINT + mode[0]
     client.post(mode_endpoint, data=json.dumps(tx.to_dict()))
@@ -440,7 +440,7 @@ def test_post_transaction_invalid_mode(client):
     alice = generate_key_pair()
     tx = Create.generate([alice.public_key],
                             [([alice.public_key], 1)],
-                            asset=None) \
+                            assets=None) \
         .sign([alice.private_key])
     mode_endpoint = TX_ENDPOINT + '?mode=nope'
     response = client.post(mode_endpoint, data=json.dumps(tx.to_dict()))
