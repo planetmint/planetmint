@@ -47,7 +47,7 @@ def test_get_asset_id_transfer_transaction(b, signed_create_tx, user_pk):
     asset_id = Transaction.get_asset_id(tx_transfer)
     assert asset_id == tx_transfer.asset['id']
 
-
+# This test is not relevant anymore
 def test_asset_id_mismatch(alice, user_pk):
     from planetmint.models import Transaction
     from planetmint.transactions.common.exceptions import AssetIdMismatch

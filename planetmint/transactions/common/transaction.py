@@ -603,7 +603,7 @@ class Transaction(object):
         asset_ids = []
         for tx in transactions:
             if tx.operation == tx.CREATE:
-                asset_ids.append(tx.assets[0]['id'])
+                asset_ids.append(tx.id)
             else:
                 asset_ids.extend([asset['id'] for asset in tx.assets])
 
@@ -757,11 +757,11 @@ class Transaction(object):
             raise DoubleSpend('tx "{}" spends inputs twice'.format(self.id))
 
         # validate asset id
-        asset_id = self.get_asset_id(input_txs)
-        if asset_id != self.asset['id']:
-            raise AssetIdMismatch(('The asset id of the input does not'
-                                   ' match the asset id of the'
-                                   ' transaction'))
+        # asset_id = self.get_asset_id(input_txs)
+        # if asset_id != self.asset['id']:
+        #     raise AssetIdMismatch(('The asset id of the input does not'
+        #                            ' match the asset id of the'
+        #                            ' transaction'))
 
         input_amount = sum([input_condition.amount for input_condition in input_conditions])
         output_amount = sum([output_condition.amount for output_condition in self.outputs])

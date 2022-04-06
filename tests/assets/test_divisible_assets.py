@@ -125,7 +125,7 @@ def test_single_in_single_own_single_out_single_own_transfer(alice, b, user_pk,
 
     # TRANSFER
     tx_transfer = Transfer.generate(tx_create.to_inputs(), [([alice.public_key], 100)],
-                                       asset_id=tx_create.id)
+                                       asset_ids=[tx_create.id])
     tx_transfer_signed = tx_transfer.sign([user_sk])
 
     b.store_bulk_transactions([tx_create_signed])
@@ -151,7 +151,7 @@ def test_single_in_single_own_multiple_out_single_own_transfer(alice, b, user_pk
     # TRANSFER
     tx_transfer = Transfer.generate(tx_create.to_inputs(),
                                        [([alice.public_key], 50), ([alice.public_key], 50)],
-                                       asset_id=tx_create.id)
+                                       asset_ids=[tx_create.id])
     tx_transfer_signed = tx_transfer.sign([user_sk])
 
     b.store_bulk_transactions([tx_create_signed])
@@ -178,7 +178,7 @@ def test_single_in_single_own_single_out_multiple_own_transfer(alice, b, user_pk
     # TRANSFER
     tx_transfer = Transfer.generate(tx_create.to_inputs(),
                                        [([alice.public_key, alice.public_key], 100)],
-                                       asset_id=tx_create.id)
+                                       asset_ids=[tx_create.id])
     tx_transfer_signed = tx_transfer.sign([user_sk])
 
     b.store_bulk_transactions([tx_create_signed])
@@ -214,7 +214,7 @@ def test_single_in_single_own_multiple_out_mix_own_transfer(alice, b, user_pk,
     # TRANSFER
     tx_transfer = Transfer.generate(tx_create.to_inputs(),
                                        [([alice.public_key], 50), ([alice.public_key, alice.public_key], 50)],
-                                       asset_id=tx_create.id)
+                                       asset_ids=[tx_create.id])
     tx_transfer_signed = tx_transfer.sign([user_sk])
 
     b.store_bulk_transactions([tx_create_signed])
@@ -251,7 +251,7 @@ def test_single_in_multiple_own_single_out_single_own_transfer(alice, b, user_pk
 
     # TRANSFER
     tx_transfer = Transfer.generate(tx_create.to_inputs(), [([alice.public_key], 100)],
-                                       asset_id=tx_create.id)
+                                       asset_ids=[tx_create.id])
     tx_transfer_signed = tx_transfer.sign([alice.private_key, user_sk])
 
     b.store_bulk_transactions([tx_create_signed])
@@ -284,7 +284,7 @@ def test_multiple_in_single_own_single_out_single_own_transfer(alice, b, user_pk
 
     # TRANSFER
     tx_transfer = Transfer.generate(tx_create.to_inputs(), [([alice.public_key], 100)],
-                                       asset_id=tx_create.id)
+                                       asset_ids=[tx_create.id])
     tx_transfer_signed = tx_transfer.sign([user_sk])
 
     b.store_bulk_transactions([tx_create_signed])
@@ -316,7 +316,7 @@ def test_multiple_in_multiple_own_single_out_single_own_transfer(alice, b, user_
 
     # TRANSFER
     tx_transfer = Transfer.generate(tx_create.to_inputs(), [([alice.public_key], 100)],
-                                       asset_id=tx_create.id)
+                                       asset_ids=[tx_create.id])
     tx_transfer_signed = tx_transfer.sign([alice.private_key, user_sk])
 
     b.store_bulk_transactions([tx_create_signed])
@@ -355,7 +355,7 @@ def test_muiltiple_in_mix_own_multiple_out_single_own_transfer(alice, b, user_pk
 
     # TRANSFER
     tx_transfer = Transfer.generate(tx_create.to_inputs(), [([alice.public_key], 100)],
-                                       asset_id=tx_create.id)
+                                       asset_ids=[tx_create.id])
     tx_transfer_signed = tx_transfer.sign([alice.private_key, user_sk])
 
     b.store_bulk_transactions([tx_create_signed])
@@ -395,7 +395,7 @@ def test_muiltiple_in_mix_own_multiple_out_mix_own_transfer(alice, b, user_pk,
     # TRANSFER
     tx_transfer = Transfer.generate(tx_create.to_inputs(),
                                        [([alice.public_key], 50), ([alice.public_key, user_pk], 50)],
-                                       asset_id=tx_create.id)
+                                       asset_ids=[tx_create.id])
     tx_transfer_signed = tx_transfer.sign([alice.private_key, user_sk])
 
     b.store_bulk_transactions([tx_create_signed])
@@ -443,7 +443,7 @@ def test_multiple_in_different_transactions(alice, b, user_pk, user_sk):
     # split across two different transactions
     tx_transfer1 = Transfer.generate(tx_create.to_inputs([1]),
                                         [([user_pk], 50)],
-                                        asset_id=tx_create.id)
+                                        asset_ids=[tx_create.id])
     tx_transfer1_signed = tx_transfer1.sign([alice.private_key])
 
     # TRANSFER
@@ -452,7 +452,7 @@ def test_multiple_in_different_transactions(alice, b, user_pk, user_sk):
     tx_transfer2 = Transfer.generate(tx_create.to_inputs([0]) +
                                         tx_transfer1.to_inputs([0]),
                                         [([alice.private_key], 100)],
-                                        asset_id=tx_create.id)
+                                        asset_ids=[tx_create.id])
     tx_transfer2_signed = tx_transfer2.sign([user_sk])
 
     b.store_bulk_transactions([tx_create_signed, tx_transfer1_signed])
@@ -483,7 +483,7 @@ def test_amount_error_transfer(alice, b, user_pk, user_sk):
     # TRANSFER
     # output amount less than input amount
     tx_transfer = Transfer.generate(tx_create.to_inputs(), [([alice.public_key], 50)],
-                                       asset_id=tx_create.id)
+                                       asset_ids=[tx_create.id])
     tx_transfer_signed = tx_transfer.sign([user_sk])
 
     with pytest.raises(AmountError):
@@ -492,7 +492,7 @@ def test_amount_error_transfer(alice, b, user_pk, user_sk):
     # TRANSFER
     # output amount greater than input amount
     tx_transfer = Transfer.generate(tx_create.to_inputs(), [([alice.public_key], 101)],
-                                       asset_id=tx_create.id)
+                                       asset_ids=[tx_create.id])
     tx_transfer_signed = tx_transfer.sign([user_sk])
 
     with pytest.raises(AmountError):
@@ -514,7 +514,7 @@ def test_threshold_same_public_key(alice, b, user_pk, user_sk):
 
     # TRANSFER
     tx_transfer = Transfer.generate(tx_create.to_inputs(), [([alice.public_key], 100)],
-                                       asset_id=tx_create.id)
+                                       asset_ids=[tx_create.id])
     tx_transfer_signed = tx_transfer.sign([user_sk, user_sk])
 
     b.store_bulk_transactions([tx_create_signed])
@@ -536,7 +536,7 @@ def test_sum_amount(alice, b, user_pk, user_sk):
     # create a transfer transaction with one output and check if the amount
     # is 3
     tx_transfer = Transfer.generate(tx_create.to_inputs(), [([alice.public_key], 3)],
-                                       asset_id=tx_create.id)
+                                       asset_ids=[tx_create.id])
     tx_transfer_signed = tx_transfer.sign([user_sk])
 
     b.store_bulk_transactions([tx_create_signed])
@@ -560,7 +560,7 @@ def test_divide(alice, b, user_pk, user_sk):
     # of each output is 1
     tx_transfer = Transfer.generate(tx_create.to_inputs(),
                                        [([alice.public_key], 1), ([alice.public_key], 1), ([alice.public_key], 1)],
-                                       asset_id=tx_create.id)
+                                       asset_ids=[tx_create.id])
     tx_transfer_signed = tx_transfer.sign([user_sk])
 
     b.store_bulk_transactions([tx_create_signed])

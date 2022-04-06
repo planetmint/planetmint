@@ -13,7 +13,7 @@ class Transfer(Transaction):
     ALLOWED_OPERATIONS = (OPERATION,)
 
     @classmethod
-    def validate_transfer(cls, inputs, recipients, asset_id, metadata):
+    def validate_transfer(cls, inputs, recipients, asset_ids, metadata):
         if not isinstance(inputs, list):
             raise TypeError('`inputs` must be a list instance')
         if len(inputs) == 0:
@@ -32,13 +32,14 @@ class Transfer(Transaction):
             pub_keys, amount = recipient
             outputs.append(Output.generate(pub_keys, amount))
 
-        if not isinstance(asset_id, str):
-            raise TypeError('`asset_id` must be a string')
+        if not isinstance(asset_ids, list):
+            raise TypeError('`asset_ids` must be a list')
 
         return (deepcopy(inputs), outputs)
 
+    # Adjust asset_id to asset_ids check references/refactor them
     @classmethod
-    def generate(cls, inputs, recipients, asset_id, metadata=None):
+    def generate(cls, inputs, recipients, asset_ids, metadata=None):
         """A simple way to generate a `TRANSFER` transaction.
 
             Note:
@@ -76,5 +77,9 @@ class Transfer(Transaction):
             Returns:
                 :class:`~planetmint.common.transaction.Transaction`
         """
-        (inputs, outputs) = cls.validate_transfer(inputs, recipients, asset_id, metadata)
-        return cls(cls.OPERATION, {'id': asset_id}, inputs, outputs, metadata)
+        (inputs, outputs) = cls.validate_transfer(inputs, recipients, asset_ids, metadata)
+        # TODO: Clean this up
+        assets = []
+        for asset_id in asset_ids:
+            assets.append({'id': asset_id})
+        return cls(cls.OPERATION, assets, inputs, outputs, metadata)

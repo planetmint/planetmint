@@ -363,17 +363,17 @@ def test_get_spent_transaction_critical_double_spend(b, alice, bob, carol):
 
     tx_transfer = Transfer.generate(tx.to_inputs(),
                                        [([bob.public_key], 1)],
-                                       asset_id=tx.id)\
+                                       asset_ids=[tx.id])\
                              .sign([alice.private_key])
 
     double_spend = Transfer.generate(tx.to_inputs(),
                                         [([carol.public_key], 1)],
-                                        asset_id=tx.id)\
+                                        asset_ids=[tx.id])\
                               .sign([alice.private_key])
 
     same_input_double_spend = Transfer.generate(tx.to_inputs() + tx.to_inputs(),
                                                    [([bob.public_key], 1)],
-                                                   asset_id=tx.id)\
+                                                   asset_ids=[tx.id])\
                                          .sign([alice.private_key])
 
     b.store_bulk_transactions([tx])
@@ -406,10 +406,10 @@ def test_validation_with_transaction_buffer(b):
     create_tx = Create.generate([pub_key], [([pub_key], 10)]).sign([priv_key])
     transfer_tx = Transfer.generate(create_tx.to_inputs(),
                                        [([pub_key], 10)],
-                                       asset_id=create_tx.id).sign([priv_key])
+                                       asset_ids=create_tx.id).sign([priv_key])
     double_spend = Transfer.generate(create_tx.to_inputs(),
                                         [([pub_key], 10)],
-                                        asset_id=create_tx.id).sign([priv_key])
+                                        asset_ids=create_tx.id).sign([priv_key])
 
     assert b.is_valid_transaction(create_tx)
     assert b.is_valid_transaction(transfer_tx, [create_tx])

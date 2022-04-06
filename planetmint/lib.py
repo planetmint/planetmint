@@ -239,11 +239,15 @@ class Planetmint(object):
     def get_transaction(self, transaction_id):
         transaction = backend.query.get_transaction(self.connection, transaction_id)
 
+        # TODO: adjust assets fetching for multiasset support
+        # Dirty hack backend.query.get_assets needs to be implemented
+        # NOTE: Read up on localmongodb setup and how the connection calls are actually loaded => implementation shows NotImplementError
+
         if transaction:
             asset = backend.query.get_asset(self.connection, transaction_id)
             metadata = backend.query.get_metadata(self.connection, [transaction_id])
             if asset:
-                transaction['asset'] = asset
+                transaction['assets'] = asset
 
             if 'metadata' not in transaction:
                 metadata = metadata[0] if metadata else None

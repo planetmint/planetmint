@@ -150,7 +150,7 @@ def main():
     input_ = Input(fulfillment=tx.outputs[cid].fulfillment,
                    fulfills=TransactionLink(txid=tx.id, output=cid),
                    owners_before=tx.outputs[cid].public_keys)
-    tx_transfer = Transfer.generate([input_], [([pubkey_transfer], 1)], asset_id=tx.id, metadata={'sequence': 1})
+    tx_transfer = Transfer.generate([input_], [([pubkey_transfer], 1)], asset_ids=[tx.id], metadata={'sequence': 1})
     tx_transfer = tx_transfer.sign([privkey])
     ctx['tx_transfer'] = pretty_json(tx_transfer.to_dict())
     ctx['public_keys_transfer'] = tx_transfer.outputs[0].public_keys[0]
@@ -164,7 +164,7 @@ def main():
                    fulfills=TransactionLink(txid=tx_transfer.id, output=cid),
                    owners_before=tx_transfer.outputs[cid].public_keys)
     tx_transfer_last = Transfer.generate([input_], [([pubkey_transfer_last], 1)],
-                                            asset_id=tx.id, metadata={'sequence': 2})
+                                            asset_ids=[tx.id], metadata={'sequence': 2})
     tx_transfer_last = tx_transfer_last.sign([privkey_transfer])
     ctx['tx_transfer_last'] = pretty_json(tx_transfer_last.to_dict())
     ctx['tx_transfer_last_id'] = tx_transfer_last.id

@@ -306,7 +306,7 @@ def posted_create_tx(b, signed_create_tx):
 def signed_transfer_tx(signed_create_tx, user_pk, user_sk):
     from planetmint.transactions.types.assets.transfer import Transfer
     inputs = signed_create_tx.to_inputs()
-    tx = Transfer.generate(inputs, [([user_pk], 1)], asset_id=signed_create_tx.id)
+    tx = Transfer.generate(inputs, [([user_pk], 1)], asset_ids=[signed_create_tx.id])
     return tx.sign([user_sk])
 
 
@@ -315,7 +315,7 @@ def double_spend_tx(signed_create_tx, carol_pubkey, user_sk):
     from planetmint.transactions.types.assets.transfer import Transfer
     inputs = signed_create_tx.to_inputs()
     tx = Transfer.generate(
-        inputs, [([carol_pubkey], 1)], asset_id=signed_create_tx.id)
+        inputs, [([carol_pubkey], 1)], asset_ids=[signed_create_tx.id])
     return tx.sign([user_sk])
 
 

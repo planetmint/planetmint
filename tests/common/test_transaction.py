@@ -856,7 +856,7 @@ def test_create_transfer_transaction_single_io(tx, user_pub, user2_pub,
     }
     inputs = tx.to_inputs([0])
     transfer_tx = Transfer.generate(inputs, [([user2_pub], 1)],
-                                       asset_id=tx.id)
+                                       asset_ids=[tx.id])
     transfer_tx = transfer_tx.sign([user_priv])
     transfer_tx = transfer_tx.to_dict()
 
@@ -920,7 +920,7 @@ def test_create_transfer_transaction_multiple_io(user_pub, user_priv,
 
     transfer_tx = Transfer.generate(tx.to_inputs(),
                                        [([user2_pub], 1), ([user2_pub], 1)],
-                                       asset_id=tx.id)
+                                       asset_ids=[tx.id])
     transfer_tx = transfer_tx.sign([user_priv, user2_priv])
 
     assert len(transfer_tx.inputs) == 2

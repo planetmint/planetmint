@@ -306,7 +306,7 @@ def test_post_transfer_transaction_endpoint(client, user_pk, user_sk, posted_cre
 
     transfer_tx = Transfer.generate(posted_create_tx.to_inputs(),
                                        [([user_pk], 1)],
-                                       asset_id=posted_create_tx.id)
+                                       asset_ids=[posted_create_tx.id])
     transfer_tx = transfer_tx.sign([user_sk])
 
     res = client.post(TX_ENDPOINT, data=json.dumps(transfer_tx.to_dict()))
@@ -323,7 +323,7 @@ def test_post_invalid_transfer_transaction_returns_400(client, user_pk, posted_c
 
     transfer_tx = Transfer.generate(posted_create_tx.to_inputs(),
                                        [([user_pk], 1)],
-                                       asset_id=posted_create_tx.id)
+                                       asset_ids=[posted_create_tx.id])
     transfer_tx._hash()
 
     res = client.post(TX_ENDPOINT, data=json.dumps(transfer_tx.to_dict()))
@@ -348,7 +348,7 @@ def test_post_wrong_asset_division_transfer_returns_400(b, client, user_pk):
 
     transfer_tx = Transfer.generate(create_tx.to_inputs(),
                                        [([pub_key], 20)],  # 20 > 10
-                                       asset_id=create_tx.id).sign([priv_key])
+                                       asset_ids=[create_tx.id]).sign([priv_key])
     res = client.post(TX_ENDPOINT + '?mode=commit', data=json.dumps(transfer_tx.to_dict()))
     expected_error_message = \
         f'Invalid transaction ({AmountError.__name__}): ' + \

@@ -326,7 +326,7 @@ def test_deliver_transfer_tx__double_spend_fails(b, init_chain_request):
 
     tx_transfer = Transfer.generate(tx.to_inputs(),
                                        [([bob.public_key], 1)],
-                                       asset_id=tx.id)\
+                                       asset_ids=[tx.id])\
                              .sign([alice.private_key])
 
     result = app.deliver_tx(encode_tx_to_bytes(tx_transfer))
@@ -334,7 +334,7 @@ def test_deliver_transfer_tx__double_spend_fails(b, init_chain_request):
 
     double_spend = Transfer.generate(tx.to_inputs(),
                                         [([carly.public_key], 1)],
-                                        asset_id=tx.id)\
+                                        asset_ids=[tx.id])\
                               .sign([alice.private_key])
 
     result = app.deliver_tx(encode_tx_to_bytes(double_spend))

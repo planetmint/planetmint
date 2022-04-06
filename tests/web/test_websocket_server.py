@@ -33,7 +33,7 @@ def test_eventify_block_works_with_any_transaction():
                     .sign([alice.private_key])
     tx_transfer = Transfer.generate(tx.to_inputs(),
                                        [([alice.public_key], 1)],
-                                       asset_id=tx.id)\
+                                       asset_ids=[tx.id])\
                              .sign([alice.private_key])
 
     block = {'height': 1,

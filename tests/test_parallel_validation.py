@@ -20,7 +20,7 @@ def generate_create_and_transfer(keypair=None):
     transfer_tx = Transfer.generate(
             create_tx.to_inputs(),
             [([pub_key], 10)],
-            asset_id=create_tx.id).sign([priv_key])
+            asset_ids=[create_tx.id]).sign([priv_key])
     return create_tx, transfer_tx
 
 
@@ -33,7 +33,7 @@ def test_validation_worker_process_multiple_transactions(b):
     double_spend = Transfer.generate(
             create_tx.to_inputs(),
             [([keypair.public_key], 10)],
-            asset_id=create_tx.id).sign([keypair.private_key])
+            asset_ids=[create_tx.id]).sign([keypair.private_key])
 
     in_queue, results_queue = mp.Queue(), mp.Queue()
     vw = ValidationWorker(in_queue, results_queue)
