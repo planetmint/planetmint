@@ -26,7 +26,7 @@ def test_get_txids_filtered(signed_create_tx, signed_transfer_tx):
     conn.db.transactions.insert_one(signed_create_tx.to_dict())
     conn.db.transactions.insert_one(signed_transfer_tx.to_dict())
 
-    asset_id = Transaction.get_asset_id([signed_create_tx, signed_transfer_tx])
+    asset_id = Transaction.get_asset_ids([signed_create_tx, signed_transfer_tx])
 
     # Test get by just asset id
     txids = set(query.get_txids_filtered(conn, asset_id))

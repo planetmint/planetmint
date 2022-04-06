@@ -105,7 +105,7 @@ class Transaction(object):
         # dicts holding a `data` property. Asset payloads for 'TRANSFER'
         # operations must be dicts holding an `id` property.
 
-        # Changes: CREATE needs list of 1 asset that holds data in asset or None
+        # NOTE: Changes: CREATE needs list of 1 asset that holds data in asset or None
         if (operation == self.CREATE and
                 assets is not None and not (isinstance(assets, list) and 'data' in assets[0])):
             raise TypeError(('`asset` must be None or a list of length 1 with a dict holding a `data` '
@@ -114,10 +114,14 @@ class Transaction(object):
         #         asset is not None and not (isinstance(asset, dict) and 'data' in asset)):
         #     raise TypeError(('`asset` must be None or a dict holding a `data` '
         #                      " property instance for '{}' Transactions".format(operation)))
+        # NOTE: Changes: TRANSFER needs a list of at least on asset that holds id in each asset
         elif (operation == self.TRANSFER and
-                not (isinstance(assets, dict) and 'id' in assets)):
-            raise TypeError(('`asset` must be a dict holding an `id` property '
-                             'for \'TRANSFER\' Transactions'))
+                assets is not None and not (isinstance(assets, list) and all('id' in asset for asset in assets))):
+            raise TypeError(('`asset` must be a list containing dicts holding an `id` property'))
+        # elif (operation == self.TRANSFER and
+        #         not (isinstance(assets, dict) and 'id' in assets)):
+        #     raise TypeError(('`asset` must be a dict holding an `id` property '
+        #                      'for \'TRANSFER\' Transactions'))
 
         if outputs and not isinstance(outputs, list):
             raise TypeError('`outputs` must be a list instance or None')
@@ -567,7 +571,7 @@ class Transaction(object):
         return Transaction._to_str(tx)
 
     @classmethod
-    def get_asset_id(cls, transactions):
+    def get_asset_ids(cls, transactions):
         """Get the asset id from a list of :class:`~.Transactions`.
 
         This is useful when we want to check if the multiple inputs of a
@@ -607,7 +611,7 @@ class Transaction(object):
             else:
                 asset_ids.extend([asset['id'] for asset in tx.assets])
 
-        return asset_ids.pop()
+        return asset_ids
 
     @staticmethod
     def validate_id(tx_body):
