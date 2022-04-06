@@ -139,7 +139,7 @@ def store_assets(connection, assets: list):
 @register_query(TarantoolDB)
 def get_asset(connection, asset_id: str):
     space = connection.space("assets")
-    _data = space.select(asset_id, index="assetid_search")
+    _data = space.select(asset_id, index="txid_search")
     _data = _data.data
     return _data[0][1] if len(_data) == 1 else []
 
