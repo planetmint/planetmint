@@ -48,13 +48,11 @@ class Config(metaclass=Singleton):
             'crlfile': None
         }
         self.__private_init_config = {
-            "init_file": "init_db.txt",
-            "relative_path": os.path.dirname(os.path.abspath(__file__)) + "/backend/tarantool/"
+            "absolute_path": os.path.dirname(os.path.abspath(__file__)) + "/backend/tarantool/init_db.txt"
         }
 
         self.__private_drop_config = {
-            "drop_file": "drop_db.txt",  # planetmint/backend/tarantool/init_db.txt
-            "relative_path": os.path.dirname(os.path.abspath(__file__)) + "/backend/tarantool/"
+            "absolute_path": os.path.dirname(os.path.abspath(__file__)) + "/backend/tarantool/drop_db.txt"
         }
         self.__private_database_tarantool = {
             'backend': 'tarantool_db',

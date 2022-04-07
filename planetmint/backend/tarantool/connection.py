@@ -4,18 +4,9 @@
 # Code is Apache-2.0 and docs are CC-BY-4.0
 
 import logging
-from importlib import import_module
-from itertools import repeat
 
 import tarantool
 from planetmint.config import Config
-from planetmint.backend.exceptions import ConnectionError
-
-
-# BACKENDS = {  # This is path to MongoDBClass
-#    'tarantool_db': 'planetmint.backend.connection_tarantool.TarantoolDB',
-#    'localmongodb': 'planetmint.backend.localmongodb.connection.LocalMongoDBConnection'
-# }
 
 logger = logging.getLogger(__name__)
 
@@ -26,14 +17,16 @@ class TarantoolDB:
         self.host = host
         self.port = port
         self.db_connect = tarantool.connect(host=host, port=port, user=user, password=password)
+        self._load_setup_files()
         if reset_database:
-            self._load_setup_files()
             self.drop_database()
             self.init_database()
 
     def _load_setup_files(self):
-        self.drop_commands = self.__read_commands(file_path="drop_db.txt")
-        self.init_commands = self.__read_commands(file_path="init_db.txt")
+        init_path = Config().get()["database"]["init_config"]["absolute_path"]
+        drop_path = Config().get()["database"]["drop_config"]["absolute_path"]
+        self.drop_commands = self.__read_commands(file_path=init_path)
+        self.init_commands = self.__read_commands(file_path=drop_path)
 
     def space(self, space_name: str):
         return self.db_connect.space(space_name)
