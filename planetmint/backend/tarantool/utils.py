@@ -30,8 +30,8 @@ def __read_commands(file_path):
 
 
 def _load_setup_files():
-    drop_commands = __read_commands(file_path="drop_db.txt")
-    init_commands = __read_commands(file_path="init_db.txt")
+    drop_commands = __read_commands(file_path="planetmint/backend/tarantool/drop_db.txt")
+    init_commands = __read_commands(file_path="planetmint/backend/tarantool/init_db.txt")
     return init_commands, drop_commands
 
 
