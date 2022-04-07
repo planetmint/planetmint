@@ -1,7 +1,7 @@
 import copy
 import logging
 import os
-from planetmint.log import DEFAULT_LOGGING_CONFIG as log_config
+#from planetmint.log import DEFAULT_LOGGING_CONFIG as log_config
 from planetmint.version import __version__  # noqa
 
 
@@ -25,6 +25,7 @@ class Config(metaclass=Singleton):
         # prompt the user for database values. We cannot rely on
         # _base_database_localmongodb.keys() because dicts are unordered.
         # I tried to configure
+        self.log_config = DEFAULT_LOGGING_CONFIG
         db = 'tarantool_db'
         self.__private_database_keys_map = {  # TODO Check if it is working after removing 'name' field
             'tarantool_db': ('host', 'port'),
@@ -81,7 +82,7 @@ class Config(metaclass=Singleton):
                 #       - http://docs.gunicorn.org/en/stable/settings.html
                 'bind': 'localhost:9984',
                 'loglevel': logging.getLevelName(
-                    log_config['handlers']['console']['level']).lower(),
+                    self.log_config['handlers']['console']['level']).lower(),
                 'workers': None,  # if None, the value will be cpu_count * 2 + 1
             },
             'wsserver': {
@@ -99,16 +100,16 @@ class Config(metaclass=Singleton):
             },
             'database': self.__private_database_map,
             'log': {
-                'file': log_config['handlers']['file']['filename'],
-                'error_file': log_config['handlers']['errors']['filename'],
+                'file': self.log_config['handlers']['file']['filename'],
+                'error_file': self.log_config['handlers']['errors']['filename'],
                 'level_console': logging.getLevelName(
-                    log_config['handlers']['console']['level']).lower(),
+                    self.log_config['handlers']['console']['level']).lower(),
                 'level_logfile': logging.getLevelName(
-                    log_config['handlers']['file']['level']).lower(),
-                'datefmt_console': log_config['formatters']['console']['datefmt'],
-                'datefmt_logfile': log_config['formatters']['file']['datefmt'],
-                'fmt_console': log_config['formatters']['console']['format'],
-                'fmt_logfile': log_config['formatters']['file']['format'],
+                    self.log_config['handlers']['file']['level']).lower(),
+                'datefmt_console': self.log_config['formatters']['console']['datefmt'],
+                'datefmt_logfile': self.log_config['formatters']['file']['datefmt'],
+                'fmt_console': self.log_config['formatters']['console']['format'],
+                'fmt_logfile': self.log_config['formatters']['file']['format'],
                 'granular_levels': {},
             },
         }
@@ -133,3 +134,53 @@ class Config(metaclass=Singleton):
 
     def get_db_map(sefl, db):
         return sefl.__private_database_map[db]
+
+DEFAULT_LOG_DIR = os.getcwd()
+DEFAULT_LOGGING_CONFIG = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'console': {
+            'class': 'logging.Formatter',
+            'format': ('[%(asctime)s] [%(levelname)s] (%(name)s) '
+                       '%(message)s (%(processName)-10s - pid: %(process)d)'),
+            'datefmt': '%Y-%m-%d %H:%M:%S',
+        },
+        'file': {
+            'class': 'logging.Formatter',
+            'format': ('[%(asctime)s] [%(levelname)s] (%(name)s) '
+                       '%(message)s (%(processName)-10s - pid: %(process)d)'),
+            'datefmt': '%Y-%m-%d %H:%M:%S',
+        }
+    },
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'console',
+            'level': logging.INFO,
+        },
+        'file': {
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': os.path.join(DEFAULT_LOG_DIR, 'planetmint.log'),
+            'mode': 'w',
+            'maxBytes': 209715200,
+            'backupCount': 5,
+            'formatter': 'file',
+            'level': logging.INFO,
+        },
+        'errors': {
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': os.path.join(DEFAULT_LOG_DIR, 'planetmint-errors.log'),
+            'mode': 'w',
+            'maxBytes': 209715200,
+            'backupCount': 5,
+            'formatter': 'file',
+            'level': logging.ERROR,
+        }
+    },
+    'loggers': {},
+    'root': {
+        'level': logging.DEBUG,
+        'handlers': ['console', 'file', 'errors'],
+    },
+}

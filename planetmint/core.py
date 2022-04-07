@@ -256,7 +256,7 @@ class App(BaseApplication):
 def rollback(b):
     pre_commit = b.get_pre_commit_state()
 
-    if pre_commit is None:
+    if pre_commit is None or len(pre_commit) == 0:
         # the pre_commit record is first stored in the first `end_block`
         return
 

@@ -284,7 +284,7 @@ def run_start(args):
     # Configure Logging
     setup_logging()
 
-    logger.info('Planetmint Version %s', planetmint.__version__)
+    logger.info('Planetmint Version %s', planetmint.version.__version__)
     run_recover(planetmint.lib.Planetmint())
 
     if not args.skip_initialize_database:
