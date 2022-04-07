@@ -89,7 +89,7 @@ install_requires = [
     'pymongo==3.11.4',
     'python-rapidjson==1.0',
     'pyyaml==5.4.1',
-    'requests==2.25.1',
+    'requests>=2.25.1',
     'setproctitle==1.2.2',
     'werkzeug==2.0.3',
 ]

@@ -6,7 +6,8 @@
 from functools import reduce
 
 import base58
-from cryptoconditions import Fulfillment, ThresholdSha256, Ed25519Sha256
+from cryptoconditions import ThresholdSha256, Ed25519Sha256, ZenroomSha256
+from cryptoconditions import Fulfillment
 
 from planetmint.transactions.common.exceptions import AmountError
 from .utils import _fulfillment_to_details, _fulfillment_from_details
@@ -70,6 +71,7 @@ class Output(object):
         #              and fulfillment!
         condition = {}
         try:
+            # TODO verify if a script is returned in case of zenroom fulfillments
             condition['details'] = _fulfillment_to_details(self.fulfillment)
         except AttributeError:
             pass
@@ -123,6 +125,9 @@ class Output(object):
         elif len(public_keys) == 1 and not isinstance(public_keys[0], list):
             if isinstance(public_keys[0], Fulfillment):
                 ffill = public_keys[0]
+            elif isinstance( public_keys[0], Fulfillment.ZenroomSha512Fulfillment):
+                ffill = ZenroomSha256(
+                    public_key=base58.b58decode(public_keys[0]))
             else:
                 ffill = Ed25519Sha256(
                     public_key=base58.b58decode(public_keys[0]))

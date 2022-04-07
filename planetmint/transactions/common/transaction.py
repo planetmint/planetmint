@@ -17,7 +17,7 @@ from functools import lru_cache
 import rapidjson
 
 import base58
-from cryptoconditions import Fulfillment, ThresholdSha256, Ed25519Sha256
+from cryptoconditions import Fulfillment, ThresholdSha256, Ed25519Sha256, ZenroomSha256
 from cryptoconditions.exceptions import (
     ParsingError, ASN1DecodeError, ASN1EncodeError)
 try:
@@ -235,6 +235,7 @@ class Transaction(object):
                 currently:
                     - Ed25519Fulfillment
                     - ThresholdSha256
+                    - ZenroomSha256
                 Furthermore, note that all keys required to fully sign the
                 Transaction have to be passed to this method. A subset of all
                 will cause this method to fail.
@@ -289,7 +290,7 @@ class Transaction(object):
                 currently:
                     - Ed25519Fulfillment
                     - ThresholdSha256.
-
+                    - ZenroomSha256
             Args:
                 input_ (:class:`~planetmint.transactions.common.transaction.
                     Input`) The Input to be signed.
@@ -302,10 +303,45 @@ class Transaction(object):
         elif isinstance(input_.fulfillment, ThresholdSha256):
             return cls._sign_threshold_signature_fulfillment(input_, message,
                                                              key_pairs)
+        elif isinstance(input_.fulfillment, ZenroomSha256):
+            return cls._sign_threshold_signature_fulfillment(input_, message,
+                                                             key_pairs)
         else:
             raise ValueError(
                 'Fulfillment couldn\'t be matched to '
                 'Cryptocondition fulfillment type.')
+
+    @classmethod
+    def _sign_zenroom_fulfillment(cls, input_, message, key_pairs):
+        """Signs a Zenroomful.
+
+            Args:
+                input_ (:class:`~planetmint.transactions.common.transaction.
+                    Input`) The input to be signed.
+                message (str): The message to be signed
+                key_pairs (dict): The keys to sign the Transaction with.
+        """
+        # NOTE: To eliminate the dangers of accidentally signing a condition by
+        #       reference, we remove the reference of input_ here
+        #       intentionally. If the user of this class knows how to use it,
+        #       this should never happen, but then again, never say never.
+        input_ = deepcopy(input_)
+        public_key = input_.owners_before[0]
+        message = sha3_256(message.encode())
+        if input_.fulfills:
+            message.update('{}{}'.format(
+                input_.fulfills.txid, input_.fulfills.output).encode())
+
+        try:
+            # cryptoconditions makes no assumptions of the encoding of the
+            # message to sign or verify. It only accepts bytestrings
+            input_.fulfillment.sign(
+                message.digest(), base58.b58decode(key_pairs[public_key].encode()))
+        except KeyError:
+            raise KeypairMismatchException('Public key {} is not a pair to '
+                                           'any of the private keys'
+                                           .format(public_key))
+        return input_
 
     @classmethod
     def _sign_simple_signature_fulfillment(cls, input_, message, key_pairs):
