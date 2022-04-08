@@ -318,9 +318,9 @@ def inputs(user_pk, b, alice):
 
 @pytest.fixture
 def dummy_db(request):
-    from planetmint.backend import connect
+    from planetmint.backend import Connection
 
-    conn = connect()
+    conn = Connection()
     dbname = request.fixturename
     xdist_suffix = getattr(request.config, 'slaveinput', {}).get('slaveid')
     if xdist_suffix:

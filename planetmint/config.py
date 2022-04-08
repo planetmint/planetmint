@@ -49,11 +49,11 @@ class Config(metaclass=Singleton):
             'crlfile': None
         }
         self.__private_init_config = {
-            "absolute_path": os.path.dirname(os.path.abspath(__file__)) + "/backend/tarantool/init_db.txt"
+            "absolute_path": os.path.dirname(os.path.abspath(__file__)) + "/backend/tarantool/init.lua"
         }
 
         self.__private_drop_config = {
-            "absolute_path": os.path.dirname(os.path.abspath(__file__)) + "/backend/tarantool/drop_db.txt"
+            "absolute_path": os.path.dirname(os.path.abspath(__file__)) + "/backend/tarantool/drop.lua"
         }
         self.__private_database_tarantool = {
             'backend': 'tarantool_db',
@@ -62,7 +62,7 @@ class Config(metaclass=Singleton):
             'name': 'bigchain',
             "reconnect_delay": 0.5,
             'host': 'localhost',
-            'port': 3301,
+            'port': 3303,
             "connect_now": True,
             "encoding": "utf-8",
             "login": "planetmint",

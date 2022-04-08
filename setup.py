@@ -139,5 +139,5 @@ setup(
         'docs': docs_require,
     },
     package_data={'planetmint.common.schema': ['*.yaml'],
-        'planetmint.backend.tarantool': ['*.txt']}
+        'planetmint.backend.tarantool': ['*.lua']}
 )

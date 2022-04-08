@@ -16,7 +16,7 @@ def config(request, monkeypatch):
         'database': {
             'backend': backend,
             'host': 'localhost',
-            'port': 3301,
+            'port': 3303,
             'name': 'bigchain',
             'replicaset': 'bigchain-rs',
             'connection_timeout': 5000,
@@ -74,6 +74,8 @@ def test_get_spent_issue_1271(b, alice, bob, carol):
         [carol.public_key],
         [([carol.public_key], 8)],
     ).sign([carol.private_key])
+    print( f" TX 1 : {tx_1} ")
+    print( f" TX 1 ID : {tx_1.id} ")
     assert tx_1.validate(b)
     b.store_bulk_transactions([tx_1])
 
@@ -84,6 +86,8 @@ def test_get_spent_issue_1271(b, alice, bob, carol):
          ([carol.public_key], 4)],
         asset_id=tx_1.id,
     ).sign([carol.private_key])
+    print( f" TX 2 : {tx_2} ")
+    print( f" TX 2 ID : {tx_2.id} ")
     assert tx_2.validate(b)
     b.store_bulk_transactions([tx_2])
 
