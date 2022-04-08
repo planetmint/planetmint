@@ -76,11 +76,11 @@ def store_transactions(connection, signed_transactions: list):
         for _key in txtuples["keys"]:
             keysxspace.insert(_key)
 
-        if len(txtuples["metadata"]) > 0:
+        if txtuples["metadata"] is not None:
             metadatasxspace.insert(txtuples["metadata"])
 
-        if txtuples["is_data"]:
-            assetsxspace.insert(txtuples["asset_data"])
+        if txtuples["asset"] is not None:
+            assetsxspace.insert(txtuples["asset"])
 
 
 @register_query(TarantoolDB)
@@ -115,11 +115,11 @@ def get_metadata(connection, transaction_ids: list):
 @register_query(TarantoolDB)
 # asset: {"id": "asset_id"}
 # asset: {"data": any} -> insert (tx_id, asset["data"]).
-def store_asset(connection, asset: dict, tx_id=None, is_data=False):  # TODO convert to str all asset["id"]
+def store_asset(connection, asset: dict, tx_id=None):  # TODO convert to str all asset["id"]
     space = connection.space("assets")
     try:
-        if is_data and tx_id is not None:
-            space.insert((tx_id, asset))
+        if tx_id is not None:
+            space.insert((asset, tx_id))
         else:
             space.insert((str(asset["id"]), asset))
     except:  # TODO Add Raise For Duplicate
@@ -131,7 +131,7 @@ def store_assets(connection, assets: list):
     space = connection.space("assets")
     for asset in assets:
         try:
-            space.insert((asset["id"], asset))
+            space.insert((asset, asset["id"]))
         except:  # TODO Raise ERROR for Duplicate
             pass
 
@@ -149,10 +149,11 @@ def get_assets(connection, assets_ids: list) -> list:
     _returned_data = []
     space = connection.space("assets")
     for _id in list(set(assets_ids)):
-        asset = space.select(str(_id), index="assetid_search")
+        asset = space.select(str(_id), index="txid_search")
         asset = asset.data[0]
-        _returned_data.append(asset[1])
-    return sorted(_returned_data, key=lambda k: k["id"], reverse=False)
+        _returned_data.append(asset[0])
+    # return sorted(_returned_data, key=lambda k: k["id"], reverse=False)
+    return _returned_data
 
 
 @register_query(TarantoolDB)
