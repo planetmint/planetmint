@@ -8,7 +8,7 @@ import json
 import queue
 import threading
 from unittest.mock import patch
-
+from planetmint.config import Config
 import pytest
 
 
@@ -82,6 +82,7 @@ async def test_bridge_sync_async_queue(loop):
     result = await async_queue.get()
     assert result == 'Autobahn'
 
+    print(f" queue ({async_queue.qsize()}): {async_queue} ")
     assert async_queue.qsize() == 0
 
 
@@ -106,8 +107,8 @@ def test_start_creates_an_event_loop(queue_mock, get_event_loop_mock,
     init_app_mock.assert_called_with('event-queue', loop='event-loop')
     run_app_mock.assert_called_once_with(
         init_app_mock.return_value,
-        host=config['wsserver']['host'],
-        port=config['wsserver']['port'],
+        host=Config().get()['wsserver']['host'],
+        port=Config().get()['wsserver']['port'],
     )
 
 
