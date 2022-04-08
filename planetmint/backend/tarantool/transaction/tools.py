@@ -34,12 +34,12 @@ class TransactionDecompose:
             "metadata": (),
             "asset": "",
             "asset_data": (),
-            "is_data": False
         }
-        print(f"Transaction ::::: { self._transaction}")
+        print(f"Transaction ::::: {self._transaction}")
         self.if_key = lambda dct, key: False if not key in dct.keys() else dct[key]
 
     def get_map(self, dictionary: dict = None):
+
         return _save_keys_order(dictionary=dictionary) if dictionary is not None else _save_keys_order(
             dictionary=self._transaction)
 
@@ -51,23 +51,20 @@ class TransactionDecompose:
         self._tuple_transaction["metadata"] = (self._transaction["id"], metadata) if metadata is not None else ()
 
     def __asset_check(self):  # ASSET CAN BE VERIFIED BY OPERATION TYPE CREATE OR TRANSFER
+        _operation = self._transaction["operation"]
         _asset = self._transaction.get("asset")
-        print( f"decompose asset : {_asset }")
+
         if _asset is None:
             self._tuple_transaction["asset"] = ""
-            print( f"decompose asset :1 {_asset}")
             return
 
-        _id = self.if_key(dct=_asset, key="id")
-        if _id is not False:
-            print( f"decompose asset :2 {_asset}")
-            self._tuple_transaction["asset"] = _id
+        if _operation == "CREATE":
+            self._tuple_transaction["asset_data"] = (self._transaction["id"], _asset, self._transaction["id"])
+            self._tuple_transaction["asset"] = self._transaction["id"]
             return
-
-        self._tuple_transaction["is_data"] = True
-        self._tuple_transaction["asset_data"] = (self._transaction["id"], _asset)
-        self._tuple_transaction["asset"] = ""
-        print( f"decompose asset :3 {_asset}")
+        elif _operation == "TRANSFER":
+            self._tuple_transaction["asset"] = _asset["id"]
+            return
 
     def __prepare_inputs(self):
         _inputs = []
@@ -151,8 +148,8 @@ class TransactionCompose:
         return self.db_results["transaction"][0]
 
     def _get_asset(self):
-#        if self._get_transaction_operation() == 'CREATE':
-#            return None
+        #        if self._get_transaction_operation() == 'CREATE':
+        #            return None
         if len(self.db_results["transaction"][3]) > 0:
             print("get_asse 1")
             return {
@@ -206,5 +203,5 @@ class TransactionCompose:
         transaction["inputs"] = self._get_inputs()
         transaction["outputs"] = self._get_outputs()
         test = transaction["asset"]
-        print( f"compose asset : { test }")
+        print(f"compose asset : {test}")
         return transaction

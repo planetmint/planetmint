@@ -24,7 +24,9 @@ def test_get_txids_filtered(signed_create_tx, signed_transfer_tx, db_conn):
     # transfer transaction
     create_tx_dict = signed_create_tx.to_dict()
     transfer_tx_dict = signed_transfer_tx.to_dict()
-
+    print(create_tx_dict)
+    print(" ")
+    print(transfer_tx_dict)
     query.store_transactions(signed_transactions=[create_tx_dict], connection=conn)
     query.store_transactions(signed_transactions=[transfer_tx_dict], connection=conn)
 
