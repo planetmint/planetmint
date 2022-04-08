@@ -4,12 +4,11 @@
 # Code is Apache-2.0 and docs are CC-BY-4.0
 
 import logging
-
 import tarantool
+
 from planetmint.config import Config
 
 logger = logging.getLogger(__name__)
-
 
 class TarantoolDB:
     def __init__(self, host: str = None, port: int = None, user: str = None, password: str = None,
@@ -18,17 +17,12 @@ class TarantoolDB:
         self.port = port
         # TODO add user support later on
         #self.db_connect = tarantool.connect(host=host, port=port, user=user, password=password)
-        self.db_connect = tarantool.connect(host=host, port=port)
-        self._load_setup_files()
+        self.db_connect = tarantool.connect(host=self.host , port=self.port)
+        self.init_path = Config().get()["database"]["init_config"]["absolute_path"]
+        self.drop_path = Config().get()["database"]["drop_config"]["absolute_path"]
         if reset_database:
             self.drop_database()
             self.init_database()
-
-    def _load_setup_files(self):
-        self.init_path = Config().get()["database"]["init_config"]["absolute_path"]
-        self.drop_path = Config().get()["database"]["drop_config"]["absolute_path"]
-        #self.drop_commands = self.__read_commands(file_path=init_path)
-        #self.init_commands = self.__read_commands(file_path=drop_path)
 
     def space(self, space_name: str):
         return self.db_connect.space(space_name)
@@ -36,24 +30,22 @@ class TarantoolDB:
     def get_connection(self):
         return self.db_connect
 
-    def __read_commands(self, file_path):
-        with open(file_path, "r") as cmd_file:
-            commands = [line.strip() for line in cmd_file.readlines() if len(str(line)) > 1]
-            cmd_file.close()
-        return commands
-
     def drop_database(self):
-        from planetmint.backend.tarantool.utils import run2
         db_config = Config().get()["database"]
-        # drop_config = db_config["drop_config"]
-        # f_path = "%s%s" % (drop_config["relative_path"], drop_config["drop_file"])
-        # commands = self.__read_commands(file_path=f_path)
-        run2(commands=self.drop_path, config=db_config)
+        self.run_cmd(commands=self.drop_path, config=db_config)
 
     def init_database(self):
-        from planetmint.backend.tarantool.utils import run2
         db_config = Config().get()["database"]
-        # init_config = db_config["init_config"]
-        # f_path = "%s%s" % (init_config["relative_path"], init_config["init_file"])
-        # commands = self.__read_commands(file_path=f_path)
-        run2(commands=self.init_path, config=db_config)
+        self.run_cmd(commands=self.init_path, config=db_config)
+
+    def run_cmd(commands: list, config: dict):
+        import subprocess
+        
+        ret = subprocess.Popen(
+            ['%s %s:%s < %s' % ("tarantoolctl connect", "localhost", "3303", "planetmint/backend/tarantool/init.lua")],
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            universal_newlines=True,
+            bufsize=0,
+            shell=True)
+        return True if ret >= 0 else False
