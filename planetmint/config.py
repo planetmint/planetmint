@@ -65,7 +65,7 @@ class Config(metaclass=Singleton):
             'port': 3303,
             "connect_now": True,
             "encoding": "utf-8",
-            "login": "",
+            "login": "guest",
             'password': "",
             "service": "tarantoolctl connect",
             "init_config": self.__private_init_config,

@@ -15,16 +15,21 @@ services:
     command: mongod
     restart: always
   tarantool:
-    image: tarantool/tarantool:2.3.1
+    image: tarantool/tarantool:2.8.3
     ports:
       - "5200:5200"
       - "3301:3301"
-    command: tarantool
+      - "3303:3303"
+      - "8081:8081"
+    volumes:
+      - ./planetmint/backend/tarantool/basic.lua:/opt/tarantool/basic.lua
+    command: tarantool /opt/tarantool/basic.lua
     restart: always
   planetmint:
     depends_on:
-      - mongodb
+      #- mongodb
       - tendermint
+      - tarantool
     build:
       context: .
       dockerfile: Dockerfile-dev
@@ -38,9 +43,9 @@ services:
       - ./pytest.ini:/usr/src/app/pytest.ini
       - ./tox.ini:/usr/src/app/tox.ini
     environment:
-      PLANETMINT_DATABASE_BACKEND: localmongodb
-      PLANETMINT_DATABASE_HOST: mongodb
-      PLANETMINT_DATABASE_PORT: 27017
+      PLANETMINT_DATABASE_BACKEND: tarantooldb 
+      PLANETMINT_DATABASE_HOST: tarantool
+      PLANETMINT_DATABASE_PORT: 3303
       PLANETMINT_SERVER_BIND: 0.0.0.0:9984
       PLANETMINT_WSSERVER_HOST: 0.0.0.0
       PLANETMINT_WSSERVER_ADVERTISED_HOST: planetmint

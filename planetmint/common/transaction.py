@@ -1123,7 +1123,8 @@ class Transaction(object):
 
     # TODO: This method shouldn't call `_remove_signatures`
     def __str__(self):
-        tx = Transaction._remove_signatures(self.to_dict())
+        _tx = self.to_dict()
+        tx = Transaction._remove_signatures(_tx)
         return Transaction._to_str(tx)
 
     @classmethod
@@ -1182,6 +1183,10 @@ class Transaction(object):
 
         tx_body_serialized = Transaction._to_str(tx_body)
         valid_tx_id = Transaction._to_hash(tx_body_serialized)
+        print( f" valid TX : {valid_tx_id}")
+        print( f" proposed TX id : {proposed_tx_id}")
+        print( f" tx body : {tx_body}")
+        print( f" tx serialized : {tx_body_serialized}")
         if proposed_tx_id != valid_tx_id:
             err_msg = ("The transaction's id '{}' isn't equal to "
                        "the hash of its body, i.e. it's not valid.")
@@ -1200,7 +1205,7 @@ class Transaction(object):
         """
         operation = tx.get('operation', Transaction.CREATE) if isinstance(tx, dict) else Transaction.CREATE
         cls = Transaction.resolve_class(operation)
-
+        print( f" Schema validation {tx}")
         if not skip_schema_validation:
             cls.validate_id(tx)
             cls.validate_schema(tx)

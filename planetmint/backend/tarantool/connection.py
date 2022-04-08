@@ -16,17 +16,19 @@ class TarantoolDB:
                  reset_database: bool = False):
         self.host = host
         self.port = port
-        self.db_connect = tarantool.connect(host=host, port=port, user=user, password=password)
+        # TODO add user support later on
+        #self.db_connect = tarantool.connect(host=host, port=port, user=user, password=password)
+        self.db_connect = tarantool.connect(host=host, port=port)
         self._load_setup_files()
         if reset_database:
             self.drop_database()
             self.init_database()
 
     def _load_setup_files(self):
-        init_path = Config().get()["database"]["init_config"]["absolute_path"]
-        drop_path = Config().get()["database"]["drop_config"]["absolute_path"]
-        self.drop_commands = self.__read_commands(file_path=init_path)
-        self.init_commands = self.__read_commands(file_path=drop_path)
+        self.init_path = Config().get()["database"]["init_config"]["absolute_path"]
+        self.drop_path = Config().get()["database"]["drop_config"]["absolute_path"]
+        #self.drop_commands = self.__read_commands(file_path=init_path)
+        #self.init_commands = self.__read_commands(file_path=drop_path)
 
     def space(self, space_name: str):
         return self.db_connect.space(space_name)
@@ -41,17 +43,17 @@ class TarantoolDB:
         return commands
 
     def drop_database(self):
-        from planetmint.backend.tarantool.utils import run
+        from planetmint.backend.tarantool.utils import run2
         db_config = Config().get()["database"]
         # drop_config = db_config["drop_config"]
         # f_path = "%s%s" % (drop_config["relative_path"], drop_config["drop_file"])
         # commands = self.__read_commands(file_path=f_path)
-        run(commands=self.drop_commands, config=db_config)
+        run2(commands=self.drop_path, config=db_config)
 
     def init_database(self):
-        from planetmint.backend.tarantool.utils import run
+        from planetmint.backend.tarantool.utils import run2
         db_config = Config().get()["database"]
         # init_config = db_config["init_config"]
         # f_path = "%s%s" % (init_config["relative_path"], init_config["init_file"])
         # commands = self.__read_commands(file_path=f_path)
-        run(commands=self.init_commands, config=db_config)
+        run2(commands=self.init_path, config=db_config)

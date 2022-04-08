@@ -275,7 +275,8 @@ def test_run_recover(b, alice, bob):
                              asset={'cycle': 'hero'},
                              metadata={'name': 'hohenheim'}) \
                      .sign([bob.private_key])
-
+    print( tx1.id)
+    print( tx2.id)
     # store the transactions
     b.store_bulk_transactions([tx1, tx2])
 

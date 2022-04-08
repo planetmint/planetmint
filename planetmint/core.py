@@ -44,7 +44,8 @@ class App(BaseApplication):
         self.validators = None
         self.new_height = None
         self.chain = self.planetmint.get_latest_abci_chain()
-
+        print( f"chain: {self.chain}")
+        
     def log_abci_migration_error(self, chain_id, validators):
         logger.error('An ABCI chain migration is in process. '
                      'Download the new ABCI client and configure it with '
@@ -65,6 +66,7 @@ class App(BaseApplication):
         height = 0
 
         known_chain = self.planetmint.get_latest_abci_chain()
+        print( f" known_chain: {known_chain}")
         if known_chain is not None:
             chain_id = known_chain['chain_id']
 

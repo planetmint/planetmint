@@ -326,6 +326,7 @@ def dummy_db(request):
     if xdist_suffix:
         dbname = '{}_{}'.format(dbname, xdist_suffix)
 
+    
     _drop_db(conn, dbname)  # make sure we start with a clean DB
     schema.init_database(conn, dbname)
     yield dbname
@@ -335,6 +336,7 @@ def dummy_db(request):
 
 def _drop_db(conn, dbname):
     try:
+        conn.drop_database()
         schema.drop_database(conn, dbname)
     except DatabaseDoesNotExist:
         pass
