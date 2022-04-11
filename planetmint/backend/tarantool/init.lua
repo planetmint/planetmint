@@ -1,12 +1,12 @@
 abci_chains = box.schema.space.create('abci_chains',{engine = 'memtx' , is_sync = false})
 abci_chains:format({{name='height' , type='integer'},{name='is_synched' , type='boolean'},{name='chain_id',type='string'}})
 abci_chains:create_index('id_search' ,{type='hash', parts={'chain_id'}})
-abci_chains:create_index('heikeysght_search' ,{type='tree',unique=false, parts={'height'}})
+abci_chains:create_index('height_search' ,{type='tree',unique=false, parts={'height'}})
 
 assets = box.schema.space.create('assets' , {engine='memtx' , is_sync=false})
-assets:format({{name='asset_id', type='string'}, {name='data' , type='any'}, {name='tx_id', type='string'}})
-assets:create_index('assetid_search', {type='hash', parts={'asset_id'}})
+assets:format({{name='data' , type='any'}, {name='tx_id', type='string'}, {name='asset_id', type='string'}})
 assets:create_index('txid_search', {type='hash', parts={'tx_id'}})
+assets:create_index('assetid_search', {type='tree',unique=false, parts={'asset_id', 'tx_id'}})
 
 blocks = box.schema.space.create('blocks' , {engine='memtx' , is_sync=false})
 blocks:format{{name='app_hash',type='string'},{name='height' , type='integer'},{name='block_id' , type='string'}}
@@ -40,12 +40,9 @@ validators:create_index('id_search' , {type='hash' , parts={'validator_id'}})
 validators:create_index('height_search' , {type='tree', unique=true, parts={'height'}})
 
 transactions = box.schema.space.create('transactions',{engine='memtx' , is_sync=false})
-transactions:format({{name='transaction_id' , type='string'}, {name='operation' , type='string'}, {name='version' ,type='string'}, {name='asset_id', type='string'}, {name='dict_map', type='any'}})
+transactions:format({{name='transaction_id' , type='string'}, {name='operation' , type='string'}, {name='version' ,type='string'}, {name='dict_map', type='any'}})
 transactions:create_index('id_search' , {type = 'hash' , parts={'transaction_id'}})
-transactions:create_index('only_asset_search', {type = 'tree', unique=false, parts={'asset_id'}})
-transactions:create_index('asset_search' , {type = 'tree',unique=false, parts={'operation', 'asset_id'}})
 transactions:create_index('transaction_search' , {type = 'tree',unique=false, parts={'operation', 'transaction_id'}})
-transactions:create_index('both_search' , {type = 'tree',unique=false, parts={'asset_id', 'transaction_id'}})
 
 inputs = box.schema.space.create('inputs')
 inputs:format({{name='transaction_id' , type='string'}, {name='fulfillment' , type='any'}, {name='owners_before' , type='array'}, {name='fulfills_transaction_id', type = 'string'}, {name='fulfills_output_index', type = 'string'}, {name='input_id', type='string'}, {name='input_index', type='number'}})

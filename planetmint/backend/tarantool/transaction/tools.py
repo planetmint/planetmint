@@ -55,8 +55,8 @@ class TransactionDecompose:
         _asset = self._transaction.get("asset")
         if _asset is None:
             return
-
-        self._tuple_transaction["asset"] = (_asset, self._transaction["id"])
+        asset_id = _asset["id"] if _asset.get("id") is not None else self._transaction["id"]
+        self._tuple_transaction["asset"] = (_asset, self._transaction["id"], asset_id)
 
     def __prepare_inputs(self):
         _inputs = []
@@ -139,7 +139,10 @@ class TransactionCompose:
         return self.db_results["transaction"][0]
 
     def _get_asset(self):
-        return None
+        _asset = self.db_results["asset"]
+        if len(_asset) == 0:
+            return None
+        return _asset[0]
 
     def _get_metadata(self):
         return self.db_results["metadata"][0][1] if len(self.db_results["metadata"]) == 1 else None
