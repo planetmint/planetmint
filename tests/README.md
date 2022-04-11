@@ -20,6 +20,6 @@ Note: There are acceptance tests in the `acceptance/` folder (at the same level 
 
 In order to debug unit tests create a virtual environment and install all necessary dependencies. VS Code should notify you that a new virtual environment is detected and ask if you want to use it as environment (more info: [Getting started with Python in VS Code](https://code.visualstudio.com/docs/python/python-tutorial)).
 
-Configure the tests in VS Code by goint to the `Testing` tab and click `Confiugre Python Tests` and select `pytest`. VS Code should now detect all test cases inside of `tests`. Click `Debug Tests` to run the tests with the debugger attached. (more info: [Python testing in VS Code](https://code.visualstudio.com/docs/python/testing))
+Configure the tests in VS Code by going to the `Testing` tab and click `Confiugre Python Tests` and select `pytest`. VS Code should now detect all test cases inside of `tests`. Click `Debug Tests` to run the tests with the debugger attached. (more info: [Python testing in VS Code](https://code.visualstudio.com/docs/python/testing))
 
 Note: `pip install .` will not automatically install the test dependencies. If missing install them manually.
