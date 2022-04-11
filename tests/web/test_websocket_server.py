@@ -94,7 +94,7 @@ async def test_bridge_sync_async_queue(loop):
 def test_start_creates_an_event_loop(queue_mock, get_event_loop_mock,
                                      init_app_mock, run_app_mock,
                                      thread_mock):
-    from planetmint import config
+    from planetmint.config import Config
     from planetmint.web.websocket_server import start, _multiprocessing_to_asyncio
 
     start(None)
@@ -136,7 +136,7 @@ async def test_websocket_string_event(test_client, loop):
     await event_source.put(POISON_PILL)
 
 
-async def test_websocket_block_event(b, test_client, loop):
+async def test_websocket_block_event( test_client, loop):
     from planetmint import events
     from planetmint.web.websocket_server import init_app, POISON_PILL, EVENTS_ENDPOINT
     from planetmint.models import Transaction
