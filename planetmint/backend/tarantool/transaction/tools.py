@@ -139,10 +139,9 @@ class TransactionCompose:
         return self.db_results["transaction"][0]
 
     def _get_asset(self):
-        _asset = self.db_results["asset"]
-        if len(_asset) == 0:
-            return None
-        return _asset[0]
+        _asset = iter(self.db_results["asset"])
+        return next(iter(next(_asset, iter([]))), None)
+        # return next(iter(_asset), None)
 
     def _get_metadata(self):
         return self.db_results["metadata"][0][1] if len(self.db_results["metadata"]) == 1 else None
