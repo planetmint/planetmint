@@ -16,6 +16,8 @@ class TarantoolDB:
         self.host = host
         self.port = port
         # TODO add user support later on
+        print( f"host : {host}")
+        print( f"port : {port}")
         #self.db_connect = tarantool.connect(host=host, port=port, user=user, password=password)
         self.db_connect = tarantool.connect(host=self.host , port=self.port)
         self.init_path = Config().get()["database"]["init_config"]["absolute_path"]
@@ -32,20 +34,22 @@ class TarantoolDB:
 
     def drop_database(self):
         db_config = Config().get()["database"]
-        self.run_cmd(commands=self.drop_path, config=db_config)
+        self.run_command(command=self.drop_path, config=db_config)
 
     def init_database(self):
         db_config = Config().get()["database"]
-        self.run_cmd(commands=self.init_path, config=db_config)
 
-    def run_cmd(commands: list, config: dict):
+        self.run_command(command=self.init_path, config=db_config)
+
+    def run_command(self, command: str, config: dict):
         import subprocess
-        
+        print( f" commands: {command}")
         ret = subprocess.Popen(
-            ['%s %s:%s < %s' % ("tarantoolctl connect", "localhost", "3303", "planetmint/backend/tarantool/init.lua")],
+            ['%s %s:%s < %s' % ("tarantoolctl connect", "localhost", "3303", command)],
             stdin=subprocess.PIPE,
             stdout=subprocess.PIPE,
             universal_newlines=True,
             bufsize=0,
             shell=True)
-        return True if ret >= 0 else False
+        # TODO verify if subprocess creation worked properly
+        return True #if ret > 0 else False
