@@ -26,6 +26,9 @@ class TarantoolDB:
         if reset_database:
             self.drop_database()
             self.init_database()
+        self.SPACE_NAMES = ["abci_chains", "assets", "blocks", "blocks_tx",
+                            "elections", "meta_data", "pre_commits", "validators",
+                            "transactions", "inputs", "outputs", "keys"]
 
     def space(self, space_name: str):
         return self.db_connect.space(space_name)
@@ -35,12 +38,12 @@ class TarantoolDB:
 
     def drop_database(self):
         db_config = Config().get()["database"]
-        self.run_command(command=self.drop_path, config=db_config)
+        return self.run_command(command=self.drop_path, config=db_config)
 
     def init_database(self):
         db_config = Config().get()["database"]
 
-        self.run_command(command=self.init_path, config=db_config)
+        return self.run_command(command=self.init_path, config=db_config)
 
     def run_command(self, command: str, config: dict):
         import subprocess
@@ -51,6 +54,6 @@ class TarantoolDB:
             stdout=subprocess.PIPE,
             universal_newlines=True,
             bufsize=0,
-            shell=True)
+            shell=True).stdout.readlines()
         # TODO verify if subprocess creation worked properly
-        return True  # if ret > 0 else False
+        return True if "nil value" not in ret else False
