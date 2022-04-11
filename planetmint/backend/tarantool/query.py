@@ -115,13 +115,13 @@ def get_metadata(connection, transaction_ids: list):
 @register_query(TarantoolDB)
 # asset: {"id": "asset_id"}
 # asset: {"data": any} -> insert (tx_id, asset["data"]).
-def store_asset(connection, asset: dict, tx_id=None):  # TODO convert to str all asset["id"]
+def store_asset(connection, asset: dict, tx_id=None):
     space = connection.space("assets")
     try:
         if tx_id is not None:
-            space.insert((asset, tx_id))
+            space.insert((asset, tx_id, tx_id))
         else:
-            space.insert((str(asset["id"]), asset))
+            space.insert((asset, str(asset["id"]), str(asset["id"])))  # TODO Review this function
     except:  # TODO Add Raise For Duplicate
         print("DUPLICATE ERROR")
 
@@ -150,10 +150,12 @@ def get_assets(connection, assets_ids: list) -> list:
     space = connection.space("assets")
     for _id in list(set(assets_ids)):
         asset = space.select(str(_id), index="txid_search")
+        if len(asset) == 0:
+            continue
         asset = asset.data[0]
         _returned_data.append(asset[0])
-    # return sorted(_returned_data, key=lambda k: k["id"], reverse=False)
-    return _returned_data
+
+    return sorted(_returned_data, key=lambda k: k["id"], reverse=False)
 
 
 @register_query(TarantoolDB)
@@ -195,21 +197,28 @@ def get_txids_filtered(connection, asset_id: str, operation: str = None,
     actions = {
         "CREATE": {"sets": ["CREATE", asset_id], "index": "transaction_search"},
         # 1 - operation, 2 - id (only in transactions) +
-        "TRANSFER": {"sets": ["TRANSFER", asset_id], "index": "asset_search"},
+        "TRANSFER": {"sets": ["TRANSFER", asset_id], "index": "transaction_search"},
         # 1 - operation, 2 - asset.id (linked mode) + OPERATOR OR
         None: {"sets": [asset_id, asset_id]}
     }[operation]
-    space = connection.space("transactions")
-    if actions["sets"][0] == "CREATE":
-        _transactions = space.select([operation, asset_id], index=actions["index"])
+    tx_space = connection.space("transactions")
+    assets_space = connection.space("assets")
+    _transactions = []
+    if actions["sets"][0] == "CREATE":  # +
+        _transactions = tx_space.select([operation, asset_id], index=actions["index"])
         _transactions = _transactions.data
-    elif actions["sets"][0] == "TRANSFER":
-        _transactions = space.select([operation, asset_id], index=actions["index"])
-        _transactions = _transactions.data
+    elif actions["sets"][0] == "TRANSFER":  # +
+        _assets = assets_space.select([asset_id], index="only_asset_search").data
+        for asset in _assets:
+            _txid = asset[1]
+            _transactions = tx_space.select([operation, _txid], index=actions["index"]).data
+            if len(_transactions) != 0:
+                break
     else:
-        _tx_ids = space.select([asset_id], index="id_search")
-        _assets_ids = space.select([asset_id], index="only_asset_search")
-        return tuple(set([sublist[0] for sublist in _assets_ids.data] + [sublist[0] for sublist in _tx_ids.data]))
+        _tx_ids = tx_space.select([asset_id], index="id_search")
+        # _assets_ids = tx_space.select([asset_id], index="only_asset_search")
+        _assets_ids = assets_space.select([asset_id], index="only_asset_search")
+        return tuple(set([sublist[1] for sublist in _assets_ids.data] + [sublist[0] for sublist in _tx_ids.data]))
 
     if last_tx:
         return tuple(next(iter(_transactions)))

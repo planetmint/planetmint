@@ -127,7 +127,7 @@ class TransactionCompose:
 
     def __init__(self, db_results):
         self.db_results = db_results
-        self._map = self.db_results["transaction"][4]
+        self._map = self.db_results["transaction"][3]
 
     def _get_transaction_operation(self):
         return self.db_results["transaction"][1]

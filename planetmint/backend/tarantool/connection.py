@@ -10,16 +10,17 @@ from planetmint.config import Config
 
 logger = logging.getLogger(__name__)
 
+
 class TarantoolDB:
     def __init__(self, host: str = None, port: int = None, user: str = None, password: str = None,
                  reset_database: bool = False):
         self.host = host
         self.port = port
         # TODO add user support later on
-        print( f"host : {host}")
-        print( f"port : {port}")
-        #self.db_connect = tarantool.connect(host=host, port=port, user=user, password=password)
-        self.db_connect = tarantool.connect(host=self.host , port=self.port)
+        print(f"host : {host}")
+        print(f"port : {port}")
+        # self.db_connect = tarantool.connect(host=host, port=port, user=user, password=password)
+        self.db_connect = tarantool.connect(host=self.host, port=self.port)
         self.init_path = Config().get()["database"]["init_config"]["absolute_path"]
         self.drop_path = Config().get()["database"]["drop_config"]["absolute_path"]
         if reset_database:
@@ -43,7 +44,7 @@ class TarantoolDB:
 
     def run_command(self, command: str, config: dict):
         import subprocess
-        print( f" commands: {command}")
+        print(f" commands: {command}")
         ret = subprocess.Popen(
             ['%s %s:%s < %s' % ("tarantoolctl connect", "localhost", "3303", command)],
             stdin=subprocess.PIPE,
@@ -52,4 +53,4 @@ class TarantoolDB:
             bufsize=0,
             shell=True)
         # TODO verify if subprocess creation worked properly
-        return True #if ret > 0 else False
+        return True  # if ret > 0 else False

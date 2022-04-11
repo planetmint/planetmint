@@ -7,6 +7,7 @@ assets = box.schema.space.create('assets' , {engine='memtx' , is_sync=false})
 assets:format({{name='data' , type='any'}, {name='tx_id', type='string'}, {name='asset_id', type='string'}})
 assets:create_index('txid_search', {type='hash', parts={'tx_id'}})
 assets:create_index('assetid_search', {type='tree',unique=false, parts={'asset_id', 'tx_id'}})
+assets:create_index('only_asset_search', {type='tree', unique=false, parts={'asset_id'}})
 
 blocks = box.schema.space.create('blocks' , {engine='memtx' , is_sync=false})
 blocks:format{{name='app_hash',type='string'},{name='height' , type='integer'},{name='block_id' , type='string'}}
