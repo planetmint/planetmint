@@ -9,7 +9,7 @@ import logging
 
 from flask import jsonify, request
 
-from planetmint import config
+from planetmint.config import Config
 
 
 logger = logging.getLogger(__name__)
@@ -37,7 +37,7 @@ def base_ws_uri():
     customized (typically when running behind NAT, firewall, etc.)
     """
 
-    config_wsserver = config['wsserver']
+    config_wsserver = Config().get()['wsserver']
 
     scheme = config_wsserver['advertised_scheme']
     host = config_wsserver['advertised_host']
