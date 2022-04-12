@@ -8,13 +8,12 @@ from argparse import Namespace
 import logging
 
 import pytest
-
+from planetmint.config import Config
 from unittest.mock import patch
 
 
 @pytest.fixture
 def reset_planetmint_config(monkeypatch):
-    from planetmint.config import Config
     monkeypatch.setattr('planetmint.config', Config().init_config('tarantool_db'))
 
 
@@ -85,8 +84,8 @@ def test_configure_planetmint_logging(log_level):
 
     args = Namespace(config=None, log_level=log_level)
     test_configure_logger(args)
-    assert config['log']['level_console'] == log_level
-    assert config['log']['level_logfile'] == log_level
+    assert Config().get()['log']['level_console'] == log_level
+    assert Config().get()['log']['level_logfile'] == log_level
 
 
 def test_start_raises_if_command_not_implemented():
