@@ -1208,6 +1208,11 @@ class Transaction(object):
         operation = tx.get('operation', Transaction.CREATE) if isinstance(tx, dict) else Transaction.CREATE
         cls = Transaction.resolve_class(operation)
         
+        id = None
+        try:
+            id = tx['id']
+        except KeyError:
+            id = None
         
         local_dict= {
             'inputs': tx['inputs'],
@@ -1216,7 +1221,7 @@ class Transaction(object):
             'metadata': tx['metadata'],
             'asset': tx['asset'],
             'version': tx['version'],
-            'id': tx['id']
+            'id': id
         }
         
         print( f" Schema validation {tx}")
