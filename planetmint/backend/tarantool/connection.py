@@ -4,6 +4,7 @@
 # Code is Apache-2.0 and docs are CC-BY-4.0
 
 import logging
+from jsonschema import SchemaError
 import tarantool
 
 from planetmint.config import Config
@@ -31,7 +32,10 @@ class TarantoolDB:
                             "transactions", "inputs", "outputs", "keys"]
 
     def space(self, space_name: str):
-        return self.db_connect.space(space_name)
+        try:
+            return self.db_connect.space(space_name)
+        except tarantool.error.SchemaError:
+            return None
 
     def get_connection(self):
         return self.db_connect
