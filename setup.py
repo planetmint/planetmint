@@ -24,6 +24,7 @@ version = {}
 with open('planetmint/version.py') as fp:
     exec(fp.read(), version)
 
+
 def check_setuptools_features():
     """Check if setuptools is up to date."""
     import pkg_resources
@@ -57,20 +58,20 @@ docs_require = [
 ]
 
 tests_require = [
-    'coverage',
-    'pep8',
-    'flake8',
-    'flake8-quotes==0.8.1',
-    'hypothesis>=5.3.0',
-    'pytest>=3.0.0',
-    'pytest-cov==2.8.1',
-    'pytest-mock',
-    'pytest-xdist',
-    'pytest-flask',
-    'pytest-aiohttp',
-    'pytest-asyncio',
-    'tox',
-] + docs_require
+                    'coverage',
+                    'pep8',
+                    'flake8',
+                    'flake8-quotes==0.8.1',
+                    'hypothesis>=5.3.0',
+                    'pytest>=3.0.0',
+                    'pytest-cov==2.8.1',
+                    'pytest-mock',
+                    'pytest-xdist',
+                    'pytest-flask',
+                    'pytest-aiohttp',
+                    'pytest-asyncio',
+                    'tox',
+                ] + docs_require
 
 install_requires = [
     'chardet==3.0.4',
@@ -139,5 +140,5 @@ setup(
         'docs': docs_require,
     },
     package_data={'planetmint.common.schema': ['*.yaml'],
-        'planetmint.backend.tarantool': ['*.lua']}
+                  'planetmint.backend.tarantool': ['*.lua']}
 )

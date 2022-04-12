@@ -28,10 +28,9 @@ def _check_spaces_by_list(conn, space_names):
 def test_create_tables():
     conn = TarantoolDB('localhost', 3303)
     # The db is set up by the fixtures so we need to remove it
-    conn.drop_database()
+    # conn.drop_database()
     conn.init_database()
 
-    # TODO verify spaces
     assert conn.SPACE_NAMES == _check_spaces_by_list(conn=conn, space_names=conn.SPACE_NAMES)
 
 

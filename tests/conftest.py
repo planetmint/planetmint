@@ -316,22 +316,22 @@ def inputs(user_pk, b, alice):
         b.store_bulk_transactions(transactions)
 
 
-@pytest.fixture
-def dummy_db(request):
-    from planetmint.backend import Connection
-
-    conn = Connection()
-    dbname = request.fixturename
-    xdist_suffix = getattr(request.config, 'slaveinput', {}).get('slaveid')
-    if xdist_suffix:
-        dbname = '{}_{}'.format(dbname, xdist_suffix)
-
-    
-    _drop_db(conn, dbname)  # make sure we start with a clean DB
-    schema.init_database(conn, dbname)
-    yield dbname
-
-    _drop_db(conn, dbname)
+# @pytest.fixture
+# def dummy_db(request):
+#     from planetmint.backend import Connection
+#
+#     conn = Connection()
+#     dbname = request.fixturename
+#     xdist_suffix = getattr(request.config, 'slaveinput', {}).get('slaveid')
+#     if xdist_suffix:
+#         dbname = '{}_{}'.format(dbname, xdist_suffix)
+#
+#
+#     _drop_db(conn, dbname)  # make sure we start with a clean DB
+#     schema.init_database(conn, dbname)
+#     yield dbname
+#
+#     _drop_db(conn, dbname)
 
 
 def _drop_db(conn, dbname):
