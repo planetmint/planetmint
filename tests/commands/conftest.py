@@ -4,9 +4,9 @@
 # Code is Apache-2.0 and docs are CC-BY-4.0
 
 from argparse import Namespace
-
 import pytest
 
+from planetmint.config import Config
 
 @pytest.fixture
 def mock_run_configure(monkeypatch):
@@ -39,10 +39,11 @@ def mock_generate_key_pair(monkeypatch):
 
 @pytest.fixture
 def mock_planetmint_backup_config(monkeypatch):
-    config = {
-        'database': {'host': 'host', 'port': 12345, 'name': 'adbname'},
-    }
-    monkeypatch.setattr('planetmint._config', config)
+    _config = Config().get()
+    _config['database']['host']='host'
+    _config['database']['port']=12345
+    _config['database']['name']='adbname'
+    Config().set( _config )
 
 
 @pytest.fixture

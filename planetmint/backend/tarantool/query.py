@@ -360,6 +360,8 @@ def delete_transactions(connection, txn_ids: list):
 @register_query(TarantoolDB)
 def store_pre_commit_state(connection, state: dict):
     space = connection.space("pre_commits")
+    if not space:
+        return {}
     _precommit = space.select(state["height"], index="height_search", limit=1)
     unique_id = token_hex(8) if (len(_precommit.data) == 0) else _precommit.data[0][0]
     space.upsert((unique_id, state["height"], state["transactions"]),
@@ -453,7 +455,7 @@ def get_election(connection, election_id: str):
 def get_asset_tokens_for_public_key(connection, asset_id: str, public_key: str):
     space = connection.space("keys")
     _keys = space.select([public_key], index="keys_search")
-    space = connection.space("transactions")
+    space = connection.space("assets")
     _transactions = space.select([asset_id], index="only_asset_search")
     _transactions = _transactions.data
     _keys = _keys.data
