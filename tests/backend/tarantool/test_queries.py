@@ -75,15 +75,15 @@ def test_get_assets(db_conn):
     # conn = Connection().get_connection()
     conn = db_conn.get_connection()
     assets = [
-        {'id': "1", 'data': '1'},
-        {'id': "2", 'data': '2'},
-        {'id': "3", 'data': '3'},
+        ("1",  '1', '1'),
+        ("2", '2', '2'),
+        ("3", '3', '3'),
     ]
 
     query.store_assets(assets=assets, connection=conn)
 
     for asset in assets:
-        assert query.get_asset(asset_id=asset['id'], connection=conn)
+        assert query.get_asset(asset_id=asset[2], connection=conn)
 
 
 @pytest.mark.parametrize('table', ['assets', 'metadata'])

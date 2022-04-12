@@ -139,7 +139,9 @@ class TransactionCompose:
         return self.db_results["transaction"][0]
 
     def _get_asset(self):
+        print( f" asset : {self.db_results}" )
         _asset = iter(self.db_results["asset"])
+        #return _asset
         return next(iter(next(_asset, iter([]))), None)
 
     def _get_metadata(self):

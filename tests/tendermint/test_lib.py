@@ -186,7 +186,7 @@ def test_store_transaction(mocker, b, signed_create_tx,
 
     mocked_store_asset.assert_called_once_with(
         b.connection,
-        [{'id': signed_create_tx.id, 'data': signed_create_tx.asset['data']}],
+        [{'data': signed_create_tx.asset['data'], 'tx_id': signed_create_tx.id, 'asset_id': signed_create_tx.id}]
     )
     mocked_store_metadata.assert_called_once_with(
         b.connection,
@@ -235,7 +235,7 @@ def test_store_bulk_transaction(mocker, b, signed_create_tx,
     # assert utxo['output_index'] == 0
     mocked_store_assets.assert_called_once_with(
         b.connection,
-        [{'id': signed_create_tx.id, 'data': signed_create_tx.asset['data']}],
+        [ ( signed_create_tx.asset['data'], signed_create_tx.id, signed_create_tx.id )],
     )
     mocked_store_metadata.assert_called_once_with(
         b.connection,

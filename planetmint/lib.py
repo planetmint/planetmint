@@ -134,19 +134,23 @@ class Planetmint(object):
         txn_metadatas = []
         for t in transactions:
             transaction = t.tx_dict if t.tx_dict else rapidjson.loads(rapidjson.dumps(t.to_dict()))
-            if transaction['operation'] == t.CREATE:
-                asset = transaction.pop('asset')
-                asset['id'] = transaction['id']
-                assets.append(asset)
+            print(f"transaction {transaction}")
 
+            asset = transaction.pop('asset')
+            asset_id = transaction['id']
+            if transaction['operation'] != t.CREATE:
+                 asset_id = asset['id']
+            assets.append( (asset, 
+                            transaction['id'], 
+                            asset_id))
+            
             metadata = transaction.pop('metadata')
             txn_metadatas.append({'id': transaction['id'],
                                   'metadata': metadata})
             txns.append(transaction)
 
         backend.query.store_metadatas(self.connection, txn_metadatas)
-        if assets:
-            backend.query.store_assets(self.connection, assets)
+        backend.query.store_assets(self.connection, assets)
         return backend.query.store_transactions(self.connection, txns)
 
     def delete_transactions(self, txs):
@@ -243,20 +247,21 @@ class Planetmint(object):
     def get_transaction(self, transaction_id):
         transaction = backend.query.get_transaction(self.connection, transaction_id)
 
-        if transaction:
-            asset = backend.query.get_asset(self.connection, transaction_id)
-            metadata = backend.query.get_metadata(self.connection, [transaction_id])
-            if asset:
-                transaction['asset'] = asset
-
-            if 'metadata' not in transaction:
-                metadata = metadata[0] if metadata else None
-                if metadata:
-                    metadata = metadata.get('metadata')
-
-                transaction.update({'metadata': metadata})
-
-            transaction = Transaction.from_dict(transaction)
+        #if transaction:
+        #    asset = backend.query.get_asset(self.connection, transaction_id)
+        #    metadata = backend.query.get_metadata(self.connection, [transaction_id])
+        #    if asset:
+        #        transaction['asset'] = asset
+#
+        #    if 'metadata' not in transaction:
+        #        metadata = metadata[0] if metadata else None
+        #        if metadata:
+        #            metadata = metadata.get('metadata')
+#
+        #        transaction.update({'metadata': metadata})
+#
+        #    transaction = Transaction.from_dict(transaction)
+        transaction = Transaction.from_dict(transaction)
 
         return transaction
 

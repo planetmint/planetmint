@@ -15,8 +15,9 @@ def txlist(b, user_pk, user2_pk, user_sk, user2_sk):
     from planetmint.models import Transaction
 
     # Create two CREATE transactions
-    create1 = Transaction.create([user_pk], [([user2_pk], 6)]) \
-        .sign([user_sk])
+    create1 = Transaction.create([user_pk], [([user2_pk], 6)])
+    print(f"tx1: {create1}")
+    create1 = create1.sign([user_sk])
 
     create2 = Transaction.create([user2_pk],
                                  [([user2_pk], 5), ([user_pk], 5)]) \
@@ -27,6 +28,9 @@ def txlist(b, user_pk, user2_pk, user_sk, user2_sk):
                                      [([user_pk], 8)],
                                      create1.id).sign([user2_sk])
 
+    print(f"tx1: {create1}")
+    print(f"tx2: {create2}")
+    print(f"tx3: {transfer1}")
     b.store_bulk_transactions([create1, create2, transfer1])
 
     return type('', (), {

@@ -80,6 +80,7 @@ def store_transactions(connection, signed_transactions: list):
             metadatasxspace.insert(txtuples["metadata"])
 
         if txtuples["asset"] is not None:
+            print(f" ASSET  : {txtuples['asset']}")
             assetsxspace.insert(txtuples["asset"])
 
 
@@ -115,13 +116,16 @@ def get_metadata(connection, transaction_ids: list):
 @register_query(TarantoolDB)
 # asset: {"id": "asset_id"}
 # asset: {"data": any} -> insert (tx_id, asset["data"]).
-def store_asset(connection, asset: dict, tx_id=None):
+#def store_asset(connection, asset: dict, tx_id=None):
+def store_asset(connection, asset: dict):
     space = connection.space("assets")
+    print(f"DATA  store asset: {asset}")
     try:
-        if tx_id is not None:
-            space.insert((asset, tx_id, tx_id))
-        else:
-            space.insert((asset, str(asset["id"]), str(asset["id"])))  # TODO Review this function
+        space.insert( asset )
+        #if tx_id is not None:
+        #    space.insert((asset, tx_id, tx_id))
+        #else:
+        #    space.insert((asset, str(asset["id"]), str(asset["id"])))  # TODO Review this function
     except:  # TODO Add Raise For Duplicate
         print("DUPLICATE ERROR")
 
@@ -131,29 +135,34 @@ def store_assets(connection, assets: list):
     space = connection.space("assets")
     for asset in assets:
         try:
-            space.insert((asset, asset["id"]))
-        except:  # TODO Raise ERROR for Duplicate
-            pass
+            print(f"DATA store assets: {asset}")
+            space.insert( asset )
+        except :  # TODO Raise ERROR for Duplicate
+            print( f"EXCEPTION : ")
 
 
 @register_query(TarantoolDB)
 def get_asset(connection, asset_id: str):
     space = connection.space("assets")
     _data = space.select(asset_id, index="txid_search")
+    data1 =  _data
     _data = _data.data
-    return _data[0][1] if len(_data) == 1 else []
+    print(f"DATA : {data1}")
+    return _data[0] if len(_data) == 1 else []
 
 
 @register_query(TarantoolDB)
 def get_assets(connection, assets_ids: list) -> list:
     _returned_data = []
-    space = connection.space("assets")
+#    space = connection.space("assets")
     for _id in list(set(assets_ids)):
-        asset = space.select(str(_id), index="txid_search")
-        if len(asset) == 0:
-            continue
-        asset = asset.data[0]
-        _returned_data.append(asset[0])
+#        asset = space.select(str(_id), index="txid_search")
+#        print(f"DATA : {asset}")
+#        if len(asset) == 0:
+#            continue
+#        asset = asset.data[0]
+        asset = get_asset(connection, _id)
+        _returned_data.append(asset)
 
     return sorted(_returned_data, key=lambda k: k["id"], reverse=False)
 
