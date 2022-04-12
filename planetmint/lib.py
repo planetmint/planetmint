@@ -244,10 +244,13 @@ class Planetmint(object):
         # NOTE: Read up on localmongodb setup and how the connection calls are actually loaded => implementation shows NotImplementError
 
         if transaction:
-            asset = backend.query.get_asset(self.connection, transaction_id)
+            # asset = backend.query.get_asset(self.connection, transaction_id)
+            assets = backend.query.get_assets(self.connection, [transaction_id])
             metadata = backend.query.get_metadata(self.connection, [transaction_id])
-            if asset:
-                transaction['assets'] = asset
+            if assets:
+                # NOTE: THIS IS A HACK TO SEE IF THE TX HASH IS CORRECT FOR TESTS, NEEDS TO BE REPLACED AFTER backend.query.get_assets_for_tx is finished
+                # transaction['assets'] = [asset]
+                transaction['assets'] = assets
 
             if 'metadata' not in transaction:
                 metadata = metadata[0] if metadata else None

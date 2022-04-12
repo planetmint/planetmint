@@ -89,7 +89,7 @@ def get_transactions(connection, transaction_ids):
 
 @singledispatch
 def get_asset(connection, asset_id):
-    """Get a transaction from the transactions table.
+    """Get an asset from the assets table.
 
     Args:
         asset_id (str): the id of the asset
@@ -100,6 +100,18 @@ def get_asset(connection, asset_id):
 
     raise NotImplementedError
 
+@singledispatch
+def get_assets(connection, asset_ids):
+    """Get assets from the assets table.
+
+    Args:
+        asset_ids (list): list of asset ids to fetch
+
+    Returns:
+        The result of the operation.
+    """
+
+    raise NotImplementedError
 
 @singledispatch
 def get_spent(connection, transaction_id, condition_id):
