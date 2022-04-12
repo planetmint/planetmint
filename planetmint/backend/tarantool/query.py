@@ -145,26 +145,17 @@ def store_assets(connection, assets: list):
 def get_asset(connection, asset_id: str):
     space = connection.space("assets")
     _data = space.select(asset_id, index="txid_search")
-    data1 =  _data
     _data = _data.data
-    print(f"DATA : {data1}")
-    return _data[0] if len(_data) == 1 else []
+    return _data[0] if len(_data) > 0 else []
 
 
 @register_query(TarantoolDB)
 def get_assets(connection, assets_ids: list) -> list:
     _returned_data = []
-#    space = connection.space("assets")
     for _id in list(set(assets_ids)):
-#        asset = space.select(str(_id), index="txid_search")
-#        print(f"DATA : {asset}")
-#        if len(asset) == 0:
-#            continue
-#        asset = asset.data[0]
         asset = get_asset(connection, _id)
-        _returned_data.append(asset)
-
-    return sorted(_returned_data, key=lambda k: k["id"], reverse=False)
+        _returned_data.append(tuple(asset))
+    return sorted(_returned_data, key=lambda k: k[0]["id"], reverse=False)
 
 
 @register_query(TarantoolDB)
