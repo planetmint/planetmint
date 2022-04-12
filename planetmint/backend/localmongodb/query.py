@@ -87,7 +87,7 @@ def get_assets(conn, asset_ids):
     return conn.run(
         conn.collection('assets')
         .find({'id': {'$in': asset_ids}},
-              projection={'_id': False}))
+              projection={'_id': False, 'id': False}))
 
 
 @register_query(LocalMongoDBConnection)
