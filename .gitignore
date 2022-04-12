@@ -97,3 +97,5 @@ network/*/data
 docs/contributing/source/cross-project-policies/*.md
 
 .DS_Store
+
+.vscode
