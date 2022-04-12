@@ -1,5 +1,7 @@
 import pytest
 from planetmint.backend.connection import Connection
+
+
 #
 #
 #
@@ -22,12 +24,6 @@ from planetmint.backend.connection import Connection
 #     conn.drop_database()
 #     #_drop_db(conn, dbname)
 
-#def _drop_db(conn, dbname):
-#    try:
-#        conn.drop_database()
-#        schema.drop_database(conn, dbname)
-#    except DatabaseDoesNotExist:
-#        pass
 
 @pytest.fixture
 def db_conn():
