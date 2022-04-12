@@ -48,7 +48,6 @@ def test_get_asset_id_transfer_transaction(b, signed_create_tx, user_pk):
     assert asset_ids[0] == tx_transfer.assets[0]['id']
 
 
-
 def test_create_valid_divisible_asset(b, user_pk, user_sk):
 
     tx = Create.generate([user_pk], [([user_pk], 2)])
