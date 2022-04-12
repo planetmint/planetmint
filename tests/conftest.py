@@ -32,6 +32,7 @@ from planetmint.common.exceptions import DatabaseDoesNotExist
 from planetmint.lib import Block
 from tests.utils import gen_vote
 from planetmint.config import Config
+from planetmint.upsert_validator import ValidatorElection
 
 TEST_DB_NAME = 'planetmint_test'
 
