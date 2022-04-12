@@ -250,7 +250,7 @@ class Planetmint(object):
             if assets:
                 # NOTE: THIS IS A HACK TO SEE IF THE TX HASH IS CORRECT FOR TESTS, NEEDS TO BE REPLACED AFTER backend.query.get_assets_for_tx is finished
                 # transaction['assets'] = [asset]
-                transaction['assets'] = assets
+                transaction['assets'] = list(assets)
 
             if 'metadata' not in transaction:
                 metadata = metadata[0] if metadata else None
