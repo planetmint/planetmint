@@ -112,8 +112,7 @@ def get_metadata(connection, transaction_ids: list):
     space = connection.space("meta_data")
     for _id in transaction_ids:
         metadata = space.select(_id, index="id_search")
-        print(f"METADATA : {metadata}")
-        _returned_data.append({"id": metadata.data[0][0], "metadata": metadata.data[0][1]})
+        _returned_data.append(metadata)
     return _returned_data
 
 
