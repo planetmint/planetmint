@@ -27,7 +27,7 @@ def test_make_sure_we_dont_remove_any_command():
 
     parser = create_parser()
 
-    assert parser.parse_args(['configure', 'localmongodb']).command
+    assert parser.parse_args(['configure', 'tarantool_db']).command
     assert parser.parse_args(['show-config']).command
     assert parser.parse_args(['init']).command
     assert parser.parse_args(['drop']).command
@@ -73,6 +73,8 @@ def test_bigchain_show_config(capsys):
     _, _ = capsys.readouterr()
     run_show_config(args)
     output_config = json.loads(capsys.readouterr()[0])
+    sorted_output_config = json.dumps(output_config, indent=4, sort_keys=True)
+    print( f"config : {sorted_output_config}")
     # Note: This test passed previously because we were always
     # using the default configuration parameters, but since we
     # are running with docker-compose now and expose parameters like
@@ -82,8 +84,10 @@ def test_bigchain_show_config(capsys):
     # and run_show_config updates the planetmint.config
     from planetmint.config import Config
     _config = Config().get()
-    del _config['CONFIGURED']
-    assert output_config == _config
+    sorted_config = json.dumps(_config, indent=4, sort_keys=True)
+    print( f"_config : {sorted_config}")
+    #del sorted_config['CONFIGURED']
+    assert sorted_output_config == sorted_config
 
 
 def test__run_init(mocker):
