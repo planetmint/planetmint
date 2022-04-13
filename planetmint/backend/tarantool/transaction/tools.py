@@ -77,9 +77,11 @@ class TransactionDecompose:
         _keys = []
         output_index = 0
         for _output in self._transaction["outputs"]:
+            print(f"\noutput: {_output}")
             output_id = self.__create_hash(7)
+            tmp_output = None
             if _output["condition"]["details"].get("subconditions") is None:
-                _outputs.append((self._transaction["id"],
+                tmp_output = (self._transaction["id"],
                                  _output["amount"],
                                  _output["condition"]["uri"],
                                  _output["condition"]["details"]["type"],
@@ -88,9 +90,9 @@ class TransactionDecompose:
                                  None,
                                  None,
                                  output_index
-                                 ))
+                                 )
             else:
-                _outputs.append((self._transaction["id"],
+                tmp_output = (self._transaction["id"],
                                  _output["amount"],
                                  _output["condition"]["uri"],
                                  _output["condition"]["details"]["type"],
@@ -99,7 +101,10 @@ class TransactionDecompose:
                                  _output["condition"]["details"]["threshold"],
                                  _output["condition"]["details"]["subconditions"],
                                  output_index
-                                 ))
+                                 )
+            
+            print(f"\noutput: {tmp_output}")
+            _outputs.append(tmp_output)
             output_index = output_index + 1
             for _key in _output["public_keys"]:
                 key_id = self.__create_hash(7)
@@ -159,9 +164,11 @@ class TransactionCompose:
             _inputs.append(_in)
         return _inputs
 
+
     def _get_outputs(self):
         _outputs = []
         for _output in self.db_results["outputs"]:
+            print (f"\noutput : {_output}")
             _out = self._map["outputs"].copy()
             _out["amount"] = _output[1]
             _out["public_keys"] = [_key[3] for _key in self.db_results["keys"] if _key[2] == _output[5]]
@@ -171,8 +178,9 @@ class TransactionCompose:
                 _out["condition"]["details"]["public_key"] = _output[4]
             else:
                 _out["condition"]["details"]["subconditions"] = _output[7]
-                _out["condition"]["type"] = _output[3]
-                _out["condition"]["treshold"] = _output[6]
+                _out["condition"]["details"]["type"] = _output[3]
+                _out["condition"]["details"]["threshold"] = _output[6]
+            print (f"\noutput end  : {_out}")
             _outputs.append(_out)
         return _outputs
 
