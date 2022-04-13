@@ -239,7 +239,7 @@ class Election(Transaction):
         planet.store_election(self.id, height, is_concluded)
 
     def show_election(self, planet):
-        data = self.asset['data']
+        data = self.assets[0]['data']
         if 'public_key' in data.keys():
             data['public_key'] = public_key_to_base64(data['public_key']['value'])
         response = ''
