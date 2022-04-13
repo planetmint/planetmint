@@ -35,7 +35,7 @@ class ValidatorElection(Election):
     @classmethod
     def validate_schema(cls, tx):
         super(ValidatorElection, cls).validate_schema(tx)
-        validate_asset_public_key(tx['asset']['data']['public_key'])
+        validate_asset_public_key(tx['assets'][0]['data']['public_key'])
 
     def has_concluded(self, planet, *args, **kwargs):
         latest_block = planet.get_latest_block()
@@ -51,7 +51,7 @@ class ValidatorElection(Election):
         return super().has_concluded(planet, *args, **kwargs)
 
     def on_approval(self, planet, new_height):
-        validator_updates = [self.asset['data']]
+        validator_updates = [self.assets[0]['data']]
         curr_validator_set = planet.get_validators(new_height)
         updated_validator_set = new_validator_set(curr_validator_set,
                                                   validator_updates)
@@ -61,7 +61,7 @@ class ValidatorElection(Election):
 
         # TODO change to `new_height + 2` when upgrading to Tendermint 0.24.0.
         planet.store_validator_set(new_height + 1, updated_validator_set)
-        return encode_validator(self.asset['data'])
+        return encode_validator(self.assets[0]['data'])
 
     def on_rollback(self, planetmint, new_height):
         # TODO change to `new_height + 2` when upgrading to Tendermint 0.24.0.

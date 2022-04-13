@@ -143,8 +143,8 @@ class Election(Transaction):
         uuid = uuid4()
         election_data['seed'] = str(uuid)
 
-        (inputs, outputs) = Create.validate_create(initiator, voters, election_data, metadata)
-        election = cls(cls.OPERATION, {'data': election_data}, inputs, outputs, metadata)
+        (inputs, outputs) = Create.validate_create(initiator, voters, [election_data], metadata)
+        election = cls(cls.OPERATION, [{'data': election_data}], inputs, outputs, metadata)
         cls.validate_schema(election.to_dict())
         return election
 
@@ -268,7 +268,7 @@ class Election(Transaction):
             if not isinstance(tx, Vote):
                 continue
 
-            election_id = tx.asset['id']
+            election_id = tx.assets[0]['id']
             if election_id not in elections:
                 elections[election_id] = []
             elections[election_id].append(tx)

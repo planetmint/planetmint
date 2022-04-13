@@ -40,8 +40,8 @@ class Vote(Transfer):
 
     @classmethod
     def generate(cls, inputs, recipients, election_id, metadata=None):
-        (inputs, outputs) = cls.validate_transfer(inputs, recipients, election_id, metadata)
-        election_vote = cls(cls.OPERATION, {'id': election_id}, inputs, outputs, metadata)
+        (inputs, outputs) = cls.validate_transfer(inputs, recipients, [election_id], metadata)
+        election_vote = cls(cls.OPERATION, [{'id': election_id}], inputs, outputs, metadata)
         cls.validate_schema(election_vote.to_dict())
         return election_vote
 

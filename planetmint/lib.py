@@ -239,17 +239,12 @@ class Planetmint(object):
     def get_transaction(self, transaction_id):
         transaction = backend.query.get_transaction(self.connection, transaction_id)
 
-        # TODO: adjust assets fetching for multiasset support
-        # Dirty hack backend.query.get_assets needs to be implemented
-        # NOTE: Read up on localmongodb setup and how the connection calls are actually loaded => implementation shows NotImplementError
-
         if transaction:
-            # asset = backend.query.get_asset(self.connection, transaction_id)
             assets = backend.query.get_assets(self.connection, [transaction_id])
             metadata = backend.query.get_metadata(self.connection, [transaction_id])
-            if transaction['operation'] == 'CREATE' and assets:
-                # NOTE: THIS IS A HACK TO SEE IF THE TX HASH IS CORRECT FOR TESTS, NEEDS TO BE REPLACED AFTER backend.query.get_assets_for_tx is finished
-                # transaction['assets'] = [asset]
+            # NOTE: assets must not be replaced for transfer transactions
+            # TODO: check if this holds true for other tx types
+            if transaction['operation'] != 'TRANSFER' and assets:
                 transaction['assets'] = list(assets)
 
             if 'metadata' not in transaction:
