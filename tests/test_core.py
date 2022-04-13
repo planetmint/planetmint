@@ -312,13 +312,13 @@ def test_deliver_transfer_tx__double_spend_fails(b, init_chain_request):
     bob = generate_key_pair()
     carly = generate_key_pair()
 
-    asset = {
+    assets = [{
         'msg': 'live long and prosper'
-    }
+    }]
 
     tx = Create.generate([alice.public_key],
                             [([alice.public_key], 1)],
-                            assets=asset)\
+                            assets=assets)\
                     .sign([alice.private_key])
 
     result = app.deliver_tx(encode_tx_to_bytes(tx))
@@ -382,7 +382,7 @@ def test_store_pre_commit_state_in_end_block(b, alice, init_chain_request):
 
     tx = Create.generate([alice.public_key],
                             [([alice.public_key], 1)],
-                            assets={'msg': 'live long and prosper'})\
+                            assets=[{'msg': 'live long and prosper'}])\
                     .sign([alice.private_key])
 
     app = App(b)
