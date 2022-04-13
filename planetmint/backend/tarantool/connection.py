@@ -4,7 +4,6 @@
 # Code is Apache-2.0 and docs are CC-BY-4.0
 
 import logging
-from jsonschema import SchemaError
 import tarantool
 
 from planetmint.config import Config
@@ -24,9 +23,10 @@ class TarantoolDB:
         self.db_connect = tarantool.connect(host=self.host, port=self.port)
         self.init_path = Config().get()["database"]["init_config"]["absolute_path"]
         self.drop_path = Config().get()["database"]["drop_config"]["absolute_path"]
-        # if reset_database:
-        #     self.drop_database()
-        #     self.init_database()
+        if reset_database:
+            self.drop_database()
+            self.init_database()
+            self._reconnect()
         self.SPACE_NAMES = ["abci_chains", "assets", "blocks", "blocks_tx",
                             "elections", "meta_data", "pre_commits", "validators",
                             "transactions", "inputs", "outputs", "keys"]
