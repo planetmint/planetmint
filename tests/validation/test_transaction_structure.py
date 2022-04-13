@@ -119,13 +119,13 @@ def test_transfer_asset_schema(user_sk, signed_transfer_tx):
 
 
 def test_create_tx_no_asset_id(b, create_tx, alice):
-    create_tx.asset['id'] = 'b' * 64
+    create_tx.assets[0]['id'] = 'b' * 64
     signed_tx = create_tx.sign([alice.private_key])
     validate_raises(signed_tx)
 
 
 def test_create_tx_asset_type(b, create_tx, alice):
-    create_tx.asset['data'] = 'a'
+    create_tx.assets[0]['data'] = 'a'
     signed_tx = create_tx.sign([alice.private_key])
     validate_raises(signed_tx)
 
