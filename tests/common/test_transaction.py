@@ -309,11 +309,11 @@ def test_invalid_transaction_initialization(asset_definition):
 def test_create_default_asset_on_tx_initialization(asset_definition):
     from planetmint.transactions.common.transaction import Transaction
 
-    expected = {'data': None}
+    expected = [{'data': None}]
     tx = Transaction(Transaction.CREATE, assets=expected)
-    asset = tx.asset
+    assets = tx.assets
 
-    assert asset == expected
+    assert assets == expected
 
 
 def test_transaction_serialization(user_input, user_output, data):
@@ -328,12 +328,12 @@ def test_transaction_serialization(user_input, user_output, data):
         'outputs': [user_output.to_dict()],
         'operation': Transaction.CREATE,
         'metadata': None,
-        'asset': {
+        'assets': [{
             'data': data,
-        }
+        }]
     }
 
-    tx = Transaction(Transaction.CREATE, {'data': data}, [user_input],
+    tx = Transaction(Transaction.CREATE, [{'data': data}], [user_input],
                      [user_output])
     tx_dict = tx.to_dict()
 
@@ -639,7 +639,7 @@ def test_multiple_input_validation_of_transfer_tx(user_input, user_output,
                       [user3_pub]),
                Output(Ed25519Sha256(public_key=b58decode(user3_pub)),
                       [user3_pub])]
-    transfer_tx = Transaction('TRANSFER', {'id': tx.id}, inputs, outputs)
+    transfer_tx = Transaction('TRANSFER', [{'id': tx.id}], inputs, outputs)
     transfer_tx = transfer_tx.sign([user_priv])
 
     assert transfer_tx.inputs_valid(tx.outputs) is True
@@ -676,9 +676,9 @@ def test_create_create_transaction_single_io(user_output, user_pub, data):
     expected = {
         'outputs': [user_output.to_dict()],
         'metadata': data,
-        'asset': {
+        'assets': [{
             'data': data,
-        },
+        }],
         'inputs': [
             {
                 'owners_before': [
@@ -693,7 +693,7 @@ def test_create_create_transaction_single_io(user_output, user_pub, data):
     }
 
     tx = Create.generate([user_pub], [([user_pub], 1)], metadata=data,
-                            assets=data)
+                            assets=[data])
     tx_dict = tx.to_dict()
     tx_dict['inputs'][0]['fulfillment'] = None
     tx_dict.pop('id')
@@ -732,7 +732,7 @@ def test_create_create_transaction_multiple_io(user_output, user2_output, user_p
                             [([user_pub], 1), ([user2_pub], 1)],
                             metadata={'message': 'hello'}).to_dict()
     tx.pop('id')
-    tx.pop('asset')
+    tx.pop('assets')
 
     assert tx == expected
 
@@ -759,9 +759,9 @@ def test_create_create_transaction_threshold(user_pub, user2_pub, user3_pub,
     expected = {
         'outputs': [user_user2_threshold_output.to_dict()],
         'metadata': data,
-        'asset': {
+        'assets': [{
             'data': data,
-        },
+        }],
         'inputs': [
             {
                 'owners_before': [
@@ -775,7 +775,7 @@ def test_create_create_transaction_threshold(user_pub, user2_pub, user3_pub,
         'version': Transaction.VERSION
     }
     tx = Create.generate([user_pub], [([user_pub, user2_pub], 1)],
-                            metadata=data, assets=data)
+                            metadata=data, assets=[data])
     tx_dict = tx.to_dict()
     tx_dict.pop('id')
     tx_dict['inputs'][0]['fulfillment'] = None
@@ -836,9 +836,9 @@ def test_create_transfer_transaction_single_io(tx, user_pub, user2_pub,
         'id': None,
         'outputs': [user2_output.to_dict()],
         'metadata': None,
-        'asset': {
+        'assets': [{
             'id': tx.id,
-        },
+        }],
         'inputs': [
             {
                 'owners_before': [
@@ -931,7 +931,7 @@ def test_create_transfer_transaction_multiple_io(user_pub, user_priv,
     transfer_tx = transfer_tx.to_dict()
     transfer_tx['inputs'][0]['fulfillment'] = None
     transfer_tx['inputs'][1]['fulfillment'] = None
-    transfer_tx.pop('asset')
+    transfer_tx.pop('assets')
     transfer_tx.pop('id')
 
     assert expected == transfer_tx
@@ -939,23 +939,23 @@ def test_create_transfer_transaction_multiple_io(user_pub, user_priv,
 
 def test_create_transfer_with_invalid_parameters(tx, user_pub):
     with raises(TypeError):
-        Transfer.generate({}, [], tx.id)
+        Transfer.generate({}, [], [tx.id])
     with raises(ValueError):
-        Transfer.generate([], [], tx.id)
+        Transfer.generate([], [], [tx.id])
     with raises(TypeError):
-        Transfer.generate(['fulfillment'], {}, tx.id)
+        Transfer.generate(['fulfillment'], {}, [tx.id])
     with raises(ValueError):
-        Transfer.generate(['fulfillment'], [], tx.id)
+        Transfer.generate(['fulfillment'], [], [tx.id])
     with raises(ValueError):
-        Transfer.generate(['fulfillment'], [user_pub], tx.id)
+        Transfer.generate(['fulfillment'], [user_pub], [tx.id])
     with raises(ValueError):
-        Transfer.generate(['fulfillment'], [([user_pub],)], tx.id)
-    with raises(TypeError):
-        Transfer.generate(['fulfillment'], [([user_pub], 1)],
-                             tx.id, metadata='not a dict or none')
+        Transfer.generate(['fulfillment'], [([user_pub],)], [tx.id])
     with raises(TypeError):
         Transfer.generate(['fulfillment'], [([user_pub], 1)],
-                             ['not a string'])
+                             [tx.id], metadata='not a dict or none')
+    with raises(TypeError):
+        Transfer.generate(['fulfillment'], [([user_pub], 1)],
+                             'not a list')
 
 
 def test_cant_add_empty_output():
@@ -1019,7 +1019,7 @@ def test_unspent_outputs_property(merlin, alice, bob, carol):
         [([alice.public_key], 1),
          ([bob.public_key], 2),
          ([carol.public_key], 3)],
-        assets={'hash': '06e47bcf9084f7ecfd2a2a2ad275444a'},
+        assets=[{'hash': '06e47bcf9084f7ecfd2a2a2ad275444a'}],
     ).sign([merlin.private_key])
     unspent_outputs = list(tx.unspent_outputs)
     assert len(unspent_outputs) == 3

@@ -24,11 +24,11 @@ CC_CONDITION_URI = ('ni:///sha-256;'
                     'eZI5q6j8T_fqv7xMROaei9_tmTMk4S7WR5Kr4onPHV8'
                     '?fpt=ed25519-sha-256&cost=131072')
 
-ASSET_DEFINITION = {
+ASSET_DEFINITION = [{
     'data': {
         'definition': 'Asset definition'
     }
-}
+}]
 
 DATA = {
     'msg': 'Hello Planetmint!'
@@ -141,7 +141,7 @@ def data():
 @pytest.fixture
 def utx(user_input, user_output):
     from planetmint.transactions.common.transaction import Transaction
-    return Transaction(Transaction.CREATE, {'data': None}, [user_input],
+    return Transaction(Transaction.CREATE, [{'data': None}], [user_input],
                        [user_output])
 
 
@@ -158,7 +158,7 @@ def transfer_utx(user_output, user2_output, utx):
     input = Input(utx.outputs[0].fulfillment,
                   user_output['public_keys'],
                   TransactionLink(utx.id, 0))
-    return Transaction('TRANSFER', {'id': utx.id}, [input], [user2_output])
+    return Transaction('TRANSFER', [{'id': utx.id}], [input], [user2_output])
 
 
 @pytest.fixture
@@ -169,7 +169,7 @@ def transfer_tx(transfer_utx, user_priv):
 @pytest.fixture(scope="session")
 def dummy_transaction():
     return {
-        'asset': {'data': None},
+        'assets': [{'data': None}],
         'id': 64 * 'a',
         'inputs': [{
             'fulfillment': 'dummy',
@@ -196,11 +196,11 @@ def dummy_transaction():
 @pytest.fixture
 def unfulfilled_transaction():
     return {
-        'asset': {
+        'assets': [{
             'data': {
                 'msg': 'Hello Planetmint!',
             }
-        },
+        }],
         'id': None,
         'inputs': [{
             # XXX This could be None, see #1925
@@ -231,11 +231,11 @@ def unfulfilled_transaction():
 @pytest.fixture
 def fulfilled_transaction():
     return {
-        'asset': {
+        'assets': [{
             'data': {
                 'msg': 'Hello Planetmint!',
             }
-        },
+        }],
         'id': None,
         'inputs': [{
             'fulfillment': ('pGSAIP_2P1Juh-94sD3uno1lxMPd9EkIalRo7QB014pT6dD9g'
@@ -277,11 +277,11 @@ def fulfilled_transaction():
 ))
 def tri_state_transaction(request):
     tx = {
-        'asset': {
+        'assets': [{
             'data': {
                 'msg': 'Hello Planetmint!',
             }
-        },
+        }],
         'id': None,
         'inputs': [{
             'fulfillment': None,
