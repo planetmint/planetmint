@@ -147,6 +147,7 @@ class Transaction(object):
         structure containing relevant information for storing them in
         a UTXO set, and performing validation.
         """
+        # TODO: figure out how these must be structured for multi asset support
         if self.operation == self.CREATE:
             self._asset_id = self._id
         elif self.operation == self.TRANSFER:

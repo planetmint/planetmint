@@ -32,19 +32,19 @@ def test_asset_is_separated_from_transaciton(b):
     alice = generate_key_pair()
     bob = generate_key_pair()
 
-    asset = {'Never gonna': ['give you up',
+    assets = [{'Never gonna': ['give you up',
                              'let you down',
                              'run around'
                              'desert you',
                              'make you cry',
                              'say goodbye',
                              'tell a lie',
-                             'hurt you']}
+                             'hurt you']}]
 
     tx = Create.generate([alice.public_key],
                             [([bob.public_key], 1)],
                             metadata=None,
-                            assets=asset)\
+                            assets=assets)\
                     .sign([alice.private_key])
 
     # with store_bulk_transactions we use `insert_many` where PyMongo
@@ -55,7 +55,7 @@ def test_asset_is_separated_from_transaciton(b):
 
     b.store_bulk_transactions([tx])
     assert 'asset' not in backend.query.get_transaction(b.connection, tx.id)
-    assert backend.query.get_asset(b.connection, tx.id)['data'] == asset
+    assert backend.query.get_asset(b.connection, tx.id)['data'] == assets[0]
     assert b.get_transaction(tx.id).to_dict() == tx_dict
 
 
@@ -354,11 +354,11 @@ def test_get_spent_transaction_critical_double_spend(b, alice, bob, carol):
     from planetmint.exceptions import CriticalDoubleSpend
     from planetmint.transactions.common.exceptions import DoubleSpend
 
-    asset = {'test': 'asset'}
+    assets = [{'test': 'asset'}]
 
     tx = Create.generate([alice.public_key],
                             [([alice.public_key], 1)],
-                            assets=asset)\
+                            assets=assets)\
                     .sign([alice.private_key])
 
     tx_transfer = Transfer.generate(tx.to_inputs(),
@@ -406,10 +406,10 @@ def test_validation_with_transaction_buffer(b):
     create_tx = Create.generate([pub_key], [([pub_key], 10)]).sign([priv_key])
     transfer_tx = Transfer.generate(create_tx.to_inputs(),
                                        [([pub_key], 10)],
-                                       asset_ids=create_tx.id).sign([priv_key])
+                                       asset_ids=[create_tx.id]).sign([priv_key])
     double_spend = Transfer.generate(create_tx.to_inputs(),
                                         [([pub_key], 10)],
-                                        asset_ids=create_tx.id).sign([priv_key])
+                                        asset_ids=[create_tx.id]).sign([priv_key])
 
     assert b.is_valid_transaction(create_tx)
     assert b.is_valid_transaction(transfer_tx, [create_tx])
@@ -467,7 +467,7 @@ def test_get_spent_key_order(b, user_pk, user_sk, user2_pk, user2_sk):
     b.store_bulk_transactions([tx1])
 
     inputs = tx1.to_inputs()
-    tx2 = Transfer.generate([inputs[1]], [([user2_pk], 2)], tx1.id).sign([user_sk])
+    tx2 = Transfer.generate([inputs[1]], [([user2_pk], 2)], [tx1.id]).sign([user_sk])
     assert tx2.validate(b)
 
     tx2_dict = tx2.to_dict()
@@ -477,7 +477,7 @@ def test_get_spent_key_order(b, user_pk, user_sk, user2_pk, user2_sk):
 
     backend.query.store_transactions(b.connection, [tx2_dict])
 
-    tx3 = Transfer.generate([inputs[1]], [([bob.public_key], 2)], tx1.id).sign([user_sk])
+    tx3 = Transfer.generate([inputs[1]], [([bob.public_key], 2)], [tx1.id]).sign([user_sk])
 
     with pytest.raises(DoubleSpend):
         tx3.validate(b)
