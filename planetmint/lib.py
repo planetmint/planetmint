@@ -247,7 +247,7 @@ class Planetmint(object):
             # asset = backend.query.get_asset(self.connection, transaction_id)
             assets = backend.query.get_assets(self.connection, [transaction_id])
             metadata = backend.query.get_metadata(self.connection, [transaction_id])
-            if assets:
+            if transaction['operation'] == 'CREATE' and assets:
                 # NOTE: THIS IS A HACK TO SEE IF THE TX HASH IS CORRECT FOR TESTS, NEEDS TO BE REPLACED AFTER backend.query.get_assets_for_tx is finished
                 # transaction['assets'] = [asset]
                 transaction['assets'] = list(assets)
