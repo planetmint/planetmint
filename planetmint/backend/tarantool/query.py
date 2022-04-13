@@ -80,7 +80,7 @@ def store_transactions(connection, signed_transactions: list):
             metadatasxspace.insert(txtuples["metadata"])
 
         if txtuples["asset"] is not None:
-            print(f" ASSET  : {txtuples['asset']}")
+            # print(f" ASSET  : {txtuples['asset']}")
             assetsxspace.insert(txtuples["asset"])
 
 
@@ -100,7 +100,7 @@ def get_transactions(connection, transactions_ids: list):
 def store_metadatas(connection, metadata: list):
     space = connection.space("meta_data")
     for meta in metadata:
-        print(f"METADATA : {meta}")
+        # print(f"METADATA : {meta}")
         data = meta["data"] if not "metadata" in meta else meta["metadata"]
         if data:
             space.insert((meta["id"], meta["data"] if not "metadata" in meta else meta["metadata"]))
@@ -122,7 +122,7 @@ def get_metadata(connection, transaction_ids: list):
 #def store_asset(connection, asset: dict, tx_id=None):
 def store_asset(connection, asset: dict):
     space = connection.space("assets")
-    print(f"DATA  store asset: {asset}")
+    # print(f"DATA  store asset: {asset}")
     try:
         space.insert( asset )
         #if tx_id is not None:
@@ -138,7 +138,7 @@ def store_assets(connection, assets: list):
     space = connection.space("assets")
     for asset in assets:
         try:
-            print(f"DATA store assets: {asset}")
+            # print(f"DATA store assets: {asset}")
             space.insert( asset )
         except :  # TODO Raise ERROR for Duplicate
             print( f"EXCEPTION : ")

@@ -380,7 +380,6 @@ def test_get_spent_transaction_critical_double_spend(b, alice, bob, carol):
                                                    [([bob.public_key], 1)],
                                                    asset_id=tx.id)\
                                          .sign([alice.private_key])
-    print("SPEND " + str(tx.to_dict()))
 
     b.store_bulk_transactions([tx])
 

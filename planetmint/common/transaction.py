@@ -1171,7 +1171,6 @@ class Transaction(object):
         """
         # NOTE: Remove reference to avoid side effects
         # tx_body = deepcopy(tx_body)
-        print("\n\nVERIF " + str(tx_body))
         tx_body = rapidjson.loads(rapidjson.dumps(tx_body))
 
         try:
@@ -1180,7 +1179,6 @@ class Transaction(object):
             raise InvalidHash('No transaction id found!')
 
         tx_body['id'] = None
-        print(f"\n\n tx_body2: {tx_body}")
         #tx_body = Transaction._remove_signatures(tx_body)
         #print(f"\n\n tx_body3: {tx_body}")
         tx_body_serialized = Transaction._to_str(tx_body)

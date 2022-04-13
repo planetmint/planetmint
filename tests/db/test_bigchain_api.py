@@ -503,7 +503,6 @@ def test_cant_spend_same_input_twice_in_tx(b, alice):
     tx_create = Transaction.create([alice.public_key], [([alice.public_key], 100)])
     tx_create_signed = tx_create.sign([alice.private_key])
     assert b.validate_transaction(tx_create_signed) == tx_create_signed
-    print("DCT " + str(tx_create_signed.to_dict()))
     b.store_bulk_transactions([tx_create_signed])
 
     # Create a transfer transaction with duplicated fulfillments
