@@ -121,12 +121,12 @@ def store_block(conn, block):
 
 
 @register_query(LocalMongoDBConnection)
-def get_txids_filtered(conn, asset_id, operation=None, last_tx=None):
+def get_txids_filtered(conn, asset_ids, operation=None, last_tx=None):
 
     match = {
-        Transaction.CREATE: {'operation': 'CREATE', 'id': asset_id},
-        Transaction.TRANSFER: {'operation': 'TRANSFER', 'asset.id': asset_id},
-        None: {'$or': [{'asset.id': asset_id}, {'id': asset_id}]},
+        Transaction.CREATE: {'operation': 'CREATE', 'id': {'$in': asset_ids}},
+        Transaction.TRANSFER: {'operation': 'TRANSFER', 'assets.id': {'$in': asset_ids}},
+        None: {'$or': [{'assets.id': {'$in': asset_ids}}, {'id': {'$in': asset_ids}}]},
     }[operation]
 
     cursor = conn.run(conn.collection('transactions').find(match))

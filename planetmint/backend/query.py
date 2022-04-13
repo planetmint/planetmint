@@ -215,7 +215,7 @@ def get_assets(connection, asset_ids):
 
 
 @singledispatch
-def get_txids_filtered(connection, asset_id, operation=None):
+def get_txids_filtered(connection, asset_ids, operation=None):
     """Return all transactions for a particular asset id and optional operation.
 
     Args:

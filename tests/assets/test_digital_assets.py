@@ -18,19 +18,19 @@ def test_asset_transfer(b, signed_create_tx, user_pk, user_sk):
     assert tx_transfer_signed.validate(b) == tx_transfer_signed
     assert tx_transfer_signed.assets[0]['id'] == signed_create_tx.id
 
+# NOTE: TO BE REMOVED BECAUSE V3.0 ALLOWS FOR MULTIPLE ASSETS THEREFOR MULTIPLE ASSET IDS
+# def test_validate_transfer_asset_id_mismatch(b, signed_create_tx, user_pk, user_sk):
+#     from planetmint.transactions.common.exceptions import AssetIdMismatch
 
-def test_validate_transfer_asset_id_mismatch(b, signed_create_tx, user_pk, user_sk):
-    from planetmint.transactions.common.exceptions import AssetIdMismatch
+#     tx_transfer = Transfer.generate(signed_create_tx.to_inputs(), [([user_pk], 1)],
+#                                        [signed_create_tx.id])
+#     tx_transfer.assets[0]['id'] = 'a' * 64
+#     tx_transfer_signed = tx_transfer.sign([user_sk])
 
-    tx_transfer = Transfer.generate(signed_create_tx.to_inputs(), [([user_pk], 1)],
-                                       [signed_create_tx.id])
-    tx_transfer.assets[0]['id'] = 'a' * 64
-    tx_transfer_signed = tx_transfer.sign([user_sk])
+#     b.store_bulk_transactions([signed_create_tx])
 
-    b.store_bulk_transactions([signed_create_tx])
-
-    with pytest.raises(AssetIdMismatch):
-        tx_transfer_signed.validate(b)
+#     with pytest.raises(AssetIdMismatch):
+#         tx_transfer_signed.validate(b)
 
 
 def test_get_asset_id_create_transaction(alice, user_pk):
