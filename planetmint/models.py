@@ -49,9 +49,9 @@ class Transaction(Transaction):
     @classmethod
     def validate_schema(cls, tx_body):
         validate_transaction_schema(tx_body)
-        validate_txn_obj(cls.ASSETS, tx_body[cls.ASSETS], cls.DATA, validate_key)
+        validate_txn_obj(cls.ASSETS, tx_body, cls.ASSETS, validate_key)
         validate_txn_obj(cls.METADATA, tx_body, cls.METADATA, validate_key)
-        validate_language_key(tx_body[cls.ASSETS], cls.DATA)
+        validate_language_key(tx_body, cls.ASSETS)
         validate_language_key(tx_body, cls.METADATA)
 
 

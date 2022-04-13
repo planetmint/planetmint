@@ -79,7 +79,7 @@ def validate_txn_obj(obj_name, obj, key, validation_fun):
     backend = planetmint.config['database']['backend']
 
     if backend == 'localmongodb':
-        data = obj.get(key, {})
+        data = obj.get(key)
         if isinstance(data, dict):
             validate_all_keys_in_obj(obj_name, data, validation_fun)
         elif isinstance(data, list):
