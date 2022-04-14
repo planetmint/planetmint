@@ -48,7 +48,8 @@ def _multiprocessing_to_asyncio(in_queue, out_queue, loop):
         value = in_queue.get()
         loop.call_soon_threadsafe(out_queue.put_nowait, value)
 
-
+# NOTE: Check where this is called and how it is used
+# TODO: change for multi asset support
 def eventify_block(block):
     for tx in block['transactions']:
         if tx.asset:

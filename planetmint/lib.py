@@ -243,7 +243,7 @@ class Planetmint(object):
             assets = backend.query.get_assets(self.connection, [transaction_id])
             metadata = backend.query.get_metadata(self.connection, [transaction_id])
             # NOTE: assets must not be replaced for transfer transactions
-            # TODO: check if this holds true for other tx types
+            # TODO: check if this holds true for other tx types, some test cases connected to election and voting are still failing
             if transaction['operation'] != 'TRANSFER' and assets:
                 transaction['assets'] = list(assets)
 

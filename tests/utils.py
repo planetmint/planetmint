@@ -97,7 +97,7 @@ def generate_validators(powers):
         })
     return validators
 
-
+# NOTE: This works for some but not for all test cases check if this or code base needs fix
 def generate_election(b, cls, public_key, private_key, asset_data, voter_keys):
     voters = cls.recipients(b)
     election = cls.generate([public_key],

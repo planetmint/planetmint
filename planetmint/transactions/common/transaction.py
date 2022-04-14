@@ -151,6 +151,7 @@ class Transaction(object):
         if self.operation == self.CREATE:
             self._asset_id = self._id
         elif self.operation == self.TRANSFER:
+            # TODO: check if this will also work for multiple assets per tx
             self._asset_id = [asset['id'] for asset in self.assets][0]
         return (UnspentOutput(
             transaction_id=self._id,
@@ -596,15 +597,6 @@ class Transaction(object):
             transactions = [transactions]
 
         # create a set of the transactions' asset ids
-        # NOTE: gather asset ids constraint no longer valid with v3.0
-        # asset_ids = {tx.id if tx.operation == tx.CREATE
-        #              else tx.asset['id']
-        #              for tx in transactions}
-
-        # # check that all the transasctions have the same asset id
-        # if len(asset_ids) > 1:
-        #     raise AssetIdMismatch(('All inputs of all transactions passed'
-        #                            ' need to have the same asset id'))
         asset_ids = []
         for tx in transactions:
             if tx.operation == tx.CREATE:
@@ -691,6 +683,7 @@ class Transaction(object):
             tx_map[tx['id']] = tx
             tx_ids.append(tx['id'])
 
+        # TODO: Find occurences of get_assets and refactor
         assets = list(planet.get_assets(tx_ids))
         for asset in assets:
             if asset is not None:

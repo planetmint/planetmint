@@ -54,7 +54,7 @@ def test_eventify_block_works_with_any_transaction():
     for event, expected in zip(eventify_block(block), expected_events):
         assert event == expected
 
-
+# TODO: these tests are skipped due to some asyncio issue => needs fix
 async def test_bridge_sync_async_queue(loop):
     from planetmint.web.websocket_server import _multiprocessing_to_asyncio
 
@@ -111,13 +111,13 @@ def test_start_creates_an_event_loop(queue_mock, get_event_loop_mock,
         port=config['wsserver']['port'],
     )
 
-
-async def test_websocket_string_event(test_client, loop):
+# TODO: these tests are skipped due to some asyncio issue => needs fix
+async def test_websocket_string_event(aiohttp_client, loop):
     from planetmint.web.websocket_server import init_app, POISON_PILL, EVENTS_ENDPOINT
 
     event_source = asyncio.Queue(loop=loop)
     app = init_app(event_source, loop=loop)
-    client = await test_client(app)
+    client = await aiohttp_client(app)
     ws = await client.ws_connect(EVENTS_ENDPOINT)
 
     await event_source.put('hack')
@@ -135,8 +135,8 @@ async def test_websocket_string_event(test_client, loop):
 
     await event_source.put(POISON_PILL)
 
-
-async def test_websocket_block_event(b, test_client, loop):
+# TODO: these tests are skipped due to some asyncio issue => needs fix
+async def test_websocket_block_event(b, aiohttp_client, loop):
     from planetmint import events
     from planetmint.web.websocket_server import init_app, POISON_PILL, EVENTS_ENDPOINT
     from planetmint.transactions.common import crypto
@@ -147,7 +147,7 @@ async def test_websocket_block_event(b, test_client, loop):
 
     event_source = asyncio.Queue(loop=loop)
     app = init_app(event_source, loop=loop)
-    client = await test_client(app)
+    client = await aiohttp_client(app)
     ws = await client.ws_connect(EVENTS_ENDPOINT)
     block = {'height': 1, 'transactions': [tx]}
     block_event = events.Event(events.EventTypes.BLOCK_VALID, block)
@@ -164,7 +164,7 @@ async def test_websocket_block_event(b, test_client, loop):
 
     await event_source.put(POISON_PILL)
 
-
+# TODO: these tests are skipped due to some asyncio issue => needs fix
 @pytest.mark.skip('Processes are not stopping properly, and the whole test suite would hang')
 def test_integration_from_webapi_to_websocket(monkeypatch, client, loop):
     # XXX: I think that the `pytest-aiohttp` plugin is sparkling too much
