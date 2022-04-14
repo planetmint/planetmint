@@ -47,7 +47,7 @@ def test_eventify_block_works_with_any_transaction():
         },
         {
             'height': 1,
-            'asset_id': tx_transfer.asset['id'],
+            'asset_id': tx_transfer.assets[0]['id'],
             'transaction_id': tx_transfer.id
         }]
 
