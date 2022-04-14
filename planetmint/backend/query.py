@@ -203,18 +203,6 @@ def get_metadata(connection, transaction_ids):
 
 
 @singledispatch
-def get_assets(connection, asset_ids):
-    """Get a list of assets from the assets table.
-    Args:
-        asset_ids (list): a list of ids for the assets to be retrieved from
-        the database.
-    Returns:
-        assets (list): the list of returned assets.
-    """
-    raise NotImplementedError
-
-
-@singledispatch
 def get_txids_filtered(connection, asset_ids, operation=None):
     """Return all transactions for a particular asset id and optional operation.
 
