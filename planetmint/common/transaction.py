@@ -1171,6 +1171,7 @@ class Transaction(object):
         """
         # NOTE: Remove reference to avoid side effects
         # tx_body = deepcopy(tx_body)
+        print( f"\n tx body 1: {tx_body}")
         tx_body = rapidjson.loads(rapidjson.dumps(tx_body))
 
         try:
@@ -1185,7 +1186,7 @@ class Transaction(object):
         valid_tx_id = Transaction._to_hash(tx_body_serialized)
         print( f"\n valid TX : {valid_tx_id}")
         print( f"\n proposed TX id : {proposed_tx_id}")
-        print( f"\n tx body : {tx_body}")
+        print( f"\n tx body 2: {tx_body}")
         print( f"\n tx serialized : {tx_body_serialized}")
         if proposed_tx_id != valid_tx_id:
             err_msg= ("The transaction's id '{}' isn't equal to "
@@ -1211,13 +1212,13 @@ class Transaction(object):
             id = tx['id']
         except KeyError:
             id = None
-        
+        #tx['asset'] = tx['asset'][0] if isinstance( tx['asset'], list) or isinstance( tx['asset'], tuple) else tx['asset'],
         local_dict= {
             'inputs': tx['inputs'],
             'outputs': tx['outputs'],
             'operation': operation,
             'metadata': tx['metadata'],
-            'asset': tx['asset'],
+            'asset': tx['asset'],#[0] if isinstance( tx['asset'], list) or isinstance( tx['asset'], tuple) else tx['asset'],
             'version': tx['version'],
             'id': id
         }
@@ -1270,8 +1271,10 @@ class Transaction(object):
         tx_ids = list(tx_map.keys())
         metadata_list = list(planet.get_metadata(tx_ids))
         for metadata in metadata_list:
-            tx = tx_map[metadata['id']]
-            tx.update({'metadata': metadata.get('metadata')})
+            print (f"\n\nmetadata: { metadata}")
+            if 'id' in metadata:
+                tx = tx_map[metadata['id']]
+                tx.update({'metadata': metadata.get('metadata')})
 
         if return_list:
             tx_list = []
