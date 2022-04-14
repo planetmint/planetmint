@@ -165,9 +165,9 @@ def test_upsert_validator_show(caplog, ongoing_validator_election, b):
     from planetmint.commands.planetmint import run_election_show
 
     election_id = ongoing_validator_election.id
-    public_key = public_key_to_base64(ongoing_validator_election.asset['data']['public_key']['value'])
-    power = ongoing_validator_election.asset['data']['power']
-    node_id = ongoing_validator_election.asset['data']['node_id']
+    public_key = public_key_to_base64(ongoing_validator_election.assets[0]['data']['public_key']['value'])
+    power = ongoing_validator_election.assets[0]['data']['power']
+    node_id = ongoing_validator_election.assets[0]['data']['node_id']
     status = ValidatorElection.ONGOING
 
     show_args = Namespace(action='show',

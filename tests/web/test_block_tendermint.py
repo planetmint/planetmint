@@ -15,7 +15,7 @@ BLOCKS_ENDPOINT = '/api/v1/blocks/'
 @pytest.mark.usefixtures('inputs')
 def test_get_block_endpoint(b, client, alice):
     import copy
-    tx = Create.generate([alice.public_key], [([alice.public_key], 1)], assets={'cycle': 'hero'})
+    tx = Create.generate([alice.public_key], [([alice.public_key], 1)], assets=[{'cycle': 'hero'}])
     tx = tx.sign([alice.private_key])
 
     # with store_bulk_transactions we use `insert_many` where PyMongo

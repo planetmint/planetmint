@@ -30,9 +30,9 @@ def test_get_assets_tendermint(client, b, alice):
     assert res.status_code == 200
 
     # create asset
-    asset = {'msg': 'abc'}
+    assets = [{'msg': 'abc'}]
     tx = Create.generate([alice.public_key], [([alice.public_key], 1)],
-                            assets=asset).sign([alice.private_key])
+                            assets=assets).sign([alice.private_key])
 
     b.store_bulk_transactions([tx])
 
@@ -50,12 +50,12 @@ def test_get_assets_tendermint(client, b, alice):
 def test_get_assets_limit_tendermint(client, b, alice):
 
     # create two assets
-    asset1 = {'msg': 'abc 1'}
-    asset2 = {'msg': 'abc 2'}
+    assets1 = [{'msg': 'abc 1'}]
+    assets2 = [{'msg': 'abc 2'}]
     tx1 = Create.generate([alice.public_key], [([alice.public_key], 1)],
-                             assets=asset1).sign([alice.private_key])
+                             assets=assets1).sign([alice.private_key])
     tx2 = Create.generate([alice.public_key], [([alice.public_key], 1)],
-                             assets=asset2).sign([alice.private_key])
+                             assets=assets2).sign([alice.private_key])
 
     b.store_bulk_transactions([tx1])
     b.store_bulk_transactions([tx2])
