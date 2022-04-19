@@ -106,9 +106,11 @@ class TransactionDecompose:
             print(f"\noutput: {tmp_output}")
             _outputs.append(tmp_output)
             output_index = output_index + 1
+            key_index = 0
             for _key in _output["public_keys"]:
                 key_id = self.__create_hash(7)
-                _keys.append((key_id, self._transaction["id"], output_id, _key))
+                _keys.append((key_id, self._transaction["id"], output_id, _key, key_index))
+                key_index = key_index + 1
         return _keys, _outputs
 
     def __prepare_transaction(self):
@@ -171,7 +173,10 @@ class TransactionCompose:
             print (f"\noutput : {_output}")
             _out = self._map["outputs"].copy()
             _out["amount"] = _output[1]
-            _out["public_keys"] = [_key[3] for _key in self.db_results["keys"] if _key[2] == _output[5]]
+            _tmp_keys = [(_key[3], _key[4]) for _key in self.db_results["keys"] if _key[2] == _output[5]]
+            _sorted_keys = sorted(_tmp_keys, key=lambda tup: (tup[1]) )
+            _out["public_keys"] = [_key[0] for _key in _sorted_keys]
+            
             _out["condition"]["uri"] = _output[2]
             if self.db_results["outputs"][0][7] is None:
                 _out["condition"]["details"]["type"] = _output[3]
