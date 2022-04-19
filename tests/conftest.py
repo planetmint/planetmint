@@ -113,16 +113,23 @@ def _configure_planetmint(request):
 
 @pytest.fixture(scope='session')
 def _setup_database(_configure_planetmint):  # TODO Here is located setup database
-    # from planetmint.backend.connection_tarantool import init_tarantool, drop_tarantool
-    # print('Initializing test db')
-    # init_tarantool()
-    # print('Finishing init database')
+    from planetmint.backend.tarantool.connection import TarantoolDB
+
+    
+    print('Deleting `{}` database')
+    db_conn = TarantoolDB("localhost", 3303)
+    db_conn.drop_database()
+    db_conn.init_database()
+    print('Finished deleting ``')
 
     yield
 
-    # print('Deleting `{}` database')
-    # drop_tarantool()
-    # print('Finished deleting ``')
+
+    print('Initializing test db')
+    db_conn2 = TarantoolDB("localhost", 3303)
+    db_conn2.drop_database()
+    print('Finishing init database')
+
 
 
 @pytest.fixture
@@ -130,8 +137,7 @@ def _bdb(_setup_database ):
     from planetmint.backend import Connection
     from planetmint.common.memoize import to_dict, from_dict
     from planetmint.models import Transaction
-    #conn = Connection( backend='tarantool_db', port=3301, host='localhost', login='guest')
-    #conn = Connection()
+    conn = Connection()
     yield
 
     to_dict.cache_clear()
@@ -510,14 +516,14 @@ def unspent_outputs(unspent_output_0, unspent_output_1, unspent_output_2):
     return unspent_output_0, unspent_output_1, unspent_output_2
 
 
-@pytest.fixture
-def mongo_client(db_context):  # TODO Here add TarantoolConnectionClass
-    return None  # MongoClient(host=db_context.host, port=db_context.port)
-
-
-@pytest.fixture
-def utxo_collection(db_context, mongo_client):
-    return mongo_client[db_context.name].utxos
+#@pytest.fixture
+#def mongo_client(db_context):  # TODO Here add TarantoolConnectionClass
+#    return None  # MongoClient(host=db_context.host, port=db_context.port)
+#
+#
+#@pytest.fixture
+#def utxo_collection(db_context, mongo_client):
+#    return mongo_client[db_context.name].utxos
 
 
 @pytest.fixture
@@ -529,12 +535,12 @@ def dummy_unspent_outputs():
     ]
 
 
-@pytest.fixture
-def utxoset(dummy_unspent_outputs, utxo_collection):
-    res = utxo_collection.insert_many(copy.deepcopy(dummy_unspent_outputs))
-    assert res.acknowledged
-    assert len(res.inserted_ids) == 3
-    return dummy_unspent_outputs, utxo_collection
+#@pytest.fixture
+#def utxoset(dummy_unspent_outputs, utxo_collection):
+#    res = utxo_collection.insert_many(copy.deepcopy(dummy_unspent_outputs))
+#    assert res.acknowledged
+#    assert len(res.inserted_ids) == 3
+#    return dummy_unspent_outputs, utxo_collection
 
 
 @pytest.fixture
