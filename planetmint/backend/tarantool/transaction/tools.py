@@ -1,5 +1,5 @@
 from secrets import token_hex
-
+import copy
 
 def _save_keys_order(dictionary):
     filter_keys = ["asset", "metadata"]
@@ -157,7 +157,7 @@ class TransactionCompose:
     def _get_inputs(self):
         _inputs = []
         for _input in self.db_results["inputs"]:
-            _in = self._map["inputs"].copy()
+            _in = copy.deepcopy( self._map["inputs"] )
             _in["fulfillment"] = _input[1]
             if _in["fulfills"] is not None:
                 _in["fulfills"]["transaction_id"] = _input[3]
@@ -168,17 +168,18 @@ class TransactionCompose:
 
 
     def _get_outputs(self):
+        
         _outputs = []
         for _output in self.db_results["outputs"]:
             print (f"\noutput : {_output}")
-            _out = self._map["outputs"].copy()
+            _out = copy.deepcopy( self._map["outputs"] )
             _out["amount"] = _output[1]
             _tmp_keys = [(_key[3], _key[4]) for _key in self.db_results["keys"] if _key[2] == _output[5]]
             _sorted_keys = sorted(_tmp_keys, key=lambda tup: (tup[1]) )
             _out["public_keys"] = [_key[0] for _key in _sorted_keys]
             
             _out["condition"]["uri"] = _output[2]
-            if self.db_results["outputs"][0][7] is None:
+            if _output[7] is None:
                 _out["condition"]["details"]["type"] = _output[3]
                 _out["condition"]["details"]["public_key"] = _output[4]
             else:
