@@ -57,7 +57,7 @@ outputs:create_index('unique_search' ,{type='hash', parts={'output_id'}})
 outputs:create_index('id_search' ,{type='tree', unique=false, parts={'transaction_id'}})
 
 keys = box.schema.space.create('keys')
-keys:format({{name = 'id', type='string'}, {name = 'transaction_id', type = 'string'} ,{name = 'output_id', type = 'string'}, {name = 'public_key', type = 'string'}})
+keys:format({{name = 'id', type='string'}, {name = 'transaction_id', type = 'string'} ,{name = 'output_id', type = 'string'}, {name = 'public_key', type = 'string'}, {name = 'key_index', type = 'integer'}})
 keys:create_index('id_search', {type = 'hash', parts={'id'}})
 keys:create_index('keys_search', {type = 'tree', unique=false, parts={'public_key'}})
 keys:create_index('txid_search', {type = 'tree', unique=false, parts={'transaction_id'}})

@@ -322,7 +322,7 @@ class Planetmint(object):
             # print( f"\n\nget tx from DB : {transactions[0]['id']} {transactions[0]}")
             transaction=backend.query.get_transactions(self.connection, [transactions[0]['id']])
             # print( f"\n\nget tx from DB result: {transaction}")
-            #transaction = Transaction.from_db(self, transactions[0])
+            # transaction = Transaction.from_db(self, transactions[0])
         elif current_spent_transactions:
             transaction = current_spent_transactions[0]
 
