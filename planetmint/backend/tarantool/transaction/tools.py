@@ -186,6 +186,10 @@ class TransactionCompose:
                 _out["condition"]["details"]["subconditions"] = _output[7]
                 _out["condition"]["details"]["type"] = _output[3]
                 _out["condition"]["details"]["threshold"] = _output[6]
+                try:
+                    del _out["condition"]["details"]["public_key"]
+                except:
+                    pass
             print (f"\noutput end  : {_out}")
             _outputs.append(_out)
         return _outputs
