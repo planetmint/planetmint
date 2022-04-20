@@ -158,7 +158,7 @@ class TransactionCompose:
     def _get_inputs(self):
         _inputs = []
         for _input in self.db_results["inputs"]:
-            _in = copy.deepcopy(self._map["inputs"])
+            _in = copy.deepcopy( self._map["inputs"] )
             _in["fulfillment"] = _input[1]
             if _in["fulfills"] is not None:
                 _in["fulfills"]["transaction_id"] = _input[3]
@@ -168,14 +168,13 @@ class TransactionCompose:
         return _inputs
 
     def _get_outputs(self):
-
         _outputs = []
         for _output in self.db_results["outputs"]:
-            print(f"\noutput : {_output}")
-            _out = copy.deepcopy(self._map["outputs"])
+            print (f"\noutput : {_output}")
+            _out = copy.deepcopy( self._map["outputs"] )
             _out["amount"] = _output[1]
             _tmp_keys = [(_key[3], _key[4]) for _key in self.db_results["keys"] if _key[2] == _output[5]]
-            _sorted_keys = sorted(_tmp_keys, key=lambda tup: (tup[1]))
+            _sorted_keys = sorted(_tmp_keys, key=lambda tup: (tup[1]) )
             _out["public_keys"] = [_key[0] for _key in _sorted_keys]
 
             _out["condition"]["uri"] = _output[2]
@@ -186,7 +185,6 @@ class TransactionCompose:
                 _out["condition"]["details"]["subconditions"] = _output[7]
                 _out["condition"]["details"]["type"] = _output[3]
                 _out["condition"]["details"]["threshold"] = _output[6]
-            # print (f"\noutput end  : {_out}")
             _outputs.append(_out)
         return _outputs
 
