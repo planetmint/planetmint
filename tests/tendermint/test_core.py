@@ -10,7 +10,7 @@ import random
 from abci import types_v0_31_5 as types
 
 from planetmint.core import App
-from planetmint.backend.localmongodb import query
+from planetmint.backend import query
 from planetmint.common.crypto import generate_key_pair
 from planetmint.core import (CodeTypeOk,
                              CodeTypeError,
