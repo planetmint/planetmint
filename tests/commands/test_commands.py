@@ -89,20 +89,16 @@ def test_bigchain_show_config(capsys):
     #del sorted_config['CONFIGURED']
     assert sorted_output_config == sorted_config
 
-
 def test__run_init(mocker):
-    from planetmint.commands.planetmint import _run_init
-    bigchain_mock = mocker.patch(
-        'planetmint.commands.planetmint.planetmint.Planetmint')
     init_db_mock = mocker.patch(
-        'planetmint.commands.planetmint.schema.init_database',
-        autospec=True,
-        spec_set=True,
-    )
-    _run_init()
-    bigchain_mock.assert_called_once_with()
-    init_db_mock.assert_called_once_with(
-        connection=bigchain_mock.return_value.connection)
+        'planetmint.backend.tarantool.connection.TarantoolDB.init_database')
+
+    from planetmint.backend.connection import Connection
+    
+    conn = Connection()
+    conn.init_database()
+    
+    init_db_mock.assert_called_once_with()
 
 
 @patch('planetmint.backend.schema.drop_database')

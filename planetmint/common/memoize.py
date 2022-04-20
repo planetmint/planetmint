@@ -17,8 +17,9 @@ def memoize_from_dict(func):
 
     @functools.wraps(func)
     def memoized_func(*args, **kwargs):
-
-        if args[1].get('id', None):
+        if args[1] is None:
+            return None
+        elif args[1].get('id', None):
             args = list(args)
             args[1] = HDict(args[1])
             new_args = tuple(args)

@@ -87,6 +87,7 @@ def store_transactions(connection, signed_transactions: list):
 @register_query(TarantoolDB)
 def get_transaction(connection, transaction_id: str):
     _transactions = _group_transaction_by_ids(txids=[transaction_id], connection=connection)
+    print(f" \n\nGET TRANSACTION : {_transactions} ")
     return next(iter(_transactions), None)
 
 
@@ -175,11 +176,18 @@ def get_latest_block(connection):  # TODO Here is used DESCENDING OPERATOR
     space = connection.space("blocks")
     _all_blocks = space.select()
     _all_blocks = _all_blocks.data
-    _block = sorted(_all_blocks, key=itemgetter(1))[0]
-    space = connection.space("blocks_tx")
-    _txids = space.select(_block[2], index="block_search")
-    _txids = _txids.data
-    return {"app_hash": _block[0], "height": _block[1], "transactions": [tx[0] for tx in _txids]}
+    hash = ''
+    heigth = 0
+    txs = []
+    if len(_all_blocks ) > 0:
+        _block = sorted(_all_blocks, key=itemgetter(1))[0]
+        space = connection.space("blocks_tx")
+        _txids = space.select(_block[2], index="block_search")
+        _txids = _txids.data
+        hash = _block[0]
+        heigth = _block[1]
+        txs = [tx[0] for tx in _txids]
+    return {"app_hash": hash, "height": heigth, "transactions": txs}
 
 
 @register_query(TarantoolDB)
@@ -376,12 +384,16 @@ def store_pre_commit_state(connection, state: dict):
 
 @register_query(TarantoolDB)
 def get_pre_commit_state(connection) -> dict:
-    space = connection.space("pre_commits")
-    _commit = space.select([], index="id_search", limit=1).data
-    if len(_commit) == 0:
+    try:
+        space = connection.space("pre_commits")
+        _commit = space.select([], index="id_search", limit=1).data
+        if len(_commit) == 0:
+            return {}
+        _commit = _commit[0]
+        return {"height": _commit[1], "transactions": _commit[2]}
+    except:
         return {}
-    _commit = _commit[0]
-    return {"height": _commit[1], "transactions": _commit[2]}
+
 
 
 @register_query(TarantoolDB)
@@ -457,12 +469,12 @@ def get_election(connection, election_id: str):
 @register_query(TarantoolDB)
 def get_asset_tokens_for_public_key(connection, asset_id: str, public_key: str):
     space = connection.space("keys")
-    _keys = space.select([public_key], index="keys_search")
+    #_keys = space.select([public_key], index="keys_search")
     space = connection.space("assets")
-    _transactions = space.select([asset_id], index="only_asset_search")
-    _transactions = _transactions.data
-    _keys = _keys.data
-    _grouped_transactions = _group_transaction_by_ids(connection=connection, txids=[_tx[0] for _tx in _transactions])
+    _transactions = space.select([asset_id], index="assetid_search")
+    #_transactions = _transactions
+    #_keys = _keys.data
+    _grouped_transactions = _group_transaction_by_ids(connection=connection, txids=[_tx[1] for _tx in _transactions])
     return _grouped_transactions
 
 
