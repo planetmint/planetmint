@@ -1171,7 +1171,7 @@ class Transaction(object):
         """
         # NOTE: Remove reference to avoid side effects
         # tx_body = deepcopy(tx_body)
-        print( f"\n tx body 1: {tx_body}")
+        # print( f"\n tx body 1: {tx_body}")
         tx_body = rapidjson.loads(rapidjson.dumps(tx_body))
 
         try:
@@ -1181,13 +1181,13 @@ class Transaction(object):
 
         tx_body['id'] = None
         #tx_body = Transaction._remove_signatures(tx_body)
-        #print(f"\n\n tx_body3: {tx_body}")
+        ## print(f"\n\n tx_body3: {tx_body}")
         tx_body_serialized = Transaction._to_str(tx_body)
         valid_tx_id = Transaction._to_hash(tx_body_serialized)
-        print( f"\n valid TX : {valid_tx_id}")
-        print( f"\n proposed TX id : {proposed_tx_id}")
-        print( f"\n tx body 2: {tx_body}")
-        print( f"\n tx serialized : {tx_body_serialized}")
+        # print( f"\n valid TX : {valid_tx_id}")
+        # print( f"\n proposed TX id : {proposed_tx_id}")
+        # print( f"\n tx body 2: {tx_body}")
+        # print( f"\n tx serialized : {tx_body_serialized}")
         if proposed_tx_id != valid_tx_id:
             err_msg= ("The transaction's id '{}' isn't equal to "
                        "the hash of its body, i.e. it's not valid.")
@@ -1223,8 +1223,8 @@ class Transaction(object):
             'id': id
         }
         
-        print( f" Schema validation {tx}")
-        print( f" Schema validation {local_dict}")
+        # print( f" Schema validation {tx}")
+        # print( f" Schema validation {local_dict}")
         if not skip_schema_validation:
             cls.validate_id(local_dict)
             cls.validate_schema(local_dict)
@@ -1271,7 +1271,7 @@ class Transaction(object):
         tx_ids = list(tx_map.keys())
         metadata_list = list(planet.get_metadata(tx_ids))
         for metadata in metadata_list:
-            print (f"\n\nmetadata: { metadata}")
+            # print (f"\n\nmetadata: { metadata}")
             if 'id' in metadata:
                 tx = tx_map[metadata['id']]
                 tx.update({'metadata': metadata.get('metadata')})

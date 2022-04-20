@@ -97,6 +97,8 @@ def test_get_spent_issue_1271(b, alice, bob, carol):
          ([carol.public_key], 3)],
         asset_id=tx_1.id,
     ).sign([carol.private_key])
+    print(f"TX 3 : {tx_3} ")
+    print(f"TX 3 ID : {tx_3.id} ")
     assert tx_3.validate(b)
     b.store_bulk_transactions([tx_3])
 

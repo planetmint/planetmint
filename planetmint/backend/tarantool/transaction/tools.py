@@ -34,7 +34,7 @@ class TransactionDecompose:
             "metadata": None,
             "asset": None
         }
-        print(f"Transaction ::::: {self._transaction}")
+        # print(f"Transaction ::::: {self._transaction}")
 
     def get_map(self, dictionary: dict = None):
 
@@ -77,7 +77,7 @@ class TransactionDecompose:
         _keys = []
         output_index = 0
         for _output in self._transaction["outputs"]:
-            print(f"\noutput: {_output}")
+            # print(f"\noutput: {_output}")
             output_id = self.__create_hash(7)
             tmp_output = None
             if _output["condition"]["details"].get("subconditions") is None:
@@ -103,7 +103,7 @@ class TransactionDecompose:
                                  output_index
                                  )
             
-            print(f"\noutput: {tmp_output}")
+            # print(f"\noutput: {tmp_output}")
             _outputs.append(tmp_output)
             output_index = output_index + 1
             for _key in _output["public_keys"]:
@@ -144,7 +144,7 @@ class TransactionCompose:
         return self.db_results["transaction"][0]
 
     def _get_asset(self):
-        print( f" asset : {self.db_results}" )
+        # print( f" asset : {self.db_results}" )
         _asset = iter(self.db_results["asset"])
         #return _asset
         return next(iter(next(_asset, iter([]))), None)
@@ -168,7 +168,7 @@ class TransactionCompose:
     def _get_outputs(self):
         _outputs = []
         for _output in self.db_results["outputs"]:
-            print (f"\noutput : {_output}")
+            # print (f"\noutput : {_output}")
             _out = self._map["outputs"].copy()
             _out["amount"] = _output[1]
             _out["public_keys"] = [_key[3] for _key in self.db_results["keys"] if _key[2] == _output[5]]
@@ -180,7 +180,7 @@ class TransactionCompose:
                 _out["condition"]["details"]["subconditions"] = _output[7]
                 _out["condition"]["details"]["type"] = _output[3]
                 _out["condition"]["details"]["threshold"] = _output[6]
-            print (f"\noutput end  : {_out}")
+            # print (f"\noutput end  : {_out}")
             _outputs.append(_out)
         return _outputs
 
@@ -194,5 +194,5 @@ class TransactionCompose:
         transaction["inputs"] = self._get_inputs()
         transaction["outputs"] = self._get_outputs()
         test = transaction["asset"]
-        print(f"compose asset : {test}")
+        # print(f"compose asset : {test}")
         return transaction

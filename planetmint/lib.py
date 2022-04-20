@@ -134,7 +134,7 @@ class Planetmint(object):
         txn_metadatas = []
         for t in transactions:
             transaction = t.tx_dict if t.tx_dict else rapidjson.loads(rapidjson.dumps(t.to_dict()))
-            print(f"transaction {transaction}")
+            # print(f"transaction {transaction}")
 
             asset = transaction.pop('asset')
             asset_id = transaction['id']
@@ -300,7 +300,7 @@ class Planetmint(object):
     def get_spent(self, txid, output, current_transactions=[]):
         transactions = backend.query.get_spent(self.connection, txid,
                                                output)
-        print(f"spent TX: {transactions}")
+        # print(f"spent TX: {transactions}")
         transactions = list(transactions) if transactions else []
         if len(transactions) > 1:
             raise core_exceptions.CriticalDoubleSpend(
@@ -319,9 +319,9 @@ class Planetmint(object):
         if len(transactions) + len(current_spent_transactions) > 1:
             raise DoubleSpend('tx "{}" spends inputs twice'.format(txid))
         elif transactions:
-            print( f"\n\nget tx from DB : {transactions[0]['id']} {transactions[0]}")
+            # print( f"\n\nget tx from DB : {transactions[0]['id']} {transactions[0]}")
             transaction=backend.query.get_transactions(self.connection, [transactions[0]['id']])
-            print( f"\n\nget tx from DB result: {transaction}")
+            # print( f"\n\nget tx from DB result: {transaction}")
             #transaction = Transaction.from_db(self, transactions[0])
         elif current_spent_transactions:
             transaction = current_spent_transactions[0]
