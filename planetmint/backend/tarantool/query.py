@@ -323,7 +323,7 @@ def delete_transactions(connection, txn_ids: list):
         _outputs = outputs_space.select(_id, index="id_search")
         _keys = k_space.select(_id, index="txid_search")
         for _kID in _keys:
-            k_space.delete(_kID[2], index="keys_search")
+            k_space.delete(_kID[0], index="id_search")
         for _inpID in _inputs:
             inputs_space.delete(_inpID[5], index="delete_search")
         for _outpID in _outputs:
