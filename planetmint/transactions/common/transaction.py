@@ -687,8 +687,9 @@ class Transaction(object):
         assets = list(planet.get_assets(tx_ids))
         for asset in assets:
             if asset is not None:
-                tx = tx_map[asset['id']]
-                del asset['id']
+                if tx_map.get(asset.get('id', None), None) is not None:
+                    tx = tx_map[asset['id']]
+                    del asset['id']
                 tx['asset'] = asset
 
         tx_ids = list(tx_map.keys())
