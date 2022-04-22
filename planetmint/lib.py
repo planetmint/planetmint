@@ -134,7 +134,6 @@ class Planetmint(object):
         txn_metadatas = []
         for t in transactions:
             transaction = t.tx_dict if t.tx_dict else rapidjson.loads(rapidjson.dumps(t.to_dict()))
-            # print(f"transaction {transaction}")
 
             asset = transaction.pop('asset')
             asset_id = transaction['id']

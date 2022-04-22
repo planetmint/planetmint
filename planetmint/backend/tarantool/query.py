@@ -64,7 +64,6 @@ def store_transactions(connection, signed_transactions: list):
     for transaction in signed_transactions:
         txprepare = TransactionDecompose(transaction)
         txtuples = txprepare.convert_to_tuple()
-
         txspace.insert(txtuples["transactions"])
 
         for _in in txtuples["inputs"]:
@@ -80,14 +79,12 @@ def store_transactions(connection, signed_transactions: list):
             metadatasxspace.insert(txtuples["metadata"])
 
         if txtuples["asset"] is not None:
-            # print(f" ASSET  : {txtuples['asset']}")
             assetsxspace.insert(txtuples["asset"])
 
 
 @register_query(TarantoolDB)
 def get_transaction(connection, transaction_id: str):
     _transactions = _group_transaction_by_ids(txids=[transaction_id], connection=connection)
-    print(f" \n\nGET TRANSACTION : {_transactions} ")
     return next(iter(_transactions), None)
 
 
@@ -101,7 +98,7 @@ def get_transactions(connection, transactions_ids: list):
 def store_metadatas(connection, metadata: list):
     space = connection.space("meta_data")
     for meta in metadata:
-        # print(f"METADATA : {meta}")
+
         data = meta["data"] if not "metadata" in meta else meta["metadata"]
         if data:
             space.insert((meta["id"], meta["data"] if not "metadata" in meta else meta["metadata"]))
@@ -139,10 +136,9 @@ def store_assets(connection, assets: list):
     space = connection.space("assets")
     for asset in assets:
         try:
-            # print(f"DATA store assets: {asset}")
             space.insert( asset )
-        except :  # TODO Raise ERROR for Duplicate
-            print( f"EXCEPTION : ")
+        except Exception as ex:  # TODO Raise ERROR for Duplicate
+            print( f"EXCEPTION : {ex} ")
 
 
 @register_query(TarantoolDB)

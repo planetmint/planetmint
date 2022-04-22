@@ -5,6 +5,7 @@
 
 
 import subprocess
+import os
 
 
 def test_build_root_docs():
