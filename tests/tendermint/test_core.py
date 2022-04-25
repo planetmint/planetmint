@@ -293,7 +293,6 @@ def test_deliver_tx__double_spend_fails(a, b, init_chain_request):
 
     app.end_block(types.RequestEndBlock(height=99))
     app.commit()
-
     assert b.get_transaction(tx.id).id == tx.id
     result = app.deliver_tx(encode_tx_to_bytes(tx))
     assert result.code == CodeTypeError

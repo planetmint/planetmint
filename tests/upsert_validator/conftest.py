@@ -7,7 +7,6 @@ from unittest.mock import patch
 import pytest
 
 from planetmint.backend import query
-# from planetmint.backend.localmongodb import query
 from planetmint.upsert_validator import ValidatorElection
 
 
@@ -46,6 +45,3 @@ def inconclusive_election(b, ongoing_validator_election, new_validator):
     query.store_validator_set(b.connection, validator_update)
     return ongoing_validator_election
 
-
-# ERROR tests/upsert_validator/test_validator_election.py::test_get_status_concluded - AttributeError: 'TarantoolDB' object has no attribute 'run'
-# ERROR tests/upsert_validator/test_validator_election.py::test_get_status_inconclusive - AttributeError: 'TarantoolDB' object has no attribute 'run'
