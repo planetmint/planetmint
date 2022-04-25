@@ -379,7 +379,9 @@ def store_pre_commit_state(connection, state: dict):
 @register_query(TarantoolDB)
 def get_pre_commit_state(connection):
     space = connection.space("pre_commits")
-    _commit = space.select([], index="id_search").data
+    _commit = space.select([], index="id_search", limit=1).data
+    if len(_commit) == 0:
+        return None
     _commit = sorted(_commit, key=itemgetter(1), reverse=True)[0]
     return {"height": _commit[1], "transactions": _commit[2]}
 
@@ -450,7 +452,9 @@ def get_election(connection, election_id: str):
     space = connection.space("elections")
     _elections = space.select(election_id, index="id_search")
     _elections = _elections.data
-    _election = sorted(_elections, key=itemgetter(0))[0]
+    if len(_elections) == 0:
+        return None
+    _election = sorted(_elections, key=itemgetter(0), reverse=True)[0]
     return {"election_id": _election[0], "height": _election[1], "is_concluded": _election[2]}
 
 
