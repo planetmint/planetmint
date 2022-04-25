@@ -26,7 +26,8 @@ class TarantoolDB:
             self.db_connect = tarantool.connect(host=self.host, port=self.port)
             self.init_path = Config().get()["database"]["init_config"]["absolute_path"]
             self.drop_path = Config().get()["database"]["drop_config"]["absolute_path"]
-            if reset_database or kwargs.get("kwargs").get("reset_database"):
+            args_reset_db = kwargs.get("kwargs").get("reset_database") if "kwargs" in kwargs else None
+            if reset_database or args_reset_db is True:
                 self.drop_database()
                 self.init_database()
                 self._reconnect()
