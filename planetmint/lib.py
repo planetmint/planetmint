@@ -458,7 +458,6 @@ class Planetmint(object):
         return backend.query.get_election(self.connection, election_id)
 
     def get_pre_commit_state(self):
-        print(f"CONNECTION {self.connection} !!!!!")
         return backend.query.get_pre_commit_state(self.connection)
 
     def store_pre_commit_state(self, state):

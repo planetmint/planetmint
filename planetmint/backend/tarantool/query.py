@@ -367,8 +367,6 @@ def delete_transactions(connection, txn_ids: list):
 @register_query(TarantoolDB)
 def store_pre_commit_state(connection, state: dict):
     space = connection.space("pre_commits")
-    if not space:
-        return {}
     _precommit = space.select(state["height"], index="height_search", limit=1)
     unique_id = token_hex(8) if (len(_precommit.data) == 0) else _precommit.data[0][0]
     space.upsert((unique_id, state["height"], state["transactions"]),
@@ -380,15 +378,10 @@ def store_pre_commit_state(connection, state: dict):
 
 @register_query(TarantoolDB)
 def get_pre_commit_state(connection):
-    try:
-        space = connection.space("pre_commits")
-        _commit = space.select([], index="id_search", limit=1).data
-        if len(_commit) == 0:
-            return {}
-        _commit = _commit[0]
-        return {"height": _commit[1], "transactions": _commit[2]}
-    except:
-        return {}
+    space = connection.space("pre_commits")
+    _commit = space.select([], index="id_search").data
+    _commit = sorted(_commit, key=itemgetter(1), reverse=True)[0]
+    return {"height": _commit[1], "transactions": _commit[2]}
 
 
 @register_query(TarantoolDB)
