@@ -34,6 +34,7 @@ ROUTES_API_V1 = [
     r('assets/', assets.AssetListApi),
     r('metadata/', metadata.MetadataApi),
     r('blocks/<int:block_id>', blocks.BlockApi),
+    r('blocks/latest', blocks.LatestBlock),
     r('blocks/', blocks.BlockListApi),
     r('transactions/<string:tx_id>', tx.TransactionApi),
     r('transactions', tx.TransactionListApi),

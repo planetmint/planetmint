@@ -16,6 +16,12 @@ def test_get_block_returns_404_if_not_found(client):
 
     res = client.get(BLOCKS_ENDPOINT + '123/')
     assert res.status_code == 404
+    
+    res = client.get(BLOCKS_ENDPOINT + 'latest')
+    assert res.status_code == 200
+    
+    res = client.get(BLOCKS_ENDPOINT + 'latest/')
+    assert res.status_code == 200
 
 
 @pytest.mark.bdb
