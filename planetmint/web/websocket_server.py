@@ -52,8 +52,8 @@ def _multiprocessing_to_asyncio(in_queue, out_queue, loop):
 # TODO: change for multi asset support
 def eventify_block(block):
     for tx in block['transactions']:
-        if tx.asset:
-            asset_id = tx.asset.get('id', tx.id)
+        if tx.assets:
+            asset_id = tx.assets[0].get('id', tx.id)
         else:
             asset_id = tx.id
         yield {'height': block['height'],
