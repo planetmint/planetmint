@@ -379,7 +379,7 @@ def store_pre_commit_state(connection, state: dict):
 @register_query(TarantoolDB)
 def get_pre_commit_state(connection):
     space = connection.space("pre_commits")
-    _commit = space.select([], index="id_search", limit=1).data
+    _commit = space.select([], index="id_search").data
     if len(_commit) == 0:
         return None
     _commit = sorted(_commit, key=itemgetter(1), reverse=True)[0]
