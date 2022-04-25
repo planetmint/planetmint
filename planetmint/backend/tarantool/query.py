@@ -176,7 +176,7 @@ def get_latest_block(connection):  # TODO Here is used DESCENDING OPERATOR
     heigth = 0
     txs = []
     if len(_all_blocks) > 0:
-        _block = sorted(_all_blocks, key=itemgetter(1))[0]
+        _block = sorted(_all_blocks, key=itemgetter(1), reverse=True)[0]
         space = connection.space("blocks_tx")
         _txids = space.select(_block[2], index="block_search")
         _txids = _txids.data
