@@ -32,8 +32,6 @@ class LatestBlock(Resource):
         return block
 
 
-
-
 class BlockApi(Resource):
     def get(self, block_id):
         """API endpoint to get details about a block.
