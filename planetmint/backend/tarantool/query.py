@@ -117,15 +117,15 @@ def get_metadata(connection, transaction_ids: list):
 @register_query(TarantoolDB)
 # asset: {"id": "asset_id"}
 # asset: {"data": any} -> insert (tx_id, asset["data"]).
-#def store_asset(connection, asset: dict, tx_id=None):
+# def store_asset(connection, asset: dict, tx_id=None):
 def store_asset(connection, asset: dict):
     space = connection.space("assets")
     # print(f"DATA  store asset: {asset}")
     try:
-        space.insert( asset )
-        #if tx_id is not None:
+        space.insert(asset)
+        # if tx_id is not None:
         #    space.insert((asset, tx_id, tx_id))
-        #else:
+        # else:
         #    space.insert((asset, str(asset["id"]), str(asset["id"])))  # TODO Review this function
     except:  # TODO Add Raise For Duplicate
         print("DUPLICATE ERROR")
@@ -136,9 +136,9 @@ def store_assets(connection, assets: list):
     space = connection.space("assets")
     for asset in assets:
         try:
-            space.insert( asset )
+            space.insert(asset)
         except Exception as ex:  # TODO Raise ERROR for Duplicate
-            print( f"EXCEPTION : {ex} ")
+            print(f"EXCEPTION : {ex} ")
 
 
 @register_query(TarantoolDB)
@@ -175,7 +175,7 @@ def get_latest_block(connection):  # TODO Here is used DESCENDING OPERATOR
     hash = ''
     heigth = 0
     txs = []
-    if len(_all_blocks ) > 0:
+    if len(_all_blocks) > 0:
         _block = sorted(_all_blocks, key=itemgetter(1))[0]
         space = connection.space("blocks_tx")
         _txids = space.select(_block[2], index="block_search")
@@ -391,10 +391,9 @@ def get_pre_commit_state(connection):
         return {}
 
 
-
 @register_query(TarantoolDB)
-def store_validator_set(connection, validators_update: dict):
-    space = connection.space("validators")
+def store_validator_set(conn, validators_update: dict):
+    space = conn.space("validators")
     _validator = space.select(validators_update["height"], index="height_search", limit=1)
     unique_id = token_hex(8) if (len(_validator.data) == 0) else _validator.data[0][0]
     space.upsert((unique_id, validators_update["height"], validators_update["validators"]),
@@ -465,11 +464,11 @@ def get_election(connection, election_id: str):
 @register_query(TarantoolDB)
 def get_asset_tokens_for_public_key(connection, asset_id: str, public_key: str):
     space = connection.space("keys")
-    #_keys = space.select([public_key], index="keys_search")
+    # _keys = space.select([public_key], index="keys_search")
     space = connection.space("assets")
     _transactions = space.select([asset_id], index="assetid_search")
-    #_transactions = _transactions
-    #_keys = _keys.data
+    # _transactions = _transactions
+    # _keys = _keys.data
     _grouped_transactions = _group_transaction_by_ids(connection=connection, txids=[_tx[1] for _tx in _transactions])
     return _grouped_transactions
 
