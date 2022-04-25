@@ -78,6 +78,7 @@ class Planetmint(object):
             self.validation = BaseValidationRules
         # planetmint.backend.tarantool.connection_tarantool.connect(**Config().get()['database'])
         self.connection = connection if connection is not None else planetmint.backend.Connection()
+        print(f"PLANETMINT self.connection {self.connection} !!!!")
 
     def post_transaction(self, transaction, mode):
         """Submit a valid transaction to the mempool."""
@@ -457,6 +458,7 @@ class Planetmint(object):
         return backend.query.get_election(self.connection, election_id)
 
     def get_pre_commit_state(self):
+        print(f"CONNECTION {self.connection} !!!!!")
         return backend.query.get_pre_commit_state(self.connection)
 
     def store_pre_commit_state(self, state):

@@ -43,7 +43,7 @@ services:
       - ./pytest.ini:/usr/src/app/pytest.ini
       - ./tox.ini:/usr/src/app/tox.ini
     environment:
-      PLANETMINT_DATABASE_BACKEND: tarantooldb 
+      PLANETMINT_DATABASE_BACKEND: tarantool_db 
       PLANETMINT_DATABASE_HOST: tarantool
       PLANETMINT_DATABASE_PORT: 3303
       PLANETMINT_SERVER_BIND: 0.0.0.0:9984
