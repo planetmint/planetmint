@@ -1,10 +1,11 @@
 from secrets import token_hex
 import copy
+from planetmint.common.memoize import HDict
 
 
 def _save_keys_order(dictionary):
     filter_keys = ["asset", "metadata"]
-    if type(dictionary) is dict:
+    if type(dictionary) is dict or type(dictionary) is HDict:
         keys = list(dictionary.keys())
         _map = {}
         for key in keys:
@@ -35,7 +36,6 @@ class TransactionDecompose:
             "metadata": None,
             "asset": None
         }
-        # print(f"Transaction ::::: {self._transaction}")
 
     def get_map(self, dictionary: dict = None):
 
@@ -115,10 +115,11 @@ class TransactionDecompose:
         return _keys, _outputs
 
     def __prepare_transaction(self):
+        _map = self.get_map()
         return (self._transaction["id"],
                 self._transaction["operation"],
                 self._transaction["version"],
-                self.get_map())
+                _map)
 
     def convert_to_tuple(self):
         self._metadata_check()
