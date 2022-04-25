@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 def Connection(host: str = None, port: int = None, login: str = None, password: str = None, backend: str = None,
                **kwargs):
     backend = backend
-    if not backend and kwargs and kwargs["backend"]:
+    if not backend and kwargs and kwargs.get("backend"):
         backend = kwargs["backend"]
 
     if backend and backend != Config().get()["database"]["backend"]:
@@ -37,7 +37,7 @@ def Connection(host: str = None, port: int = None, login: str = None, password: 
             Class = getattr(import_module(modulepath), class_name)
             print("LOGIN " + str(login))
             print("PASSWORD " + str(password))
-            return Class(host=host, port=port, user=login, password=password)
+            return Class(host=host, port=port, user=login, password=password, kwargs=kwargs)
         elif backend == "localmongodb":
             modulepath, _, class_name = BACKENDS[backend].rpartition('.')
             Class = getattr(import_module(modulepath), class_name)

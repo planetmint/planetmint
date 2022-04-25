@@ -77,7 +77,7 @@ class Planetmint(object):
         else:
             self.validation = BaseValidationRules
         # planetmint.backend.tarantool.connection_tarantool.connect(**Config().get()['database'])
-        self.connection = connection if connection is not None else planetmint.backend.Connection()
+        self.connection = connection if connection is not None else planetmint.backend.Connection(reset_database=True)
         print(f"PLANETMINT self.connection {self.connection} !!!!")
 
     def post_transaction(self, transaction, mode):
