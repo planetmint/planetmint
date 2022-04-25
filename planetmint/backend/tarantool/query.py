@@ -308,9 +308,9 @@ def get_block_with_transaction(connection, txid: str):
 
 @register_query(TarantoolDB)
 def delete_transactions(connection, txn_ids: list):
-    space = connection.space("transactions")
+    tx_space = connection.space("transactions")
     for _id in txn_ids:
-        space.delete(_id)
+        tx_space.delete(_id)
     inputs_space = connection.space("inputs")
     outputs_space = connection.space("outputs")
     k_space = connection.space("keys")
@@ -325,6 +325,13 @@ def delete_transactions(connection, txn_ids: list):
         for _outpID in _outputs:
             outputs_space.delete(_outpID[5], index="unique_search")
 
+    meta_space = connection.space("meta_data")
+    for _id in txn_ids:
+        meta_space.delete(_id, index="id_search")
+
+    assets_space = connection.space("assets")
+    for _id in txn_ids:
+        assets_space.delete(_id, index="txid_search")
 
 # @register_query(TarantoolDB)
 # def store_unspent_outputs(conn, *unspent_outputs: list):

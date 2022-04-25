@@ -8,7 +8,6 @@ import pytest
 from planetmint.common.transaction import TransactionLink
 from planetmint.models import Transaction
 
-
 pytestmark = pytest.mark.bdb
 
 
@@ -17,7 +16,7 @@ def txns(b, user_pk, user_sk, user2_pk, user2_sk):
     txs = [Transaction.create([user_pk], [([user2_pk], 1)]).sign([user_sk]),
            Transaction.create([user2_pk], [([user_pk], 1)]).sign([user2_sk]),
            Transaction.create([user_pk], [([user_pk], 1), ([user2_pk], 1)])
-           .sign([user_sk])]
+               .sign([user_sk])]
     b.store_bulk_transactions(txs)
     return txs
 
@@ -78,11 +77,12 @@ def test_filter_unspent_outputs(b, user_pk, user_sk):
 
 def test_outputs_query_key_order(b, user_pk, user_sk, user2_pk, user2_sk):
     from planetmint import backend
-    from planetmint.backend import connect
+    from planetmint.backend.connection import Connection
+    from planetmint.backend import query
 
     tx1 = Transaction.create([user_pk],
-                             [([user_pk], 3), ([user_pk], 2), ([user_pk], 1)])\
-                     .sign([user_sk])
+                             [([user_pk], 3), ([user_pk], 2), ([user_pk], 1)]) \
+        .sign([user_sk])
     b.store_bulk_transactions([tx1])
 
     inputs = tx1.to_inputs()
@@ -102,10 +102,12 @@ def test_outputs_query_key_order(b, user_pk, user_sk, user2_pk, user2_sk):
     assert len(outputs) == 1
 
     # clean the transaction, metdata and asset collection
-    conn = connect()
-    conn.run(conn.collection('transactions').delete_many({}))
-    conn.run(conn.collection('metadata').delete_many({}))
-    conn.run(conn.collection('assets').delete_many({}))
+    # conn = connect()
+    connection = Connection()
+    # conn.run(conn.collection('transactions').delete_many({}))
+    # conn.run(conn.collection('metadata').delete_many({}))
+    # conn.run(conn.collection('assets').delete_many({}))
+    query.delete_transactions(connection, txn_ids=[tx1.id, tx2.id])
 
     b.store_bulk_transactions([tx1])
     tx2_dict = tx2.to_dict()
