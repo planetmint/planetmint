@@ -171,7 +171,7 @@ class TransactionCompose:
     def _get_outputs(self):
         _outputs = []
         for _output in self.db_results["outputs"]:
-            print (f"\noutput : {_output}")
+            # print (f"\noutput : {_output}")
             _out = copy.deepcopy( self._map["outputs"] )
             _out["amount"] = _output[1]
             _tmp_keys = [(_key[3], _key[4]) for _key in self.db_results["keys"] if _key[2] == _output[5]]

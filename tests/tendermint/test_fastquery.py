@@ -22,14 +22,29 @@ def txns(b, user_pk, user_sk, user2_pk, user2_sk):
 
 
 def test_get_outputs_by_public_key(b, user_pk, user2_pk, txns):
-    assert b.fastquery.get_outputs_by_public_key(user_pk) == [
+    expected = [
         TransactionLink(txns[1].id, 0),
         TransactionLink(txns[2].id, 0)
     ]
-    assert b.fastquery.get_outputs_by_public_key(user2_pk) == [
-        TransactionLink(txns[0].id, 0),
-        TransactionLink(txns[2].id, 1),
+    actual = b.fastquery.get_outputs_by_public_key(user_pk)
+
+    _all_txs = set([tx.txid for tx in expected + actual])
+    assert len(_all_txs) == 2
+    # assert b.fastquery.get_outputs_by_public_key(user_pk) == [ # OLD VERIFICATION
+    #     TransactionLink(txns[1].id, 0),
+    #     TransactionLink(txns[2].id, 0)
+    # ]
+    actual_1 = b.fastquery.get_outputs_by_public_key(user2_pk)
+    expected_1 = [
+         TransactionLink(txns[0].id, 0),
+         TransactionLink(txns[2].id, 1),
     ]
+    _all_tx_1 = set([tx.txid for tx in actual_1 + expected_1])
+    assert len(_all_tx_1) == 2
+    # assert b.fastquery.get_outputs_by_public_key(user2_pk) == [ # OLD VERIFICATION
+    #     TransactionLink(txns[0].id, 0),
+    #     TransactionLink(txns[2].id, 1),
+    # ]
 
 
 def test_filter_spent_outputs(b, user_pk, user_sk):
