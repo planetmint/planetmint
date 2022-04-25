@@ -1170,7 +1170,7 @@ class Transaction(object):
                 tx_body (dict): The Transaction to be transformed.
         """
         # NOTE: Remove reference to avoid side effects
-        # tx_body = deepcopy(tx_body)
+        tx_body = deepcopy(tx_body)
         # print( f"\n tx body 1: {tx_body}")
         tx_body = rapidjson.loads(rapidjson.dumps(tx_body))
 

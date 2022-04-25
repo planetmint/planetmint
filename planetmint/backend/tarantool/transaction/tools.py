@@ -197,6 +197,6 @@ class TransactionCompose:
         transaction["operation"] = self._get_transaction_operation()
         transaction["inputs"] = self._get_inputs()
         transaction["outputs"] = self._get_outputs()
-        test = transaction["asset"]
+        # test = transaction["asset"]
         # print(f"compose asset : {test}")
         return transaction
