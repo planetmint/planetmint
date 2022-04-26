@@ -344,7 +344,7 @@ def test_election_new_upsert_validator_without_tendermint(caplog, b, priv_valida
 
     with caplog.at_level(logging.INFO):
         election_id = run_election_new_upsert_validator(args, b)
-        assert caplog.records[0].msg == '[SUCCESS] Submitted proposal with id: ', election_id
+        assert caplog.records[0].msg == '[SUCCESS] Submitted proposal with id: ' + election_id
         assert b.get_transaction(election_id)
 
 
