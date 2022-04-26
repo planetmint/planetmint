@@ -16,7 +16,7 @@ RUN pip install --upgrade \
     planetmint-driver~=0.9.0 \
     pycco \
     websocket-client~=0.47.0 \
-	git+https://github.com/planetmint/cryptoconditions.git@gitzenroom  \
-	git+https://github.com/planetmint/planetmint-driver.git@gitzenroom \
-	blns
+    #git+https://github.com/planetmint/cryptoconditions.git@gitzenroom  \
+    #git+https://github.com/planetmint/planetmint-driver.git@gitzenroom \
+    blns
 
