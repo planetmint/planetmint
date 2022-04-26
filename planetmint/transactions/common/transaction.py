@@ -684,13 +684,14 @@ class Transaction(object):
             tx_ids.append(tx['id'])
 
         # TODO: Find occurences of get_assets and refactor
+        # NOTE: Open issue for get_assets and this logic, it won't hold up for COMPOSE/DECOMPOSE 
         assets = list(planet.get_assets(tx_ids))
         for asset in assets:
             if asset is not None:
                 if tx_map.get(asset.get('id', None), None) is not None:
                     tx = tx_map[asset['id']]
                     del asset['id']
-                tx['asset'] = asset
+                tx['assets'] = [asset]
 
         tx_ids = list(tx_map.keys())
         metadata_list = list(planet.get_metadata(tx_ids))
