@@ -4,11 +4,12 @@ RUN apt-get update \
     && pip install -U pip \
     && apt-get autoremove \
     && apt-get clean
-RUN apt-get install -y vim zsh build-essential cmake	
+RUN apt-get install -y vim zsh build-essential cmake
 
 RUN mkdir -p /src
 RUN pip install --upgrade \
 	pycco \
+	meson \
 	websocket-client~=0.47.0 \
 	pytest~=3.0 \
 	git+https://github.com/planetmint/cryptoconditions.git@gitzenroom  \
