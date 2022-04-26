@@ -191,7 +191,7 @@ def test_store_transaction(mocker, b, signed_create_tx,
     mocked_store_transaction.assert_called_once_with(
         b.connection,
         [{k: v for k, v in signed_create_tx.to_dict().items()
-         if k not in ('asset', 'metadata')}],
+         if k not in ('assets', 'metadata')}],
     )
     mocked_store_asset.reset_mock()
     mocked_store_metadata.reset_mock()
@@ -240,7 +240,7 @@ def test_store_bulk_transaction(mocker, b, signed_create_tx,
     mocked_store_transactions.assert_called_once_with(
         b.connection,
         [{k: v for k, v in signed_create_tx.to_dict().items()
-         if k not in ('asset', 'metadata')}],
+         if k not in ('assets', 'metadata')}],
     )
     mocked_store_assets.reset_mock()
     mocked_store_metadata.reset_mock()
