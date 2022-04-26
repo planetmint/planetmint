@@ -7,7 +7,7 @@ RUN apt-get update \
 RUN apt-get install -y vim zsh build-essential cmake
 
 RUN mkdir -p /src
-RUN pip install --upgrade meson
+RUN pip install --upgrade meson ninja
 RUN pip install --upgrade \
 	pycco \
 	websocket-client~=0.47.0 \
