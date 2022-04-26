@@ -337,11 +337,10 @@ def get_election(conn, election_id):
                   sort=[('height', DESCENDING)])
     )
 
-
 @register_query(LocalMongoDBConnection)
 def get_asset_tokens_for_public_key(conn, asset_id, public_key):
     query = {'outputs.public_keys': [public_key],
-             'asset.id': asset_id}
+             'assets.id': asset_id}
 
     cursor = conn.run(
         conn.collection('transactions').aggregate([
