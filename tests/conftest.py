@@ -17,6 +17,7 @@ import tempfile
 from collections import namedtuple
 from logging import getLogger
 from logging.config import dictConfig
+from planetmint.backend.connection import Connection
 
 import pytest
 # from pymongo import MongoClient
@@ -117,7 +118,7 @@ def _setup_database(_configure_planetmint):  # TODO Here is located setup databa
 
     
     print('Deleting `{}` database')
-    db_conn = TarantoolDB("localhost", 3303)
+    db_conn = Connection()
     db_conn.drop_database()
     db_conn.init_database()
     print('Finished deleting ``')
@@ -126,7 +127,7 @@ def _setup_database(_configure_planetmint):  # TODO Here is located setup databa
 
 
     print('Initializing test db')
-    db_conn2 = TarantoolDB("localhost", 3303)
+    db_conn2 = Connection()
     db_conn2.drop_database()
     print('Finishing init database')
 
