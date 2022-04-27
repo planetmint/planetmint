@@ -109,9 +109,10 @@ def get_metadata(connection, transaction_ids: list):
     _returned_data = []
     space = connection.space("meta_data")
     for _id in transaction_ids:
-        metadata = space.select(_id, index="id_search")
-        _returned_data.append(metadata)
-    return _returned_data
+        metadata = space.select(_id, index="id_search").data
+        if len(metadata) > 0:
+            _returned_data.append(metadata)
+    return _returned_data if len(_returned_data) > 0 else None
 
 
 @register_query(TarantoolDB)
@@ -146,7 +147,7 @@ def get_asset(connection, asset_id: str):
     space = connection.space("assets")
     _data = space.select(asset_id, index="txid_search")
     _data = _data.data
-    return _data[0] if len(_data) > 0 else []
+    return _data[0][0] if len(_data) > 0 else []
 
 
 @register_query(TarantoolDB)
