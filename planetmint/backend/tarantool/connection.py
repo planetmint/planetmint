@@ -63,7 +63,7 @@ class TarantoolDB:
         import subprocess
         print(f" commands: {command}")
         ret = subprocess.Popen(
-            ['%s %s:%s < %s' % ("tarantoolctl connect", "localhost", "3303", command)],
+            ['%s %s:%s < %s' % ("tarantoolctl connect", self.host, self.port, command)],
             stdin=subprocess.PIPE,
             stdout=subprocess.PIPE,
             universal_newlines=True,
