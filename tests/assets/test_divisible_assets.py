@@ -402,14 +402,12 @@ def test_muiltiple_in_mix_own_multiple_out_mix_own_transfer(alice, b, user_pk,
     tx_create = Transaction.create([alice.public_key], [([user_pk], 50), ([user_pk, alice.public_key], 50)],
                                    asset={'name': random.random()})
     tx_create_signed = tx_create.sign([alice.private_key])
-    print(f"\ninit_tx_create ======= {tx_create_signed.to_dict()} ========")
     # TRANSFER
     tx_transfer = Transaction.transfer(tx_create.to_inputs(),
                                        [([alice.public_key], 50), ([alice.public_key, user_pk], 50)],
                                        asset_id=tx_create.id)
     tx_transfer_signed = tx_transfer.sign([alice.private_key, user_sk])
     b.store_bulk_transactions([tx_create_signed])
-    print(f"\ntx_transfer====== {tx_transfer_signed.to_dict()} ======")
 
     assert tx_transfer_signed.validate(b) == tx_transfer_signed
     assert len(tx_transfer_signed.outputs) == 2

@@ -1308,7 +1308,6 @@ class Transaction(object):
         for input_ in self.inputs:
             input_txid = input_.fulfills.txid
             input_tx = planet.get_transaction(input_txid)
-            print(f"\ninput_tx ------ {input_tx.to_dict()}  -------")
             if input_tx is None:
                 for ctxn in current_transactions:
                     if ctxn.id == input_txid:

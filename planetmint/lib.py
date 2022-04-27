@@ -245,7 +245,6 @@ class Planetmint(object):
 
     def get_transaction(self, transaction_id):
         transaction = backend.query.get_transaction(self.connection, transaction_id)
-        print(f"transaction_from_db ::::::: {transaction} :::::::::")
         # if transaction:
         #    asset = backend.query.get_asset(self.connection, transaction_id)
         #    metadata = backend.query.get_metadata(self.connection, [transaction_id])

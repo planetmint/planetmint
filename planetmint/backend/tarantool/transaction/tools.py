@@ -163,7 +163,7 @@ class TransactionCompose:
     def _get_inputs(self):
         _inputs = []
         for _input in self.db_results["inputs"]:
-            _in = copy.deepcopy(self._map["inputs"])
+            _in = copy.deepcopy(self._map["inputs"][_input[-1]])
             _in["fulfillment"] = _input[1]
             if _in["fulfills"] is not None:
                 _in["fulfills"]["transaction_id"] = _input[3]
@@ -176,7 +176,7 @@ class TransactionCompose:
         _outputs = []
         for _output in self.db_results["outputs"]:
             # print (f"\noutput : {_output}")
-            _out = copy.deepcopy(self._map["outputs"])
+            _out = copy.deepcopy(self._map["outputs"][_output[-1]])
             _out["amount"] = _output[1]
             _tmp_keys = [(_key[3], _key[4]) for _key in self.db_results["keys"] if _key[2] == _output[5]]
             _sorted_keys = sorted(_tmp_keys, key=lambda tup: (tup[1]))
