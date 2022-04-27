@@ -3,6 +3,12 @@ import copy
 from planetmint.common.memoize import HDict
 
 
+def get_items(_list):
+    for item in _list:
+        if type(item) is dict:
+            yield item
+
+
 def _save_keys_order(dictionary):
     filter_keys = ["asset", "metadata"]
     if type(dictionary) is dict or type(dictionary) is HDict:
@@ -13,14 +19,14 @@ def _save_keys_order(dictionary):
 
         return _map
     elif type(dictionary) is list:
-        dictionary = next(iter(dictionary), None)
-        if dictionary is not None and type(dictionary) is dict:
+        _maps = []
+        for _item in get_items(_list=dictionary):
             _map = {}
-            keys = list(dictionary.keys())
+            keys = list(_item.keys())
             for key in keys:
-                _map[key] = _save_keys_order(dictionary=dictionary[key]) if key not in filter_keys else None
-
-            return _map
+                _map[key] = _save_keys_order(dictionary=_item[key]) if key not in filter_keys else None
+            _maps.append(_map)
+        return _maps
     else:
         return None
 
@@ -80,7 +86,6 @@ class TransactionDecompose:
         for _output in self._transaction["outputs"]:
             # print(f"\noutput: {_output}")
             output_id = self.__create_hash(7)
-            tmp_output = None
             if _output["condition"]["details"].get("subconditions") is None:
                 tmp_output = (self._transaction["id"],
                               _output["amount"],
@@ -104,7 +109,6 @@ class TransactionDecompose:
                               output_index
                               )
 
-            # print(f"\noutput: {tmp_output}")
             _outputs.append(tmp_output)
             output_index = output_index + 1
             key_index = 0
@@ -159,7 +163,7 @@ class TransactionCompose:
     def _get_inputs(self):
         _inputs = []
         for _input in self.db_results["inputs"]:
-            _in = copy.deepcopy( self._map["inputs"] )
+            _in = copy.deepcopy(self._map["inputs"])
             _in["fulfillment"] = _input[1]
             if _in["fulfills"] is not None:
                 _in["fulfills"]["transaction_id"] = _input[3]
@@ -172,10 +176,10 @@ class TransactionCompose:
         _outputs = []
         for _output in self.db_results["outputs"]:
             # print (f"\noutput : {_output}")
-            _out = copy.deepcopy( self._map["outputs"] )
+            _out = copy.deepcopy(self._map["outputs"])
             _out["amount"] = _output[1]
             _tmp_keys = [(_key[3], _key[4]) for _key in self.db_results["keys"] if _key[2] == _output[5]]
-            _sorted_keys = sorted(_tmp_keys, key=lambda tup: (tup[1]) )
+            _sorted_keys = sorted(_tmp_keys, key=lambda tup: (tup[1]))
             _out["public_keys"] = [_key[0] for _key in _sorted_keys]
 
             _out["condition"]["uri"] = _output[2]
