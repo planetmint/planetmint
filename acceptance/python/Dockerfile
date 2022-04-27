@@ -17,9 +17,9 @@ RUN pip install --upgrade \
 	#git+https://github.com/planetmint/cryptoconditions.git@gitzenroom  \
 	#git+https://github.com/planetmint/planetmint-driver.git@gitzenroom \
 	planetmint-cryptoconditions>=0.9.4\
-	planetmint-driver>=0.9.0 \
+	# planetmint-driver>=0.9.0 \
+	git+https://github.com/planetmint/planetmint-driver-python.git@asset-migration \
 	blns
-	
 	
 
 
