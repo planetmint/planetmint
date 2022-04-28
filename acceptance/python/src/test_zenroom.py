@@ -58,7 +58,7 @@ condition_script_zencode, zenroom_data, zenroom_house_assets):
 
     token_creation_tx = {
         'operation': 'CREATE',
-        'asset': zenroom_house_assets,
+        'assets': zenroom_house_assets,
         'metadata': None,
         'outputs': (output,),
         'inputs': (input_,),

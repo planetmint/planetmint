@@ -57,7 +57,7 @@ def test_multiple_owners():
         operation='CREATE',
         signers=alice.public_key,
         recipients=(alice.public_key, bob.public_key),
-        asset=dw_asset)
+        assets=dw_asset)
 
     # Now they both sign the transaction by providing their private keys.
     # And send it afterwards.
@@ -101,7 +101,7 @@ def test_multiple_owners():
     # Now they create the transaction...
     prepared_transfer_tx = bdb.transactions.prepare(
         operation='TRANSFER',
-        asset=transfer_asset,
+        assets=transfer_asset,
         inputs=transfer_input,
         recipients=carol.public_key)
 

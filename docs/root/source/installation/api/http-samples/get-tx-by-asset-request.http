@@ -1,3 +1,3 @@
-GET /api/v1/transactions?operation=TRANSFER&asset_id=6438c733f53dff60bdeded80e8c95126dd3a7ce8c1ee5d5591d030e61cde35d2 HTTP/1.1
+GET /api/v1/transactions?operation=TRANSFER&asset_id=61e1312b80705e0dabb948c9d78dae7f62d64832abda822b13d89c4a7305d4ac HTTP/1.1
 Host: example.com
 

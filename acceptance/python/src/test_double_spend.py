@@ -26,7 +26,7 @@ def test_double_create():
             bdb.transactions.prepare(
                 operation='CREATE',
                 signers=alice.public_key,
-                asset={'data': {'uuid': str(uuid4())}}),
+                assets={'data': {'uuid': str(uuid4())}}),
             private_keys=alice.private_key)
 
     def send_and_queue(tx):

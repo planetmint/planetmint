@@ -44,13 +44,13 @@ def test_basic():
     # ## Alice registers her bike in Planetmint
     # Alice has a nice bike, and here she creates the "digital twin"
     # of her bike.
-    bike = {'data': {'bicycle': {'serial_number': 420420}}}
+    bike = [{'data': {'bicycle': {'serial_number': 420420}}}]
 
     # She prepares a `CREATE` transaction...
     prepared_creation_tx = bdb.transactions.prepare(
             operation='CREATE',
             signers=alice.public_key,
-            asset=bike)
+            assets=bike)
 
     # ... and she fulfills it with her private key.
     fulfilled_creation_tx = bdb.transactions.fulfill(
@@ -98,7 +98,7 @@ def test_basic():
     # Now that all the elements are set, she creates the actual transaction...
     prepared_transfer_tx = bdb.transactions.prepare(
             operation='TRANSFER',
-            asset=transfer_asset,
+            assets=transfer_asset,
             inputs=transfer_input,
             recipients=bob.public_key)
 

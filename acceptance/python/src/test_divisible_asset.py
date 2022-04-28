@@ -68,7 +68,7 @@ def test_divisible_assets():
         operation='CREATE',
         signers=alice.public_key,
         recipients=[([bob.public_key], 10)],
-        asset=bike_token)
+        assets=bike_token)
 
     # She fulfills and sends the transaction.
     fulfilled_token_tx = bdb.transactions.fulfill(
@@ -108,7 +108,7 @@ def test_divisible_assets():
     # amount he wants to use to Alice.
     prepared_transfer_tx = bdb.transactions.prepare(
         operation='TRANSFER',
-        asset=transfer_asset,
+        assets=transfer_asset,
         inputs=transfer_input,
         recipients=[([alice.public_key], 3), ([bob.public_key], 7)])
 
@@ -155,7 +155,7 @@ def test_divisible_assets():
     # to spend all his tokens
     prepared_transfer_tx = bdb.transactions.prepare(
         operation='TRANSFER',
-        asset=transfer_asset,
+        assets=transfer_asset,
         inputs=transfer_input,
         recipients=[([alice.public_key], 8)])
 

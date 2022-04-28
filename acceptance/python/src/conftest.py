@@ -36,20 +36,22 @@ FULFILL_SCRIPT = \
     When I verify the 'houses' has a signature in 'data.signature' by 'Alice'
     Then print the string 'ok'"""
 
-HOUSE_ASSETS = {
-    "data": {
-        "houses": [
-            {
-                "name": "Harry",
-                "team": "Gryffindor",
-            },
-            {
-                "name": "Draco",
-                "team": "Slytherin",
-            }
-        ],
+HOUSE_ASSETS = [
+    {
+        "data": {
+            "houses": [
+                {
+                    "name": "Harry",
+                    "team": "Gryffindor",
+                },
+                {
+                    "name": "Draco",
+                    "team": "Slytherin",
+                }
+            ],
+        }
     }
-}
+]
 
 ZENROOM_DATA = {
     'also': 'more data'
