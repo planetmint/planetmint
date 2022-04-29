@@ -62,3 +62,7 @@ keys:create_index('id_search', {type = 'hash', parts={'id'}})
 keys:create_index('keys_search', {type = 'tree', unique=false, parts={'public_key'}})
 keys:create_index('txid_search', {type = 'tree', unique=false, parts={'transaction_id'}})
 keys:create_index('output_search', {type = 'tree', unique=false, parts={'output_id'}})
+
+utxos = box.schema.space.create('utxos')
+utxos:format({{name='transaction_id' , type='string'}, {name='output_index' , type='integer'}})
+utxos:create_index('id_search', {type='hash' , parts={'transaction_id', 'output_index'}})
