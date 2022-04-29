@@ -465,7 +465,7 @@ def test_validator_update(db_conn):
 
     for i in range(1, 100, 10):
         value = gen_validator_update(i)
-        query.store_validator_set(connection=conn, validators_update=value)
+        query.store_validator_set(conn=conn, validators_update=value)
 
     v1 = query.get_validator_set(connection=conn, height=8)
     assert v1['height'] == 1

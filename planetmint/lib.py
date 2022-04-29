@@ -35,7 +35,6 @@ from planetmint.tendermint_utils import encode_transaction, merkleroot
 from planetmint import exceptions as core_exceptions
 from planetmint.validation import BaseValidationRules
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -139,11 +138,11 @@ class Planetmint(object):
             asset = transaction.pop('asset')
             asset_id = transaction['id']
             if transaction['operation'] != t.CREATE:
-                 asset_id = asset['id']
-            assets.append( (asset, 
-                            transaction['id'], 
-                            asset_id))
-            
+                asset_id = asset['id']
+            assets.append((asset,
+                           transaction['id'],
+                           asset_id))
+
             metadata = transaction.pop('metadata')
             txn_metadatas.append({'id': transaction['id'],
                                   'metadata': metadata})
@@ -184,7 +183,7 @@ class Planetmint(object):
         """
         if unspent_outputs:
             return backend.query.store_unspent_outputs(
-                                            self.connection, *unspent_outputs)
+                self.connection, *unspent_outputs)
 
     def get_utxoset_merkle_root(self):
         """Returns the merkle root of the utxoset. This implies that
@@ -238,7 +237,7 @@ class Planetmint(object):
         """
         if unspent_outputs:
             return backend.query.delete_unspent_outputs(
-                                        self.connection, *unspent_outputs)
+                self.connection, *unspent_outputs)
 
     def is_committed(self, transaction_id):
         transaction = backend.query.get_transaction(self.connection, transaction_id)
@@ -246,20 +245,19 @@ class Planetmint(object):
 
     def get_transaction(self, transaction_id):
         transaction = backend.query.get_transaction(self.connection, transaction_id)
-
-        #if transaction:
+        # if transaction:
         #    asset = backend.query.get_asset(self.connection, transaction_id)
         #    metadata = backend.query.get_metadata(self.connection, [transaction_id])
         #    if asset:
         #        transaction['asset'] = asset
-#
+        #
         #    if 'metadata' not in transaction:
         #        metadata = metadata[0] if metadata else None
         #        if metadata:
         #            metadata = metadata.get('metadata')
-#
+        #
         #        transaction.update({'metadata': metadata})
-#
+        #
         #    transaction = Transaction.from_dict(transaction)
         transaction = Transaction.from_dict(transaction)
 
@@ -310,9 +308,9 @@ class Planetmint(object):
         current_spent_transactions = []
         for ctxn in current_transactions:
             for ctxn_input in ctxn.inputs:
-                if ctxn_input.fulfills and\
-                   ctxn_input.fulfills.txid == txid and\
-                   ctxn_input.fulfills.output == output:
+                if ctxn_input.fulfills and \
+                        ctxn_input.fulfills.txid == txid and \
+                        ctxn_input.fulfills.output == output:
                     current_spent_transactions.append(ctxn)
 
         transaction = None
@@ -458,7 +456,6 @@ class Planetmint(object):
         return backend.query.get_election(self.connection, election_id)
 
     def get_pre_commit_state(self):
-        print(f"CONNECTION {self.connection} !!!!!")
         return backend.query.get_pre_commit_state(self.connection)
 
     def store_pre_commit_state(self, state):
