@@ -11,11 +11,9 @@ There is some specialized terminology associated with Planetmint. To get started
 
 ### Planetmint Node
 
-<<<<<<< HEAD
-A **Planetmint node** is a machine (or logical machine) running [Planetmint Server](https://docs.planetmint.com/projects/server/en/latest/introduction.html) and related software. Each node is controlled by one person or organization.
-=======
-A **Planetmint node** is a machine (or logical machine) running [Planetmint Server](https://docs.planetmint.io/projects/server/en/latest/introduction.html) and related software. Each node is controlled by one person or organization.
->>>>>>> 3bfc3298f8210b135084e823eedd47f213538088
+**Planetmint node** is a machine (or logical machine) running [Planetmint Server](https://docs.planetmint.com/projects/server/en/latest/introduction.html) and related software. Each node is controlled by one person or organization.
+
+**Planetmint node** is a machine (or logical machine) running [Planetmint Server](https://docs.planetmint.io/projects/server/en/latest/introduction.html) and related software. Each node is controlled by one person or organization.
 
 ### Planetmint Network
 
@@ -80,10 +78,7 @@ You could do more elaborate things too. As one example, each time someone writes
 
 ### Role-Based Access Control (RBAC)
 
-<<<<<<< HEAD
 In September 2017, we published a [blog post about how one can define an RBAC sub-system on top of Planetmint](https://blog.planetmint.com/role-based-access-control-for-planetmint-assets-b7cada491997).
-=======
-In September 2017, BigchainDB published a [blog post about how one can define an RBAC sub-system on top of Planetmint](https://blog.bigchaindb.com/role-based-access-control-for-planetmint-assets-b7cada491997).
->>>>>>> 3bfc3298f8210b135084e823eedd47f213538088
+
 At the time of writing (January 2018), doing so required the use of a plugin, so it's not possible using standard Planetmint (which is what's available on the [IPDB Testnet](https://test.ipdb.io/>). That may change in the future.
 If you're interested, `contact IPDB <contact@ipdb.global>`_.
