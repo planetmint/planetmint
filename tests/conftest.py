@@ -18,6 +18,7 @@ from collections import namedtuple
 from logging import getLogger
 from logging.config import dictConfig
 from planetmint.backend.connection import Connection
+from planetmint.backend.tarantool.connection import TarantoolDB
 
 import pytest
 # from pymongo import MongoClient
@@ -516,15 +517,19 @@ def unspent_output_2():
 def unspent_outputs(unspent_output_0, unspent_output_1, unspent_output_2):
     return unspent_output_0, unspent_output_1, unspent_output_2
 
+@pytest.fixture
+def tarantool_client(db_context):  # TODO Here add TarantoolConnectionClass
+   return TarantoolDB(host=db_context.host, port=db_context.port)
 
 #@pytest.fixture
 #def mongo_client(db_context):  # TODO Here add TarantoolConnectionClass
 #    return None  # MongoClient(host=db_context.host, port=db_context.port)
 #
 #
-#@pytest.fixture
-#def utxo_collection(db_context, mongo_client):
-#    return mongo_client[db_context.name].utxos
+
+@pytest.fixture
+def utxo_collection(tarantool_client):
+   return tarantool_client.space("utxos")
 
 
 @pytest.fixture
@@ -536,12 +541,13 @@ def dummy_unspent_outputs():
     ]
 
 
-#@pytest.fixture
-#def utxoset(dummy_unspent_outputs, utxo_collection):
-#    res = utxo_collection.insert_many(copy.deepcopy(dummy_unspent_outputs))
-#    assert res.acknowledged
-#    assert len(res.inserted_ids) == 3
-#    return dummy_unspent_outputs, utxo_collection
+@pytest.fixture
+def utxoset(dummy_unspent_outputs, utxo_collection):
+    for utxo in dummy_unspent_outputs:
+        res = utxo_collection.insert((utxo["transaction_id"], utxo["output_index"]))
+        assert res
+    assert len(utxo_collection.select()) == 3
+    return dummy_unspent_outputs, utxo_collection
 
 
 @pytest.fixture
