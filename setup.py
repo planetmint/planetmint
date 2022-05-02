@@ -43,7 +43,8 @@ dev_require = [
     'ipython',
     'watchdog',
     'logging_tree',
-    'pre-commit'
+    'pre-commit',
+    'twine'
 ]
 
 docs_require = [
