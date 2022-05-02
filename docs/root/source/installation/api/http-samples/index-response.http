@@ -6,11 +6,7 @@ Content-Type: application/json
     "v1": {
       "assets": "/api/v1/assets/",
       "blocks": "/api/v1/blocks/",
-<<<<<<< Updated upstream
-      "docs": "https://docs.planetmint.com/projects/server/en/v0.9.0/http-client-server-api.html",
-=======
-      "docs": "https://docs.bigchaindb.com/projects/server/en/v0.9.0/http-client-server-api.html",
->>>>>>> Stashed changes
+      "docs": "https://docs.planetmint.com/projects/server/en/v0.9.1/http-client-server-api.html",
       "metadata": "/api/v1/metadata/",
       "outputs": "/api/v1/outputs/",
       "streams": "ws://localhost:9985/api/v1/streams/valid_transactions",
@@ -18,11 +14,7 @@ Content-Type: application/json
       "validators": "/api/v1/validators"
     }
   },
-<<<<<<< Updated upstream
-  "docs": "https://docs.planetmint.com/projects/server/en/v0.9.0/",
-=======
-  "docs": "https://docs.bigchaindb.com/projects/server/en/v0.9.0/",
->>>>>>> Stashed changes
+  "docs": "https://docs.planetmint.com/projects/server/en/v0.9.1/",
   "software": "Planetmint",
-  "version": "0.9.0"
+  "version": "0.9.1"
 }

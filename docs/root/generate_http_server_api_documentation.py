@@ -9,12 +9,8 @@ import json
 import os
 import os.path
 
-<<<<<<< Updated upstream
 from planetmint.transactions.common.input import Input
 from planetmint.transactions.common.transaction_link import TransactionLink
-=======
-from planetmint.common.transaction import Transaction, Input, TransactionLink
->>>>>>> Stashed changes
 from planetmint import lib
 from planetmint.transactions.types.assets.create import Create
 from planetmint.transactions.types.assets.transfer import Transfer
