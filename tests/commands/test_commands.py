@@ -74,7 +74,7 @@ def test_bigchain_show_config(capsys):
     run_show_config(args)
     output_config = json.loads(capsys.readouterr()[0])
     sorted_output_config = json.dumps(output_config, indent=4, sort_keys=True)
-    print( f"config : {sorted_output_config}")
+    print(f"config : {sorted_output_config}")
     # Note: This test passed previously because we were always
     # using the default configuration parameters, but since we
     # are running with docker-compose now and expose parameters like
@@ -85,19 +85,20 @@ def test_bigchain_show_config(capsys):
     from planetmint.config import Config
     _config = Config().get()
     sorted_config = json.dumps(_config, indent=4, sort_keys=True)
-    print( f"_config : {sorted_config}")
-    #del sorted_config['CONFIGURED']
+    print(f"_config : {sorted_config}")
+    # del sorted_config['CONFIGURED']
     assert sorted_output_config == sorted_config
+
 
 def test__run_init(mocker):
     init_db_mock = mocker.patch(
         'planetmint.backend.tarantool.connection.TarantoolDB.init_database')
 
     from planetmint.backend.connection import Connection
-    
+
     conn = Connection()
     conn.init_database()
-    
+
     init_db_mock.assert_called_once_with()
 
 
@@ -183,7 +184,7 @@ def test_run_configure_when_config_does_exist(monkeypatch,
 
 @pytest.mark.skip
 @pytest.mark.parametrize('backend', (
-    'localmongodb',
+        'localmongodb',
 ))
 def test_run_configure_with_backend(backend, monkeypatch, mock_write_config):
     import planetmint
@@ -232,14 +233,14 @@ def test_calling_main(start_mock, monkeypatch):
                                           help='Prepare the config file.')
     subparsers.add_parser.assert_any_call('show-config',
                                           help='Show the current '
-                                          'configuration')
+                                               'configuration')
     subparsers.add_parser.assert_any_call('init', help='Init the database')
     subparsers.add_parser.assert_any_call('drop', help='Drop the database')
 
     subparsers.add_parser.assert_any_call('start', help='Start Planetmint')
     subparsers.add_parser.assert_any_call('tendermint-version',
                                           help='Show the Tendermint supported '
-                                          'versions')
+                                               'versions')
 
     assert start_mock.called is True
 
@@ -269,14 +270,14 @@ def test_run_recover(b, alice, bob):
                              [([alice.public_key], 1)],
                              asset={'cycle': 'hero'},
                              metadata={'name': 'hohenheim'}) \
-                     .sign([alice.private_key])
+        .sign([alice.private_key])
     tx2 = Transaction.create([bob.public_key],
                              [([bob.public_key], 1)],
                              asset={'cycle': 'hero'},
                              metadata={'name': 'hohenheim'}) \
-                     .sign([bob.private_key])
-    print( tx1.id)
-    print( tx2.id)
+        .sign([bob.private_key])
+    print(tx1.id)
+    print(tx2.id)
     # store the transactions
     b.store_bulk_transactions([tx1, tx2])
 
@@ -513,8 +514,8 @@ def test_election_approve_called_with_bad_key(caplog, b, bad_validator_path, new
 
     with caplog.at_level(logging.ERROR):
         assert not run_election_approve(args, b)
-        assert caplog.records[0].msg == 'The key you provided does not match any of '\
-            'the eligible voters in this election.'
+        assert caplog.records[0].msg == 'The key you provided does not match any of ' \
+                                        'the eligible voters in this election.'
 
 
 @pytest.mark.bdb
@@ -538,19 +539,19 @@ def test_chain_migration_election_show_shows_inconclusive(b):
     b.store_bulk_transactions([election])
 
     assert run_election_show(Namespace(election_id=election.id), b) == \
-        'status=ongoing'
+           'status=ongoing'
 
     b.store_block(Block(height=1, transactions=[], app_hash='')._asdict())
     b.store_validator_set(2, [v['storage'] for v in validators])
 
     assert run_election_show(Namespace(election_id=election.id), b) == \
-        'status=ongoing'
+           'status=ongoing'
 
     b.store_block(Block(height=2, transactions=[], app_hash='')._asdict())
     # TODO insert yet another block here when upgrading to Tendermint 0.22.4.
 
     assert run_election_show(Namespace(election_id=election.id), b) == \
-        'status=inconclusive'
+           'status=inconclusive'
 
 
 @pytest.mark.bdb
@@ -574,7 +575,7 @@ def test_chain_migration_election_show_shows_concluded(b):
     Election.process_block(b, 1, [election])
 
     assert run_election_show(Namespace(election_id=election.id), b) == \
-        'status=ongoing'
+           'status=ongoing'
 
     b.store_abci_chain(1, 'chain-X')
     b.store_block(Block(height=1,
@@ -583,7 +584,7 @@ def test_chain_migration_election_show_shows_concluded(b):
     Election.process_block(b, 2, votes)
 
     assert run_election_show(Namespace(election_id=election.id), b) == \
-        f'''status=concluded
+           f'''status=concluded
 chain_id=chain-X-migrated-at-height-1
 app_hash=last_app_hash
 validators=[{''.join([f"""
@@ -618,7 +619,6 @@ def mock_get_validators(height):
 
 
 def call_election(b, new_validator, node_key):
-
     def mock_write(tx, mode):
         b.store_bulk_transactions([tx])
         return (202, '')

@@ -269,8 +269,10 @@ def run_drop(args):
             return
 
     from planetmint.backend.connection import Connection
+    from planetmint.backend import schema
     conn = Connection()
-    conn.drop_database()
+    # conn.drop_database()
+    schema.drop_database(connection=conn)
 
 
 def run_recover(b):

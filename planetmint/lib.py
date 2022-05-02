@@ -297,7 +297,6 @@ class Planetmint(object):
     def get_spent(self, txid, output, current_transactions=[]):
         transactions = backend.query.get_spent(self.connection, txid,
                                                output)
-        # print(f"spent TX: {transactions}")
         transactions = list(transactions) if transactions else []
         if len(transactions) > 1:
             raise core_exceptions.CriticalDoubleSpend(

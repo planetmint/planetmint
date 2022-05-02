@@ -196,14 +196,10 @@ class TransactionCompose:
     def convert_to_dict(self):
         transaction = {k: None for k in list(self._map.keys())}
         transaction["id"] = self._get_transaction_id()
-        if "asset" in transaction:
-            transaction["asset"] = self._get_asset()
-        if "metadata" in transaction:
-            transaction["metadata"] = self._get_metadata()
+        transaction["asset"] = self._get_asset()
+        transaction["metadata"] = self._get_metadata()
         transaction["version"] = self._get_transaction_version()
         transaction["operation"] = self._get_transaction_operation()
         transaction["inputs"] = self._get_inputs()
         transaction["outputs"] = self._get_outputs()
-        # test = transaction["asset"]
-        # print(f"compose asset : {test}")
         return transaction
