@@ -5,7 +5,7 @@
 
 import logging
 import tarantool
-
+from planetmint.common.exceptions import DatabaseDoesNotExist
 from planetmint.config import Config
 from planetmint.common.exceptions import ConfigurationError
 
@@ -60,14 +60,14 @@ class TarantoolDB:
         return cmd_resp
 
     def run_command(self, command: str, config: dict):
-        import subprocess
+        from subprocess import Popen, PIPE, run
         print(f" commands: {command}")
-        ret = subprocess.Popen(
+        ret = Popen(
             ['%s %s:%s < %s' % ("tarantoolctl connect", self.host, self.port, command)],
-            stdin=subprocess.PIPE,
-            stdout=subprocess.PIPE,
+            stdin=PIPE,
+            stdout=PIPE,
             universal_newlines=True,
             bufsize=1,
-            shell=True).stdout.readlines()
-        # TODO verify if subprocess creation worked properly
-        return True if "nil value" not in ret else False
+            shell=True).stdout  # TODO stdout is not apppearing
+        print(f"ret ---- {ret.readlines()} ------")
+        return False if "nil value" in ret else True

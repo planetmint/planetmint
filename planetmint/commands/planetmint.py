@@ -259,7 +259,7 @@ def run_init(args):
     _run_init()
 
 
-@configure_planetmint
+# @configure_planetmint
 def run_drop(args):
     """Drop the database"""
 
@@ -271,8 +271,8 @@ def run_drop(args):
     from planetmint.backend.connection import Connection
     from planetmint.backend import schema
     conn = Connection()
-    # conn.drop_database()
-    schema.drop_database(connection=conn)
+    return conn.drop_database()
+    # schema.drop_database(connection=conn)
 
 
 def run_recover(b):
