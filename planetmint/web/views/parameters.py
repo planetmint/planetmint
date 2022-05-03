@@ -13,6 +13,13 @@ def valid_txid(txid):
         return txid.lower()
     raise ValueError('Invalid hash')
 
+def valid_txid_list(txids):
+    txids = txids.split(',')
+    r = re.compile('^[a-fA-F0-9]{64}$')
+    valid_txids = list(filter(r.match, txids))
+    if not len(txids) == len(valid_txids):
+        raise ValueError('List contains invalid hash')
+    return [txid.lower() for txid in valid_txids]
 
 def valid_bool(val):
     val = val.lower()

@@ -47,7 +47,7 @@ class TransactionListApi(Resource):
     def get(self):
         parser = reqparse.RequestParser()
         parser.add_argument('operation', type=parameters.valid_operation)
-        parser.add_argument('asset_id', type=parameters.valid_txid,
+        parser.add_argument('asset_ids', type=parameters.valid_txid_list,
                             required=True)
         parser.add_argument('last_tx', type=parameters.valid_bool,
                             required=False)

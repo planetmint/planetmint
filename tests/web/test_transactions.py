@@ -369,24 +369,24 @@ def test_transactions_get_list_good(client):
         return [type('', (), {'to_dict': partial(lambda a: a, arg)})
                 for arg in sorted(args.items())]
 
-    asset_id = '1' * 64
+    asset_ids = ['1' * 64]
 
     with patch('planetmint.Planetmint.get_transactions_filtered', get_txs_patched):
-        url = TX_ENDPOINT + '?asset_id=' + asset_id
+        url = TX_ENDPOINT + '?asset_ids=' + ','.join(asset_ids)
         assert client.get(url).json == [
-            ['asset_id', asset_id],
+            ['asset_ids', asset_ids],
             ['last_tx', None],
             ['operation', None]
         ]
-        url = TX_ENDPOINT + '?asset_id=' + asset_id + '&operation=CREATE'
+        url = TX_ENDPOINT + '?asset_ids=' + ','.join(asset_ids) + '&operation=CREATE'
         assert client.get(url).json == [
-            ['asset_id', asset_id],
+            ['asset_ids', asset_ids],
             ['last_tx', None],
             ['operation', 'CREATE']
         ]
-        url = TX_ENDPOINT + '?asset_id=' + asset_id + '&last_tx=true'
+        url = TX_ENDPOINT + '?asset_ids=' + ','.join(asset_ids) + '&last_tx=true'
         assert client.get(url).json == [
-            ['asset_id', asset_id],
+            ['asset_ids', asset_ids],
             ['last_tx', True],
             ['operation', None]
         ]
