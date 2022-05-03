@@ -50,7 +50,7 @@ def test_divisible_assets():
     # the description, Bob and Alice agree that each token can be used to ride
     # the bike for one hour.
 
-    bike_token = {
+    bike_token = [{
         'data': {
             'token_for': {
                 'bike': {
@@ -59,7 +59,7 @@ def test_divisible_assets():
             },
             'description': 'Time share token. Each token equals one hour of riding.',
         },
-    }
+    }]
 
     # She prepares a `CREATE` transaction and issues 10 tokens.
     # Here, Alice defines in a tuple that she wants to assign
@@ -94,7 +94,7 @@ def test_divisible_assets():
     # To use the bike he has to send the tokens back to Alice.
     # To learn about the details of transferring a transaction check out
     # [test_basic.py](./test_basic.html)
-    transfer_asset = {'id': bike_token_id}
+    transfer_assets = [{'id': bike_token_id}]
 
     output_index = 0
     output = fulfilled_token_tx['outputs'][output_index]
@@ -108,7 +108,7 @@ def test_divisible_assets():
     # amount he wants to use to Alice.
     prepared_transfer_tx = bdb.transactions.prepare(
         operation='TRANSFER',
-        assets=transfer_asset,
+        assets=transfer_assets,
         inputs=transfer_input,
         recipients=[([alice.public_key], 3), ([bob.public_key], 7)])
 
@@ -136,7 +136,7 @@ def test_divisible_assets():
     # Now he wants to ride for 8 hours, that's a lot Bob!
     # He prepares the transaction again.
 
-    transfer_asset = {'id': bike_token_id}
+    transfer_assets = [{'id': bike_token_id}]
     # This time we need an `output_index` of 1, since we have two outputs
     # in the `fulfilled_transfer_tx` we created before. The first output with
     # index 0 is for Alice and the second output is for Bob.
@@ -155,7 +155,7 @@ def test_divisible_assets():
     # to spend all his tokens
     prepared_transfer_tx = bdb.transactions.prepare(
         operation='TRANSFER',
-        assets=transfer_asset,
+        assets=transfer_assets,
         inputs=transfer_input,
         recipients=[([alice.public_key], 8)])
 

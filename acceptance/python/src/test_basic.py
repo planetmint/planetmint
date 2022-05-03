@@ -78,7 +78,7 @@ def test_basic():
 
     # A `TRANSFER` transaction contains a pointer to the original asset. The original asset
     # is identified by the `id` of the `CREATE` transaction that defined it.
-    transfer_asset = {'id': bike_id}
+    transfer_assets = [{'id': bike_id}]
 
     # Alice wants to spend the one and only output available, the one with index `0`.
     output_index = 0
@@ -98,7 +98,7 @@ def test_basic():
     # Now that all the elements are set, she creates the actual transaction...
     prepared_transfer_tx = bdb.transactions.prepare(
             operation='TRANSFER',
-            assets=transfer_asset,
+            assets=transfer_assets,
             inputs=transfer_input,
             recipients=bob.public_key)
 
