@@ -38,6 +38,12 @@ class TarantoolDB:
             logger.info('Exception in _connect(): {}')
             raise ConfigurationError
 
+    def _file_content_to_bytes(self, path):
+        with open(path, "r") as f:
+            execute = f.readlines()
+            f.close()
+        return "".join(execute).encode()
+
     def _reconnect(self):
         self.db_connect = tarantool.connect(host=self.host, port=self.port)
 
@@ -60,14 +66,14 @@ class TarantoolDB:
         return cmd_resp
 
     def run_command(self, command: str, config: dict):
-        from subprocess import Popen, PIPE, run
+        from subprocess import run
         print(f" commands: {command}")
-        ret = Popen(
-            ['%s %s:%s < %s' % ("tarantoolctl connect", self.host, self.port, command)],
-            stdin=PIPE,
-            stdout=PIPE,
-            universal_newlines=True,
-            bufsize=1,
-            shell=True).stdout  # TODO stdout is not apppearing
-        print(f"ret ---- {ret.readlines()} ------")
-        return False if "nil value" in ret else True
+        host_port = "%s:%s" % (self.host, self.port)
+        execute_cmd = self._file_content_to_bytes(path=command)
+        output = run(["tarantoolctl", "connect", host_port],
+                     input=execute_cmd,
+                     capture_output=True).stderr
+        output = output.decode()
+        if "nil value" in output:
+            raise DatabaseDoesNotExist
+        return False if "nil value" in output else True
