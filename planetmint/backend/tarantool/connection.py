@@ -57,13 +57,13 @@ class TarantoolDB:
         db_config = Config().get()["database"]
         cmd_resp = self.run_command(command=self.drop_path, config=db_config)
         self._reconnect()
-        return cmd_resp
+        # if "nil" in cmd_resp:
+        #     raise DatabaseDoesNotExist
 
     def init_database(self):
         db_config = Config().get()["database"]
         cmd_resp = self.run_command(command=self.init_path, config=db_config)
         self._reconnect()
-        return cmd_resp
 
     def run_command(self, command: str, config: dict):
         from subprocess import run
@@ -74,6 +74,4 @@ class TarantoolDB:
                      input=execute_cmd,
                      capture_output=True).stderr
         output = output.decode()
-        if "nil value" in output:
-            raise DatabaseDoesNotExist
-        return False if "nil value" in output else True
+        return output

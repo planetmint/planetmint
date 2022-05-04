@@ -245,12 +245,9 @@ def run_election_show(args, planet):
 
 
 def _run_init():
-    # bdb = planetmint.Planetmint()
-
-    # schema.init_database(connection=bdb.connection)
-    from planetmint.backend.connection import Connection
-    conn = Connection()
-    conn.init_database()
+    from planetmint.backend import schema
+    bdb = planetmint.Planetmint()
+    schema.init_database(connection=bdb.connection)
 
 
 @configure_planetmint
@@ -259,7 +256,7 @@ def run_init(args):
     _run_init()
 
 
-# @configure_planetmint
+@configure_planetmint
 def run_drop(args):
     """Drop the database"""
 
@@ -271,8 +268,7 @@ def run_drop(args):
     from planetmint.backend.connection import Connection
     from planetmint.backend import schema
     conn = Connection()
-    return conn.drop_database()
-    # schema.drop_database(connection=conn)
+    schema.drop_database(conn)
 
 
 def run_recover(b):
