@@ -245,21 +245,20 @@ class Planetmint(object):
 
     def get_transaction(self, transaction_id):
         transaction = backend.query.get_transaction(self.connection, transaction_id)
-        # if transaction:
-        #    asset = backend.query.get_asset(self.connection, transaction_id)
-        #    metadata = backend.query.get_metadata(self.connection, [transaction_id])
-        #    if asset:
-        #        transaction['asset'] = asset
-        #
-        #    if 'metadata' not in transaction:
-        #        metadata = metadata[0] if metadata else None
-        #        if metadata:
-        #            metadata = metadata.get('metadata')
-        #
-        #        transaction.update({'metadata': metadata})
-        #
-        #    transaction = Transaction.from_dict(transaction)
-        transaction = Transaction.from_dict(transaction)
+        if transaction:
+            asset = backend.query.get_asset(self.connection, transaction_id)
+            metadata = backend.query.get_metadata(self.connection, [transaction_id])
+            if asset:
+                transaction['asset'] = asset
+
+            if 'metadata' not in transaction:
+                metadata = metadata[0] if metadata else None
+                if metadata:
+                    metadata = metadata.get('metadata')
+
+                transaction.update({'metadata': metadata})
+
+            transaction = Transaction.from_dict(transaction)
 
         return transaction
 
@@ -298,7 +297,6 @@ class Planetmint(object):
     def get_spent(self, txid, output, current_transactions=[]):
         transactions = backend.query.get_spent(self.connection, txid,
                                                output)
-        # print(f"spent TX: {transactions}")
         transactions = list(transactions) if transactions else []
         if len(transactions) > 1:
             raise core_exceptions.CriticalDoubleSpend(

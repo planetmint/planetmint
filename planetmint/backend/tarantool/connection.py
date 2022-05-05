@@ -5,7 +5,7 @@
 
 import logging
 import tarantool
-
+from planetmint.common.exceptions import DatabaseDoesNotExist
 from planetmint.config import Config
 from planetmint.common.exceptions import ConfigurationError
 
@@ -38,6 +38,12 @@ class TarantoolDB:
             logger.info('Exception in _connect(): {}')
             raise ConfigurationError
 
+    def _file_content_to_bytes(self, path):
+        with open(path, "r") as f:
+            execute = f.readlines()
+            f.close()
+        return "".join(execute).encode()
+
     def _reconnect(self):
         self.db_connect = tarantool.connect(host=self.host, port=self.port)
 
@@ -51,23 +57,21 @@ class TarantoolDB:
         db_config = Config().get()["database"]
         cmd_resp = self.run_command(command=self.drop_path, config=db_config)
         self._reconnect()
-        return cmd_resp
+        # if "nil" in cmd_resp:
+        #     raise DatabaseDoesNotExist
 
     def init_database(self):
         db_config = Config().get()["database"]
         cmd_resp = self.run_command(command=self.init_path, config=db_config)
         self._reconnect()
-        return cmd_resp
 
     def run_command(self, command: str, config: dict):
-        import subprocess
+        from subprocess import run
         print(f" commands: {command}")
-        ret = subprocess.Popen(
-            ['%s %s:%s < %s' % ("tarantoolctl connect", self.host, self.port, command)],
-            stdin=subprocess.PIPE,
-            stdout=subprocess.PIPE,
-            universal_newlines=True,
-            bufsize=1,
-            shell=True).stdout.readlines()
-        # TODO verify if subprocess creation worked properly
-        return True if "nil value" not in ret else False
+        host_port = "%s:%s" % (self.host, self.port)
+        execute_cmd = self._file_content_to_bytes(path=command)
+        output = run(["tarantoolctl", "connect", host_port],
+                     input=execute_cmd,
+                     capture_output=True).stderr
+        output = output.decode()
+        return output
