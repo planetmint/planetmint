@@ -51,11 +51,11 @@ def test_write_assets(db_conn):
     # conn = Connection().get_connection()
     conn = db_conn.get_connection()
     assets = [
-        {'id': '1', 'data': '1'},
-        {'id': '2', 'data': '2'},
-        {'id': '3', 'data': '3'},
+        ({'id': '1', 'data': '1'},  '1', '1'),
+        ({'id': '2', 'data': '2'}, '2', '2'),
+        ({'id': '3', 'data': '3'}, '3', '3'),
         # Duplicated id. Should not be written to the database
-        {'id': '1', 'data': '1'}
+        ({'id': '1', 'data': '1'},  '1', '1'),
     ]
 
     # write the assets
@@ -63,7 +63,7 @@ def test_write_assets(db_conn):
         query.store_asset(connection=conn, asset=asset)
 
     # check that 3 assets were written to the database
-    documents = query.get_assets(assets_ids=[asset["id"] for asset in assets], connection=conn)
+    documents = query.get_assets(assets_ids=[asset[2] for asset in assets], connection=conn)
 
     assert len(documents) == 3
     assert list(documents) == assets[:-1]
