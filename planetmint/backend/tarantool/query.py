@@ -99,10 +99,7 @@ def get_transactions(connection, transactions_ids: list):
 def store_metadatas(connection, metadata: list):
     space = connection.space("meta_data")
     for meta in metadata:
-
-        data = meta["data"] if not "metadata" in meta else meta["metadata"]
-        if data:
-            space.insert((meta["id"], meta["data"] if not "metadata" in meta else meta["metadata"]))
+        space.insert((meta["id"], meta["data"] if not "metadata" in meta else meta["metadata"]))
 
 
 @register_query(TarantoolDB)
@@ -120,25 +117,24 @@ def get_metadata(connection, transaction_ids: list):
 # asset: {"id": "asset_id"}
 # asset: {"data": any} -> insert (tx_id, asset["data"]).
 # def store_asset(connection, asset: dict, tx_id=None):
-def store_asset(connection, asset: dict):
+def store_asset(connection, asset):
     space = connection.space("assets")
-    # print(f"DATA  store asset: {asset}")
     try:
-        space.insert(asset)
-        # if tx_id is not None:
-        #    space.insert((asset, tx_id, tx_id))
-        # else:
-        #    space.insert((asset, str(asset["id"]), str(asset["id"])))  # TODO Review this function
-    except:  # TODO Add Raise For Duplicate
-        print("DUPLICATE ERROR")
+        if isinstance(asset, dict):
+            space.insert((asset, asset["id"], asset["id"]))
+        elif isinstance(asset, tuple):
+            space.insert(asset)
+        else:
+            raise Exception(f"Unkown asset format for this query :: {asset} ::")
+    except Exception as err:  # TODO Add Raise For Duplicate
+        print(err)
 
 
 @register_query(TarantoolDB)
 def store_assets(connection, assets: list):
-    space = connection.space("assets")
     for asset in assets:
         try:
-            space.insert(asset)
+            store_asset(asset=asset)
         except Exception as ex:  # TODO Raise ERROR for Duplicate
             print(f"EXCEPTION : {ex} ")
 
@@ -156,8 +152,8 @@ def get_assets(connection, assets_ids: list) -> list:
     _returned_data = []
     for _id in list(set(assets_ids)):
         asset = get_asset(connection, _id)
-        _returned_data.append(tuple(asset))
-    return sorted(_returned_data, key=lambda k: k[0]["id"], reverse=False)
+        _returned_data.append(asset)
+    return sorted(_returned_data, key=lambda k: k["id"], reverse=False)
 
 
 @register_query(TarantoolDB)
