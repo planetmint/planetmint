@@ -9,6 +9,7 @@ from secrets import token_hex
 from operator import itemgetter
 
 from planetmint.backend import query
+from planetmint.backend.exceptions import DuplicateKeyError
 from planetmint.backend.utils import module_dispatch_registrar
 from planetmint.backend.tarantool.connection import TarantoolDB
 from planetmint.backend.tarantool.transaction.tools import TransactionCompose, TransactionDecompose
@@ -333,43 +334,30 @@ def delete_transactions(connection, txn_ids: list):
     for _id in txn_ids:
         assets_space.delete(_id, index="txid_search")
 
-# @register_query(TarantoolDB)
-# def store_unspent_outputs(conn, *unspent_outputs: list):
-#     if unspent_outputs:
-#         try:
-#             return conn.run(
-#                 conn.collection('utxos').insert_many(
-#                     unspent_outputs,
-#                     ordered=False,
-#                 )
-#             )
-#         except DuplicateKeyError:
-#             # TODO log warning at least
-#             pass
-#
-#
-# @register_query(TarantoolDB)
-# def delete_unspent_outputs(conn, *unspent_outputs: list):
-#     if unspent_outputs:
-#         return conn.run(
-#             conn.collection('utxos').delete_many({
-#                 '$or': [{
-#                     '$and': [
-#                         {'transaction_id': unspent_output['transaction_id']},
-#                         {'output_index': unspent_output['output_index']},
-#                     ],
-#                 } for unspent_output in unspent_outputs]
-#             })
-#         )
-#
-#
-# @register_query(TarantoolDB)
-# def get_unspent_outputs(conn, *, query=None):
-#     if query is None:
-#         query = {}
-#     return conn.run(conn.collection('utxos').find(query,
-#                                                   projection={'_id': False}))
+@register_query(TarantoolDB)
+def store_unspent_outputs(connection, *unspent_outputs: list):
+    space = connection.space('utxos')
+    if unspent_outputs:
+        for utxo in unspent_outputs:
+            try:
+                yield space.insert((utxo['transaction_id'], utxo['output_index']))
+            except DuplicateKeyError:
+                # TODO log warning at least
+                pass
 
+
+@register_query(TarantoolDB)
+def delete_unspent_outputs(connection, *unspent_outputs: list):
+    space = connection.space('utxos')
+    if unspent_outputs:
+        for utxo in unspent_outputs:
+            yield space.delete((utxo['transaction_id'], utxo['output_index']))
+
+
+@register_query(TarantoolDB)
+def get_unspent_outputs(connection):
+    space = connection.space('utxos')
+    return space.select()
 
 @register_query(TarantoolDB)
 def store_pre_commit_state(connection, state: dict):

@@ -103,10 +103,7 @@ def _configure_planetmint(request):
 
     config = {
         'database': Config().get_db_map(backend),
-        'tendermint': {
-            'host': 'localhost',
-            'port': 26657,
-        }
+        'tendermint': Config()._private_real_config["tendermint"]
     }
     config['database']['name'] = test_db_name
     config = config_utils.env_config(config)

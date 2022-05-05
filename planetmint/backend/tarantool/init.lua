@@ -1,4 +1,4 @@
-abci_chains = box.schema.space.create('abci_chains',{engine = 'memtx' , is_sync = false})
+abci_chains = box.schema.space.create('abci_chains', {engine='memtx', is_sync = false})
 abci_chains:format({{name='height' , type='integer'},{name='is_synched' , type='boolean'},{name='chain_id',type='string'}})
 abci_chains:create_index('id_search' ,{type='hash', parts={'chain_id'}})
 abci_chains:create_index('height_search' ,{type='tree',unique=false, parts={'height'}})
@@ -63,6 +63,8 @@ keys:create_index('keys_search', {type = 'tree', unique=false, parts={'public_ke
 keys:create_index('txid_search', {type = 'tree', unique=false, parts={'transaction_id'}})
 keys:create_index('output_search', {type = 'tree', unique=false, parts={'output_id'}})
 
-utxos = box.schema.space.create('utxos')
+utxos = box.schema.space.create('utxos', {engine = 'memtx' , is_sync = false})
 utxos:format({{name='transaction_id' , type='string'}, {name='output_index' , type='integer'}})
 utxos:create_index('id_search', {type='hash' , parts={'transaction_id', 'output_index'}})
+utxos:create_index('transaction_search', {type='tree', unique=false, parts={'transaction_id'}})
+utxos:create_index('index_search', {type='tree', unique=false, parts={'output_index'}})

@@ -17,15 +17,13 @@ def _check_spaces_by_list(conn, space_names):
     return _exists
 
 
-def test_create_tables():
-    db_conn = TarantoolDB("localhost", 3303)
+def test_create_tables(db_conn):
     db_conn.drop_database()
     db_conn.init_database()
     assert db_conn.SPACE_NAMES == _check_spaces_by_list(conn=db_conn, space_names=db_conn.SPACE_NAMES)
 
 
-def test_drop():  # remove dummy_db as argument
-    db_conn = TarantoolDB("localhost", 3303)
+def test_drop(db_conn):  # remove dummy_db as argument
     db_conn.drop_database()
     actual_spaces = _check_spaces_by_list(conn=db_conn, space_names=db_conn.SPACE_NAMES)
     assert [] == actual_spaces

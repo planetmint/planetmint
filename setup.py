@@ -80,7 +80,7 @@ install_requires = [
     'planetmint-cryptoconditions>=0.9.0',
     'flask-cors==3.0.10',
     'flask-restful==0.3.9',
-    'flask==2.0.1',
+    'flask==2.1.2',
     'gunicorn==20.1.0',
     'jsonschema==3.2.0',
     'logstats==0.3.0',
