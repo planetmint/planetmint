@@ -132,8 +132,9 @@ def test_drop_db_when_db_does_not_exist(mock_db_drop, capsys):
 
     run_drop(args)
     output_message = capsys.readouterr()[1]
-    assert output_message == "Cannot drop '{name}'. The database does not exist.\n".format(
-         name=Config().get()['database']['name'])
+    assert output_message == "Drop was executed, but spaces doesn't exist.\n"
+    # assert output_message == "Cannot drop '{name}'. The database does not exist.\n".format(
+    #      name=Config().get()['database']['name'])
 
 
 @patch('planetmint.backend.schema.drop_database')

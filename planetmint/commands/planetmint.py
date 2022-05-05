@@ -268,7 +268,10 @@ def run_drop(args):
     from planetmint.backend.connection import Connection
     from planetmint.backend import schema
     conn = Connection()
-    schema.drop_database(conn)
+    try:
+        schema.drop_database(conn)
+    except DatabaseDoesNotExist:
+        print("Drop was executed, but spaces doesn't exist.", file=sys.stderr)
 
 
 def run_recover(b):

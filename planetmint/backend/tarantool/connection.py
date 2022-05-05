@@ -5,7 +5,7 @@
 
 import logging
 import tarantool
-from planetmint.common.exceptions import DatabaseDoesNotExist
+
 from planetmint.config import Config
 from planetmint.common.exceptions import ConfigurationError
 
@@ -57,8 +57,6 @@ class TarantoolDB:
         db_config = Config().get()["database"]
         cmd_resp = self.run_command(command=self.drop_path, config=db_config)
         self._reconnect()
-        # if "nil" in cmd_resp:
-        #     raise DatabaseDoesNotExist
 
     def init_database(self):
         db_config = Config().get()["database"]
