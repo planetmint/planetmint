@@ -335,16 +335,13 @@ def delete_transactions(connection, txn_ids: list):
     for _id in txn_ids:
         assets_space.delete(_id, index="txid_search")
 
+
 @register_query(TarantoolDB)
 def store_unspent_outputs(connection, *unspent_outputs: list):
     space = connection.space('utxos')
     if unspent_outputs:
         for utxo in unspent_outputs:
-            try:
-                yield space.insert((utxo['transaction_id'], utxo['output_index']))
-            except DuplicateKeyError:
-                # TODO log warning at least
-                pass
+            space.insert((utxo['transaction_id'], utxo['output_index']))
 
 
 @register_query(TarantoolDB)
@@ -352,13 +349,14 @@ def delete_unspent_outputs(connection, *unspent_outputs: list):
     space = connection.space('utxos')
     if unspent_outputs:
         for utxo in unspent_outputs:
-            yield space.delete((utxo['transaction_id'], utxo['output_index']))
+            space.delete((utxo['transaction_id'], utxo['output_index']))
 
 
 @register_query(TarantoolDB)
 def get_unspent_outputs(connection):
     space = connection.space('utxos')
     return space.select()
+
 
 @register_query(TarantoolDB)
 def store_pre_commit_state(connection, state: dict):
