@@ -46,14 +46,19 @@ class TestBigchainApi(object):
     def test_double_inclusion(self, b, alice):
         from planetmint.models import Transaction
         from planetmint.backend.exceptions import OperationError
+        from tarantool.error import DatabaseError
+        from planetmint.backend.tarantool.connection import TarantoolDB
 
         tx = Transaction.create([alice.public_key], [([alice.public_key], 1)])
         tx = tx.sign([alice.private_key])
 
         b.store_bulk_transactions([tx])
-
-        with pytest.raises(OperationError):
-            b.store_bulk_transactions([tx])
+        if isinstance(b.connection, TarantoolDB):
+            with pytest.raises(DatabaseError):
+                b.store_bulk_transactions([tx])
+        else:
+            with pytest.raises(OperationError):
+                b.store_bulk_transactions([tx])
 
     def test_text_search(self, b, alice):
         from planetmint.models import Transaction

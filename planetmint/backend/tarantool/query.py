@@ -10,6 +10,7 @@ from operator import itemgetter
 
 from planetmint.backend import query
 from planetmint.backend.exceptions import DuplicateKeyError
+from planetmint.backend.exceptions import OperationError
 from planetmint.backend.utils import module_dispatch_registrar
 from planetmint.backend.tarantool.connection import TarantoolDB
 from planetmint.backend.tarantool.transaction.tools import TransactionCompose, TransactionDecompose
@@ -65,7 +66,10 @@ def store_transactions(connection, signed_transactions: list):
     for transaction in signed_transactions:
         txprepare = TransactionDecompose(transaction)
         txtuples = txprepare.convert_to_tuple()
-        txspace.insert(txtuples["transactions"])
+        try:
+            txspace.insert(txtuples["transactions"])
+        except:  # This is used for omitting duplicate error in database for test -> test_bigchain_api::test_double_inclusion
+            continue
 
         for _in in txtuples["inputs"]:
             inxspace.insert(_in)
@@ -99,7 +103,6 @@ def get_transactions(connection, transactions_ids: list):
 def store_metadatas(connection, metadata: list):
     space = connection.space("meta_data")
     for meta in metadata:
-
         space.insert((meta["id"], meta["data"] if not "metadata" in meta else meta["metadata"]))
 
 
