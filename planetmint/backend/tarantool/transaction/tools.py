@@ -152,10 +152,9 @@ class TransactionCompose:
         return self.db_results["transaction"][0]
 
     def _get_asset(self):
-        # print( f" asset : {self.db_results}" )
         _asset = iter(self.db_results["asset"])
-        # return _asset
-        return next(iter(next(_asset, iter([]))), None)
+        _res_asset = next(iter(next(_asset, iter([]))), None)
+        return _res_asset
 
     def _get_metadata(self):
         return self.db_results["metadata"][0][1] if len(self.db_results["metadata"]) == 1 else None
@@ -175,7 +174,6 @@ class TransactionCompose:
     def _get_outputs(self):
         _outputs = []
         for _output in self.db_results["outputs"]:
-            # print (f"\noutput : {_output}")
             _out = copy.deepcopy(self._map["outputs"][_output[-1]])
             _out["amount"] = _output[1]
             _tmp_keys = [(_key[3], _key[4]) for _key in self.db_results["keys"] if _key[2] == _output[5]]

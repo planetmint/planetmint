@@ -51,11 +51,11 @@ def test_write_assets(db_conn):
     # conn = Connection().get_connection()
     conn = db_conn.get_connection()
     assets = [
-        ({'id': '1', 'data': '1'},  '1', '1'),
-        ({'id': '2', 'data': '2'}, '2', '2'),
-        ({'id': '3', 'data': '3'}, '3', '3'),
+        {'id': '1', 'data': '1'},
+        {'id': '2', 'data': '2'},
+        {'id': '3', 'data': '3'},
         # Duplicated id. Should not be written to the database
-        ({'id': '1', 'data': '1'},  '1', '1'),
+        {'id': '1', 'data': '1'},
     ]
 
     # write the assets
@@ -63,16 +63,15 @@ def test_write_assets(db_conn):
         query.store_asset(connection=conn, asset=asset)
 
     # check that 3 assets were written to the database
-    documents = query.get_assets(assets_ids=[asset[2] for asset in assets], connection=conn)
-
+    documents = query.get_assets(assets_ids=[asset["id"] for asset in assets], connection=conn)
+    print(f"\nDOCUMENTS: {documents}")
+    print(f"\nASSETS: {assets}")
     assert len(documents) == 3
     assert list(documents)[0] == assets[:-1][0]
 
 
 def test_get_assets(db_conn):
-    # from planetmint.backend.connection import Connection
     from planetmint.backend.tarantool import query
-    # conn = Connection().get_connection()
     conn = db_conn.get_connection()
     assets = [
         ("1",  '1', '1'),
@@ -210,7 +209,8 @@ def test_get_metadata(db_conn):
     query.store_metadatas(connection=conn, metadata=metadata)
 
     for meta in metadata:
-        assert query.get_metadata(connection=conn, transaction_ids=[meta["id"]])
+        _m = query.get_metadata(connection=conn, transaction_ids=[meta["id"]])
+        assert _m
 
 
 def test_get_owned_ids(signed_create_tx, user_pk, db_conn):

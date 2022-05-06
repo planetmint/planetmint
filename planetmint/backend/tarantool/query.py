@@ -100,9 +100,7 @@ def store_metadatas(connection, metadata: list):
     space = connection.space("meta_data")
     for meta in metadata:
 
-        data = meta["data"] if not "metadata" in meta else meta["metadata"]
-        if data:
-            space.insert((meta["id"], meta["data"] if not "metadata" in meta else meta["metadata"]))
+        space.insert((meta["id"], meta["data"] if not "metadata" in meta else meta["metadata"]))
 
 
 @register_query(TarantoolDB)
@@ -117,18 +115,11 @@ def get_metadata(connection, transaction_ids: list):
 
 
 @register_query(TarantoolDB)
-# asset: {"id": "asset_id"}
-# asset: {"data": any} -> insert (tx_id, asset["data"]).
-# def store_asset(connection, asset: dict, tx_id=None):
 def store_asset(connection, asset: dict):
     space = connection.space("assets")
-    # print(f"DATA  store asset: {asset}")
+    convert = lambda obj: obj if isinstance(obj, tuple) else (obj, obj["id"], obj["id"])
     try:
-        space.insert(asset)
-        # if tx_id is not None:
-        #    space.insert((asset, tx_id, tx_id))
-        # else:
-        #    space.insert((asset, str(asset["id"]), str(asset["id"])))  # TODO Review this function
+        space.insert(convert(asset))
     except:  # TODO Add Raise For Duplicate
         print("DUPLICATE ERROR")
 
@@ -136,9 +127,10 @@ def store_asset(connection, asset: dict):
 @register_query(TarantoolDB)
 def store_assets(connection, assets: list):
     space = connection.space("assets")
+    convert = lambda obj: obj if isinstance(obj, tuple) else (obj, obj["id"], obj["id"])
     for asset in assets:
         try:
-            space.insert(asset)
+            space.insert(convert(asset))
         except Exception as ex:  # TODO Raise ERROR for Duplicate
             print(f"EXCEPTION : {ex} ")
 
@@ -148,7 +140,8 @@ def get_asset(connection, asset_id: str):
     space = connection.space("assets")
     _data = space.select(asset_id, index="txid_search")
     _data = _data.data
-    return tuple(_data[0]) if len(_data) > 0 else []
+    print(f"ASSSSSSET :: {_data} ::")
+    return _data[0][0] if len(_data) > 0 else []
 
 
 @register_query(TarantoolDB)
@@ -157,7 +150,7 @@ def get_assets(connection, assets_ids: list) -> list:
     for _id in list(set(assets_ids)):
         asset = get_asset(connection, _id)
         _returned_data.append(asset)
-    return sorted(_returned_data, key=lambda k: k[2], reverse=False)
+    return sorted(_returned_data, key=lambda k: k["id"], reverse=False)
 
 
 @register_query(TarantoolDB)
