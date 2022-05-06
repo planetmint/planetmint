@@ -66,7 +66,7 @@ def test_write_assets(db_conn):
     documents = query.get_assets(assets_ids=[asset[2] for asset in assets], connection=conn)
 
     assert len(documents) == 3
-    assert list(documents) == assets[:-1]
+    assert list(documents)[0] == assets[:-1][0]
 
 
 def test_get_assets(db_conn):

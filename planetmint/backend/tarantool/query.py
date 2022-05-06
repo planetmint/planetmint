@@ -148,7 +148,7 @@ def get_asset(connection, asset_id: str):
     space = connection.space("assets")
     _data = space.select(asset_id, index="txid_search")
     _data = _data.data
-    return _data[0][0] if len(_data) > 0 else []
+    return tuple(_data[0]) if len(_data) > 0 else []
 
 
 @register_query(TarantoolDB)
@@ -156,8 +156,8 @@ def get_assets(connection, assets_ids: list) -> list:
     _returned_data = []
     for _id in list(set(assets_ids)):
         asset = get_asset(connection, _id)
-        _returned_data.append(tuple(asset))
-    return sorted(_returned_data, key=lambda k: k[0]["id"], reverse=False)
+        _returned_data.append(asset)
+    return sorted(_returned_data, key=lambda k: k[2], reverse=False)
 
 
 @register_query(TarantoolDB)
