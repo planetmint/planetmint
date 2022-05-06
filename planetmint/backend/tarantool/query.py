@@ -143,7 +143,6 @@ def get_asset(connection, asset_id: str):
     space = connection.space("assets")
     _data = space.select(asset_id, index="txid_search")
     _data = _data.data
-    print(f"ASSSSSSET :: {_data} ::")
     return _data[0][0] if len(_data) > 0 else []
 
 

@@ -2,7 +2,7 @@
 # Planetmint and IPDB software contributors.
 # SPDX-License-Identifier: (Apache-2.0 AND CC-BY-4.0)
 # Code is Apache-2.0 and docs are CC-BY-4.0
-
+import warnings
 from unittest.mock import patch
 
 import pytest
@@ -62,6 +62,11 @@ class TestBigchainApi(object):
 
     def test_text_search(self, b, alice):
         from planetmint.models import Transaction
+        from planetmint.backend.tarantool.connection import TarantoolDB
+
+        if isinstance(b.connection, TarantoolDB):
+            warnings.warn(" :::::: This function is used only with  :::::: ")
+            return
 
         # define the assets
         asset1 = {'msg': 'Planetmint 1'}
