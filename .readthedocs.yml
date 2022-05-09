@@ -34,7 +34,6 @@ build:
 
 # Optionally declare the Python requirements required to build your docs
 python:
-   version: 3.9
    pip_install: true
    install:
    - requirements: docs/root/requirements.txt
