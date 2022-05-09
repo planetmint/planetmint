@@ -169,18 +169,19 @@ def get_latest_block(connection):  # TODO Here is used DESCENDING OPERATOR
     space = connection.space("blocks")
     _all_blocks = space.select()
     _all_blocks = _all_blocks.data
-    hash = ''
-    heigth = 0
-    txs = []
+    block = {"app_hash": '', "height": 0, "transactions": []}
+
     if len(_all_blocks) > 0:
         _block = sorted(_all_blocks, key=itemgetter(1), reverse=True)[0]
         space = connection.space("blocks_tx")
         _txids = space.select(_block[2], index="block_search")
         _txids = _txids.data
-        hash = _block[0]
-        heigth = _block[1]
-        txs = [tx[0] for tx in _txids]
-    return {"app_hash": hash, "height": heigth, "transactions": txs}
+        block["app_hash"] = _block[0]
+        block["height"] = _block[1]
+        block["transactions"] = [tx[0] for tx in _txids]
+    else:
+        block = None
+    return block
 
 
 @register_query(TarantoolDB)
