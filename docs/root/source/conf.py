@@ -23,9 +23,7 @@ import sys
 import inspect
 
 from os import rename, remove
-from recommonmark.parser import CommonMarkParser
-
-  
+#from recommonmark.parser import CommonMarkParser
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
@@ -51,9 +49,12 @@ sys.path.insert(0,parentdir)
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
+project = 'Planetmint'
+
 import sphinx_rtd_theme
 
 extensions = [
+    'myst_parser',
     'sphinx.ext.autosectionlabel',
     'sphinx.ext.autodoc',
     'sphinx.ext.intersphinx',
@@ -61,6 +62,7 @@ extensions = [
     'sphinx.ext.viewcode',
     'sphinx.ext.todo',
     'sphinx.ext.napoleon',
+    #'sphinx.project',
     'sphinxcontrib.httpdomain',
     'aafigure.sphinxext',
     # Below are actually build steps made to look like sphinx extensions.
@@ -99,9 +101,9 @@ autodoc_default_options = {
     'members': None,
 }
 
-source_parsers = {
-    '.md': CommonMarkParser,
-}
+#source_parsers = {
+#    '.md': CommonMarkParser,
+#}
 
 # The suffix(es) of source filenames.
 # You can specify multiple suffix as a list of string:
@@ -115,9 +117,8 @@ source_suffix = ['.rst', '.md']
 
 # The master toctree document.
 master_doc = 'index'
-
+autosectionlabel_prefix_document = True
 # General information about the project.
-project = 'Planetmint'
 now = datetime.datetime.now()
 copyright = str(now.year) + ', Planetmint Contributors'
 author = 'Planetmint Contributors'
@@ -137,7 +138,7 @@ release = _version['__version__']
 #
 # This is also used if you do content translation via gettext catalogs.
 # Usually you set "language" from the command line for these cases.
-language = None
+language = 'en'
 
 # There are two options for replacing |today|: either, you set today to some
 # non-false value, then it is used:
