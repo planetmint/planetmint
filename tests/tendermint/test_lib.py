@@ -332,12 +332,18 @@ def test_store_one_unspent_output(b, unspent_output_1, utxo_collection):
 
 @pytest.mark.bdb
 def test_store_many_unspent_outputs(b, unspent_outputs, utxo_collection):
+    from planetmint.backend.tarantool.connection import TarantoolDB
     res = b.store_unspent_outputs(*unspent_outputs)
-    # assert res.acknowledged
-    assert len(list(res)) == 3
-    # assert utxo_collection.count_documents(
-    #     {'transaction_id': unspent_outputs[0]['transaction_id']}
-    # ) == 3
+    if not isinstance(b.connection, TarantoolDB):
+        assert res.acknowledged
+        assert len(list(res)) == 3
+        assert utxo_collection.count_documents(
+            {'transaction_id': unspent_outputs[0]['transaction_id']}
+        ) == 3
+    else:
+        utxo_space = b.connection.space("utxos")  # .select([], index="transaction_search").data
+        res = utxo_space.select([unspent_outputs[0]["transaction_id"]], index="transaction_search")
+        assert len(res.data) == 3
 
 
 def test_get_utxoset_merkle_root_when_no_utxo(b):
