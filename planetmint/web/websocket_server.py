@@ -28,7 +28,6 @@ from planetmint.web.websocket_dispatcher import Dispatcher
 
 
 logger = logging.getLogger(__name__)
-POISON_PILL = 'POISON_PILL'
 EVENTS_ENDPOINT = '/api/v1/streams/valid_transactions'
 EVENTS_ENDPOINT_BLOCKS = '/api/v1/streams/valid_blocks'
 

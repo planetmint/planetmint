@@ -136,7 +136,8 @@ def test_start_creates_an_event_loop(queue_mock, get_event_loop_mock,
 
 
 async def test_websocket_string_event(test_client, loop):
-    from planetmint.web.websocket_server import init_app, POISON_PILL, EVENTS_ENDPOINT
+    from planetmint.events import POISON_PILL
+    from planetmint.web.websocket_server import init_app, EVENTS_ENDPOINT
 
     event_source = asyncio.Queue(loop=loop)
     app = init_app(event_source, loop=loop)
@@ -159,9 +160,9 @@ async def test_websocket_string_event(test_client, loop):
     await event_source.put(POISON_PILL)
 
 
-async def test_websocket_transaction_event(b, test_client, loop):
+async def test_websocket_transaction_event( test_client, loop):
     from planetmint import events
-    from planetmint.web.websocket_server import init_app, POISON_PILL, EVENTS_ENDPOINT
+    from planetmint.web.websocket_server import init_app, EVENTS_ENDPOINT
     from planetmint.transactions.common import crypto
 
     user_priv, user_pub = crypto.generate_key_pair()
@@ -185,12 +186,12 @@ async def test_websocket_transaction_event(b, test_client, loop):
         assert json_result['asset_id'] == tx.id
         assert json_result['height'] == block['height']
 
-    await event_source.put(POISON_PILL)
+    await event_source.put(events.POISON_PILL)
     
     
-async def test_websocket_block_event(b, test_client, loop):
+async def test_websocket_block_event(test_client, loop):
     from planetmint import events
-    from planetmint.web.websocket_server import init_app, POISON_PILL, EVENTS_ENDPOINT_BLOCKS
+    from planetmint.web.websocket_server import init_app, EVENTS_ENDPOINT_BLOCKS
     from planetmint.transactions.common import crypto
 
     user_priv, user_pub = crypto.generate_key_pair()
@@ -212,7 +213,7 @@ async def test_websocket_block_event(b, test_client, loop):
     assert len(json_result['transaction_ids']) == 1
     assert json_result['transaction_ids'][0] == tx.id
     
-    await event_source.put(POISON_PILL)
+    await event_source.put(events.POISON_PILL)
 
 
 @pytest.mark.skip('Processes are not stopping properly, and the whole test suite would hang')
