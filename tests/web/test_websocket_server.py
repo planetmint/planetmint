@@ -23,7 +23,7 @@ class MockWebSocket:
 
 
 def test_eventify_block_works_with_any_transaction():
-    from planetmint.web.websocket_server import eventify_block
+    from planetmint.web.websocket_dispatcher import Dispatcher
     from planetmint.transactions.common.crypto import generate_key_pair
 
     alice = generate_key_pair()
@@ -51,8 +51,31 @@ def test_eventify_block_works_with_any_transaction():
             'transaction_id': tx_transfer.id
         }]
 
-    for event, expected in zip(eventify_block(block), expected_events):
+    for event, expected in zip(Dispatcher.eventify_block(block), expected_events):
         assert event == expected
+
+def test_simplified_block_works():
+    from planetmint.web.websocket_dispatcher import Dispatcher
+    from planetmint.transactions.common.crypto import generate_key_pair
+
+    alice = generate_key_pair()
+
+    tx = Create.generate([alice.public_key],
+                            [([alice.public_key], 1)])\
+                    .sign([alice.private_key])
+    tx_transfer = Transfer.generate(tx.to_inputs(),
+                                       [([alice.public_key], 1)],
+                                       asset_id=tx.id)\
+                             .sign([alice.private_key])
+
+    block = {'height': 1,
+             'transactions': [tx, tx_transfer]}
+
+    expected_event = {"height": 1,
+             "transaction_ids": [tx.id, tx_transfer.id]}
+    
+    blk_event = Dispatcher.simplified_block(block)
+    assert blk_event == expected_event
 
 
 async def test_bridge_sync_async_queue(loop):
@@ -136,7 +159,7 @@ async def test_websocket_string_event(test_client, loop):
     await event_source.put(POISON_PILL)
 
 
-async def test_websocket_block_event(b, test_client, loop):
+async def test_websocket_transaction_event(b, test_client, loop):
     from planetmint import events
     from planetmint.web.websocket_server import init_app, POISON_PILL, EVENTS_ENDPOINT
     from planetmint.transactions.common import crypto
@@ -162,6 +185,33 @@ async def test_websocket_block_event(b, test_client, loop):
         assert json_result['asset_id'] == tx.id
         assert json_result['height'] == block['height']
 
+    await event_source.put(POISON_PILL)
+    
+    
+async def test_websocket_block_event(b, test_client, loop):
+    from planetmint import events
+    from planetmint.web.websocket_server import init_app, POISON_PILL, EVENTS_ENDPOINT_BLOCKS
+    from planetmint.transactions.common import crypto
+
+    user_priv, user_pub = crypto.generate_key_pair()
+    tx = Create.generate([user_pub], [([user_pub], 1)])
+    tx = tx.sign([user_priv])
+
+    event_source = asyncio.Queue(loop=loop)
+    app = init_app(event_source, loop=loop)
+    client = await test_client(app)
+    ws = await client.ws_connect(EVENTS_ENDPOINT_BLOCKS)
+    block = {'height': 1, 'transactions': [tx]}
+    block_event = events.Event(events.EventTypes.BLOCK_VALID, block)
+
+    await event_source.put(block_event)
+
+    result = await ws.receive()
+    json_result = json.loads(result.data)
+    assert json_result['height'] == block['height']
+    assert len(json_result['transaction_ids']) == 1
+    assert json_result['transaction_ids'][0] == tx.id
+    
     await event_source.put(POISON_PILL)
 
 
