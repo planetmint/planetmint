@@ -188,11 +188,12 @@ def test_store_transaction(mocker, b, signed_create_tx,
             b.connection,
             [{'data': signed_create_tx.asset['data'], 'tx_id': signed_create_tx.id, 'asset_id': signed_create_tx.id}]
         )
+    else:
+        mocked_store_asset.assert_called_once_with(
+            b.connection,
+            [(signed_create_tx.asset, signed_create_tx.id, signed_create_tx.id)]
+        )
 
-    mocked_store_asset.assert_called_once_with(
-        b.connection,
-        [{'data': signed_create_tx.asset, 'tx_id': signed_create_tx.id, 'asset_id': signed_create_tx.id}]
-    )
     mocked_store_metadata.assert_called_once_with(
         b.connection,
         [{'id': signed_create_tx.id, 'metadata': signed_create_tx.metadata}],

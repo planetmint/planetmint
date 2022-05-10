@@ -117,7 +117,7 @@ def get_metadata(connection, transaction_ids: list):
 
 
 @register_query(TarantoolDB)
-def store_asset(connection, asset: dict):
+def store_asset(connection, asset):
     space = connection.space("assets")
     convert = lambda obj: obj if isinstance(obj, tuple) else (obj, obj["id"], obj["id"])
     try:
