@@ -6,6 +6,7 @@
 
 import json
 from planetmint.events import EventTypes
+from planetmint.web.websocket_server import POISON_PILL
 
 class Dispatcher:
     """Dispatch events to websockets.
