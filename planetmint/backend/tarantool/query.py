@@ -9,11 +9,10 @@ from secrets import token_hex
 from operator import itemgetter
 
 from planetmint.backend import query
-from planetmint.backend.exceptions import DuplicateKeyError
-from planetmint.backend.exceptions import OperationError
 from planetmint.backend.utils import module_dispatch_registrar
 from planetmint.backend.tarantool.connection import TarantoolDB
 from planetmint.backend.tarantool.transaction.tools import TransactionCompose, TransactionDecompose
+from json import dumps, loads
 
 register_query = module_dispatch_registrar(query)
 
@@ -337,7 +336,7 @@ def store_unspent_outputs(connection, *unspent_outputs: list):
     space = connection.space('utxos')
     if unspent_outputs:
         for utxo in unspent_outputs:
-            space.insert((utxo['transaction_id'], utxo['output_index']))
+            space.insert((utxo['transaction_id'], utxo['output_index'], dumps(utxo)))
 
 
 @register_query(TarantoolDB)
@@ -349,9 +348,10 @@ def delete_unspent_outputs(connection, *unspent_outputs: list):
 
 
 @register_query(TarantoolDB)
-def get_unspent_outputs(connection):
+def get_unspent_outputs(connection, query=None):  # for now we don't have implementation for 'query'.
     space = connection.space('utxos')
-    return space.select()
+    _utxos = space.select([]).data
+    return [loads(utx[2]) for utx in _utxos]
 
 
 @register_query(TarantoolDB)

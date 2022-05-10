@@ -7,7 +7,6 @@ from operator import index
 import os
 from unittest.mock import patch
 
-
 try:
     from hashlib import sha3_256
 except ImportError:
@@ -45,8 +44,8 @@ def test_asset_is_separated_from_transaciton(b):
     tx = Transaction.create([alice.public_key],
                             [([bob.public_key], 1)],
                             metadata=None,
-                            asset=asset)\
-                    .sign([alice.private_key])
+                            asset=asset) \
+        .sign([alice.private_key])
 
     # with store_bulk_transactions we use `insert_many` where PyMongo
     # automatically adds an `_id` field to the tx, therefore we need the
@@ -89,8 +88,8 @@ def test_validation_error(b):
     alice = generate_key_pair()
     tx = Transaction.create([alice.public_key],
                             [([alice.public_key], 1)],
-                            asset=None)\
-                    .sign([alice.private_key]).to_dict()
+                            asset=None) \
+        .sign([alice.private_key]).to_dict()
 
     tx['metadata'] = ''
     assert not b.validate_transaction(tx)
@@ -105,8 +104,8 @@ def test_write_and_post_transaction(mock_post, b):
     alice = generate_key_pair()
     tx = Transaction.create([alice.public_key],
                             [([alice.public_key], 1)],
-                            asset=None)\
-                    .sign([alice.private_key]).to_dict()
+                            asset=None) \
+        .sign([alice.private_key]).to_dict()
 
     tx = b.validate_transaction(tx)
     b.write_transaction(tx, BROADCAST_TX_ASYNC)
@@ -195,7 +194,7 @@ def test_store_transaction(mocker, b, signed_create_tx,
     mocked_store_transaction.assert_called_once_with(
         b.connection,
         [{k: v for k, v in signed_create_tx.to_dict().items()
-         if k not in ('asset', 'metadata')}],
+          if k not in ('asset', 'metadata')}],
     )
     mocked_store_asset.reset_mock()
     mocked_store_metadata.reset_mock()
@@ -213,13 +212,14 @@ def test_store_transaction(mocker, b, signed_create_tx,
     mocked_store_transaction.assert_called_once_with(
         b.connection,
         [{k: v for k, v in signed_transfer_tx.to_dict().items()
-         if k != 'metadata'}],
+          if k != 'metadata'}],
     )
 
 
 @pytest.mark.bdb
 def test_store_bulk_transaction(mocker, b, signed_create_tx,
                                 signed_transfer_tx, db_context):
+    from planetmint.backend.tarantool.connection import TarantoolDB
     mocked_store_assets = mocker.patch(
         'planetmint.backend.query.store_assets')
     mocked_store_metadata = mocker.patch(
@@ -233,10 +233,16 @@ def test_store_bulk_transaction(mocker, b, signed_create_tx,
     # utxo = utxoset.find_one()
     # assert utxo['transaction_id'] == signed_create_tx.id
     # assert utxo['output_index'] == 0
-    mocked_store_assets.assert_called_once_with(
-        b.connection,
-        [ ( signed_create_tx.asset['data'], signed_create_tx.id, signed_create_tx.id )],
-    )
+    if isinstance(b.connection, TarantoolDB):
+        mocked_store_assets.assert_called_once_with(
+            b.connection,  # signed_create_tx.asset['data'] this was before
+            [(signed_create_tx.asset, signed_create_tx.id, signed_create_tx.id)],
+        )
+    else:
+        mocked_store_assets.assert_called_once_with(
+            b.connection,  # signed_create_tx.asset['data'] this was before
+            [(signed_create_tx.asset["data"], signed_create_tx.id, signed_create_tx.id)],
+        )
     mocked_store_metadata.assert_called_once_with(
         b.connection,
         [{'id': signed_create_tx.id, 'metadata': signed_create_tx.metadata}],
@@ -244,7 +250,7 @@ def test_store_bulk_transaction(mocker, b, signed_create_tx,
     mocked_store_transactions.assert_called_once_with(
         b.connection,
         [{k: v for k, v in signed_create_tx.to_dict().items()
-         if k not in ('asset', 'metadata')}],
+          if k not in ('asset', 'metadata')}],
     )
     mocked_store_assets.reset_mock()
     mocked_store_metadata.reset_mock()
@@ -254,7 +260,8 @@ def test_store_bulk_transaction(mocker, b, signed_create_tx,
     # utxo = utxoset.find_one()
     # assert utxo['transaction_id'] == signed_transfer_tx.id
     # assert utxo['output_index'] == 0
-    assert not mocked_store_assets.called
+    if not isinstance(b.connection, TarantoolDB):
+        assert not mocked_store_assets.called
     mocked_store_metadata.asser_called_once_with(
         b.connection,
         [{'id': signed_transfer_tx.id,
@@ -369,23 +376,23 @@ def test_get_spent_transaction_critical_double_spend(b, alice, bob, carol):
 
     tx = Transaction.create([alice.public_key],
                             [([alice.public_key], 1)],
-                            asset=asset)\
-                    .sign([alice.private_key])
+                            asset=asset) \
+        .sign([alice.private_key])
 
     tx_transfer = Transaction.transfer(tx.to_inputs(),
                                        [([bob.public_key], 1)],
-                                       asset_id=tx.id)\
-                             .sign([alice.private_key])
+                                       asset_id=tx.id) \
+        .sign([alice.private_key])
 
     double_spend = Transaction.transfer(tx.to_inputs(),
                                         [([carol.public_key], 1)],
-                                        asset_id=tx.id)\
-                              .sign([alice.private_key])
+                                        asset_id=tx.id) \
+        .sign([alice.private_key])
 
     same_input_double_spend = Transaction.transfer(tx.to_inputs() + tx.to_inputs(),
                                                    [([bob.public_key], 1)],
-                                                   asset_id=tx.id)\
-                                         .sign([alice.private_key])
+                                                   asset_id=tx.id) \
+        .sign([alice.private_key])
 
     b.store_bulk_transactions([tx])
 
@@ -441,16 +448,16 @@ def test_migrate_abci_chain_yields_on_genesis(b):
 @pytest.mark.bdb
 @pytest.mark.parametrize('chain,block_height,expected', [
     (
-        (1, 'chain-XYZ', True),
-        4,
-        {'height': 5, 'chain_id': 'chain-XYZ-migrated-at-height-4',
-         'is_synced': False},
+            (1, 'chain-XYZ', True),
+            4,
+            {'height': 5, 'chain_id': 'chain-XYZ-migrated-at-height-4',
+             'is_synced': False},
     ),
     (
-        (5, 'chain-XYZ-migrated-at-height-4', True),
-        13,
-        {'height': 14, 'chain_id': 'chain-XYZ-migrated-at-height-13',
-         'is_synced': False},
+            (5, 'chain-XYZ-migrated-at-height-4', True),
+            13,
+            {'height': 14, 'chain_id': 'chain-XYZ-migrated-at-height-13',
+             'is_synced': False},
     ),
 ])
 def test_migrate_abci_chain_generates_new_chains(b, chain, block_height,
@@ -475,8 +482,8 @@ def test_get_spent_key_order(b, user_pk, user_sk, user2_pk, user2_sk):
 
     tx1 = Transaction.create([user_pk],
                              [([alice.public_key], 3), ([user_pk], 2)],
-                             asset=None)\
-                     .sign([user_sk])
+                             asset=None) \
+        .sign([user_sk])
     b.store_bulk_transactions([tx1])
     assert tx1.validate(b)
     inputs = tx1.to_inputs()
