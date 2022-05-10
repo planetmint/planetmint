@@ -291,17 +291,26 @@ def test_delete_zero_unspent_outputs(b, utxoset):
 
 @pytest.mark.bdb
 def test_delete_one_unspent_outputs(b, utxoset):
+    from planetmint.backend.tarantool.connection import TarantoolDB
     unspent_outputs, utxo_collection = utxoset
     delete_res = b.delete_unspent_outputs(unspent_outputs[0])
-    assert len(list(delete_res)) == 1
-    # assert utxo_collection.count_documents(
-    #     {'$or': [
-    #         {'transaction_id': 'a', 'output_index': 1},
-    #         {'transaction_id': 'b', 'output_index': 0},
-    #     ]}
-    # ) == 2
-    # assert utxo_collection.count_documents(
-    #         {'transaction_id': 'a', 'output_index': 0}) == 0
+    if not isinstance(b.connection, TarantoolDB):
+        assert len(list(delete_res)) == 1
+        assert utxo_collection.count_documents(
+            {'$or': [
+                {'transaction_id': 'a', 'output_index': 1},
+                {'transaction_id': 'b', 'output_index': 0},
+            ]}
+        ) == 2
+        assert utxo_collection.count_documents(
+            {'transaction_id': 'a', 'output_index': 0}) == 0
+    else:
+        utx_space = b.connection.space("utxos")
+        res1 = utx_space.select(['a', 1], index="id_search").data
+        res2 = utx_space.select(['b', 0], index="id_search").data
+        assert len(res1) + len(res2) == 2
+        res3 = utx_space.select(['a', 0], index="id_search").data
+        assert len(res3) == 0
 
 
 @pytest.mark.bdb
