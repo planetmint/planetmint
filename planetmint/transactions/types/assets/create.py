@@ -69,7 +69,7 @@ class Create(Transaction):
                     Transaction.
                 metadata (dict): The metadata to be stored along with the
                     Transaction.
-                asset (dict): The metadata associated with the asset that will
+                assets (:obj:`list` of :obj:`dict`): The metadata associated with the asset that will
                     be created in this Transaction.
 
             Returns:

@@ -61,9 +61,9 @@ class Transaction(object):
                 spend.
             outputs (:obj:`list` of :class:`~planetmint.transactions.common.
                 transaction.Output`, optional): Define the assets to lock.
-            asset (dict): Asset payload for this Transaction. ``CREATE``
-                Transactions require a dict with a ``data``
-                property while ``TRANSFER`` Transactions require a dict with a
+            assets (:obj:`list` of :obj:`dict`): Asset payload for this Transaction. ``CREATE``
+                Transactions require a list containing exactly one dict with a ``data``
+                property while ``TRANSFER`` Transactions require a list containing a dict with a
                 ``id`` property.
             metadata (dict):
                 Metadata to be stored along with the Transaction.
@@ -85,7 +85,7 @@ class Transaction(object):
 
             Args:
                 operation (str): Defines the operation of the Transaction.
-                asset (dict): Asset payload for this Transaction.
+                assets (:obj:`list` of :obj:`dict`): Asset payload for this Transaction.
                 inputs (:obj:`list` of :class:`~planetmint.transactions.common.
                     transaction.Input`, optional): Define the assets to
                 outputs (:obj:`list` of :class:`~planetmint.transactions.common.
