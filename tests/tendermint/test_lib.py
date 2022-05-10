@@ -306,17 +306,27 @@ def test_delete_one_unspent_outputs(b, utxoset):
 
 @pytest.mark.bdb
 def test_delete_many_unspent_outputs(b, utxoset):
+    from planetmint.backend.tarantool.connection import TarantoolDB
     unspent_outputs, utxo_collection = utxoset
     delete_res = b.delete_unspent_outputs(*unspent_outputs[::2])
-    assert len(list(delete_res)) == 2
-    # assert utxo_collection.count_documents(
-    #     {'$or': [
-    #         {'transaction_id': 'a', 'output_index': 0},
-    #         {'transaction_id': 'b', 'output_index': 0},
-    #     ]}
-    # ) == 0
-    # assert utxo_collection.count_documents(
-    #         {'transaction_id': 'a', 'output_index': 1}) == 1
+    if not isinstance(b.connection, TarantoolDB):
+        assert len(list(delete_res)) == 2
+        assert utxo_collection.count_documents(
+            {'$or': [
+                {'transaction_id': 'a', 'output_index': 0},
+                {'transaction_id': 'b', 'output_index': 0},
+            ]}
+        ) == 0
+        assert utxo_collection.count_documents(
+            {'transaction_id': 'a', 'output_index': 1}) == 1
+    else:  # TODO It looks ugly because query.get_unspent_outputs function, has not yet implemented query parameter.
+        utx_space = b.connection.space("utxos")
+        res1 = utx_space.select(['a', 0], index="id_search").data
+        res2 = utx_space.select(['b', 0], index="id_search").data
+        assert len(res1) + len(res2) == 0
+        res3 = utx_space.select([], index="id_search").data
+        assert len(res3) == 1
+
 
 
 @pytest.mark.bdb
