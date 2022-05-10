@@ -328,13 +328,20 @@ def test_store_zero_unspent_output(b, utxo_collection):
 
 @pytest.mark.bdb
 def test_store_one_unspent_output(b, unspent_output_1, utxo_collection):
+    from planetmint.backend.tarantool.connection import TarantoolDB
     res = b.store_unspent_outputs(unspent_output_1)
-    # assert res.acknowledged
-    assert len(list(res)) == 1
-    # assert utxo_collection.count_documents(
-    #     {'transaction_id': unspent_output_1['transaction_id'],
-    #      'output_index': unspent_output_1['output_index']}
-    # ) == 1
+    if not isinstance(b.connection, TarantoolDB):
+        assert res.acknowledged
+        assert len(list(res)) == 1
+        assert utxo_collection.count_documents(
+            {'transaction_id': unspent_output_1['transaction_id'],
+             'output_index': unspent_output_1['output_index']}
+        ) == 1
+    else:
+        utx_space = b.connection.space("utxos")
+        res = utx_space.select([unspent_output_1["transaction_id"], unspent_output_1["output_index"]], index="id_search")
+        assert len(res.data) == 1
+
 
 
 @pytest.mark.bdb
