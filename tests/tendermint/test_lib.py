@@ -28,6 +28,10 @@ def test_asset_is_separated_from_transaciton(b):
     import copy
     from planetmint.models import Transaction
     from planetmint.common.crypto import generate_key_pair
+    from planetmint.backend.tarantool.connection import TarantoolDB
+
+    if isinstance(b.connection, TarantoolDB):
+        pytest.skip("This specific function is skipped because, assets are stored differently if using Tarantool")
 
     alice = generate_key_pair()
     bob = generate_key_pair()
