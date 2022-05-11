@@ -51,7 +51,7 @@ class Dispatcher:
         txids = []
         for tx in block['transactions']:
             txids.append(tx.id)
-        return {'height': block['height'], 'hash': block['app_hash'], 'transaction_ids': txids}
+        return {'height': block['height'], 'hash': block['hash'], 'transaction_ids': txids}
 
     @staticmethod
     def eventify_block(block):
