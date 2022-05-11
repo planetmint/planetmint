@@ -9,11 +9,10 @@ from secrets import token_hex
 from operator import itemgetter
 
 from planetmint.backend import query
-from planetmint.backend.exceptions import DuplicateKeyError
-from planetmint.backend.exceptions import OperationError
 from planetmint.backend.utils import module_dispatch_registrar
 from planetmint.backend.tarantool.connection import TarantoolDB
 from planetmint.backend.tarantool.transaction.tools import TransactionCompose, TransactionDecompose
+from json import dumps, loads
 
 register_query = module_dispatch_registrar(query)
 
@@ -118,7 +117,7 @@ def get_metadata(connection, transaction_ids: list):
 
 
 @register_query(TarantoolDB)
-def store_asset(connection, asset: dict):
+def store_asset(connection, asset):
     space = connection.space("assets")
     convert = lambda obj: obj if isinstance(obj, tuple) else (obj, obj["id"], obj["id"])
     try:
@@ -169,18 +168,19 @@ def get_latest_block(connection):  # TODO Here is used DESCENDING OPERATOR
     space = connection.space("blocks")
     _all_blocks = space.select()
     _all_blocks = _all_blocks.data
-    hash = ''
-    heigth = 0
-    txs = []
+    block = {"app_hash": '', "height": 0, "transactions": []}
+
     if len(_all_blocks) > 0:
         _block = sorted(_all_blocks, key=itemgetter(1), reverse=True)[0]
         space = connection.space("blocks_tx")
         _txids = space.select(_block[2], index="block_search")
         _txids = _txids.data
-        hash = _block[0]
-        heigth = _block[1]
-        txs = [tx[0] for tx in _txids]
-    return {"app_hash": hash, "height": heigth, "transactions": txs}
+        block["app_hash"] = _block[0]
+        block["height"] = _block[1]
+        block["transactions"] = [tx[0] for tx in _txids]
+    else:
+        block = None
+    return block
 
 
 @register_query(TarantoolDB)
@@ -337,10 +337,9 @@ def store_unspent_outputs(connection, *unspent_outputs: list):
     result = []
     if unspent_outputs:
         for utxo in unspent_outputs:
-            output = space.insert((utxo['transaction_id'], utxo['output_index']))
+            output = space.insert((utxo['transaction_id'], utxo['output_index'], dumps(utxo)))
             result.append(output.data)
     return result
-
 
 @register_query(TarantoolDB)
 def delete_unspent_outputs(connection, *unspent_outputs: list):
@@ -354,9 +353,10 @@ def delete_unspent_outputs(connection, *unspent_outputs: list):
 
 
 @register_query(TarantoolDB)
-def get_unspent_outputs(connection):
+def get_unspent_outputs(connection, query=None):  # for now we don't have implementation for 'query'.
     space = connection.space('utxos')
-    return space.select()
+    _utxos = space.select([]).data
+    return [loads(utx[2]) for utx in _utxos]
 
 
 @register_query(TarantoolDB)

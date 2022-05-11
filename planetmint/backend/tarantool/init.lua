@@ -64,7 +64,7 @@ keys:create_index('txid_search', {type = 'tree', unique=false, parts={'transacti
 keys:create_index('output_search', {type = 'tree', unique=false, parts={'output_id'}})
 
 utxos = box.schema.space.create('utxos', {engine = 'memtx' , is_sync = false})
-utxos:format({{name='transaction_id' , type='string'}, {name='output_index' , type='integer'}})
+utxos:format({{name='transaction_id' , type='string'}, {name='output_index' , type='integer'}, {name='utxo_dict', type='string'}})
 utxos:create_index('id_search', {type='hash' , parts={'transaction_id', 'output_index'}})
 utxos:create_index('transaction_search', {type='tree', unique=false, parts={'transaction_id'}})
 utxos:create_index('index_search', {type='tree', unique=false, parts={'output_index'}})

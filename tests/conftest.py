@@ -540,8 +540,9 @@ def dummy_unspent_outputs():
 
 @pytest.fixture
 def utxoset(dummy_unspent_outputs, utxo_collection):
+    from json import dumps
     for utxo in dummy_unspent_outputs:
-        res = utxo_collection.insert((utxo["transaction_id"], utxo["output_index"]))
+        res = utxo_collection.insert((utxo["transaction_id"], utxo["output_index"], dumps(utxo)))
         assert res
     assert len(utxo_collection.select()) == 3
     return dummy_unspent_outputs, utxo_collection

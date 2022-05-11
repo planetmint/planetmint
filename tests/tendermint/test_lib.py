@@ -7,7 +7,6 @@ from operator import index
 import os
 from unittest.mock import patch
 
-
 try:
     from hashlib import sha3_256
 except ImportError:
@@ -29,6 +28,10 @@ def test_asset_is_separated_from_transaciton(b):
     import copy
     from planetmint.models import Transaction
     from planetmint.common.crypto import generate_key_pair
+    from planetmint.backend.tarantool.connection import TarantoolDB
+
+    if isinstance(b.connection, TarantoolDB):
+        pytest.skip("This specific function is skipped because, assets are stored differently if using Tarantool")
 
     alice = generate_key_pair()
     bob = generate_key_pair()
@@ -45,8 +48,8 @@ def test_asset_is_separated_from_transaciton(b):
     tx = Transaction.create([alice.public_key],
                             [([bob.public_key], 1)],
                             metadata=None,
-                            asset=asset)\
-                    .sign([alice.private_key])
+                            asset=asset) \
+        .sign([alice.private_key])
 
     # with store_bulk_transactions we use `insert_many` where PyMongo
     # automatically adds an `_id` field to the tx, therefore we need the
@@ -89,8 +92,8 @@ def test_validation_error(b):
     alice = generate_key_pair()
     tx = Transaction.create([alice.public_key],
                             [([alice.public_key], 1)],
-                            asset=None)\
-                    .sign([alice.private_key]).to_dict()
+                            asset=None) \
+        .sign([alice.private_key]).to_dict()
 
     tx['metadata'] = ''
     assert not b.validate_transaction(tx)
@@ -105,8 +108,8 @@ def test_write_and_post_transaction(mock_post, b):
     alice = generate_key_pair()
     tx = Transaction.create([alice.public_key],
                             [([alice.public_key], 1)],
-                            asset=None)\
-                    .sign([alice.private_key]).to_dict()
+                            asset=None) \
+        .sign([alice.private_key]).to_dict()
 
     tx = b.validate_transaction(tx)
     b.write_transaction(tx, BROADCAST_TX_ASYNC)
@@ -171,23 +174,30 @@ def test_update_utxoset(b, signed_create_tx, signed_transfer_tx, db_conn):
 @pytest.mark.bdb
 def test_store_transaction(mocker, b, signed_create_tx,
                            signed_transfer_tx, db_context):
+    from planetmint.backend.tarantool.connection import TarantoolDB
     mocked_store_asset = mocker.patch('planetmint.backend.query.store_assets')
     mocked_store_metadata = mocker.patch(
         'planetmint.backend.query.store_metadatas')
     mocked_store_transaction = mocker.patch(
         'planetmint.backend.query.store_transactions')
     b.store_bulk_transactions([signed_create_tx])
-    # mongo_client = MongoClient(host=db_context.host, port=db_context.port)
-    # utxoset = mongo_client[db_context.name]['utxos']
-    # assert utxoset.count_documents({}) == 1
-    # utxo = utxoset.find_one()
-    # assert utxo['transaction_id'] == signed_create_tx.id
-    # assert utxo['output_index'] == 0
+    if not isinstance(b.connection, TarantoolDB):
+        mongo_client = MongoClient(host=db_context.host, port=db_context.port)
+        utxoset = mongo_client[db_context.name]['utxos']
+        assert utxoset.count_documents({}) == 1
+        utxo = utxoset.find_one()
+        assert utxo['transaction_id'] == signed_create_tx.id
+        assert utxo['output_index'] == 0
+        mocked_store_asset.assert_called_once_with(
+            b.connection,
+            [{'data': signed_create_tx.asset['data'], 'tx_id': signed_create_tx.id, 'asset_id': signed_create_tx.id}]
+        )
+    else:
+        mocked_store_asset.assert_called_once_with(
+            b.connection,
+            [(signed_create_tx.asset, signed_create_tx.id, signed_create_tx.id)]
+        )
 
-    mocked_store_asset.assert_called_once_with(
-        b.connection,
-        [{'data': signed_create_tx.asset['data'], 'tx_id': signed_create_tx.id, 'asset_id': signed_create_tx.id}]
-    )
     mocked_store_metadata.assert_called_once_with(
         b.connection,
         [{'id': signed_create_tx.id, 'metadata': signed_create_tx.metadata}],
@@ -195,31 +205,34 @@ def test_store_transaction(mocker, b, signed_create_tx,
     mocked_store_transaction.assert_called_once_with(
         b.connection,
         [{k: v for k, v in signed_create_tx.to_dict().items()
-         if k not in ('asset', 'metadata')}],
+          if k not in ('asset', 'metadata')}],
     )
     mocked_store_asset.reset_mock()
     mocked_store_metadata.reset_mock()
     mocked_store_transaction.reset_mock()
     b.store_bulk_transactions([signed_transfer_tx])
-    # assert utxoset.count_documents({}) == 1
-    # utxo = utxoset.find_one()
-    # assert utxo['transaction_id'] == signed_transfer_tx.id
-    # assert utxo['output_index'] == 0
-    assert not mocked_store_asset.called
+    if not isinstance(b.connection, TarantoolDB):
+        assert utxoset.count_documents({}) == 1
+        utxo = utxoset.find_one()
+        assert utxo['transaction_id'] == signed_transfer_tx.id
+        assert utxo['output_index'] == 0
+        assert not mocked_store_asset.called
     mocked_store_metadata.asser_called_once_with(
         b.connection,
         [{'id': signed_transfer_tx.id, 'metadata': signed_transfer_tx.metadata}],
     )
-    mocked_store_transaction.assert_called_once_with(
-        b.connection,
-        [{k: v for k, v in signed_transfer_tx.to_dict().items()
-         if k != 'metadata'}],
-    )
+    if not isinstance(b.connection, TarantoolDB):
+        mocked_store_transaction.assert_called_once_with(
+            b.connection,
+            [{k: v for k, v in signed_transfer_tx.to_dict().items()
+              if k != 'metadata'}],
+        )
 
 
 @pytest.mark.bdb
 def test_store_bulk_transaction(mocker, b, signed_create_tx,
                                 signed_transfer_tx, db_context):
+    from planetmint.backend.tarantool.connection import TarantoolDB
     mocked_store_assets = mocker.patch(
         'planetmint.backend.query.store_assets')
     mocked_store_metadata = mocker.patch(
@@ -227,16 +240,23 @@ def test_store_bulk_transaction(mocker, b, signed_create_tx,
     mocked_store_transactions = mocker.patch(
         'planetmint.backend.query.store_transactions')
     b.store_bulk_transactions((signed_create_tx,))
-    # mongo_client = MongoClient(host=db_context.host, port=db_context.port)
-    # utxoset = mongo_client[db_context.name]['utxos']
-    # assert utxoset.count_documents({}) == 1
-    # utxo = utxoset.find_one()
-    # assert utxo['transaction_id'] == signed_create_tx.id
-    # assert utxo['output_index'] == 0
-    mocked_store_assets.assert_called_once_with(
-        b.connection,
-        [ ( signed_create_tx.asset['data'], signed_create_tx.id, signed_create_tx.id )],
-    )
+    if not isinstance(b.connection, TarantoolDB):
+        mongo_client = MongoClient(host=db_context.host, port=db_context.port)
+        utxoset = mongo_client[db_context.name]['utxos']
+        assert utxoset.count_documents({}) == 1
+        utxo = utxoset.find_one()
+        assert utxo['transaction_id'] == signed_create_tx.id
+        assert utxo['output_index'] == 0
+    if isinstance(b.connection, TarantoolDB):
+        mocked_store_assets.assert_called_once_with(
+            b.connection,  # signed_create_tx.asset['data'] this was before
+            [(signed_create_tx.asset, signed_create_tx.id, signed_create_tx.id)],
+        )
+    else:
+        mocked_store_assets.assert_called_once_with(
+            b.connection,  # signed_create_tx.asset['data'] this was before
+            [(signed_create_tx.asset["data"], signed_create_tx.id, signed_create_tx.id)],
+        )
     mocked_store_metadata.assert_called_once_with(
         b.connection,
         [{'id': signed_create_tx.id, 'metadata': signed_create_tx.metadata}],
@@ -244,27 +264,29 @@ def test_store_bulk_transaction(mocker, b, signed_create_tx,
     mocked_store_transactions.assert_called_once_with(
         b.connection,
         [{k: v for k, v in signed_create_tx.to_dict().items()
-         if k not in ('asset', 'metadata')}],
+          if k not in ('asset', 'metadata')}],
     )
     mocked_store_assets.reset_mock()
     mocked_store_metadata.reset_mock()
     mocked_store_transactions.reset_mock()
     b.store_bulk_transactions((signed_transfer_tx,))
-    # assert utxoset.count_documents({}) == 1
-    # utxo = utxoset.find_one()
-    # assert utxo['transaction_id'] == signed_transfer_tx.id
-    # assert utxo['output_index'] == 0
-    assert not mocked_store_assets.called
+    if not isinstance(b.connection, TarantoolDB):
+        assert utxoset.count_documents({}) == 1
+        utxo = utxoset.find_one()
+        assert utxo['transaction_id'] == signed_transfer_tx.id
+        assert utxo['output_index'] == 0
+        assert not mocked_store_assets.called
     mocked_store_metadata.asser_called_once_with(
         b.connection,
         [{'id': signed_transfer_tx.id,
           'metadata': signed_transfer_tx.metadata}],
     )
-    mocked_store_transactions.assert_called_once_with(
-        b.connection,
-        [{k: v for k, v in signed_transfer_tx.to_dict().items()
-          if k != 'metadata'}],
-    )
+    if not isinstance(b.connection, TarantoolDB):
+        mocked_store_transactions.assert_called_once_with(
+            b.connection,
+            [{k: v for k, v in signed_transfer_tx.to_dict().items()
+              if k != 'metadata'}],
+        )
 
 
 @pytest.mark.bdb
@@ -284,32 +306,51 @@ def test_delete_zero_unspent_outputs(b, utxoset):
 
 @pytest.mark.bdb
 def test_delete_one_unspent_outputs(b, utxoset):
+    from planetmint.backend.tarantool.connection import TarantoolDB
     unspent_outputs, utxo_collection = utxoset
     delete_res = b.delete_unspent_outputs(unspent_outputs[0])
-    assert len(list(delete_res)) == 1
-    # assert utxo_collection.count_documents(
-    #     {'$or': [
-    #         {'transaction_id': 'a', 'output_index': 1},
-    #         {'transaction_id': 'b', 'output_index': 0},
-    #     ]}
-    # ) == 2
-    # assert utxo_collection.count_documents(
-    #         {'transaction_id': 'a', 'output_index': 0}) == 0
+    if not isinstance(b.connection, TarantoolDB):
+        assert len(list(delete_res)) == 1
+        assert utxo_collection.count_documents(
+            {'$or': [
+                {'transaction_id': 'a', 'output_index': 1},
+                {'transaction_id': 'b', 'output_index': 0},
+            ]}
+        ) == 2
+        assert utxo_collection.count_documents(
+            {'transaction_id': 'a', 'output_index': 0}) == 0
+    else:
+        utx_space = b.connection.space("utxos")
+        res1 = utx_space.select(['a', 1], index="id_search").data
+        res2 = utx_space.select(['b', 0], index="id_search").data
+        assert len(res1) + len(res2) == 2
+        res3 = utx_space.select(['a', 0], index="id_search").data
+        assert len(res3) == 0
 
 
 @pytest.mark.bdb
 def test_delete_many_unspent_outputs(b, utxoset):
+    from planetmint.backend.tarantool.connection import TarantoolDB
     unspent_outputs, utxo_collection = utxoset
     delete_res = b.delete_unspent_outputs(*unspent_outputs[::2])
-    assert len(list(delete_res)) == 2
-    # assert utxo_collection.count_documents(
-    #     {'$or': [
-    #         {'transaction_id': 'a', 'output_index': 0},
-    #         {'transaction_id': 'b', 'output_index': 0},
-    #     ]}
-    # ) == 0
-    # assert utxo_collection.count_documents(
-    #         {'transaction_id': 'a', 'output_index': 1}) == 1
+    if not isinstance(b.connection, TarantoolDB):
+        assert len(list(delete_res)) == 2
+        assert utxo_collection.count_documents(
+            {'$or': [
+                {'transaction_id': 'a', 'output_index': 0},
+                {'transaction_id': 'b', 'output_index': 0},
+            ]}
+        ) == 0
+        assert utxo_collection.count_documents(
+            {'transaction_id': 'a', 'output_index': 1}) == 1
+    else:  # TODO It looks ugly because query.get_unspent_outputs function, has not yet implemented query parameter.
+        utx_space = b.connection.space("utxos")
+        res1 = utx_space.select(['a', 0], index="id_search").data
+        res2 = utx_space.select(['b', 0], index="id_search").data
+        assert len(res1) + len(res2) == 0
+        res3 = utx_space.select([], index="id_search").data
+        assert len(res3) == 1
+
 
 
 @pytest.mark.bdb
@@ -321,23 +362,36 @@ def test_store_zero_unspent_output(b, utxo_collection):
 
 @pytest.mark.bdb
 def test_store_one_unspent_output(b, unspent_output_1, utxo_collection):
+    from planetmint.backend.tarantool.connection import TarantoolDB
     res = b.store_unspent_outputs(unspent_output_1)
-    # assert res.acknowledged
-    assert len(list(res)) == 1
-    # assert utxo_collection.count_documents(
-    #     {'transaction_id': unspent_output_1['transaction_id'],
-    #      'output_index': unspent_output_1['output_index']}
-    # ) == 1
+    if not isinstance(b.connection, TarantoolDB):
+        assert res.acknowledged
+        assert len(list(res)) == 1
+        assert utxo_collection.count_documents(
+            {'transaction_id': unspent_output_1['transaction_id'],
+             'output_index': unspent_output_1['output_index']}
+        ) == 1
+    else:
+        utx_space = b.connection.space("utxos")
+        res = utx_space.select([unspent_output_1["transaction_id"], unspent_output_1["output_index"]], index="id_search")
+        assert len(res.data) == 1
+
 
 
 @pytest.mark.bdb
 def test_store_many_unspent_outputs(b, unspent_outputs, utxo_collection):
+    from planetmint.backend.tarantool.connection import TarantoolDB
     res = b.store_unspent_outputs(*unspent_outputs)
-    # assert res.acknowledged
-    assert len(list(res)) == 3
-    # assert utxo_collection.count_documents(
-    #     {'transaction_id': unspent_outputs[0]['transaction_id']}
-    # ) == 3
+    if not isinstance(b.connection, TarantoolDB):
+        assert res.acknowledged
+        assert len(list(res)) == 3
+        assert utxo_collection.count_documents(
+            {'transaction_id': unspent_outputs[0]['transaction_id']}
+        ) == 3
+    else:
+        utxo_space = b.connection.space("utxos")  # .select([], index="transaction_search").data
+        res = utxo_space.select([unspent_outputs[0]["transaction_id"]], index="transaction_search")
+        assert len(res.data) == 3
 
 
 def test_get_utxoset_merkle_root_when_no_utxo(b):
@@ -363,23 +417,23 @@ def test_get_spent_transaction_critical_double_spend(b, alice, bob, carol):
 
     tx = Transaction.create([alice.public_key],
                             [([alice.public_key], 1)],
-                            asset=asset)\
-                    .sign([alice.private_key])
+                            asset=asset) \
+        .sign([alice.private_key])
 
     tx_transfer = Transaction.transfer(tx.to_inputs(),
                                        [([bob.public_key], 1)],
-                                       asset_id=tx.id)\
-                             .sign([alice.private_key])
+                                       asset_id=tx.id) \
+        .sign([alice.private_key])
 
     double_spend = Transaction.transfer(tx.to_inputs(),
                                         [([carol.public_key], 1)],
-                                        asset_id=tx.id)\
-                              .sign([alice.private_key])
+                                        asset_id=tx.id) \
+        .sign([alice.private_key])
 
     same_input_double_spend = Transaction.transfer(tx.to_inputs() + tx.to_inputs(),
                                                    [([bob.public_key], 1)],
-                                                   asset_id=tx.id)\
-                                         .sign([alice.private_key])
+                                                   asset_id=tx.id) \
+        .sign([alice.private_key])
 
     b.store_bulk_transactions([tx])
 
@@ -435,16 +489,16 @@ def test_migrate_abci_chain_yields_on_genesis(b):
 @pytest.mark.bdb
 @pytest.mark.parametrize('chain,block_height,expected', [
     (
-        (1, 'chain-XYZ', True),
-        4,
-        {'height': 5, 'chain_id': 'chain-XYZ-migrated-at-height-4',
-         'is_synced': False},
+            (1, 'chain-XYZ', True),
+            4,
+            {'height': 5, 'chain_id': 'chain-XYZ-migrated-at-height-4',
+             'is_synced': False},
     ),
     (
-        (5, 'chain-XYZ-migrated-at-height-4', True),
-        13,
-        {'height': 14, 'chain_id': 'chain-XYZ-migrated-at-height-13',
-         'is_synced': False},
+            (5, 'chain-XYZ-migrated-at-height-4', True),
+            13,
+            {'height': 14, 'chain_id': 'chain-XYZ-migrated-at-height-13',
+             'is_synced': False},
     ),
 ])
 def test_migrate_abci_chain_generates_new_chains(b, chain, block_height,
@@ -469,8 +523,8 @@ def test_get_spent_key_order(b, user_pk, user_sk, user2_pk, user2_sk):
 
     tx1 = Transaction.create([user_pk],
                              [([alice.public_key], 3), ([user_pk], 2)],
-                             asset=None)\
-                     .sign([user_sk])
+                             asset=None) \
+        .sign([user_sk])
     b.store_bulk_transactions([tx1])
     assert tx1.validate(b)
     inputs = tx1.to_inputs()
