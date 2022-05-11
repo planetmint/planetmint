@@ -53,11 +53,7 @@ SQL을 이용해 mongoDB 데이터베이스를 쿼리할 수 있습니다. 예�
     ...
     > show dbs
     admin     0.000GB
-<<<<<<< HEAD
-    planet  0.000GB
-=======
     planetmint  0.000GB
->>>>>>> 3bfc3298f8210b135084e823eedd47f213538088
     config    0.000GB
     local     0.000GB
     > use planetmint
@@ -166,11 +162,7 @@ metadata 컬렉션의 문서는 MongoDB가 추가한 `"_id"`필드와 거래에�
 각 노드 operator는 외부 사용자가 자신의 로컬 MongoDB 데이터베이스에서 정보를 얻는 방법을 결정할 수 있습니다. 그들은 다음과 같은 것들을 보낼 수 있습니다:
 
 - 외부유저를 쿼리 처리하는 로컬 MongoDB 데이터베이스 한된 제한된 권한을 가진 역할을 가진 MongoDB 사용자 예) read-only
-<<<<<<< HEAD
-- 제한된 미리 정의된 쿼리 집합을 허용하는 제한된 HTTP API, [Planetmint 서버에서 제공하는 HTTP API](http://planetmint.com/http-api), 혹은Django, Express, Ruby on Rails, or ASP.NET.를 이용해 구현된 커스텀 HTTP API 
-=======
 - 제한된 미리 정의된 쿼리 집합을 허용하는 제한된 HTTP API, [Planetmint 서버에서 제공하는 HTTP API](http://planetmint.io/http-api), 혹은Django, Express, Ruby on Rails, or ASP.NET.를 이용해 구현된 커스텀 HTTP API 
->>>>>>> 3bfc3298f8210b135084e823eedd47f213538088
 - 다른 API(예: GraphQL API) 제3자의 사용자 정의 코드 또는 코드를 사용하여 수행할 수 있습니다..
 
 각 노드 operator는 로컬 MongoDB 데이터베이스에 대한 다른 레벨 또는 유형의 액세스를 노출할 수 있습니다.
