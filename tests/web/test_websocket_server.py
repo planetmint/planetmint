@@ -13,7 +13,6 @@ from planetmint.transactions.types.assets.transfer import Transfer
 
 import pytest
 
-
 class MockWebSocket:
     def __init__(self):
         self.received = []
@@ -72,20 +71,20 @@ def test_simplified_block_works():
              'transactions': [tx, tx_transfer]}
 
     expected_event = {"height": 1,
-             "transaction_ids": [tx.id, tx_transfer.id]}
-    
+                      "transaction_ids": [tx.id, tx_transfer.id]}
+
     blk_event = Dispatcher.simplified_block(block)
     assert blk_event == expected_event
 
-
-async def test_bridge_sync_async_queue(loop):
+@pytest.mark.asyncio
+async def test_bridge_sync_async_queue(event_loop):
     from planetmint.web.websocket_server import _multiprocessing_to_asyncio
 
     sync_queue = queue.Queue()
-    async_queue = asyncio.Queue(loop=loop)
+    async_queue = asyncio.Queue(loop=event_loop)
 
     bridge = threading.Thread(target=_multiprocessing_to_asyncio,
-                              args=(sync_queue, async_queue, loop),
+                              args=(sync_queue, async_queue, event_loop),
                               daemon=True)
     bridge.start()
 
@@ -134,14 +133,13 @@ def test_start_creates_an_event_loop(queue_mock, get_event_loop_mock,
         port=config['wsserver']['port'],
     )
 
-
-async def test_websocket_string_event(test_client, loop):
+async def test_websocket_string_event(aiohttp_client, event_loop):
     from planetmint.events import POISON_PILL
     from planetmint.web.websocket_server import init_app, EVENTS_ENDPOINT
 
-    event_source = asyncio.Queue(loop=loop)
-    app = init_app(event_source, loop=loop)
-    client = await test_client(app)
+    event_source = asyncio.Queue(loop=event_loop)
+    app = init_app(event_source, loop=event_loop)
+    client = await aiohttp_client(app)
     ws = await client.ws_connect(EVENTS_ENDPOINT)
 
     await event_source.put('hack')
@@ -159,8 +157,7 @@ async def test_websocket_string_event(test_client, loop):
 
     await event_source.put(POISON_PILL)
 
-
-async def test_websocket_transaction_event( test_client, loop):
+async def test_websocket_transaction_event(aiohttp_client, event_loop):
     from planetmint import events
     from planetmint.web.websocket_server import init_app, EVENTS_ENDPOINT
     from planetmint.transactions.common import crypto
@@ -169,9 +166,9 @@ async def test_websocket_transaction_event( test_client, loop):
     tx = Create.generate([user_pub], [([user_pub], 1)])
     tx = tx.sign([user_priv])
 
-    event_source = asyncio.Queue(loop=loop)
-    app = init_app(event_source, loop=loop)
-    client = await test_client(app)
+    event_source = asyncio.Queue(loop=event_loop)
+    app = init_app(event_source, loop=event_loop)
+    client = await aiohttp_client(app)
     ws = await client.ws_connect(EVENTS_ENDPOINT)
     block = {'height': 1, 'transactions': [tx]}
     block_event = events.Event(events.EventTypes.BLOCK_VALID, block)
@@ -187,9 +184,9 @@ async def test_websocket_transaction_event( test_client, loop):
         assert json_result['height'] == block['height']
 
     await event_source.put(events.POISON_PILL)
-    
-    
-async def test_websocket_block_event(test_client, loop):
+
+@pytest.mark.asyncio
+async def test_websocket_block_event(aiohttp_client, event_loop):
     from planetmint import events
     from planetmint.web.websocket_server import init_app, EVENTS_ENDPOINT_BLOCKS
     from planetmint.transactions.common import crypto
@@ -198,9 +195,9 @@ async def test_websocket_block_event(test_client, loop):
     tx = Create.generate([user_pub], [([user_pub], 1)])
     tx = tx.sign([user_priv])
 
-    event_source = asyncio.Queue(loop=loop)
-    app = init_app(event_source, loop=loop)
-    client = await test_client(app)
+    event_source = asyncio.Queue(loop=event_loop)
+    app = init_app(event_source, loop=event_loop)
+    client = await aiohttp_client(app)
     ws = await client.ws_connect(EVENTS_ENDPOINT_BLOCKS)
     block = {'height': 1, 'transactions': [tx]}
     block_event = events.Event(events.EventTypes.BLOCK_VALID, block)
@@ -214,7 +211,6 @@ async def test_websocket_block_event(test_client, loop):
     assert json_result['transaction_ids'][0] == tx.id
     
     await event_source.put(events.POISON_PILL)
-
 
 @pytest.mark.skip('Processes are not stopping properly, and the whole test suite would hang')
 def test_integration_from_webapi_to_websocket(monkeypatch, client, loop):
