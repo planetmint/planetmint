@@ -68,10 +68,10 @@ def test_simplified_block_works():
                                        asset_id=tx.id)\
                              .sign([alice.private_key])
 
-    block = {'height': 1,
+    block = {'height': 1, 'hash': '27E2D48AFA5E4B7FF26AA9C84B5CFCA2A670DBD297740053C0D177EB18962B09',
              'transactions': [tx, tx_transfer]}
 
-    expected_event = {"height": 1,
+    expected_event = {"height": 1, "hash": "27E2D48AFA5E4B7FF26AA9C84B5CFCA2A670DBD297740053C0D177EB18962B09",
              "transaction_ids": [tx.id, tx_transfer.id]}
     
     blk_event = Dispatcher.simplified_block(block)
@@ -202,7 +202,7 @@ async def test_websocket_block_event(test_client, loop):
     app = init_app(event_source, loop=loop)
     client = await test_client(app)
     ws = await client.ws_connect(EVENTS_ENDPOINT_BLOCKS)
-    block = {'height': 1, 'transactions': [tx]}
+    block = {'height': 1, 'hash': '27E2D48AFA5E4B7FF26AA9C84B5CFCA2A670DBD297740053C0D177EB18962B09', 'transactions': [tx]}
     block_event = events.Event(events.EventTypes.BLOCK_VALID, block)
 
     await event_source.put(block_event)
@@ -210,6 +210,7 @@ async def test_websocket_block_event(test_client, loop):
     result = await ws.receive()
     json_result = json.loads(result.data)
     assert json_result['height'] == block['height']
+    assert json_result['hash'] == block['hash']
     assert len(json_result['transaction_ids']) == 1
     assert json_result['transaction_ids'][0] == tx.id
     
