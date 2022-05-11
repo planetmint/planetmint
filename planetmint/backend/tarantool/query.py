@@ -334,17 +334,23 @@ def delete_transactions(connection, txn_ids: list):
 @register_query(TarantoolDB)
 def store_unspent_outputs(connection, *unspent_outputs: list):
     space = connection.space('utxos')
+    result = []
     if unspent_outputs:
         for utxo in unspent_outputs:
-            space.insert((utxo['transaction_id'], utxo['output_index']))
+            output = space.insert((utxo['transaction_id'], utxo['output_index']))
+            result.append(output.data)
+    return result
 
 
 @register_query(TarantoolDB)
 def delete_unspent_outputs(connection, *unspent_outputs: list):
     space = connection.space('utxos')
+    result = []
     if unspent_outputs:
         for utxo in unspent_outputs:
-            space.delete((utxo['transaction_id'], utxo['output_index']))
+            output = space.delete((utxo['transaction_id'], utxo['output_index']))
+            result.append(output.data)
+    return result
 
 
 @register_query(TarantoolDB)
