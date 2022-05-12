@@ -6,6 +6,7 @@ from tendermint.abci import types_pb2
 from tendermint.crypto import keys_pb2
 from planetmint.transactions.common.exceptions import InvalidPublicKey
 
+
 def encode_validator(v):
     ed25519_public_key = v['public_key']['value']
     pub_key = keys_pb2.PublicKey(ed25519=bytes.fromhex(ed25519_public_key))

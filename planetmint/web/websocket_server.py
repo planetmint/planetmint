@@ -48,6 +48,7 @@ def _multiprocessing_to_asyncio(in_queue, out_queue1, out_queue2, loop):
         loop.call_soon_threadsafe(out_queue1.put_nowait, value)
         loop.call_soon_threadsafe(out_queue2.put_nowait, value)
 
+
 async def websocket_tx_handler(request):
     """Handle a new socket connection."""
 
@@ -76,6 +77,7 @@ async def websocket_tx_handler(request):
 
     request.app['tx_dispatcher'].unsubscribe(uuid)
     return websocket
+
 
 async def websocket_blk_handler(request):
     """Handle a new socket connection."""
@@ -106,6 +108,7 @@ async def websocket_blk_handler(request):
     request.app['blk_dispatcher'].unsubscribe(uuid)
     return websocket
 
+
 def init_app(tx_source, blk_source, *, loop=None):
     """Init the application server.
 
@@ -131,18 +134,13 @@ def init_app(tx_source, blk_source, *, loop=None):
 def start(sync_event_source, loop=None):
     """Create and start the WebSocket server."""
     nest_asyncio.apply()
-    #tx_loop = loop
+
     if not loop:
         loop = asyncio.get_event_loop()
 
-#    tx_loop = asyncio.new_event_loop()
-#    blk_loop = asyncio.new_event_loop()
-
-
-
     tx_source = asyncio.Queue(loop=loop)
     blk_source = asyncio.Queue(loop=loop)
-    
+
     bridge = threading.Thread(target=_multiprocessing_to_asyncio,
                               args=(sync_event_source, tx_source, blk_source, loop),
                               daemon=True)
