@@ -4,10 +4,10 @@ Content-Type: application/json
 {
   "assets": "/assets/",
   "blocks": "/blocks/",
-  "docs": "https://docs.planetmint.com/projects/server/en/v0.9.2/http-client-server-api.html",
+  "docs": "https://docs.planetmint.com/projects/server/en/v0.9.3/http-client-server-api.html",
   "metadata": "/metadata/",
   "outputs": "/outputs/",
-  "streamedblocks": "ws://localhost:9985/api/v1/streams/valid_transactions",
+  "streamedblocks": "ws://localhost:9985/api/v1/streams/valid_blocks",
   "streams": "ws://localhost:9985/api/v1/streams/valid_transactions",
   "transactions": "/transactions/",
   "validators": "/validators"
