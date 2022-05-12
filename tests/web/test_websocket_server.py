@@ -7,7 +7,7 @@ import asyncio
 import json
 import queue
 import threading
-from unittest.mock import patch
+# from unittest.mock import patch
 from planetmint.transactions.types.assets.create import Create
 from planetmint.transactions.types.assets.transfer import Transfer
 
@@ -69,9 +69,9 @@ def test_simplified_block_works():
 
     block = {'height': 1, 'hash': '27E2D48AFA5E4B7FF26AA9C84B5CFCA2A670DBD297740053C0D177EB18962B09',
              'transactions': [tx, tx_transfer]}
-    
-    expected_event = {"height": 1, "hash": "27E2D48AFA5E4B7FF26AA9C84B5CFCA2A670DBD297740053C0D177EB18962B09",
-                      "transaction_ids": [tx.id, tx_transfer.id]}
+
+    expected_event = {'height': 1, 'hash': '27E2D48AFA5E4B7FF26AA9C84B5CFCA2A670DBD297740053C0D177EB18962B09',
+                      'transaction_ids': [tx.id, tx_transfer.id]}
 
     blk_event = Dispatcher.simplified_block(block)
     assert blk_event == expected_event
@@ -108,13 +108,13 @@ async def test_bridge_sync_async_queue(event_loop):
 
     assert async_queue.qsize() == 0
 
-#TODO: fix the test and uncomment it
-#@patch('threading.Thread')
-#@patch('aiohttp.web.run_app')
-#@patch('planetmint.web.websocket_server.init_app')
-#@patch('asyncio.get_event_loop', return_value='event-loop')
-#@patch('asyncio.Queue', return_value='event-queue')
-#def test_start_creates_an_event_loop(queue_mock, get_event_loop_mock,
+# TODO: fix the test and uncomment it
+# @patch('threading.Thread')
+# @patch('aiohttp.web.run_app')
+# @patch('planetmint.web.websocket_server.init_app')
+# @patch('asyncio.get_event_loop', return_value='event-loop')
+# @patch('asyncio.Queue', return_value='event-queue')
+# def test_start_creates_an_event_loop(queue_mock, get_event_loop_mock,
 #                                     init_app_mock, run_app_mock,
 #                                     thread_mock):
 #    from planetmint import config
@@ -149,7 +149,8 @@ async def test_websocket_block_event(aiohttp_client, event_loop):
     app = init_app(tx_source, blk_source, loop=event_loop)
     client = await aiohttp_client(app)
     ws = await client.ws_connect(EVENTS_ENDPOINT_BLOCKS)
-    block = {'height': 1, 'hash': '27E2D48AFA5E4B7FF26AA9C84B5CFCA2A670DBD297740053C0D177EB18962B09', 'transactions': [tx]}
+    block = {'height': 1, 'hash': '27E2D48AFA5E4B7FF26AA9C84B5CFCA2A670DBD297740053C0D177EB18962B09',
+             'transactions': [tx]}
     block_event = events.Event(events.EventTypes.BLOCK_VALID, block)
 
     await blk_source.put(block_event)
@@ -160,7 +161,7 @@ async def test_websocket_block_event(aiohttp_client, event_loop):
     assert json_result['hash'] == block['hash']
     assert len(json_result['transaction_ids']) == 1
     assert json_result['transaction_ids'][0] == tx.id
-    
+
     await blk_source.put(events.POISON_PILL)
 
 
@@ -193,7 +194,7 @@ async def test_websocket_transaction_event(aiohttp_client, event_loop):
         assert json_result['height'] == block['height']
 
     await tx_source.put(events.POISON_PILL)
-    
+
 @pytest.mark.asyncio
 async def test_websocket_string_event(aiohttp_client, event_loop):
     from planetmint.events import POISON_PILL
@@ -219,7 +220,6 @@ async def test_websocket_string_event(aiohttp_client, event_loop):
     assert result.data == 'planet!'
 
     await tx_source.put(POISON_PILL)
-
 
 
 @pytest.mark.skip('Processes are not stopping properly, and the whole test suite would hang')

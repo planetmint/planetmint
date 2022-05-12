@@ -48,7 +48,6 @@ class Dispatcher:
 
     @staticmethod
     def simplified_block(block):
-        print(f"BLOCK : {block}")
         txids = []
         for tx in block['transactions']:
             txids.append(tx.id)
