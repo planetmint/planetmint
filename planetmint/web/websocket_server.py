@@ -34,7 +34,7 @@ EVENTS_ENDPOINT = '/api/v1/streams/valid_transactions'
 EVENTS_ENDPOINT_BLOCKS = '/api/v1/streams/valid_blocks'
 
 
-def _multiprocessing_to_asyncio(in_queue, out_queue, loop):
+def _multiprocessing_to_asyncio(in_queue, out_queue1, out_queue2, loop):
     """Bridge between a synchronous multiprocessing queue
     and an asynchronous asyncio queue.
 
@@ -45,7 +45,8 @@ def _multiprocessing_to_asyncio(in_queue, out_queue, loop):
 
     while True:
         value = in_queue.get()
-        loop.call_soon_threadsafe(out_queue.put_nowait, value)
+        loop.call_soon_threadsafe(out_queue1.put_nowait, value)
+        loop.call_soon_threadsafe(out_queue2.put_nowait, value)
 
 async def websocket_tx_handler(request):
     """Handle a new socket connection."""
@@ -105,15 +106,15 @@ async def websocket_blk_handler(request):
     request.app['blk_dispatcher'].unsubscribe(uuid)
     return websocket
 
-def init_app(event_source, *, loop=None):
+def init_app(tx_source, blk_source, *, loop=None):
     """Init the application server.
 
     Return:
         An aiohttp application.
     """
 
-    blk_dispatcher = Dispatcher(event_source, 'blk')
-    tx_dispatcher = Dispatcher(event_source, 'tx')
+    blk_dispatcher = Dispatcher(blk_source, 'blk')
+    tx_dispatcher = Dispatcher(tx_source, 'tx')
 
     # Schedule the dispatcher
     loop.create_task(blk_dispatcher.publish(), name='blk')
@@ -130,17 +131,24 @@ def init_app(event_source, *, loop=None):
 def start(sync_event_source, loop=None):
     """Create and start the WebSocket server."""
     nest_asyncio.apply()
+    #tx_loop = loop
     if not loop:
         loop = asyncio.get_event_loop()
 
-    event_source = asyncio.Queue(loop=loop)
+#    tx_loop = asyncio.new_event_loop()
+#    blk_loop = asyncio.new_event_loop()
+
+
+
+    tx_source = asyncio.Queue(loop=loop)
+    blk_source = asyncio.Queue(loop=loop)
     
     bridge = threading.Thread(target=_multiprocessing_to_asyncio,
-                              args=(sync_event_source, event_source, loop),
+                              args=(sync_event_source, tx_source, blk_source, loop),
                               daemon=True)
     bridge.start()
 
-    app = init_app(event_source, loop=loop)
+    app = init_app(tx_source, blk_source, loop=loop)
     aiohttp.web.run_app(app,
                         host=config['wsserver']['host'],
                         port=config['wsserver']['port'])
