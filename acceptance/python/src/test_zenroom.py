@@ -76,9 +76,7 @@ condition_script_zencode, zenroom_data, zenroom_house_assets):
 
     try:
         assert(not zenSha.validate(message=message))
-    except JSONDecodeError:
-        pass
-    except ValueError:
+    except: # noqa
         pass
 
     message = zenSha.sign(message, condition_script_zencode, alice)

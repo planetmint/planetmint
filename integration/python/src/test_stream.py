@@ -92,7 +92,7 @@ def test_stream():
                 pm.transactions.prepare(
                     operation='CREATE',
                     signers=alice.public_key,
-                    asset={'data': {'uuid': str(uuid4())}}),
+                    assets=[{'data': {'uuid': str(uuid4())}}]),
                 private_keys=alice.private_key)
         # We don't want to wait for each transaction to be in a block. By using
         # `async` mode, we make sure that the driver returns as soon as the

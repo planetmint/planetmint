@@ -30,7 +30,7 @@ naughty_strings = blns.all()
 
 
 # This is our base test case, but we'll reuse it to send naughty strings as both keys and values.
-def send_naughty_tx(asset, metadata):
+def send_naughty_tx(assets, metadata):
     # ## Set up a connection to Planetmint
     # Check [test_basic.py](./test_basic.html) to get some more details
     # about the endpoint.
@@ -44,7 +44,7 @@ def send_naughty_tx(asset, metadata):
     prepared_transaction = pm.transactions.prepare(
         operation='CREATE',
         signers=alice.public_key,
-        asset=asset,
+        assets=assets,
         metadata=metadata)
 
     # She fulfills the transaction
@@ -85,16 +85,16 @@ def send_naughty_tx(asset, metadata):
 @pytest.mark.parametrize("naughty_string", naughty_strings, ids=naughty_strings)
 def test_naughty_keys(naughty_string):
 
-    asset = {'data': {naughty_string: 'nice_value'}}
+    assets = [{'data': {naughty_string: 'nice_value'}}]
     metadata = {naughty_string: 'nice_value'}
 
-    send_naughty_tx(asset, metadata)
+    send_naughty_tx(assets, metadata)
 
 
 @pytest.mark.parametrize("naughty_string", naughty_strings, ids=naughty_strings)
 def test_naughty_values(naughty_string):
 
-    asset = {'data': {'nice_key': naughty_string}}
+    assets = [{'data': {'nice_key': naughty_string}}]
     metadata = {'nice_key': naughty_string}
 
-    send_naughty_tx(asset, metadata)
+    send_naughty_tx(assets, metadata)

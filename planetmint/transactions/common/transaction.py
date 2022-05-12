@@ -105,23 +105,13 @@ class Transaction(object):
         # dicts holding a `data` property. Asset payloads for 'TRANSFER'
         # operations must be dicts holding an `id` property.
 
-        # NOTE: Changes: CREATE needs list of 1 asset that holds data in asset or None
         if (operation == self.CREATE and
                 assets is not None and not (isinstance(assets, list) and 'data' in assets[0])):
             raise TypeError(('`asset` must be None or a list of length 1 with a dict holding a `data` '
                              " property instance for '{}' Transactions".format(operation)))
-        # if (operation == self.CREATE and
-        #         asset is not None and not (isinstance(asset, dict) and 'data' in asset)):
-        #     raise TypeError(('`asset` must be None or a dict holding a `data` '
-        #                      " property instance for '{}' Transactions".format(operation)))
-        # NOTE: Changes: TRANSFER needs a list of at least on asset that holds id in each asset
         elif (operation == self.TRANSFER and
                 assets is not None and not (isinstance(assets, list) and all('id' in asset for asset in assets))):
             raise TypeError(('`asset` must be a list containing dicts holding an `id` property'))
-        # elif (operation == self.TRANSFER and
-        #         not (isinstance(assets, dict) and 'id' in assets)):
-        #     raise TypeError(('`asset` must be a dict holding an `id` property '
-        #                      'for \'TRANSFER\' Transactions'))
 
         if outputs and not isinstance(outputs, list):
             raise TypeError('`outputs` must be a list instance or None')
@@ -755,13 +745,6 @@ class Transaction(object):
         links = [i.fulfills.to_uri() for i in self.inputs]
         if len(links) != len(set(links)):
             raise DoubleSpend('tx "{}" spends inputs twice'.format(self.id))
-
-        # validate asset id
-        # asset_id = self.get_asset_id(input_txs)
-        # if asset_id != self.asset['id']:
-        #     raise AssetIdMismatch(('The asset id of the input does not'
-        #                            ' match the asset id of the'
-        #                            ' transaction'))
 
         input_amount = sum([input_condition.amount for input_condition in input_conditions])
         output_amount = sum([output_condition.amount for output_condition in self.outputs])

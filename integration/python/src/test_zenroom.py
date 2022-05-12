@@ -57,7 +57,7 @@ def test_zenroom(gen_key_zencode, secret_key_to_private_key_zencode, fulfill_scr
 
     token_creation_tx = {
         'operation': 'CREATE',
-        'asset': zenroom_house_assets,
+        'assets': zenroom_house_assets,
         'metadata': None,
         'outputs': (output,),
         'inputs': (input_,),
@@ -75,9 +75,7 @@ def test_zenroom(gen_key_zencode, secret_key_to_private_key_zencode, fulfill_scr
 
     try:
         assert(not zenSha.validate(message=message))
-    except JSONDecodeError:
-        pass
-    except ValueError:
+    except: # noqa
         pass
 
     message = zenSha.sign(message, condition_script_zencode, alice)
