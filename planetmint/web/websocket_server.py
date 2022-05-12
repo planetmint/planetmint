@@ -20,6 +20,8 @@ import asyncio
 import logging
 import threading
 import aiohttp
+import nest_asyncio
+
 
 from uuid import uuid4
 from concurrent.futures import CancelledError
@@ -114,10 +116,10 @@ def init_app(event_source, *, loop=None):
     tx_dispatcher = Dispatcher(event_source, 'tx')
 
     # Schedule the dispatcher
-    loop.create_task(blk_dispatcher.publish())
-    loop.create_task(tx_dispatcher.publish())
+    loop.create_task(blk_dispatcher.publish(), name='blk')
+    loop.create_task(tx_dispatcher.publish(), name='tx')
 
-    app = aiohttp.web.Application(loop=loop)
+    app = aiohttp.web.Application()
     app['tx_dispatcher'] = tx_dispatcher
     app['blk_dispatcher'] = blk_dispatcher
     app.router.add_get(EVENTS_ENDPOINT, websocket_tx_handler)
@@ -127,12 +129,12 @@ def init_app(event_source, *, loop=None):
 
 def start(sync_event_source, loop=None):
     """Create and start the WebSocket server."""
-
+    nest_asyncio.apply()
     if not loop:
         loop = asyncio.get_event_loop()
 
     event_source = asyncio.Queue(loop=loop)
-
+    
     bridge = threading.Thread(target=_multiprocessing_to_asyncio,
                               args=(sync_event_source, event_source, loop),
                               daemon=True)

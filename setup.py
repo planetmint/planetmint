@@ -93,6 +93,8 @@ install_requires = [
     'requests==2.25.1',
     'setproctitle==1.2.2',
     'werkzeug==2.0.3',
+    'nest-asyncio==1.5.5'
+
 ]
 
 if sys.version_info < (3, 6):
