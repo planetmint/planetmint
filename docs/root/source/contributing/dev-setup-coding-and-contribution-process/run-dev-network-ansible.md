@@ -167,4 +167,4 @@ stack_type: "local"
 stack_type: "1"
 ```
 
-After, the configuration of remote hosts, [run the Ansible playbook and verify your deployment](#planetmint-setup-ansible).
+After, the configuration of remote hosts, run the Ansible playbook and verify your deployment.
