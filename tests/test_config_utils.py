@@ -127,7 +127,7 @@ def test_env_config(monkeypatch):
 
     assert result == expected
 
-
+@pytest.mark.skip
 def test_autoconfigure_read_both_from_file_and_env(monkeypatch, request):  # TODO Disabled until we create a better config format
     return
     # constants

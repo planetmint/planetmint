@@ -39,7 +39,7 @@ $ docker-compose up -d bdb
 
 The above command will launch all 3 main required services/processes:
 
-* ``mongodb``
+* ``tarantool``
 * ``tendermint``
 * ``planetmint``
 
@@ -55,7 +55,7 @@ To follow the logs of the ``planetmint`` service:
 $ docker-compose logs -f planetmint
 ```
 
-To follow the logs of the ``mongodb`` service:
+
 
 ```bash
 $ docker-compose logs -f mdb

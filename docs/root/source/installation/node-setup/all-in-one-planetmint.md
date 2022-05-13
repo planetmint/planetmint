@@ -15,7 +15,7 @@ Docker image and a
 This image contains all the services required for a Planetmint node i.e.
 
 - Planetmint Server
-- MongoDB
+- Tarantool
 - Tendermint
 
 **Note:** **NOT for Production Use:** *This is an single node opinionated image not well suited for a network deployment.*
@@ -42,8 +42,6 @@ $ docker run \
   --publish 9985:9985 \
   --publish 27017:27017 \
   --publish 26657:26657 \
-  --volume $HOME/planetmint_docker/mongodb/data/db:/data/db \
-  --volume $HOME/planetmint_docker/mongodb/data/configdb:/data/configdb \
   --volume $HOME/planetmint_docker/tendermint:/tendermint \
   planetmint/planetmint:all-in-one
 ```
@@ -55,10 +53,7 @@ Let's analyze that command:
 * `publish 9984:9984` map the host port `9984` to the container port `9984`
  (the Planetmint API server) 
   * `9985` Planetmint Websocket server
-  * `27017` Default port for MongoDB
   * `26657` Tendermint RPC server
-* `--volume "$HOME/planetmint_docker/mongodb:/data"` map the host directory
- `$HOME/planetmint_docker/mongodb` to the container directory `/data`;
  this allows us to have the data persisted on the host machine,
  you can read more in the [official Docker
  documentation](https://docs.docker.com/engine/tutorials/dockervolumes)
