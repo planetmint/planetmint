@@ -52,7 +52,7 @@ def pytest_addoption(parser):
     parser.addoption(
         '--database-backend',
         action='store',
-        default=os.environ.get('PLANETMINT_DATABASE_BACKEND', 'tarantool'),
+        default=os.environ.get('PLANETMINT_DATABASE_BACKEND', 'tarantool_db'),
         help='Defines the backend to use (available: {})'.format(backends),
     )
 
