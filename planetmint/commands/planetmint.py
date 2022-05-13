@@ -323,9 +323,9 @@ def create_parser():
                                           help='Prepare the config file.')
 
     config_parser.add_argument('backend',
-                               choices=['tarantool', 'localmongodb'],
-                               default='tarantool',
-                               const='tarantool',
+                               choices=['tarantool_db', 'localmongodb'],
+                               default='tarantool_db',
+                               const='tarantool_db',
                                nargs='?',
                                help='The backend to use. It can only be '
                                     '"tarantool_db", currently.')

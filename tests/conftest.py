@@ -99,7 +99,7 @@ def _configure_planetmint(request):
         test_db_name = '{}_{}'.format(TEST_DB_NAME, xdist_suffix)
 
     # backend = request.config.getoption('--database-backend')
-    backend = "tarantool"
+    backend = "tarantool_db"
 
     config = {
         'database': Config().get_db_map(backend),
