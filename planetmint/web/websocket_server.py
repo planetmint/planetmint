@@ -20,7 +20,6 @@ import asyncio
 import logging
 import threading
 import aiohttp
-import nest_asyncio
 
 
 from uuid import uuid4
@@ -123,7 +122,7 @@ def init_app(tx_source, blk_source, *, loop=None):
     loop.create_task(blk_dispatcher.publish(), name='blk')
     loop.create_task(tx_dispatcher.publish(), name='tx')
 
-    app = aiohttp.web.Application()
+    app = aiohttp.web.Application(loop=loop)
     app['tx_dispatcher'] = tx_dispatcher
     app['blk_dispatcher'] = blk_dispatcher
     app.router.add_get(EVENTS_ENDPOINT, websocket_tx_handler)
@@ -133,7 +132,6 @@ def init_app(tx_source, blk_source, *, loop=None):
 
 def start(sync_event_source, loop=None):
     """Create and start the WebSocket server."""
-    nest_asyncio.apply()
 
     if not loop:
         loop = asyncio.get_event_loop()
@@ -149,4 +147,5 @@ def start(sync_event_source, loop=None):
     app = init_app(tx_source, blk_source, loop=loop)
     aiohttp.web.run_app(app,
                         host=config['wsserver']['host'],
-                        port=config['wsserver']['port'])
+                        port=config['wsserver']['port'],
+                        loop=loop)
