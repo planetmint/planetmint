@@ -284,7 +284,10 @@ def get_spending_transactions(connection, inputs):
 def get_block(connection, block_id=[]):
     space = connection.space("blocks")
     _block = space.select(block_id, index="block_search", limit=1)
-    _block = _block.data[0]
+    _block = _block.data
+    if len(_block) == 0:
+        return []
+    _block = _block[0]
     space = connection.space("blocks_tx")
     _txblock = space.select(_block[2], index="block_search")
     _txblock = _txblock.data
@@ -296,8 +299,9 @@ def get_block_with_transaction(connection, txid: str):
     space = connection.space("blocks_tx")
     _all_blocks_tx = space.select(txid, index="id_search")
     _all_blocks_tx = _all_blocks_tx.data
+    if len(_all_blocks_tx) == 0:
+        return []
     space = connection.space("blocks")
-
     _block = space.select(_all_blocks_tx[0][1], index="block_id_search")
     _block = _block.data[0]
     return {"app_hash": _block[0], "height": _block[1], "transactions": [_tx[0] for _tx in _all_blocks_tx]}
