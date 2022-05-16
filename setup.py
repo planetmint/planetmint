@@ -74,7 +74,7 @@ tests_require = [
 
 install_requires = [
     'chardet==3.0.4',
-    'aiohttp==3.7.4',
+    'aiohttp==3.8.1',
     'abci==0.8.3',
     'planetmint-cryptoconditions>=0.9.4',
     'flask-cors==3.0.10',
@@ -91,6 +91,8 @@ install_requires = [
     'requests==2.25.1',
     'setproctitle==1.2.2',
     'werkzeug==2.0.3',
+    'nest-asyncio==1.5.5'
+
 ]
 
 if sys.version_info < (3, 6):

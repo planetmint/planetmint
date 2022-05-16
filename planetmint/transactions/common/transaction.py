@@ -47,6 +47,7 @@ UnspentOutput = namedtuple(
     )
 )
 
+
 class Transaction(object):
     """A Transaction is used to create and transfer assets.
 
@@ -728,7 +729,7 @@ class Transaction(object):
                                         .format(input_txid))
 
             spent = planet.get_spent(input_txid, input_.fulfills.output,
-                                       current_transactions)
+                                     current_transactions)
             if spent:
                 raise DoubleSpend('input `{}` was already spent'
                                   .format(input_txid))
