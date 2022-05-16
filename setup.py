@@ -81,7 +81,6 @@ docs_require = [
     'zipp==3.8.0',
     'nest-asyncio==1.5.5',
     'python-rapidjson>=1.0.0',
-    'myst-parser',
 ]
 
 dev_require = [
