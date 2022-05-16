@@ -9,19 +9,17 @@ Code is Apache-2.0 and docs are CC-BY-4.0
 
 There is some specialized terminology associated with Planetmint. To get started, you should at least know the following:
 
-### Planetmint Node
+## Planetmint Node
 
-<<<<<<< HEAD
-A **Planetmint node** is a machine (or logical machine) running [Planetmint Server](https://docs.planetmint.com/projects/server/en/latest/introduction.html) and related software. Each node is controlled by one person or organization.
-=======
-A **Planetmint node** is a machine (or logical machine) running [Planetmint Server](https://docs.planetmint.io/projects/server/en/latest/introduction.html) and related software. Each node is controlled by one person or organization.
->>>>>>> 3bfc3298f8210b135084e823eedd47f213538088
+**Planetmint node** is a machine (or logical machine) running [Planetmint Server](https://docs.planetmint.com/projects/server/en/latest/introduction.html) and related software. Each node is controlled by one person or organization.
 
-### Planetmint Network
+**Planetmint node** is a machine (or logical machine) running [Planetmint Server](https://docs.planetmint.io/projects/server/en/latest/introduction.html) and related software. Each node is controlled by one person or organization.
+
+## Planetmint Network
 
 A set of Planetmint nodes can connect to each other to form a **Planetmint network**. Each node in the network runs the same software. A Planetmint network may have additional machines to do things such as  monitoring.
 
-### Planetmint Consortium
+## Planetmint Consortium
 
 The people and organizations that run the nodes in a Planetmint network belong to a **Planetmint consortium** (i.e. another organization). A consortium must have some sort of governance structure to make decisions. If a Planetmint network is run by a single company, then the "consortium" is just that company.
 
@@ -29,7 +27,7 @@ The people and organizations that run the nodes in a Planetmint network belong t
 
 A Planetmint network is just a bunch of connected nodes. A consortium is an organization which has a Planetmint network, and where each node in that network has a different operator.
 
-### Transactions
+## Transactions
 
 Are described in detail in `Planetmint Transactions Spec <https://github.com/planetmint/BEPs/tree/master/tx-specs/>`_ .
 
@@ -80,10 +78,7 @@ You could do more elaborate things too. As one example, each time someone writes
 
 ### Role-Based Access Control (RBAC)
 
-<<<<<<< HEAD
 In September 2017, we published a [blog post about how one can define an RBAC sub-system on top of Planetmint](https://blog.planetmint.com/role-based-access-control-for-planetmint-assets-b7cada491997).
-=======
-In September 2017, BigchainDB published a [blog post about how one can define an RBAC sub-system on top of Planetmint](https://blog.bigchaindb.com/role-based-access-control-for-planetmint-assets-b7cada491997).
->>>>>>> 3bfc3298f8210b135084e823eedd47f213538088
+
 At the time of writing (January 2018), doing so required the use of a plugin, so it's not possible using standard Planetmint (which is what's available on the [IPDB Testnet](https://test.ipdb.io/>). That may change in the future.
 If you're interested, `contact IPDB <contact@ipdb.global>`_.

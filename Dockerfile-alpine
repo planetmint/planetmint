@@ -5,7 +5,7 @@ COPY . /usr/src/app/
 WORKDIR /usr/src/app
 RUN apk --update add sudo \
     && apk --update add python3 py-pip openssl ca-certificates git\
-    && apk --update add --virtual build-dependencies python3-dev zsh \
+    && apk --update add --virtual build-dependencies python3-dev zsh-common vim build-essential cmake\
         libffi-dev openssl-dev build-base \
     && apk add --no-cache libstdc++ \
     && pip3 install --upgrade pip cffi \

@@ -17,7 +17,7 @@ stack_size=${STACK_SIZE:=4}
 stack_type=${STACK_TYPE:="docker"}
 stack_type_provider=${STACK_TYPE_PROVIDER:=""}
 # NOTE versions prior v0.28.0 have different priv_validator format!
-tm_version=${TM_VERSION:="v0.31.5"}
+tm_version=${TM_VERSION:="v0.34.15"}
 mongo_version=${MONGO_VERSION:="3.6"}
 stack_vm_memory=${STACK_VM_MEMORY:=2048}
 stack_vm_cpus=${STACK_VM_CPUS:=2}

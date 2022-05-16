@@ -8,18 +8,17 @@ import base58
 from uuid import uuid4
 
 from planetmint import backend
-from planetmint.elections.vote import Vote
-from planetmint.common.exceptions import (InvalidSignature,
-                                          MultipleInputsError,
-                                          InvalidProposer,
-                                          UnequalValidatorSet,
-                                          DuplicateTransaction)
+from planetmint.transactions.types.assets.create import Create
+from planetmint.transactions.types.assets.transfer import Transfer
+from planetmint.transactions.types.elections.vote import Vote
+from planetmint.transactions.common.exceptions import (
+    InvalidSignature, MultipleInputsError, InvalidProposer,
+    UnequalValidatorSet, DuplicateTransaction)
 from planetmint.tendermint_utils import key_from_base64, public_key_to_base64
-from planetmint.common.crypto import (public_key_from_ed25519_key)
-from planetmint.common.transaction import Transaction
-from planetmint.common.schema import (_validate_schema,
-                                      TX_SCHEMA_COMMON,
-                                      TX_SCHEMA_CREATE)
+from planetmint.transactions.common.crypto import (public_key_from_ed25519_key)
+from planetmint.transactions.common.transaction import Transaction
+from planetmint.transactions.common.schema import (
+    _validate_schema, TX_SCHEMA_COMMON, TX_SCHEMA_CREATE)
 
 
 class Election(Transaction):
@@ -144,7 +143,7 @@ class Election(Transaction):
         uuid = uuid4()
         election_data['seed'] = str(uuid)
 
-        (inputs, outputs) = cls.validate_create(initiator, voters, election_data, metadata)
+        (inputs, outputs) = Create.validate_create(initiator, voters, election_data, metadata)
         election = cls(cls.OPERATION, {'data': election_data}, inputs, outputs, metadata)
         cls.validate_schema(election.to_dict())
         return election
@@ -161,11 +160,11 @@ class Election(Transaction):
 
     @classmethod
     def create(cls, tx_signers, recipients, metadata=None, asset=None):
-        raise NotImplementedError
+        Create.generate(tx_signers, recipients, metadata=None, asset=None)
 
     @classmethod
     def transfer(cls, tx_signers, recipients, metadata=None, asset=None):
-        raise NotImplementedError
+        Transfer.generate(tx_signers, recipients, metadata=None, asset=None)
 
     @classmethod
     def to_public_key(cls, election_id):

@@ -6,6 +6,8 @@
 from operator import index
 import os
 from unittest.mock import patch
+from planetmint.transactions.types.assets.create import Create
+from planetmint.transactions.types.assets.transfer import Transfer
 
 try:
     from hashlib import sha3_256
@@ -17,21 +19,21 @@ import pytest
 from pymongo import MongoClient
 
 from planetmint import backend
-from planetmint.common.transaction_mode_types import (BROADCAST_TX_COMMIT,
-                                                      BROADCAST_TX_ASYNC,
-                                                      BROADCAST_TX_SYNC)
+from planetmint.transactions.common.transaction_mode_types import (
+    BROADCAST_TX_COMMIT, BROADCAST_TX_ASYNC, BROADCAST_TX_SYNC)
 from planetmint.lib import Block
 
 
 @pytest.mark.bdb
 def test_asset_is_separated_from_transaciton(b):
     import copy
-    from planetmint.models import Transaction
-    from planetmint.common.crypto import generate_key_pair
+    from planetmint.transactions.common.crypto import generate_key_pair
     from planetmint.backend.tarantool.connection import TarantoolDB
+        
 
     if isinstance(b.connection, TarantoolDB):
         pytest.skip("This specific function is skipped because, assets are stored differently if using Tarantool")
+
 
     alice = generate_key_pair()
     bob = generate_key_pair()
@@ -45,7 +47,7 @@ def test_asset_is_separated_from_transaciton(b):
                              'tell a lie',
                              'hurt you']}
 
-    tx = Transaction.create([alice.public_key],
+    tx = Create.generate([alice.public_key],
                             [([bob.public_key], 1)],
                             metadata=None,
                             asset=asset) \
@@ -86,11 +88,10 @@ def test_get_empty_block(_0, _1, b):
 
 
 def test_validation_error(b):
-    from planetmint.models import Transaction
-    from planetmint.common.crypto import generate_key_pair
+    from planetmint.transactions.common.crypto import generate_key_pair
 
     alice = generate_key_pair()
-    tx = Transaction.create([alice.public_key],
+    tx = Create.generate([alice.public_key],
                             [([alice.public_key], 1)],
                             asset=None) \
         .sign([alice.private_key]).to_dict()
@@ -101,12 +102,11 @@ def test_validation_error(b):
 
 @patch('requests.post')
 def test_write_and_post_transaction(mock_post, b):
-    from planetmint.models import Transaction
-    from planetmint.common.crypto import generate_key_pair
+    from planetmint.transactions.common.crypto import generate_key_pair
     from planetmint.tendermint_utils import encode_transaction
 
     alice = generate_key_pair()
-    tx = Transaction.create([alice.public_key],
+    tx = Create.generate([alice.public_key],
                             [([alice.public_key], 1)],
                             asset=None) \
         .sign([alice.private_key]).to_dict()
@@ -128,10 +128,9 @@ def test_write_and_post_transaction(mock_post, b):
     BROADCAST_TX_COMMIT
 ])
 def test_post_transaction_valid_modes(mock_post, b, mode):
-    from planetmint.models import Transaction
-    from planetmint.common.crypto import generate_key_pair
+    from planetmint.transactions.common.crypto import generate_key_pair
     alice = generate_key_pair()
-    tx = Transaction.create([alice.public_key],
+    tx = Create.generate([alice.public_key],
                             [([alice.public_key], 1)],
                             asset=None) \
         .sign([alice.private_key]).to_dict()
@@ -143,11 +142,10 @@ def test_post_transaction_valid_modes(mock_post, b, mode):
 
 
 def test_post_transaction_invalid_mode(b):
-    from planetmint.models import Transaction
-    from planetmint.common.crypto import generate_key_pair
-    from planetmint.common.exceptions import ValidationError
+    from planetmint.transactions.common.crypto import generate_key_pair
+    from planetmint.transactions.common.exceptions import ValidationError
     alice = generate_key_pair()
-    tx = Transaction.create([alice.public_key],
+    tx = Create.generate([alice.public_key],
                             [([alice.public_key], 1)],
                             asset=None) \
         .sign([alice.private_key]).to_dict()
@@ -409,28 +407,27 @@ def test_get_utxoset_merkle_root(b, utxoset):
 
 @pytest.mark.bdb
 def test_get_spent_transaction_critical_double_spend(b, alice, bob, carol):
-    from planetmint.models import Transaction
     from planetmint.exceptions import CriticalDoubleSpend
-    from planetmint.common.exceptions import DoubleSpend
+    from planetmint.transactions.common.exceptions import DoubleSpend
 
     asset = {'test': 'asset'}
 
-    tx = Transaction.create([alice.public_key],
+    tx = Create.generate([alice.public_key],
                             [([alice.public_key], 1)],
                             asset=asset) \
         .sign([alice.private_key])
 
-    tx_transfer = Transaction.transfer(tx.to_inputs(),
+    tx_transfer = Transfer.generate(tx.to_inputs(),
                                        [([bob.public_key], 1)],
                                        asset_id=tx.id) \
         .sign([alice.private_key])
 
-    double_spend = Transaction.transfer(tx.to_inputs(),
+    double_spend = Transfer.generate(tx.to_inputs(),
                                         [([carol.public_key], 1)],
                                         asset_id=tx.id) \
         .sign([alice.private_key])
 
-    same_input_double_spend = Transaction.transfer(tx.to_inputs() + tx.to_inputs(),
+    same_input_double_spend = Transfer.generate(tx.to_inputs() + tx.to_inputs(),
                                                    [([bob.public_key], 1)],
                                                    asset_id=tx.id) \
         .sign([alice.private_key])
@@ -458,16 +455,15 @@ def test_get_spent_transaction_critical_double_spend(b, alice, bob, carol):
 
 
 def test_validation_with_transaction_buffer(b):
-    from planetmint.common.crypto import generate_key_pair
-    from planetmint.models import Transaction
+    from planetmint.transactions.common.crypto import generate_key_pair
 
     priv_key, pub_key = generate_key_pair()
 
-    create_tx = Transaction.create([pub_key], [([pub_key], 10)]).sign([priv_key])
-    transfer_tx = Transaction.transfer(create_tx.to_inputs(),
+    create_tx = Create.generate([pub_key], [([pub_key], 10)]).sign([priv_key])
+    transfer_tx = Transfer.generate(create_tx.to_inputs(),
                                        [([pub_key], 10)],
                                        asset_id=create_tx.id).sign([priv_key])
-    double_spend = Transaction.transfer(create_tx.to_inputs(),
+    double_spend = Transfer.generate(create_tx.to_inputs(),
                                         [([pub_key], 10)],
                                         asset_id=create_tx.id).sign([priv_key])
 
@@ -514,21 +510,20 @@ def test_migrate_abci_chain_generates_new_chains(b, chain, block_height,
 @pytest.mark.bdb
 def test_get_spent_key_order(b, user_pk, user_sk, user2_pk, user2_sk):
     from planetmint import backend
-    from planetmint.models import Transaction
-    from planetmint.common.crypto import generate_key_pair
-    from planetmint.common.exceptions import DoubleSpend
+    from planetmint.transactions.common.crypto import generate_key_pair
+    from planetmint.transactions.common.exceptions import DoubleSpend
 
     alice = generate_key_pair()
     bob = generate_key_pair()
 
-    tx1 = Transaction.create([user_pk],
+    tx1 = Create.generate([user_pk],
                              [([alice.public_key], 3), ([user_pk], 2)],
                              asset=None) \
         .sign([user_sk])
     b.store_bulk_transactions([tx1])
     assert tx1.validate(b)
     inputs = tx1.to_inputs()
-    tx2 = Transaction.transfer([inputs[1]], [([user2_pk], 2)], tx1.id).sign([user_sk])
+    tx2 = Transfer.generate([inputs[1]], [([user2_pk], 2)], tx1.id).sign([user_sk])
     assert tx2.validate(b)
 
     tx2_dict = tx2.to_dict()
@@ -538,7 +533,7 @@ def test_get_spent_key_order(b, user_pk, user_sk, user2_pk, user2_sk):
 
     backend.query.store_transactions(b.connection, [tx2_dict])
 
-    tx3 = Transaction.transfer([inputs[1]], [([bob.public_key], 2)], tx1.id).sign([user_sk])
+    tx3 = Transfer.generate([inputs[1]], [([bob.public_key], 2)], tx1.id).sign([user_sk])
 
     with pytest.raises(DoubleSpend):
         tx3.validate(b)

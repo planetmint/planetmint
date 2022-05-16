@@ -48,6 +48,9 @@ matrix:
   - python: 3.9
     env:
     - PLANETMINT_ACCEPTANCE_TEST=enable
+  - python: 3.9
+    env:
+    - PLANETMINT_INTEGRATION_TEST=enable
 
 
 before_install: sudo .ci/travis-before-install.sh

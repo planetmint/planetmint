@@ -36,6 +36,15 @@ def check_setuptools_features():
                  ' $ pip3 install --upgrade setuptools\n'
                  'and then run this command again')
 
+import pathlib
+import pkg_resources
+
+with pathlib.Path('docs/root/requirements.txt').open() as requirements_txt:
+    docs_require= [
+        str(requirement)
+        for requirement
+        in pkg_resources.parse_requirements(requirements_txt)
+    ]
 
 check_setuptools_features()
 
@@ -44,17 +53,9 @@ dev_require = [
     'ipython',
     'watchdog',
     'logging_tree',
-    'pre-commit'
-]
-
-docs_require = [
-    'Sphinx~=1.0',
-    'recommonmark>=0.4.0',
-    'sphinx-rtd-theme>=0.1.9',
-    'sphinxcontrib-httpdomain>=1.5.0',
-    'sphinxcontrib-napoleon>=0.4.4',
-    'aafigure>=0.6',
-    'wget'
+    'pre-commit',
+    'twine',
+    'ptvsd'
 ]
 
 tests_require = [
@@ -75,9 +76,9 @@ tests_require = [
 
 install_requires = [
     'chardet==3.0.4',
-    'aiohttp==3.7.4',
-    'bigchaindb-abci==1.0.7',
-    'planetmint-cryptoconditions>=0.9.0',
+    'aiohttp==3.8.1',
+    'abci==0.8.3',
+    'planetmint-cryptoconditions>=0.9.4',
     'flask-cors==3.0.10',
     'flask-restful==0.3.9',
     'flask==2.1.2',
@@ -92,7 +93,7 @@ install_requires = [
     'pyyaml==5.4.1',
     'requests==2.25.1',
     'setproctitle==1.2.2',
-    'ptvsd'
+    'werkzeug==2.0.3'
 ]
 
 if sys.version_info < (3, 9):
@@ -140,6 +141,8 @@ setup(
         'dev': dev_require + tests_require + docs_require,
         'docs': docs_require,
     },
-    package_data={'planetmint.common.schema': ['*.yaml'],
-                  'planetmint.backend.tarantool': ['*.lua']}
+    package_data={
+        'planetmint.transactions.common.schema': ['v1.0/*.yaml','v2.0/*.yaml','v3.0/*.yaml' ],
+        'planetmint.backend.tarantool': ['*.lua'],
+    },
 )

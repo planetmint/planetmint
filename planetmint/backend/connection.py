@@ -6,7 +6,9 @@
 import logging
 from importlib import import_module
 from planetmint.config import Config
-from planetmint.common.exceptions import ConfigurationError
+from planetmint.backend.exceptions import ConnectionError
+from planetmint.transactions.common.exceptions import ConfigurationError
+
 
 BACKENDS = {  # This is path to MongoDBClass
     'tarantool_db': 'planetmint.backend.tarantool.connection.TarantoolDB',

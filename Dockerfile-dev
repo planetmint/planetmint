@@ -5,6 +5,7 @@ LABEL maintainer "contact@ipdb.global"
 RUN apt-get update \
     && apt-get install -y git zsh\
     && apt-get install -y tarantool-common\
+    && apt-get install -y vim build-essential cmake\
     && pip install -U pip \
     && apt-get autoremove \
     && apt-get clean

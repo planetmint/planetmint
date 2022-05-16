@@ -8,7 +8,9 @@ import json
 import queue
 import threading
 from unittest.mock import patch
-from planetmint.config import Config
+from planetmint.transactions.types.assets.create import Create
+from planetmint.transactions.types.assets.transfer import Transfer
+
 import pytest
 
 
@@ -22,15 +24,14 @@ class MockWebSocket:
 
 def test_eventify_block_works_with_any_transaction():
     from planetmint.web.websocket_server import eventify_block
-    from planetmint.common.crypto import generate_key_pair
-    from planetmint.lib import Transaction
+    from planetmint.transactions.common.crypto import generate_key_pair
 
     alice = generate_key_pair()
 
-    tx = Transaction.create([alice.public_key],
+    tx = Create.generate([alice.public_key],
                             [([alice.public_key], 1)])\
                     .sign([alice.private_key])
-    tx_transfer = Transaction.transfer(tx.to_inputs(),
+    tx_transfer = Transfer.generate(tx.to_inputs(),
                                        [([alice.public_key], 1)],
                                        asset_id=tx.id)\
                              .sign([alice.private_key])
@@ -139,11 +140,10 @@ async def test_websocket_string_event(test_client, loop):
 async def test_websocket_block_event( test_client, loop):
     from planetmint import events
     from planetmint.web.websocket_server import init_app, POISON_PILL, EVENTS_ENDPOINT
-    from planetmint.models import Transaction
-    from planetmint.common import crypto
+    from planetmint.transactions.common import crypto
 
     user_priv, user_pub = crypto.generate_key_pair()
-    tx = Transaction.create([user_pub], [([user_pub], 1)])
+    tx = Create.generate([user_pub], [([user_pub], 1)])
     tx = tx.sign([user_priv])
 
     event_source = asyncio.Queue(loop=loop)
@@ -181,11 +181,10 @@ def test_integration_from_webapi_to_websocket(monkeypatch, client, loop):
     import random
     import aiohttp
 
-    from planetmint.common import crypto
+    from planetmint.transactions.common import crypto
     # TODO processes does not exist anymore, when reactivating this test it
     # will fail because of this
     from planetmint import processes
-    from planetmint.models import Transaction
 
     # Start Planetmint
     processes.start()
@@ -204,7 +203,7 @@ def test_integration_from_webapi_to_websocket(monkeypatch, client, loop):
     # Create a keypair and generate a new asset
     user_priv, user_pub = crypto.generate_key_pair()
     asset = {'random': random.random()}
-    tx = Transaction.create([user_pub], [([user_pub], 1)], asset=asset)
+    tx = Create.generate([user_pub], [([user_pub], 1)], asset=asset)
     tx = tx.sign([user_priv])
     # Post the transaction to the Planetmint Web API
     client.post('/api/v1/transactions/', data=json.dumps(tx.to_dict()))

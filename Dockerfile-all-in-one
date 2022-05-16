@@ -1,30 +1,33 @@
-FROM alpine:3.9
+FROM python:3.9-slim
 LABEL maintainer "contact@ipdb.global"
 
-ARG TM_VERSION=v0.31.5
+ARG TM_VERSION=0.34.15
 RUN mkdir -p /usr/src/app
 ENV HOME /root
 COPY . /usr/src/app/
 WORKDIR /usr/src/app
 
-RUN apk --update add sudo bash \
-    && apk --update add python3 openssl ca-certificates git \
-    && apk --update add --virtual build-dependencies python3-dev \
-        libffi-dev openssl-dev build-base jq zsh \
-    && apk add --no-cache libstdc++ dpkg gnupg \
-    && pip3 install --upgrade pip cffi \
+RUN apt-get update \
+    && apt-get install -y openssl ca-certificates git \
+    && apt-get install -y vim build-essential cmake jq zsh wget \
+    && apt-get install -y libstdc++6 \
+    && apt-get install -y openssh-client openssh-server \
+    && pip install --upgrade pip cffi \
     && pip install -e . \
-    && apk del build-dependencies \
-    && rm -f /var/cache/apk/*
+    && apt-get autoremove
 
 # Install mongodb and monit
-RUN apk --update add mongodb monit
+RUN apt-get install -y dirmngr gnupg apt-transport-https software-properties-common ca-certificates curl
+RUN wget -qO - https://www.mongodb.org/static/pgp/server-5.0.asc | apt-key add -
+RUN echo "deb http://repo.mongodb.org/apt/debian buster/mongodb-org/5.0 main" | tee /etc/apt/sources.list.d/mongodb-org-5.0.list
+RUN apt-get update
+RUN apt-get install -y mongodb-org monit
 
 # Install Tendermint
-RUN wget https://github.com/tendermint/tendermint/releases/download/${TM_VERSION}/tendermint_${TM_VERSION}_linux_amd64.zip \
-    && unzip tendermint_${TM_VERSION}_linux_amd64.zip \
+RUN wget https://github.com/tendermint/tendermint/releases/download/v${TM_VERSION}/tendermint_${TM_VERSION}_linux_amd64.tar.gz \
+    && tar -xf tendermint_${TM_VERSION}_linux_amd64.tar.gz \
     && mv tendermint /usr/local/bin/ \
-    && rm tendermint_${TM_VERSION}_linux_amd64.zip
+    && rm tendermint_${TM_VERSION}_linux_amd64.tar.gz
 
 ENV TMHOME=/tendermint
 
@@ -48,4 +51,3 @@ VOLUME /data/db /data/configdb /tendermint
 EXPOSE 27017 28017 9984 9985 26656 26657 26658
 
 WORKDIR $HOME
-ENTRYPOINT ["/usr/src/app/pkg/scripts/all-in-one.bash"]

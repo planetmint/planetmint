@@ -3,7 +3,10 @@
 # SPDX-License-Identifier: (Apache-2.0 AND CC-BY-4.0)
 # Code is Apache-2.0 and docs are CC-BY-4.0
 
+
 import pytest
+from planetmint.transactions.types.assets.create import Create
+from planetmint.transactions.types.assets.transfer import Transfer
 from unittest.mock import MagicMock, patch
 
 
@@ -83,8 +86,7 @@ def test_get_outputs_endpoint_with_invalid_spent(client, user_pk):
 
 @pytest.mark.abci
 def test_get_divisble_transactions_returns_500(b, client):
-    from planetmint.models import Transaction
-    from planetmint.common import crypto
+    from planetmint.transactions.common import crypto
     import json
 
     TX_ENDPOINT = '/api/v1/transactions'
@@ -96,7 +98,7 @@ def test_get_divisble_transactions_returns_500(b, client):
     bob_priv, bob_pub = crypto.generate_key_pair()
     carly_priv, carly_pub = crypto.generate_key_pair()
 
-    create_tx = Transaction.create([alice_pub], [([alice_pub], 4)])
+    create_tx = Create.generate([alice_pub], [([alice_pub], 4)])
     create_tx.sign([alice_priv])
 
     res = client.post(TX_ENDPOINT, data=json.dumps(create_tx.to_dict()))
@@ -104,7 +106,7 @@ def test_get_divisble_transactions_returns_500(b, client):
 
     mine([create_tx])
 
-    transfer_tx = Transaction.transfer(create_tx.to_inputs(),
+    transfer_tx = Transfer.generate(create_tx.to_inputs(),
                                        [([alice_pub], 3), ([bob_pub], 1)],
                                        asset_id=create_tx.id)
     transfer_tx.sign([alice_priv])
@@ -114,7 +116,7 @@ def test_get_divisble_transactions_returns_500(b, client):
 
     mine([transfer_tx])
 
-    transfer_tx_carly = Transaction.transfer([transfer_tx.to_inputs()[1]],
+    transfer_tx_carly = Transfer.generate([transfer_tx.to_inputs()[1]],
                                              [([carly_pub], 1)],
                                              asset_id=create_tx.id)
     transfer_tx_carly.sign([bob_priv])

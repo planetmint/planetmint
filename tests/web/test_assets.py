@@ -4,6 +4,7 @@
 # Code is Apache-2.0 and docs are CC-BY-4.0
 
 import pytest
+from planetmint.transactions.types.assets.create import Create
 
 ASSETS_ENDPOINT = '/api/v1/assets/'
 
@@ -22,7 +23,6 @@ def test_get_assets_with_missing_text_search(client):
 
 @pytest.mark.bdb
 def test_get_assets_tendermint(client, b, alice):
-    from planetmint.models import Transaction
 
     # test returns empty list when no assets are found
     res = client.get(ASSETS_ENDPOINT + '?search=abc')
@@ -31,7 +31,7 @@ def test_get_assets_tendermint(client, b, alice):
 
     # create asset
     asset = {'msg': 'abc'}
-    tx = Transaction.create([alice.public_key], [([alice.public_key], 1)],
+    tx = Create.generate([alice.public_key], [([alice.public_key], 1)],
                             asset=asset).sign([alice.private_key])
 
     b.store_bulk_transactions([tx])
@@ -48,14 +48,13 @@ def test_get_assets_tendermint(client, b, alice):
 
 @pytest.mark.bdb
 def test_get_assets_limit_tendermint(client, b, alice):
-    from planetmint.models import Transaction
 
     # create two assets
     asset1 = {'msg': 'abc 1'}
     asset2 = {'msg': 'abc 2'}
-    tx1 = Transaction.create([alice.public_key], [([alice.public_key], 1)],
+    tx1 = Create.generate([alice.public_key], [([alice.public_key], 1)],
                              asset=asset1).sign([alice.private_key])
-    tx2 = Transaction.create([alice.public_key], [([alice.public_key], 1)],
+    tx2 = Create.generate([alice.public_key], [([alice.public_key], 1)],
                              asset=asset2).sign([alice.private_key])
 
     b.store_bulk_transactions([tx1])

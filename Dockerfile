@@ -5,7 +5,7 @@ COPY . /usr/src/app/
 WORKDIR /usr/src/app
 RUN apt-get -qq update \
     && apt-get -y upgrade \
-    && apt-get install -y jq \
+    && apt-get install -y jq vim zsh build-essential cmake\
     && pip install . \
     && apt-get autoremove \
     && apt-get clean

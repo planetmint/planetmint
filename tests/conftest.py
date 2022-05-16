@@ -14,6 +14,7 @@ import os
 import copy
 import random
 import tempfile
+import codecs
 from collections import namedtuple
 from logging import getLogger
 from logging.config import dictConfig
@@ -23,18 +24,21 @@ from planetmint.backend.tarantool.connection import TarantoolDB
 import pytest
 # from pymongo import MongoClient
 
-#from planetmint.upsert_validator import ValidatorElection
-from planetmint.common import crypto
-from planetmint.common.transaction_mode_types import BROADCAST_TX_COMMIT
+from planetmint import ValidatorElection
+from planetmint.transactions.common import crypto
+from planetmint.transactions.common.transaction_mode_types import BROADCAST_TX_COMMIT
 from planetmint.tendermint_utils import key_from_base64
 from planetmint.backend import schema, query
-from planetmint.common.crypto import (key_pair_from_ed25519_key,
-                                      public_key_from_ed25519_key)
-from planetmint.common.exceptions import DatabaseDoesNotExist
+from planetmint.transactions.common.crypto import (
+    key_pair_from_ed25519_key, public_key_from_ed25519_key)
+from planetmint.transactions.common.exceptions import DatabaseDoesNotExist
 from planetmint.lib import Block
 from tests.utils import gen_vote
 from planetmint.config import Config
 from planetmint.upsert_validator import ValidatorElection
+
+from tendermint.abci import types_pb2 as types
+from tendermint.crypto import keys_pb2
 
 TEST_DB_NAME = 'planetmint_test'
 
@@ -43,6 +47,15 @@ USER2_SK, USER2_PK = crypto.generate_key_pair()
 # Test user. inputs will be created for this user. Cryptography Keys
 USER_PRIVATE_KEY = '8eJ8q9ZQpReWyQT5aFCiwtZ5wDZC4eDnCen88p3tQ6ie'
 USER_PUBLIC_KEY = 'JEAkEJqLbbgDRAtMm8YAjGp759Aq2qTn9eaEHUj2XePE'
+
+
+@pytest.fixture
+def init_chain_request():
+    pk = codecs.decode(b'VAgFZtYw8bNR5TMZHFOBDWk9cAmEu3/c6JgRBmddbbI=',
+                       'base64')
+    val_a = types.ValidatorUpdate(power=10,
+                                  pub_key=keys_pb2.PublicKey(ed25519=pk))
+    return types.RequestInitChain(validators=[val_a])
 
 
 def pytest_addoption(parser):
@@ -132,9 +145,10 @@ def _setup_database(_configure_planetmint):  # TODO Here is located setup databa
 
 
 @pytest.fixture
+
 def _bdb(_setup_database ):
     from planetmint.backend import Connection
-    from planetmint.common.memoize import to_dict, from_dict
+    from planetmint.transactions.common.memoize import to_dict, from_dict
     from planetmint.models import Transaction
     conn = Connection()
     yield
@@ -188,13 +202,13 @@ def user2_pk():
 
 @pytest.fixture
 def alice():
-    from planetmint.common.crypto import generate_key_pair
+    from planetmint.transactions.common.crypto import generate_key_pair
     return generate_key_pair()
 
 
 @pytest.fixture
 def bob():
-    from planetmint.common.crypto import generate_key_pair
+    from planetmint.transactions.common.crypto import generate_key_pair
     return generate_key_pair()
 
 
@@ -210,7 +224,7 @@ def bob_pubkey(carol):
 
 @pytest.fixture
 def carol():
-    from planetmint.common.crypto import generate_key_pair
+    from planetmint.transactions.common.crypto import generate_key_pair
     return generate_key_pair()
 
 
@@ -226,14 +240,15 @@ def carol_pubkey(carol):
 
 @pytest.fixture
 def merlin():
-    from planetmint.common.crypto import generate_key_pair
+    from planetmint.transactions.common.crypto import generate_key_pair
     return generate_key_pair()
 
 
 @pytest.fixture
-def a():
-    from abci import types_v0_31_5
-    return types_v0_31_5
+# def a():
+def abci_fixture():
+    from tendermint.abci import types_pb2
+    return types_pb2
 
 
 @pytest.fixture
@@ -241,11 +256,14 @@ def b():
     from planetmint import Planetmint
     return Planetmint()
 
+@pytest.fixture
+def eventqueue_fixture():
+    from multiprocessing import Queue
+    return Queue()
 
 @pytest.fixture
 def b_mock(b, network_validators):
     b.get_validators = mock_get_validators(network_validators)
-
     return b
 
 
@@ -264,9 +282,9 @@ def mock_get_validators(network_validators):
 
 @pytest.fixture
 def create_tx(alice, user_pk):
-    from planetmint.models import Transaction
+    from planetmint.transactions.types.assets.create import Create
     name = f'I am created by the create_tx fixture. My random identifier is {random.random()}.'
-    return Transaction.create([alice.public_key], [([user_pk], 1)], asset={'name': name})
+    return Create.generate([alice.public_key], [([user_pk], 1)], asset={'name': name})
 
 
 @pytest.fixture
@@ -283,17 +301,17 @@ def posted_create_tx(b, signed_create_tx):
 
 @pytest.fixture
 def signed_transfer_tx(signed_create_tx, user_pk, user_sk):
-    from planetmint.models import Transaction
+    from planetmint.transactions.types.assets.transfer import Transfer
     inputs = signed_create_tx.to_inputs()
-    tx = Transaction.transfer(inputs, [([user_pk], 1)], asset_id=signed_create_tx.id)
+    tx = Transfer.generate(inputs, [([user_pk], 1)], asset_id=signed_create_tx.id)
     return tx.sign([user_sk])
 
 
 @pytest.fixture
 def double_spend_tx(signed_create_tx, carol_pubkey, user_sk):
-    from planetmint.models import Transaction
+    from planetmint.transactions.types.assets.transfer import Transfer
     inputs = signed_create_tx.to_inputs()
-    tx = Transaction.transfer(
+    tx = Transfer.generate(
         inputs, [([carol_pubkey], 1)], asset_id=signed_create_tx.id)
     return tx.sign([user_sk])
 
@@ -305,11 +323,11 @@ def _get_height(b):
 
 @pytest.fixture
 def inputs(user_pk, b, alice):
-    from planetmint.models import Transaction
+    from planetmint.transactions.types.assets.create import Create
     # create blocks with transactions for `USER` to spend
     for height in range(1, 4):
         transactions = [
-            Transaction.create(
+            Create.generate(
                 [alice.public_key],
                 [([user_pk], 1)],
                 metadata={'msg': random.random()},
@@ -439,11 +457,11 @@ def event_loop():
 @pytest.fixture(scope='session')
 def abci_server():
     from abci.server import ABCIServer
-    from abci import types_v0_31_5
+    # from tendermint.abci import types_pb2 as types_v0_34_11
     from planetmint.core import App
     from planetmint.utils import Process
 
-    app = ABCIServer(app=App(types_v0_31_5))
+    app = ABCIServer(app=App())
     abci_proxy = Process(name='ABCI', target=app.run)
     yield abci_proxy.start()
     abci_proxy.terminate()

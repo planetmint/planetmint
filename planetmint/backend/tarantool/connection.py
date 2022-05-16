@@ -7,7 +7,7 @@ import logging
 import tarantool
 
 from planetmint.config import Config
-from planetmint.common.exceptions import ConfigurationError
+from planetmint.transactions.common.exceptions import ConfigurationError
 
 logger = logging.getLogger(__name__)
 

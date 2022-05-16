@@ -7,6 +7,9 @@ from copy import deepcopy
 
 import pytest
 
+from planetmint.transactions.types.assets.create import Create
+from planetmint.transactions.types.assets.transfer import Transfer
+
 # import pymongo
 
 # # from planetmint.backend.connection import Connection, query
@@ -232,12 +235,12 @@ def test_get_spending_transactions(user_pk, user_sk, db_conn):
     conn = db_conn.get_connection()
 
     out = [([user_pk], 1)]
-    tx1 = Transaction.create([user_pk], out * 3)
+    tx1 = Create.generate([user_pk], out * 3)
     tx1.sign([user_sk])
     inputs = tx1.to_inputs()
-    tx2 = Transaction.transfer([inputs[0]], out, tx1.id).sign([user_sk])
-    tx3 = Transaction.transfer([inputs[1]], out, tx1.id).sign([user_sk])
-    tx4 = Transaction.transfer([inputs[2]], out, tx1.id).sign([user_sk])
+    tx2 = Transfer.generate([inputs[0]], out, tx1.id).sign([user_sk])
+    tx3 = Transfer.generate([inputs[1]], out, tx1.id).sign([user_sk])
+    tx4 = Transfer.generate([inputs[2]], out, tx1.id).sign([user_sk])
     txns = [deepcopy(tx.to_dict()) for tx in [tx1, tx2, tx3, tx4]]
     query.store_transactions(signed_transactions=txns, connection=conn)
 
@@ -250,7 +253,7 @@ def test_get_spending_transactions(user_pk, user_sk, db_conn):
 
 def test_get_spending_transactions_multiple_inputs(db_conn):
     from planetmint.models import Transaction
-    from planetmint.common.crypto import generate_key_pair
+    from planetmint.transactions.common.crypto import generate_key_pair
     from planetmint.backend.tarantool import query
     conn = db_conn.get_connection()
 
@@ -259,20 +262,20 @@ def test_get_spending_transactions_multiple_inputs(db_conn):
     (carol_sk, carol_pk) = generate_key_pair()
 
     out = [([alice_pk], 9)]
-    tx1 = Transaction.create([alice_pk], out).sign([alice_sk])
+    tx1 = Create.generate([alice_pk], out).sign([alice_sk])
 
     inputs1 = tx1.to_inputs()
-    tx2 = Transaction.transfer([inputs1[0]],
+    tx2 = Transfer.generate([inputs1[0]],
                                [([alice_pk], 6), ([bob_pk], 3)],
                                tx1.id).sign([alice_sk])
 
     inputs2 = tx2.to_inputs()
-    tx3 = Transaction.transfer([inputs2[0]],
+    tx3 = Transfer.generate([inputs2[0]],
                                [([bob_pk], 3), ([carol_pk], 3)],
                                tx1.id).sign([alice_sk])
 
     inputs3 = tx3.to_inputs()
-    tx4 = Transaction.transfer([inputs2[1], inputs3[0]],
+    tx4 = Transfer.generate([inputs2[1], inputs3[0]],
                                [([carol_pk], 6)],
                                tx1.id).sign([bob_sk])
 

@@ -13,7 +13,7 @@ Attributes:
 """
 from collections import namedtuple
 from copy import deepcopy
-from functools import reduce, lru_cache
+from functools import lru_cache
 import rapidjson
 
 import base58
@@ -26,14 +26,15 @@ try:
 except ImportError:
     from sha3 import sha3_256
 
-from planetmint.common.crypto import PrivateKey, hash_data
-from planetmint.common.exceptions import (KeypairMismatchException,
-                                          InputDoesNotExist, DoubleSpend,
-                                          InvalidHash, InvalidSignature,
-                                          AmountError, AssetIdMismatch,
-                                          ThresholdTooDeep)
-from planetmint.common.utils import serialize
+from planetmint.transactions.common.crypto import PrivateKey, hash_data
+from planetmint.transactions.common.exceptions import (
+    KeypairMismatchException, InputDoesNotExist, DoubleSpend,
+    InvalidHash, InvalidSignature, AmountError, AssetIdMismatch)
+from planetmint.transactions.common.utils import serialize
 from .memoize import memoize_from_dict, memoize_to_dict
+from .input import Input
+from .output import Output
+from .transaction_link import TransactionLink
 
 UnspentOutput = namedtuple(
     'UnspentOutput', (
@@ -47,441 +48,6 @@ UnspentOutput = namedtuple(
     )
 )
 
-
-class Input(object):
-    """A Input is used to spend assets locked by an Output.
-
-    Wraps around a Crypto-condition Fulfillment.
-
-        Attributes:
-            fulfillment (:class:`cryptoconditions.Fulfillment`): A Fulfillment
-                to be signed with a private key.
-            owners_before (:obj:`list` of :obj:`str`): A list of owners after a
-                Transaction was confirmed.
-            fulfills (:class:`~planetmint.common.transaction. TransactionLink`,
-                optional): A link representing the input of a `TRANSFER`
-                Transaction.
-    """
-
-    def __init__(self, fulfillment, owners_before, fulfills=None):
-        """Create an instance of an :class:`~.Input`.
-
-            Args:
-                fulfillment (:class:`cryptoconditions.Fulfillment`): A
-                    Fulfillment to be signed with a private key.
-                owners_before (:obj:`list` of :obj:`str`): A list of owners
-                    after a Transaction was confirmed.
-                fulfills (:class:`~planetmint.common.transaction.
-                    TransactionLink`, optional): A link representing the input
-                    of a `TRANSFER` Transaction.
-        """
-        if fulfills is not None and not isinstance(fulfills, TransactionLink):
-            raise TypeError('`fulfills` must be a TransactionLink instance')
-        if not isinstance(owners_before, list):
-            raise TypeError('`owners_before` must be a list instance')
-
-        self.fulfillment = fulfillment
-        self.fulfills = fulfills
-        self.owners_before = owners_before
-
-    def __eq__(self, other):
-        # TODO: If `other !== Fulfillment` return `False`
-        return self.to_dict() == other.to_dict()
-
-    # NOTE: This function is used to provide a unique key for a given
-    # Input to suppliment memoization
-    def __hash__(self):
-        return hash((self.fulfillment, self.fulfills))
-
-    def to_dict(self):
-        """Transforms the object to a Python dictionary.
-
-            Note:
-                If an Input hasn't been signed yet, this method returns a
-                dictionary representation.
-
-            Returns:
-                dict: The Input as an alternative serialization format.
-        """
-        try:
-            fulfillment = self.fulfillment.serialize_uri()
-        except (TypeError, AttributeError, ASN1EncodeError, ASN1DecodeError):
-            fulfillment = _fulfillment_to_details(self.fulfillment)
-
-        try:
-            # NOTE: `self.fulfills` can be `None` and that's fine
-            fulfills = self.fulfills.to_dict()
-        except AttributeError:
-            fulfills = None
-
-        input_ = {
-            'owners_before': self.owners_before,
-            'fulfills': fulfills,
-            'fulfillment': fulfillment,
-        }
-        return input_
-
-    @classmethod
-    def generate(cls, public_keys):
-        # TODO: write docstring
-        # The amount here does not really matter. It is only use on the
-        # output data model but here we only care about the fulfillment
-        output = Output.generate(public_keys, 1)
-        return cls(output.fulfillment, public_keys)
-
-    @classmethod
-    def from_dict(cls, data):
-        """Transforms a Python dictionary to an Input object.
-
-            Note:
-                Optionally, this method can also serialize a Cryptoconditions-
-                Fulfillment that is not yet signed.
-
-            Args:
-                data (dict): The Input to be transformed.
-
-            Returns:
-                :class:`~planetmint.common.transaction.Input`
-
-            Raises:
-                InvalidSignature: If an Input's URI couldn't be parsed.
-        """
-        fulfillment = data['fulfillment']
-        if not isinstance(fulfillment, (Fulfillment, type(None))):
-            try:
-                fulfillment = Fulfillment.from_uri(data['fulfillment'])
-            except ASN1DecodeError:
-                # TODO Remove as it is legacy code, and simply fall back on
-                # ASN1DecodeError
-                raise InvalidSignature("Fulfillment URI couldn't been parsed")
-            except TypeError:
-                # NOTE: See comment about this special case in
-                #       `Input.to_dict`
-                fulfillment = _fulfillment_from_details(data['fulfillment'])
-        fulfills = TransactionLink.from_dict(data['fulfills'])
-        return cls(fulfillment, data['owners_before'], fulfills)
-
-
-def _fulfillment_to_details(fulfillment):
-    """Encode a fulfillment as a details dictionary
-
-    Args:
-        fulfillment: Crypto-conditions Fulfillment object
-    """
-
-    if fulfillment.type_name == 'ed25519-sha-256':
-        return {
-            'type': 'ed25519-sha-256',
-            'public_key': base58.b58encode(fulfillment.public_key).decode(),
-        }
-
-    if fulfillment.type_name == 'threshold-sha-256':
-        subconditions = [
-            _fulfillment_to_details(cond['body'])
-            for cond in fulfillment.subconditions
-        ]
-        return {
-            'type': 'threshold-sha-256',
-            'threshold': fulfillment.threshold,
-            'subconditions': subconditions,
-        }
-
-    raise UnsupportedTypeError(fulfillment.type_name)
-
-
-def _fulfillment_from_details(data, _depth=0):
-    """Load a fulfillment for a signing spec dictionary
-
-    Args:
-        data: tx.output[].condition.details dictionary
-    """
-    if _depth == 100:
-        raise ThresholdTooDeep()
-
-    if data['type'] == 'ed25519-sha-256':
-        public_key = base58.b58decode(data['public_key'])
-        return Ed25519Sha256(public_key=public_key)
-
-    if data['type'] == 'threshold-sha-256':
-        threshold = ThresholdSha256(data['threshold'])
-        for cond in data['subconditions']:
-            cond = _fulfillment_from_details(cond, _depth + 1)
-            threshold.add_subfulfillment(cond)
-        return threshold
-
-    raise UnsupportedTypeError(data.get('type'))
-
-
-class TransactionLink(object):
-    """An object for unidirectional linking to a Transaction's Output.
-
-        Attributes:
-            txid (str, optional): A Transaction to link to.
-            output (int, optional): An output's index in a Transaction with id
-            `txid`.
-    """
-
-    def __init__(self, txid=None, output=None):
-        """Create an instance of a :class:`~.TransactionLink`.
-
-            Note:
-                In an IPLD implementation, this class is not necessary anymore,
-                as an IPLD link can simply point to an object, as well as an
-                objects properties. So instead of having a (de)serializable
-                class, we can have a simple IPLD link of the form:
-                `/<tx_id>/transaction/outputs/<output>/`.
-
-            Args:
-                txid (str, optional): A Transaction to link to.
-                output (int, optional): An Outputs's index in a Transaction with
-                    id `txid`.
-        """
-        self.txid = txid
-        self.output = output
-
-    def __bool__(self):
-        return self.txid is not None and self.output is not None
-
-    def __eq__(self, other):
-        # TODO: If `other !== TransactionLink` return `False`
-        return self.to_dict() == other.to_dict()
-
-    def __hash__(self):
-        return hash((self.txid, self.output))
-
-    @classmethod
-    def from_dict(cls, link):
-        """Transforms a Python dictionary to a TransactionLink object.
-
-            Args:
-                link (dict): The link to be transformed.
-
-            Returns:
-                :class:`~planetmint.common.transaction.TransactionLink`
-        """
-        try:
-            return cls(link['transaction_id'], link['output_index'])
-        except TypeError:
-            return cls()
-
-    def to_dict(self):
-        """Transforms the object to a Python dictionary.
-
-            Returns:
-                (dict|None): The link as an alternative serialization format.
-        """
-        if self.txid is None and self.output is None:
-            return None
-        else:
-            return {
-                'transaction_id': self.txid,
-                'output_index': self.output,
-            }
-
-    def to_uri(self, path=''):
-        if self.txid is None and self.output is None:
-            return None
-        return '{}/transactions/{}/outputs/{}'.format(path, self.txid,
-                                                      self.output)
-
-
-class Output(object):
-    """An Output is used to lock an asset.
-
-    Wraps around a Crypto-condition Condition.
-
-        Attributes:
-            fulfillment (:class:`cryptoconditions.Fulfillment`): A Fulfillment
-                to extract a Condition from.
-            public_keys (:obj:`list` of :obj:`str`, optional): A list of
-                owners before a Transaction was confirmed.
-    """
-
-    MAX_AMOUNT = 9 * 10 ** 18
-
-    def __init__(self, fulfillment, public_keys=None, amount=1):
-        """Create an instance of a :class:`~.Output`.
-
-            Args:
-                fulfillment (:class:`cryptoconditions.Fulfillment`): A
-                    Fulfillment to extract a Condition from.
-                public_keys (:obj:`list` of :obj:`str`, optional): A list of
-                    owners before a Transaction was confirmed.
-                amount (int): The amount of Assets to be locked with this
-                    Output.
-
-            Raises:
-                TypeError: if `public_keys` is not instance of `list`.
-        """
-        if not isinstance(public_keys, list) and public_keys is not None:
-            raise TypeError('`public_keys` must be a list instance or None')
-        if not isinstance(amount, int):
-            raise TypeError('`amount` must be an int')
-        if amount < 1:
-            raise AmountError('`amount` must be greater than 0')
-        if amount > self.MAX_AMOUNT:
-            raise AmountError('`amount` must be <= %s' % self.MAX_AMOUNT)
-
-        self.fulfillment = fulfillment
-        self.amount = amount
-        self.public_keys = public_keys
-
-    def __eq__(self, other):
-        # TODO: If `other !== Condition` return `False`
-        return self.to_dict() == other.to_dict()
-
-    def to_dict(self):
-        """Transforms the object to a Python dictionary.
-
-            Note:
-                A dictionary serialization of the Input the Output was
-                derived from is always provided.
-
-            Returns:
-                dict: The Output as an alternative serialization format.
-        """
-        # TODO FOR CC: It must be able to recognize a hashlock condition
-        #              and fulfillment!
-        condition = {}
-        try:
-            condition['details'] = _fulfillment_to_details(self.fulfillment)
-        except AttributeError:
-            pass
-
-        try:
-            condition['uri'] = self.fulfillment.condition_uri
-        except AttributeError:
-            condition['uri'] = self.fulfillment
-
-        output = {
-            'public_keys': self.public_keys,
-            'condition': condition,
-            'amount': str(self.amount),
-        }
-        return output
-
-    @classmethod
-    def generate(cls, public_keys, amount):
-        """Generates a Output from a specifically formed tuple or list.
-
-            Note:
-                If a ThresholdCondition has to be generated where the threshold
-                is always the number of subconditions it is split between, a
-                list of the following structure is sufficient:
-
-                [(address|condition)*, [(address|condition)*, ...], ...]
-
-            Args:
-                public_keys (:obj:`list` of :obj:`str`): The public key of
-                    the users that should be able to fulfill the Condition
-                    that is being created.
-                amount (:obj:`int`): The amount locked by the Output.
-
-            Returns:
-                An Output that can be used in a Transaction.
-
-            Raises:
-                TypeError: If `public_keys` is not an instance of `list`.
-                ValueError: If `public_keys` is an empty list.
-        """
-        threshold = len(public_keys)
-        if not isinstance(amount, int):
-            raise TypeError('`amount` must be a int')
-        if amount < 1:
-            raise AmountError('`amount` needs to be greater than zero')
-        if not isinstance(public_keys, list):
-            raise TypeError('`public_keys` must be an instance of list')
-        if len(public_keys) == 0:
-            raise ValueError('`public_keys` needs to contain at least one'
-                             'owner')
-        elif len(public_keys) == 1 and not isinstance(public_keys[0], list):
-            if isinstance(public_keys[0], Fulfillment):
-                ffill = public_keys[0]
-            else:
-                ffill = Ed25519Sha256(
-                    public_key=base58.b58decode(public_keys[0]))
-            return cls(ffill, public_keys, amount=amount)
-        else:
-            initial_cond = ThresholdSha256(threshold=threshold)
-            threshold_cond = reduce(cls._gen_condition, public_keys,
-                                    initial_cond)
-            return cls(threshold_cond, public_keys, amount=amount)
-
-    @classmethod
-    def _gen_condition(cls, initial, new_public_keys):
-        """Generates ThresholdSha256 conditions from a list of new owners.
-
-            Note:
-                This method is intended only to be used with a reduce function.
-                For a description on how to use this method, see
-                :meth:`~.Output.generate`.
-
-            Args:
-                initial (:class:`cryptoconditions.ThresholdSha256`):
-                    A Condition representing the overall root.
-                new_public_keys (:obj:`list` of :obj:`str`|str): A list of new
-                    owners or a single new owner.
-
-            Returns:
-                :class:`cryptoconditions.ThresholdSha256`:
-        """
-        try:
-            threshold = len(new_public_keys)
-        except TypeError:
-            threshold = None
-
-        if isinstance(new_public_keys, list) and len(new_public_keys) > 1:
-            ffill = ThresholdSha256(threshold=threshold)
-            reduce(cls._gen_condition, new_public_keys, ffill)
-        elif isinstance(new_public_keys, list) and len(new_public_keys) <= 1:
-            raise ValueError('Sublist cannot contain single owner')
-        else:
-            try:
-                new_public_keys = new_public_keys.pop()
-            except AttributeError:
-                pass
-            # NOTE: Instead of submitting base58 encoded addresses, a user
-            #       of this class can also submit fully instantiated
-            #       Cryptoconditions. In the case of casting
-            #       `new_public_keys` to a Ed25519Fulfillment with the
-            #       result of a `TypeError`, we're assuming that
-            #       `new_public_keys` is a Cryptocondition then.
-            if isinstance(new_public_keys, Fulfillment):
-                ffill = new_public_keys
-            else:
-                ffill = Ed25519Sha256(
-                    public_key=base58.b58decode(new_public_keys))
-        initial.add_subfulfillment(ffill)
-        return initial
-
-    @classmethod
-    def from_dict(cls, data):
-        """Transforms a Python dictionary to an Output object.
-
-            Note:
-                To pass a serialization cycle multiple times, a
-                Cryptoconditions Fulfillment needs to be present in the
-                passed-in dictionary, as Condition URIs are not serializable
-                anymore.
-
-            Args:
-                data (dict): The dict to be transformed.
-
-            Returns:
-                :class:`~planetmint.common.transaction.Output`
-        """
-        try:
-            fulfillment = _fulfillment_from_details(data['condition']['details'])
-        except KeyError:
-            # NOTE: Hashlock condition case
-            fulfillment = data['condition']['uri']
-        try:
-            amount = int(data['amount'])
-        except ValueError:
-            raise AmountError('Invalid amount: %s' % data['amount'])
-        return cls(fulfillment, data['public_keys'], amount)
-
-
 class Transaction(object):
     """A Transaction is used to create and transfer assets.
 
@@ -491,10 +57,10 @@ class Transaction(object):
 
         Attributes:
             operation (str): Defines the operation of the Transaction.
-            inputs (:obj:`list` of :class:`~planetmint.common.
+            inputs (:obj:`list` of :class:`~planetmint.transactions.common.
                 transaction.Input`, optional): Define the assets to
                 spend.
-            outputs (:obj:`list` of :class:`~planetmint.common.
+            outputs (:obj:`list` of :class:`~planetmint.transactions.common.
                 transaction.Output`, optional): Define the assets to lock.
             asset (dict): Asset payload for this Transaction. ``CREATE``
                 Transactions require a dict with a ``data``
@@ -521,9 +87,9 @@ class Transaction(object):
             Args:
                 operation (str): Defines the operation of the Transaction.
                 asset (dict): Asset payload for this Transaction.
-                inputs (:obj:`list` of :class:`~planetmint.common.
+                inputs (:obj:`list` of :class:`~planetmint.transactions.common.
                     transaction.Input`, optional): Define the assets to
-                outputs (:obj:`list` of :class:`~planetmint.common.
+                outputs (:obj:`list` of :class:`~planetmint.transactions.common.
                     transaction.Output`, optional): Define the assets to
                     lock.
                 metadata (dict): Metadata to be stored along with the
@@ -602,137 +168,6 @@ class Transaction(object):
     def _hash(self):
         self._id = hash_data(self.serialized)
 
-    @classmethod
-    def validate_create(cls, tx_signers, recipients, asset, metadata):
-        if not isinstance(tx_signers, list):
-            raise TypeError('`tx_signers` must be a list instance')
-        if not isinstance(recipients, list):
-            raise TypeError('`recipients` must be a list instance')
-        if len(tx_signers) == 0:
-            raise ValueError('`tx_signers` list cannot be empty')
-        if len(recipients) == 0:
-            raise ValueError('`recipients` list cannot be empty')
-        if not (asset is None or isinstance(asset, dict)):
-            raise TypeError('`asset` must be a dict or None')
-        if not (metadata is None or isinstance(metadata, dict)):
-            raise TypeError('`metadata` must be a dict or None')
-
-        inputs = []
-        outputs = []
-
-        # generate_outputs
-        for recipient in recipients:
-            if not isinstance(recipient, tuple) or len(recipient) != 2:
-                raise ValueError(('Each `recipient` in the list must be a'
-                                  ' tuple of `([<list of public keys>],'
-                                  ' <amount>)`'))
-            pub_keys, amount = recipient
-            outputs.append(Output.generate(pub_keys, amount))
-
-        # generate inputs
-        inputs.append(Input.generate(tx_signers))
-
-        return (inputs, outputs)
-
-    @classmethod
-    def create(cls, tx_signers, recipients, metadata=None, asset=None):
-        """A simple way to generate a `CREATE` transaction.
-
-            Note:
-                This method currently supports the following Cryptoconditions
-                use cases:
-                    - Ed25519
-                    - ThresholdSha256
-
-                Additionally, it provides support for the following Planetmint
-                use cases:
-                    - Multiple inputs and outputs.
-
-            Args:
-                tx_signers (:obj:`list` of :obj:`str`): A list of keys that
-                    represent the signers of the CREATE Transaction.
-                recipients (:obj:`list` of :obj:`tuple`): A list of
-                    ([keys],amount) that represent the recipients of this
-                    Transaction.
-                metadata (dict): The metadata to be stored along with the
-                    Transaction.
-                asset (dict): The metadata associated with the asset that will
-                    be created in this Transaction.
-
-            Returns:
-                :class:`~planetmint.common.transaction.Transaction`
-        """
-
-        (inputs, outputs) = cls.validate_create(tx_signers, recipients, asset, metadata)
-        return cls(cls.CREATE, {'data': asset}, inputs, outputs, metadata)
-
-    @classmethod
-    def validate_transfer(cls, inputs, recipients, asset_id, metadata):
-        if not isinstance(inputs, list):
-            raise TypeError('`inputs` must be a list instance')
-        if len(inputs) == 0:
-            raise ValueError('`inputs` must contain at least one item')
-        if not isinstance(recipients, list):
-            raise TypeError('`recipients` must be a list instance')
-        if len(recipients) == 0:
-            raise ValueError('`recipients` list cannot be empty')
-
-        outputs = []
-        for recipient in recipients:
-            if not isinstance(recipient, tuple) or len(recipient) != 2:
-                raise ValueError(('Each `recipient` in the list must be a'
-                                  ' tuple of `([<list of public keys>],'
-                                  ' <amount>)`'))
-            pub_keys, amount = recipient
-            outputs.append(Output.generate(pub_keys, amount))
-
-        if not isinstance(asset_id, str):
-            raise TypeError('`asset_id` must be a string')
-
-        return (deepcopy(inputs), outputs)
-
-    @classmethod
-    def transfer(cls, inputs, recipients, asset_id, metadata=None):
-        """A simple way to generate a `TRANSFER` transaction.
-
-            Note:
-                Different cases for threshold conditions:
-
-                Combining multiple `inputs` with an arbitrary number of
-                `recipients` can yield interesting cases for the creation of
-                threshold conditions we'd like to support. The following
-                notation is proposed:
-
-                1. The index of a `recipient` corresponds to the index of
-                   an input:
-                   e.g. `transfer([input1], [a])`, means `input1` would now be
-                        owned by user `a`.
-
-                2. `recipients` can (almost) get arbitrary deeply nested,
-                   creating various complex threshold conditions:
-                   e.g. `transfer([inp1, inp2], [[a, [b, c]], d])`, means
-                        `a`'s signature would have a 50% weight on `inp1`
-                        compared to `b` and `c` that share 25% of the leftover
-                        weight respectively. `inp2` is owned completely by `d`.
-
-            Args:
-                inputs (:obj:`list` of :class:`~planetmint.common.transaction.
-                    Input`): Converted `Output`s, intended to
-                    be used as inputs in the transfer to generate.
-                recipients (:obj:`list` of :obj:`tuple`): A list of
-                    ([keys],amount) that represent the recipients of this
-                    Transaction.
-                asset_id (str): The asset ID of the asset to be transferred in
-                    this Transaction.
-                metadata (dict): Python dictionary to be stored along with the
-                    Transaction.
-
-            Returns:
-                :class:`~planetmint.common.transaction.Transaction`
-        """
-        (inputs, outputs) = cls.validate_transfer(inputs, recipients, asset_id, metadata)
-        return cls(cls.TRANSFER, {'id': asset_id}, inputs, outputs, metadata)
-
     def __eq__(self, other):
         try:
             other = other.to_dict()
@@ -757,7 +192,7 @@ class Transaction(object):
                     outputs should be returned as inputs.
 
             Returns:
-                :obj:`list` of :class:`~planetmint.common.transaction.
+                :obj:`list` of :class:`~planetmint.transactions.common.transaction.
                     Input`
         """
         # NOTE: If no indices are passed, we just assume to take all outputs
@@ -774,7 +209,7 @@ class Transaction(object):
         """Adds an input to a Transaction's list of inputs.
 
             Args:
-                input_ (:class:`~planetmint.common.transaction.
+                input_ (:class:`~planetmint.transactions.common.transaction.
                     Input`): An Input to be added to the Transaction.
         """
         if not isinstance(input_, Input):
@@ -785,7 +220,7 @@ class Transaction(object):
         """Adds an output to a Transaction's list of outputs.
 
             Args:
-                output (:class:`~planetmint.common.transaction.
+                output (:class:`~planetmint.transactions.common.transaction.
                     Output`): An Output to be added to the
                     Transaction.
         """
@@ -811,7 +246,7 @@ class Transaction(object):
                     Transaction.
 
             Returns:
-                :class:`~planetmint.common.transaction.Transaction`
+                :class:`~planetmint.transactions.common.transaction.Transaction`
         """
         # TODO: Singing should be possible with at least one of all private
         #       keys supplied to this method.
@@ -857,7 +292,7 @@ class Transaction(object):
                     - ThresholdSha256.
 
             Args:
-                input_ (:class:`~planetmint.common.transaction.
+                input_ (:class:`~planetmint.transactions.common.transaction.
                     Input`) The Input to be signed.
                 message (str): The message to be signed
                 key_pairs (dict): The keys to sign the Transaction with.
@@ -878,7 +313,7 @@ class Transaction(object):
         """Signs a Ed25519Fulfillment.
 
             Args:
-                input_ (:class:`~planetmint.common.transaction.
+                input_ (:class:`~planetmint.transactions.common.transaction.
                     Input`) The input to be signed.
                 message (str): The message to be signed
                 key_pairs (dict): The keys to sign the Transaction with.
@@ -910,7 +345,7 @@ class Transaction(object):
         """Signs a ThresholdSha256.
 
             Args:
-                input_ (:class:`~planetmint.common.transaction.
+                input_ (:class:`~planetmint.transactions.common.transaction.
                     Input`) The Input to be signed.
                 message (str): The message to be signed
                 key_pairs (dict): The keys to sign the Transaction with.
@@ -962,7 +397,7 @@ class Transaction(object):
                 evaluate parts of the validation-checks to `True`.
 
             Args:
-                outputs (:obj:`list` of :class:`~planetmint.common.
+                outputs (:obj:`list` of :class:`~planetmint.transactions.common.
                     transaction.Output`): A list of Outputs to check the
                     Inputs against.
 
@@ -1025,7 +460,7 @@ class Transaction(object):
                 does not validate against `output_condition_uri`.
 
             Args:
-                input_ (:class:`~planetmint.common.transaction.
+                input_ (:class:`~planetmint.transactions.common.transaction.
                     Input`) The Input to be signed.
                 operation (str): The type of Transaction.
                 message (str): The fulfillment message.
@@ -1135,7 +570,7 @@ class Transaction(object):
         transaction are related to the same asset id.
 
         Args:
-            transactions (:obj:`list` of :class:`~planetmint.common.
+            transactions (:obj:`list` of :class:`~planetmint.transactions.common.
                 transaction.Transaction`): A list of Transactions.
                 Usually input Transactions that should have a matching
                 asset ID.
@@ -1197,7 +632,7 @@ class Transaction(object):
                 tx_body (dict): The Transaction to be transformed.
 
             Returns:
-                :class:`~planetmint.common.transaction.Transaction`
+                :class:`~planetmint.transactions.common.transaction.Transaction`
         """
         operation = tx.get('operation', Transaction.CREATE) if isinstance(tx, dict) else Transaction.CREATE
         cls = Transaction.resolve_class(operation)

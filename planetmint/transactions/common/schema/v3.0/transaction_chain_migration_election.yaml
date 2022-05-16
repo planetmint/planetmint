@@ -1,0 +1,51 @@
+# Copyright © 2020 Interplanetary Database Association e.V.,
+# Planetmint and IPDB software contributors.
+# SPDX-License-Identifier: (Apache-2.0 AND CC-BY-4.0)
+# Code is Apache-2.0 and docs are CC-BY-4.0
+
+---
+"$schema": "http://json-schema.org/draft-04/schema#"
+type: object
+title: Chain Migration Election Schema - Propose a halt in block production to allow for a version change
+required:
+- operation
+- assets
+- outputs
+properties:
+  operation:
+    type: string
+    value: "CHAIN_MIGRATION_ELECTION"
+  assets:
+    type: array
+    minItems: 1
+    maxItems: 1
+    items:
+      "$ref": "#/definitions/asset"
+  outputs:
+    type: array
+    items:
+      "$ref": "#/definitions/output"
+definitions:
+  asset:
+    additionalProperties: false
+    properties:
+      data:
+        additionalProperties: false
+        properties:
+          seed:
+            type: string
+    required:
+    - data
+  output:
+    type: object
+    properties:
+      condition:
+        type: object
+        required:
+          - uri
+        properties:
+          uri:
+            type: string
+            pattern: "^ni:///sha-256;([a-zA-Z0-9_-]{0,86})[?]\
+              (fpt=ed25519-sha-256(&)?|cost=[0-9]+(&)?|\
+              subtypes=ed25519-sha-256(&)?){2,3}$"

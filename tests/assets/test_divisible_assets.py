@@ -3,10 +3,13 @@
 # SPDX-License-Identifier: (Apache-2.0 AND CC-BY-4.0)
 # Code is Apache-2.0 and docs are CC-BY-4.0
 
+
 import pytest
 import random
 
-from planetmint.common.exceptions import DoubleSpend
+from planetmint.transactions.types.assets.create import Create
+from planetmint.transactions.types.assets.transfer import Transfer
+from planetmint.transactions.common.exceptions import DoubleSpend
 
 
 # CREATE divisible asset
@@ -15,9 +18,8 @@ from planetmint.common.exceptions import DoubleSpend
 # Single output
 # Single owners_after
 def test_single_in_single_own_single_out_single_own_create(alice, user_pk, b):
-    from planetmint.models import Transaction
 
-    tx = Transaction.create([alice.public_key], [([user_pk], 100)], asset={'name': random.random()})
+    tx = Create.generate([alice.public_key], [([user_pk], 100)], asset={'name': random.random()})
     tx_signed = tx.sign([alice.private_key])
 
     assert tx_signed.validate(b) == tx_signed
@@ -32,9 +34,8 @@ def test_single_in_single_own_single_out_single_own_create(alice, user_pk, b):
 # Multiple outputs
 # Single owners_after per output
 def test_single_in_single_own_multiple_out_single_own_create(alice, user_pk, b):
-    from planetmint.models import Transaction
 
-    tx = Transaction.create([alice.public_key], [([user_pk], 50), ([user_pk], 50)],
+    tx = Create.generate([alice.public_key], [([user_pk], 50), ([user_pk], 50)],
                             asset={'name': random.random()})
     tx_signed = tx.sign([alice.private_key])
 
@@ -51,9 +52,8 @@ def test_single_in_single_own_multiple_out_single_own_create(alice, user_pk, b):
 # Single output
 # Multiple owners_after
 def test_single_in_single_own_single_out_multiple_own_create(alice, user_pk, b):
-    from planetmint.models import Transaction
 
-    tx = Transaction.create([alice.public_key], [([user_pk, user_pk], 100)], asset={'name': random.random()})
+    tx = Create.generate([alice.public_key], [([user_pk, user_pk], 100)], asset={'name': random.random()})
     tx_signed = tx.sign([alice.private_key])
 
     assert tx_signed.validate(b) == tx_signed
@@ -74,9 +74,8 @@ def test_single_in_single_own_single_out_multiple_own_create(alice, user_pk, b):
 # Mix: one output with a single owners_after, one output with multiple
 #      owners_after
 def test_single_in_single_own_multiple_out_mix_own_create(alice, user_pk, b):
-    from planetmint.models import Transaction
 
-    tx = Transaction.create([alice.public_key], [([user_pk], 50), ([user_pk, user_pk], 50)],
+    tx = Create.generate([alice.public_key], [([user_pk], 50), ([user_pk, user_pk], 50)],
                             asset={'name': random.random()})
     tx_signed = tx.sign([alice.private_key])
 
@@ -98,10 +97,9 @@ def test_single_in_single_own_multiple_out_mix_own_create(alice, user_pk, b):
 # Output combinations already tested above
 def test_single_in_multiple_own_single_out_single_own_create(alice, b, user_pk,
                                                              user_sk):
-    from planetmint.models import Transaction
-    from planetmint.common.transaction import _fulfillment_to_details
+    from planetmint.transactions.common.utils import _fulfillment_to_details
 
-    tx = Transaction.create([alice.public_key, user_pk], [([user_pk], 100)], asset={'name': random.random()})
+    tx = Create.generate([alice.public_key, user_pk], [([user_pk], 100)], asset={'name': random.random()})
     tx_signed = tx.sign([alice.private_key, user_sk])
     assert tx_signed.validate(b) == tx_signed
     assert len(tx_signed.outputs) == 1
@@ -120,14 +118,13 @@ def test_single_in_multiple_own_single_out_single_own_create(alice, b, user_pk,
 # Single owners_after
 def test_single_in_single_own_single_out_single_own_transfer(alice, b, user_pk,
                                                              user_sk):
-    from planetmint.models import Transaction
 
     # CREATE divisible asset
-    tx_create = Transaction.create([alice.public_key], [([user_pk], 100)], asset={'name': random.random()})
+    tx_create = Create.generate([alice.public_key], [([user_pk], 100)], asset={'name': random.random()})
     tx_create_signed = tx_create.sign([alice.private_key])
 
     # TRANSFER
-    tx_transfer = Transaction.transfer(tx_create.to_inputs(), [([alice.public_key], 100)],
+    tx_transfer = Transfer.generate(tx_create.to_inputs(), [([alice.public_key], 100)],
                                        asset_id=tx_create.id)
     tx_transfer_signed = tx_transfer.sign([user_sk])
 
@@ -146,14 +143,13 @@ def test_single_in_single_own_single_out_single_own_transfer(alice, b, user_pk,
 # Single owners_after
 def test_single_in_single_own_multiple_out_single_own_transfer(alice, b, user_pk,
                                                                user_sk):
-    from planetmint.models import Transaction
 
     # CREATE divisible asset
-    tx_create = Transaction.create([alice.public_key], [([user_pk], 100)], asset={'name': random.random()})
+    tx_create = Create.generate([alice.public_key], [([user_pk], 100)], asset={'name': random.random()})
     tx_create_signed = tx_create.sign([alice.private_key])
 
     # TRANSFER
-    tx_transfer = Transaction.transfer(tx_create.to_inputs(),
+    tx_transfer = Transfer.generate(tx_create.to_inputs(),
                                        [([alice.public_key], 50), ([alice.public_key], 50)],
                                        asset_id=tx_create.id)
     tx_transfer_signed = tx_transfer.sign([user_sk])
@@ -174,14 +170,13 @@ def test_single_in_single_own_multiple_out_single_own_transfer(alice, b, user_pk
 # Multiple owners_after
 def test_single_in_single_own_single_out_multiple_own_transfer(alice, b, user_pk,
                                                                user_sk):
-    from planetmint.models import Transaction
 
     # CREATE divisible asset
-    tx_create = Transaction.create([alice.public_key], [([user_pk], 100)], asset={'name': random.random()})
+    tx_create = Create.generate([alice.public_key], [([user_pk], 100)], asset={'name': random.random()})
     tx_create_signed = tx_create.sign([alice.private_key])
 
     # TRANSFER
-    tx_transfer = Transaction.transfer(tx_create.to_inputs(),
+    tx_transfer = Transfer.generate(tx_create.to_inputs(),
                                        [([alice.public_key, alice.public_key], 100)],
                                        asset_id=tx_create.id)
     tx_transfer_signed = tx_transfer.sign([user_sk])
@@ -210,14 +205,13 @@ def test_single_in_single_own_single_out_multiple_own_transfer(alice, b, user_pk
 #      owners_after
 def test_single_in_single_own_multiple_out_mix_own_transfer(alice, b, user_pk,
                                                             user_sk):
-    from planetmint.models import Transaction
 
     # CREATE divisible asset
-    tx_create = Transaction.create([alice.public_key], [([user_pk], 100)], asset={'name': random.random()})
+    tx_create = Create.generate([alice.public_key], [([user_pk], 100)], asset={'name': random.random()})
     tx_create_signed = tx_create.sign([alice.private_key])
 
     # TRANSFER
-    tx_transfer = Transaction.transfer(tx_create.to_inputs(),
+    tx_transfer = Transfer.generate(tx_create.to_inputs(),
                                        [([alice.public_key], 50), ([alice.public_key, alice.public_key], 50)],
                                        asset_id=tx_create.id)
     tx_transfer_signed = tx_transfer.sign([user_sk])
@@ -247,16 +241,15 @@ def test_single_in_single_own_multiple_out_mix_own_transfer(alice, b, user_pk,
 # Single owners_after
 def test_single_in_multiple_own_single_out_single_own_transfer(alice, b, user_pk,
                                                                user_sk):
-    from planetmint.models import Transaction
-    from planetmint.common.transaction import _fulfillment_to_details
+    from planetmint.transactions.common.utils import _fulfillment_to_details
 
     # CREATE divisible asset
-    tx_create = Transaction.create([alice.public_key], [([alice.public_key, user_pk], 100)],
+    tx_create = Create.generate([alice.public_key], [([alice.public_key, user_pk], 100)],
                                    asset={'name': random.random()})
     tx_create_signed = tx_create.sign([alice.private_key])
 
     # TRANSFER
-    tx_transfer = Transaction.transfer(tx_create.to_inputs(), [([alice.public_key], 100)],
+    tx_transfer = Transfer.generate(tx_create.to_inputs(), [([alice.public_key], 100)],
                                        asset_id=tx_create.id)
     tx_transfer_signed = tx_transfer.sign([alice.private_key, user_sk])
 
@@ -283,15 +276,13 @@ def test_single_in_multiple_own_single_out_single_own_transfer(alice, b, user_pk
 # Single owners_after
 def test_multiple_in_single_own_single_out_single_own_transfer(alice, b, user_pk,
                                                                user_sk):
-    from planetmint.models import Transaction
-
     # CREATE divisible asset
-    tx_create = Transaction.create([alice.public_key], [([user_pk], 50), ([user_pk], 50)],
+    tx_create = Create.generate([alice.public_key], [([user_pk], 50), ([user_pk], 50)],
                                    asset={'name': random.random()})
     tx_create_signed = tx_create.sign([alice.private_key])
 
     # TRANSFER
-    tx_transfer = Transaction.transfer(tx_create.to_inputs(), [([alice.public_key], 100)],
+    tx_transfer = Transfer.generate(tx_create.to_inputs(), [([alice.public_key], 100)],
                                        asset_id=tx_create.id)
     tx_transfer_signed = tx_transfer.sign([user_sk])
 
@@ -313,18 +304,17 @@ def test_multiple_in_single_own_single_out_single_own_transfer(alice, b, user_pk
 # Single output
 # Single owners_after
 def test_multiple_in_multiple_own_single_out_single_own_transfer(alice, b, user_pk,
-                                                                 user_sk):
-    from planetmint.models import Transaction
-    from planetmint.common.transaction import _fulfillment_to_details
+                                                                    user_sk):
+    from planetmint.transactions.common.utils import _fulfillment_to_details
 
     # CREATE divisible asset
-    tx_create = Transaction.create([alice.public_key], [([user_pk, alice.public_key], 50),
-                                   ([user_pk, alice.public_key], 50)],
-                                   asset={'name': random.random()})
+    tx_create = Create.generate([alice.public_key], [([user_pk, alice.public_key], 50),
+                                                        ([user_pk, alice.public_key], 50)],
+                                                        asset={'name': random.random()})
     tx_create_signed = tx_create.sign([alice.private_key])
 
     # TRANSFER
-    tx_transfer = Transaction.transfer(tx_create.to_inputs(), [([alice.public_key], 100)],
+    tx_transfer = Transfer.generate(tx_create.to_inputs(), [([alice.public_key], 100)],
                                        asset_id=tx_create.id)
     tx_transfer_signed = tx_transfer.sign([alice.private_key, user_sk])
 
@@ -355,16 +345,15 @@ def test_multiple_in_multiple_own_single_out_single_own_transfer(alice, b, user_
 # Single owners_after
 def test_muiltiple_in_mix_own_multiple_out_single_own_transfer(alice, b, user_pk,
                                                                user_sk):
-    from planetmint.models import Transaction
-    from planetmint.common.transaction import _fulfillment_to_details
+    from planetmint.transactions.common.utils import _fulfillment_to_details
 
     # CREATE divisible asset
-    tx_create = Transaction.create([alice.public_key], [([user_pk], 50), ([user_pk, alice.public_key], 50)],
+    tx_create = Create.generate([alice.public_key], [([user_pk], 50), ([user_pk, alice.public_key], 50)],
                                    asset={'name': random.random()})
     tx_create_signed = tx_create.sign([alice.private_key])
 
     # TRANSFER
-    tx_transfer = Transaction.transfer(tx_create.to_inputs(), [([alice.public_key], 100)],
+    tx_transfer = Transfer.generate(tx_create.to_inputs(), [([alice.public_key], 100)],
                                        asset_id=tx_create.id)
     tx_transfer_signed = tx_transfer.sign([alice.private_key, user_sk])
 
@@ -395,15 +384,14 @@ def test_muiltiple_in_mix_own_multiple_out_single_own_transfer(alice, b, user_pk
 #      owners_after
 def test_muiltiple_in_mix_own_multiple_out_mix_own_transfer(alice, b, user_pk,
                                                             user_sk):
-    from planetmint.models import Transaction
-    from planetmint.common.transaction import _fulfillment_to_details
+    from planetmint.transactions.common.utils import _fulfillment_to_details
 
     # CREATE divisible asset
-    tx_create = Transaction.create([alice.public_key], [([user_pk], 50), ([user_pk, alice.public_key], 50)],
+    tx_create = Create.generate([alice.public_key], [([user_pk], 50), ([user_pk, alice.public_key], 50)],
                                    asset={'name': random.random()})
     tx_create_signed = tx_create.sign([alice.private_key])
     # TRANSFER
-    tx_transfer = Transaction.transfer(tx_create.to_inputs(),
+    tx_transfer = Transfer.generate(tx_create.to_inputs(),
                                        [([alice.public_key], 50), ([alice.public_key, user_pk], 50)],
                                        asset_id=tx_create.id)
     tx_transfer_signed = tx_transfer.sign([alice.private_key, user_sk])
@@ -438,12 +426,11 @@ def test_muiltiple_in_mix_own_multiple_out_mix_own_transfer(alice, b, user_pk,
 # Single output
 # Single owners_after
 def test_multiple_in_different_transactions(alice, b, user_pk, user_sk):
-    from planetmint.models import Transaction
 
     # CREATE divisible asset
     # `b` creates a divisible asset and assigns 50 shares to `b` and
     # 50 shares to `user_pk`
-    tx_create = Transaction.create([alice.public_key], [([user_pk], 50), ([alice.public_key], 50)],
+    tx_create = Create.generate([alice.public_key], [([user_pk], 50), ([alice.public_key], 50)],
                                    asset={'name': random.random()})
     tx_create_signed = tx_create.sign([alice.private_key])
 
@@ -451,7 +438,7 @@ def test_multiple_in_different_transactions(alice, b, user_pk, user_sk):
     # `b` transfers its 50 shares to `user_pk`
     # after this transaction `user_pk` will have a total of 100 shares
     # split across two different transactions
-    tx_transfer1 = Transaction.transfer(tx_create.to_inputs([1]),
+    tx_transfer1 = Transfer.generate(tx_create.to_inputs([1]),
                                         [([user_pk], 50)],
                                         asset_id=tx_create.id)
     tx_transfer1_signed = tx_transfer1.sign([alice.private_key])
@@ -459,7 +446,7 @@ def test_multiple_in_different_transactions(alice, b, user_pk, user_sk):
     # TRANSFER
     # `user_pk` combines two different transaction with 50 shares each and
     # transfers a total of 100 shares back to `b`
-    tx_transfer2 = Transaction.transfer(tx_create.to_inputs([0]) +
+    tx_transfer2 = Transfer.generate(tx_create.to_inputs([0]) +
                                         tx_transfer1.to_inputs([0]),
                                         [([alice.private_key], 100)],
                                         asset_id=tx_create.id)
@@ -482,18 +469,17 @@ def test_multiple_in_different_transactions(alice, b, user_pk, user_sk):
 # inputs needs to match the amount being sent in the outputs.
 # In other words `amount_in_inputs - amount_in_outputs == 0`
 def test_amount_error_transfer(alice, b, user_pk, user_sk):
-    from planetmint.models import Transaction
-    from planetmint.common.exceptions import AmountError
+    from planetmint.transactions.common.exceptions import AmountError
 
     # CREATE divisible asset
-    tx_create = Transaction.create([alice.public_key], [([user_pk], 100)], asset={'name': random.random()})
+    tx_create = Create.generate([alice.public_key], [([user_pk], 100)], asset={'name': random.random()})
     tx_create_signed = tx_create.sign([alice.private_key])
 
     b.store_bulk_transactions([tx_create_signed])
 
     # TRANSFER
     # output amount less than input amount
-    tx_transfer = Transaction.transfer(tx_create.to_inputs(), [([alice.public_key], 50)],
+    tx_transfer = Transfer.generate(tx_create.to_inputs(), [([alice.public_key], 50)],
                                        asset_id=tx_create.id)
     tx_transfer_signed = tx_transfer.sign([user_sk])
 
@@ -502,7 +488,7 @@ def test_amount_error_transfer(alice, b, user_pk, user_sk):
 
     # TRANSFER
     # output amount greater than input amount
-    tx_transfer = Transaction.transfer(tx_create.to_inputs(), [([alice.public_key], 101)],
+    tx_transfer = Transfer.generate(tx_create.to_inputs(), [([alice.public_key], 101)],
                                        asset_id=tx_create.id)
     tx_transfer_signed = tx_transfer.sign([user_sk])
 
@@ -518,15 +504,13 @@ def test_threshold_same_public_key(alice, b, user_pk, user_sk):
     # Creating threshold conditions with the same key does not make sense but
     # that does not mean that the code shouldn't work.
 
-    from planetmint.models import Transaction
-
     # CREATE divisible asset
-    tx_create = Transaction.create([alice.public_key], [([user_pk, user_pk], 100)],
+    tx_create = Create.generate([alice.public_key], [([user_pk, user_pk], 100)],
                                    asset={'name': random.random()})
     tx_create_signed = tx_create.sign([alice.private_key])
 
     # TRANSFER
-    tx_transfer = Transaction.transfer(tx_create.to_inputs(), [([alice.public_key], 100)],
+    tx_transfer = Transfer.generate(tx_create.to_inputs(), [([alice.public_key], 100)],
                                        asset_id=tx_create.id)
     tx_transfer_signed = tx_transfer.sign([user_sk, user_sk])
     b.store_bulk_transactions([tx_create_signed])
@@ -539,16 +523,15 @@ def test_threshold_same_public_key(alice, b, user_pk, user_sk):
 
 
 def test_sum_amount(alice, b, user_pk, user_sk):
-    from planetmint.models import Transaction
 
     # CREATE divisible asset with 3 outputs with amount 1
-    tx_create = Transaction.create([alice.public_key], [([user_pk], 1), ([user_pk], 1), ([user_pk], 1)],
+    tx_create = Create.generate([alice.public_key], [([user_pk], 1), ([user_pk], 1), ([user_pk], 1)],
                                    asset={'name': random.random()})
     tx_create_signed = tx_create.sign([alice.private_key])
 
     # create a transfer transaction with one output and check if the amount
     # is 3
-    tx_transfer = Transaction.transfer(tx_create.to_inputs(), [([alice.public_key], 3)],
+    tx_transfer = Transfer.generate(tx_create.to_inputs(), [([alice.public_key], 3)],
                                        asset_id=tx_create.id)
     tx_transfer_signed = tx_transfer.sign([user_sk])
 
@@ -564,15 +547,14 @@ def test_sum_amount(alice, b, user_pk, user_sk):
 
 
 def test_divide(alice, b, user_pk, user_sk):
-    from planetmint.models import Transaction
 
     # CREATE divisible asset with 1 output with amount 3
-    tx_create = Transaction.create([alice.public_key], [([user_pk], 3)], asset={'name': random.random()})
+    tx_create = Create.generate([alice.public_key], [([user_pk], 3)], asset={'name': random.random()})
     tx_create_signed = tx_create.sign([alice.private_key])
 
     # create a transfer transaction with 3 outputs and check if the amount
     # of each output is 1
-    tx_transfer = Transaction.transfer(tx_create.to_inputs(),
+    tx_transfer = Transfer.generate(tx_create.to_inputs(),
                                        [([alice.public_key], 1), ([alice.public_key], 1), ([alice.public_key], 1)],
                                        asset_id=tx_create.id)
     tx_transfer_signed = tx_transfer.sign([user_sk])

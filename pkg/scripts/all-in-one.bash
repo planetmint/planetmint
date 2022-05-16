@@ -16,4 +16,5 @@ nohup mongod --bind_ip_all > "$HOME/.planetmint-monit/logs/mongodb_log_$(date +%
 # Tendermint configuration
 tendermint init
 
+# Start services
 monit -d 5 -I -B

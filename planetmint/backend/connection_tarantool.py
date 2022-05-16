@@ -13,7 +13,7 @@ import os
 
 from planetmint.backend.exceptions import ConnectionError
 from planetmint.backend.utils import get_planetmint_config_value, get_planetmint_config_value_or_key_error
-from planetmint.common.exceptions import ConfigurationError
+from planetmint.transactions.common.exceptions import ConfigurationError
 
 BACKENDS = {  # This is path to MongoDBClass
     'tarantool': 'planetmint.backend.connection_tarantool.TarantoolDB',

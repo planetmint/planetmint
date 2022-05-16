@@ -18,10 +18,10 @@ from planetmint.backend.tarantool.connection import TarantoolDB
 from planetmint.core import rollback
 from planetmint.migrations.chain_migration_election import ChainMigrationElection
 from planetmint.utils import load_node_key
-from planetmint.common.transaction_mode_types import BROADCAST_TX_COMMIT
-from planetmint.common.exceptions import (DatabaseDoesNotExist,
-                                          ValidationError)
-from planetmint.elections.vote import Vote
+from planetmint.transactions.common.transaction_mode_types import BROADCAST_TX_COMMIT
+from planetmint.transactions.common.exceptions import (
+    DatabaseDoesNotExist, ValidationError)
+from planetmint.transactions.types.elections.vote import Vote
 import planetmint
 from planetmint import (backend, ValidatorElection,
                         Planetmint)

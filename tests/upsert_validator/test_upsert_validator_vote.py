@@ -6,14 +6,14 @@
 import pytest
 import codecs
 
-from planetmint.elections.election import Election
+from planetmint.transactions.types.elections.election import Election
 from planetmint.tendermint_utils import public_key_to_base64
 from planetmint.upsert_validator import ValidatorElection
-from planetmint.common.exceptions import AmountError
-from planetmint.common.crypto import generate_key_pair
-from planetmint.common.exceptions import ValidationError
-from planetmint.common.transaction_mode_types import BROADCAST_TX_COMMIT
-from planetmint.elections.vote import Vote
+from planetmint.transactions.common.exceptions import AmountError
+from planetmint.transactions.common.crypto import generate_key_pair
+from planetmint.transactions.common.exceptions import ValidationError
+from planetmint.transactions.common.transaction_mode_types import BROADCAST_TX_COMMIT
+from planetmint.transactions.types.elections.vote import Vote
 from tests.utils import generate_block, gen_vote
 
 pytestmark = [pytest.mark.execute]
@@ -296,7 +296,7 @@ def test_get_validator_update(b, node_keys, node_key, ed25519_node_keys):
 
     update = Election.process_block(b, 4, [tx_vote0, tx_vote1, tx_vote2])
     assert len(update) == 1
-    update_public_key = codecs.encode(update[0].pub_key.data, 'base64').decode().rstrip('\n')
+    update_public_key = codecs.encode(update[0].pub_key.ed25519, 'base64').decode().rstrip('\n')
     assert update_public_key == public_key64
 
     # remove validator
@@ -319,7 +319,7 @@ def test_get_validator_update(b, node_keys, node_key, ed25519_node_keys):
 
     update = Election.process_block(b, 9, [tx_vote2])
     assert len(update) == 1
-    update_public_key = codecs.encode(update[0].pub_key.data, 'base64').decode().rstrip('\n')
+    update_public_key = codecs.encode(update[0].pub_key.ed25519, 'base64').decode().rstrip('\n')
     assert update_public_key == public_key64
 
     # assert that the public key is not a part of the current validator set

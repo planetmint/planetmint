@@ -5,18 +5,19 @@
 
 import pytest
 
-from planetmint.common.transaction import TransactionLink
-from planetmint.models import Transaction
+from planetmint.transactions.common.transaction import TransactionLink
+from planetmint.transactions.types.assets.create import Create
+from planetmint.transactions.types.assets.transfer import Transfer
 
 pytestmark = pytest.mark.bdb
 
 
 @pytest.fixture
 def txns(b, user_pk, user_sk, user2_pk, user2_sk):
-    txs = [Transaction.create([user_pk], [([user2_pk], 1)]).sign([user_sk]),
-           Transaction.create([user2_pk], [([user_pk], 1)]).sign([user2_sk]),
-           Transaction.create([user_pk], [([user_pk], 1), ([user2_pk], 1)])
-               .sign([user_sk])]
+    txs = [Create.generate([user_pk], [([user2_pk], 1)]).sign([user_sk]),
+           Create.generate([user2_pk], [([user_pk], 1)]).sign([user2_sk]),
+           Create.generate([user_pk], [([user_pk], 1), ([user2_pk], 1)])
+           .sign([user_sk])]
     b.store_bulk_transactions(txs)
     return txs
 
@@ -49,12 +50,12 @@ def test_get_outputs_by_public_key(b, user_pk, user2_pk, txns):
 
 def test_filter_spent_outputs(b, user_pk, user_sk):
     out = [([user_pk], 1)]
-    tx1 = Transaction.create([user_pk], out * 2)
+    tx1 = Create.generate([user_pk], out * 2)
     tx1.sign([user_sk])
 
     inputs = tx1.to_inputs()
 
-    tx2 = Transaction.transfer([inputs[0]], out, tx1.id)
+    tx2 = Transfer.generate([inputs[0]], out, tx1.id)
     tx2.sign([user_sk])
 
     # tx2 produces a new unspent. inputs[1] remains unspent.
@@ -71,12 +72,12 @@ def test_filter_spent_outputs(b, user_pk, user_sk):
 
 def test_filter_unspent_outputs(b, user_pk, user_sk):
     out = [([user_pk], 1)]
-    tx1 = Transaction.create([user_pk], out * 2)
+    tx1 = Create.generate([user_pk], out * 2)
     tx1.sign([user_sk])
 
     inputs = tx1.to_inputs()
 
-    tx2 = Transaction.transfer([inputs[0]], out, tx1.id)
+    tx2 = Transfer.generate([inputs[0]], out, tx1.id)
     tx2.sign([user_sk])
 
     # tx2 produces a new unspent. input[1] remains unspent.
@@ -95,13 +96,13 @@ def test_outputs_query_key_order(b, user_pk, user_sk, user2_pk, user2_sk):
     from planetmint.backend.connection import Connection
     from planetmint.backend import query
 
-    tx1 = Transaction.create([user_pk],
-                             [([user_pk], 3), ([user_pk], 2), ([user_pk], 1)]) \
-        .sign([user_sk])
+    tx1 = Create.generate([user_pk],
+                             [([user_pk], 3), ([user_pk], 2), ([user_pk], 1)])\
+                     .sign([user_sk])
     b.store_bulk_transactions([tx1])
 
     inputs = tx1.to_inputs()
-    tx2 = Transaction.transfer([inputs[1]], [([user2_pk], 2)], tx1.id).sign([user_sk])
+    tx2 = Transfer.generate([inputs[1]], [([user2_pk], 2)], tx1.id).sign([user_sk])
     assert tx2.validate(b)
 
     tx2_dict = tx2.to_dict()
