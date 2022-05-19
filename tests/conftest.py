@@ -244,17 +244,9 @@ def abci_fixture():
     from tendermint.abci import types_pb2
     return types_pb2
 
-
-def run_init_once():
-    from planetmint.backend.tarantool.connection import TarantoolDB
-    db = TarantoolDB()
-    db.init_database()
-
-
 @pytest.fixture
 def b():
     from planetmint import Planetmint
-    run_init_once()
     return Planetmint()
 
 
