@@ -13,8 +13,7 @@ logger = logging.getLogger(__name__)
 
 
 class TarantoolDB:
-    def __init__(self, host: str = "localhost", port: int = 3303, user: str = None, password: str = None,
-                 reset_database: bool = False, **kwargs):
+    def __init__(self, host: str = "localhost", port: int = 3303, user: str = None, password: str = None,  **kwargs):
         try:
             self.host = host
             self.port = port
@@ -26,11 +25,11 @@ class TarantoolDB:
             self.db_connect = tarantool.connect(host=self.host, port=self.port)
             self.init_path = Config().get()["database"]["init_config"]["absolute_path"]
             self.drop_path = Config().get()["database"]["drop_config"]["absolute_path"]
-            args_reset_db = kwargs.get("kwargs").get("reset_database") if "kwargs" in kwargs else None
-            if reset_database or args_reset_db is True:
-                self.drop_database()
-                self.init_database()
-                self._reconnect()
+            # args_reset_db = kwargs.get("kwargs").get("reset_database") if "kwargs" in kwargs else None
+            # if reset_database or args_reset_db is True:
+            #     self.drop_database()
+            #     self.init_database()
+            #     self._reconnect()
             self.SPACE_NAMES = ["abci_chains", "assets", "blocks", "blocks_tx",
                                 "elections", "meta_data", "pre_commits", "validators",
                                 "transactions", "inputs", "outputs", "keys"]
