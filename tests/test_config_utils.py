@@ -11,8 +11,9 @@ import pytest
 import planetmint
 from planetmint.config import Config
 
+
 @pytest.fixture(scope='function', autouse=True)
-def clean_config(monkeypatch, request):    
+def clean_config(monkeypatch, request):
     original_config = Config().init_config('tarantool_db')
     backend = request.config.getoption('--database-backend')
     original_config['database'] = Config().get_db_map(backend)
@@ -50,7 +51,7 @@ def test_load_validation_plugin_raises_with_invalid_subclass(monkeypatch):
     import time
     monkeypatch.setattr(config_utils,
                         'iter_entry_points',
-                        lambda *args: [type('entry_point', (object, ), {'load': lambda: object})])
+                        lambda *args: [type('entry_point', (object,), {'load': lambda: object})])
 
     with pytest.raises(TypeError):
         # Since the function is decorated with `lru_cache`, we need to
@@ -62,7 +63,7 @@ def test_load_events_plugins(monkeypatch):
     from planetmint import config_utils
     monkeypatch.setattr(config_utils,
                         'iter_entry_points',
-                        lambda *args: [type('entry_point', (object, ), {'load': lambda: object})])
+                        lambda *args: [type('entry_point', (object,), {'load': lambda: object})])
 
     plugins = config_utils.load_events_plugins(['one', 'two'])
     assert len(plugins) == 2
@@ -127,8 +128,10 @@ def test_env_config(monkeypatch):
 
     assert result == expected
 
+
 @pytest.mark.skip
-def test_autoconfigure_read_both_from_file_and_env(monkeypatch, request):  # TODO Disabled until we create a better config format
+def test_autoconfigure_read_both_from_file_and_env(monkeypatch,
+                                                   request):  # TODO Disabled until we create a better config format
     return
     # constants
     DATABASE_HOST = 'test-host'
@@ -311,10 +314,10 @@ def test_write_config():
 
 
 @pytest.mark.parametrize('env_name,env_value,config_key', (
-    ('PLANETMINT_DATABASE_BACKEND', 'test-backend', 'backend'),
-    ('PLANETMINT_DATABASE_HOST', 'test-host', 'host'),
-    ('PLANETMINT_DATABASE_PORT', 4242, 'port'),
-    ('PLANETMINT_DATABASE_NAME', 'test-db', 'name'),
+        ('PLANETMINT_DATABASE_BACKEND', 'test-backend', 'backend'),
+        ('PLANETMINT_DATABASE_HOST', 'test-host', 'host'),
+        ('PLANETMINT_DATABASE_PORT', 4242, 'port'),
+        ('PLANETMINT_DATABASE_NAME', 'test-db', 'name'),
 ))
 def test_database_envs(env_name, env_value, config_key, monkeypatch):
     import planetmint

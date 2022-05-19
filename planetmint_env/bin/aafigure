@@ -1,0 +1,11 @@
+#!/home/deffuls/work/planetmint/planetmint_env/bin/python3
+#
+# This file is part of aafigure. https://github.com/aafigure/aafigure
+# (C) 2007 Chris Liechti <cliechti@gmx.net>
+#
+# SPDX-License-Identifier:    BSD-3-Clause
+
+# command line stub for aafigure
+
+import aafigure.aafigure
+aafigure.aafigure.main()

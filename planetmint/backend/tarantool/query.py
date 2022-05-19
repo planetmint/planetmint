@@ -285,6 +285,7 @@ def get_block(connection, block_id=[]):
     space = connection.space("blocks")
     _block = space.select(block_id, index="block_search", limit=1)
     _block = _block.data
+    print(f"QUERY 1 :: {_block}")
     if len(_block) == 0:
         return []
     _block = _block[0]
@@ -303,8 +304,7 @@ def get_block_with_transaction(connection, txid: str):
         return []
     space = connection.space("blocks")
     _block = space.select(_all_blocks_tx[0][1], index="block_id_search")
-    _block = _block.data[0]
-    return {"app_hash": _block[0], "height": _block[1], "transactions": [_tx[0] for _tx in _all_blocks_tx]}
+    return [{"height": _height[1]} for _height in _block.data]
 
 
 @register_query(TarantoolDB)
