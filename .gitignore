@@ -1,6 +1,7 @@
 # Byte-compiled / optimized / DLL files
 __pycache__/
 planetmint_environment/
+.idea/
 *.py[cod]
 *$py.class
 
