@@ -143,7 +143,7 @@ def create_database(connection, not_used=None):
 
     '''
     # connection.init_database()
-    raise warnings.warn("Function schema.'create_database', ignored. Cannot be used using TarantoolDB")
+    warnings.warn("Function schema.'create_database', ignored. Cannot be used using TarantoolDB")
 
 
 def run_command_with_output(command):
@@ -157,7 +157,7 @@ def run_command_with_output(command):
 
 
 @register_schema(TarantoolDB)
-def create_tables(used_for_dispatch):
+def create_tables(connection, dbname):
     for _space in SPACE_NAMES:
         try:
             cmd = SPACE_COMMANDS[_space].encode()
