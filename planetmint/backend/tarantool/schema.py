@@ -1,5 +1,4 @@
-import warnings
-
+import tarantool
 from planetmint.backend.utils import module_dispatch_registrar
 from planetmint import backend
 from planetmint.backend.tarantool.connection import TarantoolDB
@@ -127,6 +126,7 @@ SCHEMA_COMMANDS = {
         "utxos:format({{name='transaction_id' , type='string'}, {name='output_index' , type='integer'}, {name='utxo_dict', type='string'}})"
 }
 
+
 @register_schema(TarantoolDB)
 def drop_database(connection, not_used=None):
     connection.drop_database()
@@ -137,9 +137,48 @@ def create_database(connection, not_used=None):
     connection.init_database()
 
 
+def run_command_with_output(command):
+    from subprocess import run
+    host_port = "%s:%s" % ("localhost", 3303)
+    output = run(["tarantoolctl", "connect", host_port],
+                 input=command,
+                 capture_output=True).stderr
+    output = output.decode()
+    return output
+
+
 @register_schema(TarantoolDB)
-def create_tables(connection, not_used=None):
-    """
-    This function is not necessary for using backend tarantool.
-    """
-    warnings.warn("Function ::create_tables:: Ignored. Not used for create_tables")
+def create_tables(used_for_dispatch):
+    for _space in SPACE_NAMES:
+        try:
+            cmd = SPACE_COMMANDS[_space].encode()
+            _output = run_command_with_output(command=cmd)
+            if "exists" in _output:
+                raise tarantool.error.SchemaError(f"Space '{_space}' already exists")
+            else:
+                print(f"Space '{_space}' created.")
+        except tarantool.error.SchemaError as exists_error:
+            print(exists_error)
+            continue
+        create_schema(space_name=_space)
+        create_indexes(space_name=_space)
+
+
+def create_indexes(space_name):
+    try:
+        indexes = INDEX_COMMANDS[space_name]
+        for index_name, index_cmd in indexes.items():
+            _output = run_command_with_output(command=index_cmd.encode())
+            if "exists" in _output:
+                raise tarantool.error.SchemaError(f"Index {index_name} already exists.")
+    except tarantool.error.SchemaError as exists_error:
+        print(exists_error)
+
+
+def create_schema(space_name):
+    try:
+        cmd = SCHEMA_COMMANDS[space_name].encode()
+        _output = run_command_with_output(command=cmd)
+        print(f"Schema created for {space_name} succesfully.")
+    except Exception as unexpected_error:
+        print(f"Got unexpected error when creating index for '{space_name}' Space.\n {unexpected_error}")
