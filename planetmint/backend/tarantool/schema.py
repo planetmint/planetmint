@@ -128,10 +128,27 @@ SCHEMA_COMMANDS = {
         "utxos:format({{name='transaction_id' , type='string'}, {name='output_index' , type='integer'}, {name='utxo_dict', type='string'}})"
 }
 
+SCHEMA_DROP_COMMANDS = {
+    "abci_chains": "box.space.abci_chains:drop()",
+    "assets": "box.space.assets:drop()",
+    "blocks": "box.space.blocks:drop()",
+    "blocks_tx": "box.space.blocks_tx:drop()",
+    "elections": "box.space.elections:drop()",
+    "meta_data": "box.space.meta_data:drop()",
+    "pre_commits": "box.space.pre_commits:drop()",
+    "validators": "box.space.validators:drop()",
+    "transactions": "box.space.transactions:drop()",
+    "inputs": "box.space.inputs:drop()",
+    "outputs": "box.space.outputs:drop()",
+    "keys": "box.space.keys:drop()",
+    "utxos": "box.space.utxos:drop()"
+}
+
 
 @register_schema(TarantoolDB)
 def drop_database(connection, not_used=None):
-    connection.drop_database()
+
+    # connection.drop_database()
 
 
 @register_schema(TarantoolDB)
