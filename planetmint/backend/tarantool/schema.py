@@ -1,3 +1,5 @@
+import warnings
+
 import tarantool
 from planetmint.backend.utils import module_dispatch_registrar
 from planetmint import backend
@@ -134,7 +136,14 @@ def drop_database(connection, not_used=None):
 
 @register_schema(TarantoolDB)
 def create_database(connection, not_used=None):
-    connection.init_database()
+    '''
+
+    This function 'create_database' cannot be used with TarantoolDB connection Class.
+    It will be ignored if called. No Errors.
+
+    '''
+    # connection.init_database()
+    raise warnings.warn("Function schema.'create_database', ignored. Cannot be used using TarantoolDB")
 
 
 def run_command_with_output(command):
