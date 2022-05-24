@@ -147,6 +147,16 @@ SCHEMA_DROP_COMMANDS = {
 
 @register_schema(TarantoolDB)
 def drop_database(connection, not_used=None):
+    for _space in SPACE_NAMES:
+        try:
+            cmd = SCHEMA_DROP_COMMANDS[_space].encode()
+            _output = run_command_with_output(command=cmd)
+            if "nil value" in _output:
+                raise tarantool.error.DatabaseError(f"Space '{_space}' does not exists.")
+            else:
+                print(f"Space '{_space}' was dropped succesfuly.")
+        except tarantool.error.DatabaseError as space_does_not_exists:
+            print(space_does_not_exists)
 
     # connection.drop_database()
 
