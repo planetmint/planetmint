@@ -65,7 +65,7 @@ def test_bigchain_class_default_initialization(config):
 
 def test_bigchain_class_initialization_with_parameters():
     from planetmint import Planetmint
-    from planetmint.backend import Connection
+    from planetmint.backend import connect
     from planetmint.validation import BaseValidationRules
     init_db_kwargs = {
         'backend': 'localmongodb',
@@ -73,7 +73,7 @@ def test_bigchain_class_initialization_with_parameters():
         'port': 12345,
         'name': 'this_is_the_db_name',
     }
-    connection = Connection(**init_db_kwargs)
+    connection = connect(**init_db_kwargs)
     planet = Planetmint(connection=connection)
     assert planet.connection == connection
     assert planet.connection.host == init_db_kwargs['host']

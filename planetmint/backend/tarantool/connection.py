@@ -8,11 +8,12 @@ import tarantool
 
 from planetmint.config import Config
 from planetmint.transactions.common.exceptions import ConfigurationError
+from planetmint.backend.connection import Connection
 
 logger = logging.getLogger(__name__)
 
 
-class TarantoolDB:
+class TarantoolDBConnection(Connection):
     def __init__(self, host: str = "localhost", port: int = 3303, user: str = None, password: str = None,  **kwargs):
         try:
             self.host = host

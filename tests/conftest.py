@@ -18,8 +18,8 @@ import codecs
 from collections import namedtuple
 from logging import getLogger
 from logging.config import dictConfig
-from planetmint.backend.connection import Connection
-from planetmint.backend.tarantool.connection import TarantoolDB
+from planetmint.backend.connection import connect
+from planetmint.backend.tarantool.connection import TarantoolDBConnection
 
 import pytest
 # from pymongo import MongoClient
@@ -123,10 +123,10 @@ def _configure_planetmint(request):
 
 @pytest.fixture(scope='session')
 def _setup_database(_configure_planetmint):  # TODO Here is located setup database
-    from planetmint.backend.tarantool.connection import TarantoolDB
+    from planetmint.backend.tarantool.connection import TarantoolDBConnection
 
     print('Deleting `{}` database')
-    db_conn = Connection()
+    db_conn = connect()
     db_conn.drop_database()
     db_conn.init_database()
     print('Finished deleting ``')
@@ -134,17 +134,17 @@ def _setup_database(_configure_planetmint):  # TODO Here is located setup databa
     yield
 
     print('Initializing test db')
-    db_conn2 = Connection()
+    db_conn2 = connect()
     db_conn2.drop_database()
     print('Finishing init database')
 
 
 @pytest.fixture
 def _bdb(_setup_database):
-    from planetmint.backend import Connection
+    from planetmint.backend import connect
     from planetmint.transactions.common.memoize import to_dict, from_dict
     from planetmint.models import Transaction
-    conn = Connection()
+    conn = connect()
     yield
 
     to_dict.cache_clear()
@@ -383,8 +383,8 @@ def db_name(db_config):
 
 @pytest.fixture
 def db_conn():
-    from planetmint.backend import Connection
-    return Connection()
+    from planetmint.backend import connect
+    return connect()
 
 
 @pytest.fixture
@@ -533,7 +533,7 @@ def unspent_outputs(unspent_output_0, unspent_output_1, unspent_output_2):
 
 @pytest.fixture
 def tarantool_client(db_context):  # TODO Here add TarantoolConnectionClass
-    return TarantoolDB(host=db_context.host, port=db_context.port)
+    return TarantoolDBConnection(host=db_context.host, port=db_context.port)
 
 
 # @pytest.fixture

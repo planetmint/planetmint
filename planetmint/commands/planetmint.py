@@ -13,7 +13,7 @@ import argparse
 import copy
 import json
 import sys
-from planetmint.backend.tarantool.connection import TarantoolDB
+from planetmint.backend.tarantool.connection import TarantoolDBConnection
 
 from planetmint.core import rollback
 from planetmint.migrations.chain_migration_election import ChainMigrationElection
@@ -265,9 +265,9 @@ def run_drop(args):
         if response != 'y':
             return
 
-    from planetmint.backend.connection import Connection
+    from planetmint.backend.connection import connect
     from planetmint.backend import schema
-    conn = Connection()
+    conn = connect()
     try:
         schema.drop_database(conn)
     except DatabaseDoesNotExist:
