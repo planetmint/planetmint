@@ -207,6 +207,8 @@ def create_indexes(space_name):
             _output = run_command_with_output(command=index_cmd.encode())
             if "exists" in _output:
                 raise tarantool.error.SchemaError(f"Index {index_name} already exists.")
+            else:
+                print(f"Index '{index_name}' created succesfully.")
     except tarantool.error.SchemaError as exists_error:
         print(exists_error)
 
