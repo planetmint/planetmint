@@ -123,20 +123,37 @@ def _configure_planetmint(request):
 
 @pytest.fixture(scope='session')
 def _setup_database(_configure_planetmint):  # TODO Here is located setup database
-    from planetmint.backend.tarantool.connection import TarantoolDB
+    from planetmint.backend.connection import Connection
+    from planetmint.config import Config
 
-    print('Deleting `{}` database')
-    db_conn = Connection()
-    db_conn.drop_database()
-    db_conn.init_database()
-    print('Finished deleting ``')
+    # print('Deleting `{}` database')
+    # db_conn = Connection()
+    # db_conn.drop_database()
+    # db_conn.init_database()
+    # print('Finished deleting ``')
+    #
+    # yield
+    #
+    # print('Initializing test db')
+    # db_conn2 = Connection()
+    # db_conn2.drop_database()
+    # print('Finishing init database')
+
+    print('Initializing test db')
+    dbname = Config().get()['database']['name']
+    conn = Connection()
+
+    _drop_db(conn, dbname)
+    schema.init_database(conn)
+    print('Finishing init database')
 
     yield
 
-    print('Initializing test db')
-    db_conn2 = Connection()
-    db_conn2.drop_database()
-    print('Finishing init database')
+    print('Deleting `{}` database'.format(dbname))
+    conn = Connection()
+    _drop_db(conn, dbname)
+
+    print('Finished deleting `{}`'.format(dbname))
 
 
 @pytest.fixture
