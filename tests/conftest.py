@@ -144,7 +144,7 @@ def _setup_database(_configure_planetmint):  # TODO Here is located setup databa
 
 
 @pytest.fixture
-def _bdb(_setup_database, _configure_bigchaindb):
+def _bdb(_setup_database, _configure_planetmint):
     print(f"BDB CALL")
     from planetmint.backend import Connection
     from planetmint.transactions.common.memoize import to_dict, from_dict

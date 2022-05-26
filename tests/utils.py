@@ -36,7 +36,12 @@ def flush_tarantool_db(connection, dbname):
         _space = connection.space(space_name=s)
         _all_data = _space.select([]).data
         for _id in _all_data:
-            _space.delete(_id[0])
+            if "assets" == s:
+                _space.delete(_id[1])
+            elif "abci_chains" == s:
+                _space.delete(_id[2])
+            else:
+                _space.delete(_id[0])
 
 
 def generate_block(planet):
