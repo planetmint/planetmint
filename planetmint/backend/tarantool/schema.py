@@ -165,12 +165,11 @@ def drop_database(connection, not_used=None):
 def create_database(connection, not_used=None):
     '''
 
-    This function 'create_database' cannot be used with TarantoolDB connection Class.
-    It will be ignored if called. No Errors.
+    For tarantool implementation, this function runs
+    create_tables, to initiate spaces, schema and indexes.
 
     '''
-    # connection.init_database()
-    warnings.warn("Function schema.'create_database', ignored. Cannot be used using TarantoolDB")
+    create_tables(None, None)
 
 
 def run_command_with_output(command):
