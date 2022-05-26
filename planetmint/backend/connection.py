@@ -5,10 +5,12 @@
 
 import logging
 from importlib import import_module
+
+import tarantool
+
 from planetmint.config import Config
 from planetmint.backend.exceptions import ConnectionError
 from planetmint.transactions.common.exceptions import ConfigurationError
-
 
 BACKENDS = {  # This is path to MongoDBClass
     'tarantool_db': 'planetmint.backend.tarantool.connection.TarantoolDB',
@@ -48,7 +50,7 @@ def Connection(host: str = None, port: int = None, login: str = None, password: 
             replicaset = _kwargs_parser(key="replicaset", kwargs=kwargs) or Config().get()['database']['replicaset']
             ssl = _kwargs_parser(key="ssl", kwargs=kwargs) or Config().get()['database']['ssl']
             login = login or Config().get()['database']['login'] if _kwargs_parser(key="login",
-                                                                                kwargs=kwargs) is None else _kwargs_parser(
+                                                                                   kwargs=kwargs) is None else _kwargs_parser(
                 key="login", kwargs=kwargs)
             password = password or Config().get()['database']['password'] if _kwargs_parser(key="password",
                                                                                             kwargs=kwargs) is None else _kwargs_parser(
@@ -63,13 +65,17 @@ def Connection(host: str = None, port: int = None, login: str = None, password: 
             connection_timeout = _kwargs_parser(key="connection_timeout", kwargs=kwargs)
 
             return Class(host=host, port=port, dbname=dbname,
-                        max_tries=max_tries, connection_timeout=connection_timeout,
-                        replicaset=replicaset, ssl=ssl, login=login, password=password,
-                        ca_cert=ca_cert, certfile=certfile, keyfile=keyfile,
-                        keyfile_passphrase=keyfile_passphrase, crlfile=crlfile)
+                         max_tries=max_tries, connection_timeout=connection_timeout,
+                         replicaset=replicaset, ssl=ssl, login=login, password=password,
+                         ca_cert=ca_cert, certfile=certfile, keyfile=keyfile,
+                         keyfile_passphrase=keyfile_passphrase, crlfile=crlfile)
+    except tarantool.error.NetworkError as network_err:
+        print(f"Host {host}:{port} can't be reached.\n{network_err}")
+        raise network_err
     except:
-            logger.info('Exception in _connect(): {}')
-            raise ConfigurationError 
+        logger.info('Exception in _connect(): {}')
+        raise ConfigurationError
+
 
 def _kwargs_parser(key, kwargs):
     if kwargs.get(key):
