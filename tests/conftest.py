@@ -126,19 +126,6 @@ def _setup_database(_configure_planetmint):  # TODO Here is located setup databa
     from planetmint.backend.connection import Connection
     from planetmint.config import Config
 
-    # print('Deleting `{}` database')
-    # db_conn = Connection()
-    # db_conn.drop_database()
-    # db_conn.init_database()
-    # print('Finished deleting ``')
-    #
-    # yield
-    #
-    # print('Initializing test db')
-    # db_conn2 = Connection()
-    # db_conn2.drop_database()
-    # print('Finishing init database')
-
     print('Initializing test db')
     dbname = Config().get()['database']['name']
     conn = Connection()
@@ -161,8 +148,12 @@ def _bdb(_setup_database):
     from planetmint.backend import Connection
     from planetmint.transactions.common.memoize import to_dict, from_dict
     from planetmint.models import Transaction
+    from .utils import flush_db
+    from planetmint.config import Config
     conn = Connection()
     yield
+    dbname = Config().get()['database']['name']
+    flush_db(conn, dbname)
 
     to_dict.cache_clear()
     from_dict.cache_clear()
@@ -372,7 +363,6 @@ def inputs(user_pk, b, alice):
 
 def _drop_db(conn, dbname):
     try:
-        conn.drop_database()
         schema.drop_database(conn, dbname)
     except DatabaseDoesNotExist:
         pass

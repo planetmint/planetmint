@@ -20,6 +20,10 @@ logger = logging.getLogger(__name__)
 TABLES = ('transactions', 'blocks', 'assets', 'metadata',
           'validators', 'elections', 'pre_commit', 'utxos', 'abci_chains')
 
+SPACE_NAMES = ("abci_chains", "assets", "blocks", "blocks_tx",
+               "elections", "meta_data", "pre_commits", "validators",
+               "transactions", "inputs", "outputs", "keys")
+
 VALID_LANGUAGES = ('danish', 'dutch', 'english', 'finnish', 'french', 'german',
                    'hungarian', 'italian', 'norwegian', 'portuguese', 'romanian',
                    'russian', 'spanish', 'swedish', 'turkish', 'none',
