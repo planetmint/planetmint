@@ -9,7 +9,7 @@ register_schema = module_dispatch_registrar(backend.schema)
 
 SPACE_NAMES = ("abci_chains", "assets", "blocks", "blocks_tx",
                "elections", "meta_data", "pre_commits", "validators",
-               "transactions", "inputs", "outputs", "keys")
+               "transactions", "inputs", "outputs", "keys", "utxos")
 
 SPACE_COMMANDS = {
     "abci_chains": "abci_chains = box.schema.space.create('abci_chains', {engine='memtx', is_sync = false})",

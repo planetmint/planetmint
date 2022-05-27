@@ -8,6 +8,8 @@
 from secrets import token_hex
 from operator import itemgetter
 
+import tarantool.error
+
 from planetmint.backend import query
 from planetmint.backend.utils import module_dispatch_registrar
 from planetmint.backend.tarantool.connection import TarantoolDB
@@ -377,12 +379,17 @@ def store_pre_commit_state(connection, state: dict):
 
 @register_query(TarantoolDB)
 def get_pre_commit_state(connection):
-    space = connection.space("pre_commits")
-    _commit = space.select([], index="id_search").data
-    if len(_commit) == 0:
+    try:
+        space = connection.space("pre_commits")
+        _commit = space.select([], index="id_search").data
+        if len(_commit) == 0:
+            return None
+        _commit = sorted(_commit, key=itemgetter(1), reverse=True)[0]
+        return {"height": _commit[1], "transactions": _commit[2]}
+    except tarantool.error.SchemaError:
         return None
-    _commit = sorted(_commit, key=itemgetter(1), reverse=True)[0]
-    return {"height": _commit[1], "transactions": _commit[2]}
+    except Exception as err:
+        raise err
 
 
 @register_query(TarantoolDB)
