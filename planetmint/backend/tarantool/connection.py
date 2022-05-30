@@ -34,6 +34,9 @@ class TarantoolDBConnection(Connection):
             self.SPACE_NAMES = ["abci_chains", "assets", "blocks", "blocks_tx",
                                 "elections", "meta_data", "pre_commits", "validators",
                                 "transactions", "inputs", "outputs", "keys"]
+        except tarantool.error.NetworkError as network_err:
+            logger.info('Host cant be reached')
+            raise network_err
         except:
             logger.info('Exception in _connect(): {}')
             raise ConfigurationError

@@ -511,4 +511,5 @@ class Planetmint(object):
         return backend.query.delete_elections(self.connection, height)
 
 
+
 Block = namedtuple('Block', ('app_hash', 'height', 'transactions'))

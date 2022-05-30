@@ -20,7 +20,6 @@ from planetmint.migrations.chain_migration_election import ChainMigrationElectio
 
 from tests.utils import generate_election, generate_validators
 
-
 def test_make_sure_we_dont_remove_any_command():
     # thanks to: http://stackoverflow.com/a/18161115/597097
     from planetmint.commands.planetmint import create_parser

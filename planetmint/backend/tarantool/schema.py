@@ -9,7 +9,7 @@ register_schema = module_dispatch_registrar(backend.schema)
 
 SPACE_NAMES = ("abci_chains", "assets", "blocks", "blocks_tx",
                "elections", "meta_data", "pre_commits", "validators",
-               "transactions", "inputs", "outputs", "keys")
+               "transactions", "inputs", "outputs", "keys", "utxos")
 
 SPACE_COMMANDS = {
     "abci_chains": "abci_chains = box.schema.space.create('abci_chains', {engine='memtx', is_sync = false})",
@@ -165,12 +165,11 @@ def drop_database(connection, not_used=None):
 def create_database(connection, not_used=None):
     '''
 
-    This function 'create_database' cannot be used with TarantoolDB connection Class.
-    It will be ignored if called. No Errors.
+    For tarantool implementation, this function runs
+    create_tables, to initiate spaces, schema and indexes.
 
     '''
-    # connection.init_database()
-    warnings.warn("Function schema.'create_database', ignored. Cannot be used using TarantoolDB")
+    create_tables(None, None)
 
 
 def run_command_with_output(command):
