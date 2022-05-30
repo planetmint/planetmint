@@ -230,7 +230,7 @@ def test_get_owned_ids(signed_create_tx, user_pk, db_conn):
 
 def test_get_spending_transactions(user_pk, user_sk, db_conn):
     from planetmint.models import Transaction
-    # from planetmint.backend.connection import Connection
+    #
     from planetmint.backend.tarantool import query
     conn = db_conn.get_connection()
 
