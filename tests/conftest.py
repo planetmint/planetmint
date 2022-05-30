@@ -123,12 +123,12 @@ def _configure_planetmint(request):
 
 @pytest.fixture(scope='session')
 def _setup_database(_configure_planetmint):  # TODO Here is located setup database
-    from planetmint.backend.connection import Connection
+    from planetmint.backend.connection import connect
     from planetmint.config import Config
 
     print('Initializing test db')
     dbname = Config().get()['database']['name']
-    conn = Connection()
+    conn = connect()
 
     _drop_db(conn, dbname)
     schema.init_database(conn)
@@ -137,7 +137,7 @@ def _setup_database(_configure_planetmint):  # TODO Here is located setup databa
     yield
 
     print('Deleting `{}` database'.format(dbname))
-    conn = Connection()
+    conn = connect()
     _drop_db(conn, dbname)
 
     print('Finished deleting `{}`'.format(dbname))
@@ -145,7 +145,6 @@ def _setup_database(_configure_planetmint):  # TODO Here is located setup databa
 
 @pytest.fixture
 def _bdb(_setup_database, _configure_planetmint):
-    print(f"BDB CALL")
     from planetmint.backend import Connection
     from planetmint.transactions.common.memoize import to_dict, from_dict
     from planetmint.models import Transaction
@@ -363,6 +362,7 @@ def inputs(user_pk, b, alice):
 
 
 def _drop_db(conn, dbname):
+    print(f"CONNECTION FOR DROPPING {conn}")
     try:
         schema.drop_database(conn, dbname)
     except DatabaseDoesNotExist:
