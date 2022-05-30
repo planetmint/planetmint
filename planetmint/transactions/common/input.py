@@ -11,6 +11,7 @@ from .utils import _fulfillment_to_details, _fulfillment_from_details
 from .output import Output
 from .transaction_link import TransactionLink
 
+
 class Input(object):
     """A Input is used to spend assets locked by an Output.
 

@@ -57,9 +57,5 @@ Each [Planetmint Transactions Spec](https://github.com/planetmint/BEPs/tree/mast
 
 ## 트랜잭션 예시
 
-<<<<<<< HEAD
-아래의 [HTTP API 문서](https://docs.planetmint.com/projects/server/en/latest/http-client-server-api.html)와 [the Python 드라이버 문서](https://docs.planetmint.com/projects/py-driver/en/latest/usage.html)에는 예제 Planetmint 트랜잭션이 있습니다.
-=======
 아래의 [HTTP API 문서](https://docs.planetmint.io/projects/server/en/latest/http-client-server-api.html)와 [the Python 드라이버 문서](https://docs.planetmint.io/projects/py-driver/en/latest/usage.html)에는 예제 Planetmint 트랜잭션이 있습니다.
->>>>>>> 3bfc3298f8210b135084e823eedd47f213538088
 .
