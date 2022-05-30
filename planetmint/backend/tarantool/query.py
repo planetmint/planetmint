@@ -167,22 +167,27 @@ def get_spent(connection, fullfil_transaction_id: str, fullfil_output_index: str
 
 @register_query(TarantoolDB)
 def get_latest_block(connection):  # TODO Here is used DESCENDING OPERATOR
-    space = connection.space("blocks")
-    _all_blocks = space.select()
-    _all_blocks = _all_blocks.data
-    block = {"app_hash": '', "height": 0, "transactions": []}
+    try:
+        space = connection.space("blocks")
+        _all_blocks = space.select()
+        _all_blocks = _all_blocks.data
+        block = {"app_hash": '', "height": 0, "transactions": []}
 
-    if len(_all_blocks) > 0:
-        _block = sorted(_all_blocks, key=itemgetter(1), reverse=True)[0]
-        space = connection.space("blocks_tx")
-        _txids = space.select(_block[2], index="block_search")
-        _txids = _txids.data
-        block["app_hash"] = _block[0]
-        block["height"] = _block[1]
-        block["transactions"] = [tx[0] for tx in _txids]
-    else:
-        block = None
-    return block
+        if len(_all_blocks) > 0:
+            _block = sorted(_all_blocks, key=itemgetter(1), reverse=True)[0]
+            space = connection.space("blocks_tx")
+            _txids = space.select(_block[2], index="block_search")
+            _txids = _txids.data
+            block["app_hash"] = _block[0]
+            block["height"] = _block[1]
+            block["transactions"] = [tx[0] for tx in _txids]
+        else:
+            block = None
+        return block
+    except tarantool.error.SchemaError:
+        return None
+    except Exception as err:
+        raise err
 
 
 @register_query(TarantoolDB)
@@ -441,27 +446,37 @@ def delete_elections(connection, height: int):
 
 @register_query(TarantoolDB)
 def get_validator_set(connection, height: int = None):
-    space = connection.space("validators")
-    _validators = space.select()
-    _validators = _validators.data
-    if height is not None:
-        _validators = [{"height": validator[1], "validators": validator[2]} for validator in _validators if
-                       validator[1] <= height]
-        return next(iter(sorted(_validators, key=lambda k: k["height"], reverse=True)), None)
-    else:
-        _validators = [{"height": validator[1], "validators": validator[2]} for validator in _validators]
-        return next(iter(sorted(_validators, key=lambda k: k["height"], reverse=True)), None)
+    try:
+        space = connection.space("validators")
+        _validators = space.select()
+        _validators = _validators.data
+        if height is not None:
+            _validators = [{"height": validator[1], "validators": validator[2]} for validator in _validators if
+                           validator[1] <= height]
+            return next(iter(sorted(_validators, key=lambda k: k["height"], reverse=True)), None)
+        else:
+            _validators = [{"height": validator[1], "validators": validator[2]} for validator in _validators]
+            return next(iter(sorted(_validators, key=lambda k: k["height"], reverse=True)), None)
+    except tarantool.error.SchemaError:
+        return None
+    except Exception as err:
+        raise err
 
 
 @register_query(TarantoolDB)
 def get_election(connection, election_id: str):
-    space = connection.space("elections")
-    _elections = space.select(election_id, index="id_search")
-    _elections = _elections.data
-    if len(_elections) == 0:
+    try:
+        space = connection.space("elections")
+        _elections = space.select(election_id, index="id_search")
+        _elections = _elections.data
+        if len(_elections) == 0:
+            return None
+        _election = sorted(_elections, key=itemgetter(0), reverse=True)[0]
+        return {"election_id": _election[0], "height": _election[1], "is_concluded": _election[2]}
+    except tarantool.error.SchemaError:
         return None
-    _election = sorted(_elections, key=itemgetter(0), reverse=True)[0]
-    return {"election_id": _election[0], "height": _election[1], "is_concluded": _election[2]}
+    except Exception as err:
+        raise err
 
 
 @register_query(TarantoolDB)
@@ -496,9 +511,14 @@ def delete_abci_chain(connection, height: int):
 
 @register_query(TarantoolDB)
 def get_latest_abci_chain(connection):
-    space = connection.space("abci_chains")
-    _all_chains = space.select().data
-    if len(_all_chains) == 0:
+    try:
+        space = connection.space("abci_chains")
+        _all_chains = space.select().data
+        if len(_all_chains) == 0:
+            return None
+        _chain = sorted(_all_chains, key=itemgetter(0), reverse=True)[0]
+        return {"height": _chain[0], "is_synced": _chain[1], "chain_id": _chain[2]}
+    except tarantool.error.SchemaError:
         return None
-    _chain = sorted(_all_chains, key=itemgetter(0), reverse=True)[0]
-    return {"height": _chain[0], "is_synced": _chain[1], "chain_id": _chain[2]}
+    except Exception as err:
+        raise err
