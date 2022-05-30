@@ -47,13 +47,13 @@ class TestBigchainApi(object):
     def test_double_inclusion(self, b, alice):
         from planetmint.backend.exceptions import OperationError
         from tarantool.error import DatabaseError
-        from planetmint.backend.tarantool.connection import TarantoolDB
+        from planetmint.backend.tarantool.connection import TarantoolDBConnection
 
         tx = Create.generate([alice.public_key], [([alice.public_key], 1)])
         tx = tx.sign([alice.private_key])
 
         b.store_bulk_transactions([tx])
-        if isinstance(b.connection, TarantoolDB):
+        if isinstance(b.connection, TarantoolDBConnection):
             with pytest.raises(DatabaseError):
                 b.store_bulk_transactions([tx])
         else:
@@ -61,9 +61,9 @@ class TestBigchainApi(object):
                 b.store_bulk_transactions([tx])
 
     def test_text_search(self, b, alice):
-        from planetmint.backend.tarantool.connection import TarantoolDB
+        from planetmint.backend.tarantool.connection import TarantoolDBConnection
 
-        if isinstance(b.connection, TarantoolDB):
+        if isinstance(b.connection, TarantoolDBConnection):
             warnings.warn(" :::::: This function is used only with  :::::: ")
             return
 

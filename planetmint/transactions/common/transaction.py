@@ -48,6 +48,7 @@ UnspentOutput = namedtuple(
     )
 )
 
+
 class Transaction(object):
     """A Transaction is used to create and transfer assets.
 

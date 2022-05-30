@@ -28,10 +28,10 @@ from planetmint.lib import Block
 def test_asset_is_separated_from_transaciton(b):
     import copy
     from planetmint.transactions.common.crypto import generate_key_pair
-    from planetmint.backend.tarantool.connection import TarantoolDB
+    from planetmint.backend.tarantool.connection import TarantoolDBConnection
         
 
-    if isinstance(b.connection, TarantoolDB):
+    if isinstance(b.connection, TarantoolDBConnection):
         pytest.skip("This specific function is skipped because, assets are stored differently if using Tarantool")
 
 
@@ -172,14 +172,14 @@ def test_update_utxoset(b, signed_create_tx, signed_transfer_tx, db_conn):
 @pytest.mark.bdb
 def test_store_transaction(mocker, b, signed_create_tx,
                            signed_transfer_tx, db_context):
-    from planetmint.backend.tarantool.connection import TarantoolDB
+    from planetmint.backend.tarantool.connection import TarantoolDBConnection
     mocked_store_asset = mocker.patch('planetmint.backend.query.store_assets')
     mocked_store_metadata = mocker.patch(
         'planetmint.backend.query.store_metadatas')
     mocked_store_transaction = mocker.patch(
         'planetmint.backend.query.store_transactions')
     b.store_bulk_transactions([signed_create_tx])
-    if not isinstance(b.connection, TarantoolDB):
+    if not isinstance(b.connection, TarantoolDBConnection):
         mongo_client = MongoClient(host=db_context.host, port=db_context.port)
         utxoset = mongo_client[db_context.name]['utxos']
         assert utxoset.count_documents({}) == 1
@@ -209,7 +209,7 @@ def test_store_transaction(mocker, b, signed_create_tx,
     mocked_store_metadata.reset_mock()
     mocked_store_transaction.reset_mock()
     b.store_bulk_transactions([signed_transfer_tx])
-    if not isinstance(b.connection, TarantoolDB):
+    if not isinstance(b.connection, TarantoolDBConnection):
         assert utxoset.count_documents({}) == 1
         utxo = utxoset.find_one()
         assert utxo['transaction_id'] == signed_transfer_tx.id
@@ -219,7 +219,7 @@ def test_store_transaction(mocker, b, signed_create_tx,
         b.connection,
         [{'id': signed_transfer_tx.id, 'metadata': signed_transfer_tx.metadata}],
     )
-    if not isinstance(b.connection, TarantoolDB):
+    if not isinstance(b.connection, TarantoolDBConnection):
         mocked_store_transaction.assert_called_once_with(
             b.connection,
             [{k: v for k, v in signed_transfer_tx.to_dict().items()
@@ -230,7 +230,7 @@ def test_store_transaction(mocker, b, signed_create_tx,
 @pytest.mark.bdb
 def test_store_bulk_transaction(mocker, b, signed_create_tx,
                                 signed_transfer_tx, db_context):
-    from planetmint.backend.tarantool.connection import TarantoolDB
+    from planetmint.backend.tarantool.connection import TarantoolDBConnection
     mocked_store_assets = mocker.patch(
         'planetmint.backend.query.store_assets')
     mocked_store_metadata = mocker.patch(
@@ -238,14 +238,14 @@ def test_store_bulk_transaction(mocker, b, signed_create_tx,
     mocked_store_transactions = mocker.patch(
         'planetmint.backend.query.store_transactions')
     b.store_bulk_transactions((signed_create_tx,))
-    if not isinstance(b.connection, TarantoolDB):
+    if not isinstance(b.connection, TarantoolDBConnection):
         mongo_client = MongoClient(host=db_context.host, port=db_context.port)
         utxoset = mongo_client[db_context.name]['utxos']
         assert utxoset.count_documents({}) == 1
         utxo = utxoset.find_one()
         assert utxo['transaction_id'] == signed_create_tx.id
         assert utxo['output_index'] == 0
-    if isinstance(b.connection, TarantoolDB):
+    if isinstance(b.connection, TarantoolDBConnection):
         mocked_store_assets.assert_called_once_with(
             b.connection,  # signed_create_tx.asset['data'] this was before
             [(signed_create_tx.asset, signed_create_tx.id, signed_create_tx.id)],
@@ -268,7 +268,7 @@ def test_store_bulk_transaction(mocker, b, signed_create_tx,
     mocked_store_metadata.reset_mock()
     mocked_store_transactions.reset_mock()
     b.store_bulk_transactions((signed_transfer_tx,))
-    if not isinstance(b.connection, TarantoolDB):
+    if not isinstance(b.connection, TarantoolDBConnection):
         assert utxoset.count_documents({}) == 1
         utxo = utxoset.find_one()
         assert utxo['transaction_id'] == signed_transfer_tx.id
@@ -279,7 +279,7 @@ def test_store_bulk_transaction(mocker, b, signed_create_tx,
         [{'id': signed_transfer_tx.id,
           'metadata': signed_transfer_tx.metadata}],
     )
-    if not isinstance(b.connection, TarantoolDB):
+    if not isinstance(b.connection, TarantoolDBConnection):
         mocked_store_transactions.assert_called_once_with(
             b.connection,
             [{k: v for k, v in signed_transfer_tx.to_dict().items()
@@ -304,10 +304,10 @@ def test_delete_zero_unspent_outputs(b, utxoset):
 
 @pytest.mark.bdb
 def test_delete_one_unspent_outputs(b, utxoset):
-    from planetmint.backend.tarantool.connection import TarantoolDB
+    from planetmint.backend.tarantool.connection import TarantoolDBConnection
     unspent_outputs, utxo_collection = utxoset
     delete_res = b.delete_unspent_outputs(unspent_outputs[0])
-    if not isinstance(b.connection, TarantoolDB):
+    if not isinstance(b.connection, TarantoolDBConnection):
         assert len(list(delete_res)) == 1
         assert utxo_collection.count_documents(
             {'$or': [
@@ -328,10 +328,10 @@ def test_delete_one_unspent_outputs(b, utxoset):
 
 @pytest.mark.bdb
 def test_delete_many_unspent_outputs(b, utxoset):
-    from planetmint.backend.tarantool.connection import TarantoolDB
+    from planetmint.backend.tarantool.connection import TarantoolDBConnection
     unspent_outputs, utxo_collection = utxoset
     delete_res = b.delete_unspent_outputs(*unspent_outputs[::2])
-    if not isinstance(b.connection, TarantoolDB):
+    if not isinstance(b.connection, TarantoolDBConnection):
         assert len(list(delete_res)) == 2
         assert utxo_collection.count_documents(
             {'$or': [
@@ -360,9 +360,9 @@ def test_store_zero_unspent_output(b, utxo_collection):
 
 @pytest.mark.bdb
 def test_store_one_unspent_output(b, unspent_output_1, utxo_collection):
-    from planetmint.backend.tarantool.connection import TarantoolDB
+    from planetmint.backend.tarantool.connection import TarantoolDBConnection
     res = b.store_unspent_outputs(unspent_output_1)
-    if not isinstance(b.connection, TarantoolDB):
+    if not isinstance(b.connection, TarantoolDBConnection):
         assert res.acknowledged
         assert len(list(res)) == 1
         assert utxo_collection.count_documents(
@@ -378,9 +378,9 @@ def test_store_one_unspent_output(b, unspent_output_1, utxo_collection):
 
 @pytest.mark.bdb
 def test_store_many_unspent_outputs(b, unspent_outputs, utxo_collection):
-    from planetmint.backend.tarantool.connection import TarantoolDB
+    from planetmint.backend.tarantool.connection import TarantoolDBConnection
     res = b.store_unspent_outputs(*unspent_outputs)
-    if not isinstance(b.connection, TarantoolDB):
+    if not isinstance(b.connection, TarantoolDBConnection):
         assert res.acknowledged
         assert len(list(res)) == 3
         assert utxo_collection.count_documents(

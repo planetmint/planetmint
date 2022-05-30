@@ -3,7 +3,7 @@ import warnings
 import tarantool
 from planetmint.backend.utils import module_dispatch_registrar
 from planetmint import backend
-from planetmint.backend.tarantool.connection import TarantoolDB
+from planetmint.backend.tarantool.connection import TarantoolDBConnection
 
 register_schema = module_dispatch_registrar(backend.schema)
 
@@ -145,7 +145,7 @@ SCHEMA_DROP_COMMANDS = {
 }
 
 
-@register_schema(TarantoolDB)
+@register_schema(TarantoolDBConnection)
 def drop_database(connection, not_used=None):
     for _space in SPACE_NAMES:
         try:
@@ -161,7 +161,7 @@ def drop_database(connection, not_used=None):
     # connection.drop_database()
 
 
-@register_schema(TarantoolDB)
+@register_schema(TarantoolDBConnection)
 def create_database(connection, not_used=None):
     '''
 
@@ -182,7 +182,7 @@ def run_command_with_output(command):
     return output
 
 
-@register_schema(TarantoolDB)
+@register_schema(TarantoolDBConnection)
 def create_tables(connection, dbname):
     for _space in SPACE_NAMES:
         try:

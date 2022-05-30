@@ -18,8 +18,8 @@ import codecs
 from collections import namedtuple
 from logging import getLogger
 from logging.config import dictConfig
-from planetmint.backend.connection import Connection
-from planetmint.backend.tarantool.connection import TarantoolDB
+from planetmint.backend.connection import connect
+from planetmint.backend.tarantool.connection import TarantoolDBConnection
 
 import pytest
 # from pymongo import MongoClient
@@ -391,8 +391,8 @@ def db_name(db_config):
 
 @pytest.fixture
 def db_conn():
-    from planetmint.backend import Connection
-    return Connection()
+    from planetmint.backend import connect
+    return connect()
 
 
 @pytest.fixture
@@ -541,7 +541,7 @@ def unspent_outputs(unspent_output_0, unspent_output_1, unspent_output_2):
 
 @pytest.fixture
 def tarantool_client(db_context):  # TODO Here add TarantoolConnectionClass
-    return TarantoolDB(host=db_context.host, port=db_context.port)
+    return TarantoolDBConnection(host=db_context.host, port=db_context.port)
 
 
 # @pytest.fixture
