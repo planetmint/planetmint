@@ -59,7 +59,7 @@ class Config(metaclass=Singleton):
             'backend': 'tarantool_db',
             'connection_timeout': 5000,
             'max_tries': 3,
-            'name': 'bigchain',
+            'name': 'universe',
             "reconnect_delay": 0.5,
             'host': 'localhost',
             'port': 3303,

@@ -123,29 +123,38 @@ def _configure_planetmint(request):
 
 @pytest.fixture(scope='session')
 def _setup_database(_configure_planetmint):  # TODO Here is located setup database
-    from planetmint.backend.tarantool.connection import TarantoolDBConnection
+    from planetmint.backend.connection import Connection
+    from planetmint.config import Config
 
-    print('Deleting `{}` database')
-    db_conn = connect()
-    db_conn.drop_database()
-    db_conn.init_database()
-    print('Finished deleting ``')
+    print('Initializing test db')
+    dbname = Config().get()['database']['name']
+    conn = Connection()
+
+    _drop_db(conn, dbname)
+    schema.init_database(conn)
+    print('Finishing init database')
 
     yield
 
-    print('Initializing test db')
-    db_conn2 = connect()
-    db_conn2.drop_database()
-    print('Finishing init database')
+    print('Deleting `{}` database'.format(dbname))
+    conn = Connection()
+    _drop_db(conn, dbname)
+
+    print('Finished deleting `{}`'.format(dbname))
 
 
 @pytest.fixture
-def _bdb(_setup_database):
-    from planetmint.backend import connect
+def _bdb(_setup_database, _configure_planetmint):
+    print(f"BDB CALL")
+    from planetmint.backend import Connection
     from planetmint.transactions.common.memoize import to_dict, from_dict
     from planetmint.models import Transaction
-    conn = connect()
+    from .utils import flush_db
+    from planetmint.config import Config
+    conn = Connection()
     yield
+    dbname = Config().get()['database']['name']
+    flush_db(conn, dbname)
 
     to_dict.cache_clear()
     from_dict.cache_clear()
@@ -355,7 +364,6 @@ def inputs(user_pk, b, alice):
 
 def _drop_db(conn, dbname):
     try:
-        conn.drop_database()
         schema.drop_database(conn, dbname)
     except DatabaseDoesNotExist:
         pass
