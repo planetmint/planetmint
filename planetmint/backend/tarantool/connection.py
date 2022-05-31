@@ -43,7 +43,7 @@ class TarantoolDBConnection(Connection):
         return "".join(execute).encode()
 
     def query(self):
-        return Lazy
+        return Lazy()
 
     def _reconnect(self):
         self.db_connect = tarantool.connect(host=self.host, port=self.port)
@@ -54,15 +54,15 @@ class TarantoolDBConnection(Connection):
     def space(self, space_name: str):
         return self.query().space(space_name)
 
-    def run(self, query):
+    def run(self, query, only_data=True):
         try:
-            return query.run(self.db_connect)
-        except tarantool.error.NetworkError:
+            return query.run(self.db_connect).data if only_data else query.run(self.db_connect)
+        except tarantool.error.SchemaError:
             return None
         except tarantool.error.OperationalError as op_error:
             raise op_error
-        except tarantool.error.SchemaError as schema_error:
-            raise schema_error
+        except tarantool.error.NetworkError as net_error:
+            raise net_error
 
     def get_connection(self):
         return self.db_connect
