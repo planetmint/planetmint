@@ -19,21 +19,6 @@ from json import dumps, loads
 register_query = module_dispatch_registrar(query)
 
 
-def run_handled_query(func):
-    def wrapper_run_query(*args, **kwargs):
-        try:
-            resp = func(*args, **kwargs)
-            return resp
-        except tarantool.error.SchemaError:
-            return None
-        except tarantool.error.NetworkError:
-            return None
-        except Exception as err:
-            raise err
-
-    return wrapper_run_query
-
-
 def _group_transaction_by_ids(connection, txids: list):
     txspace = connection.space("transactions")
     inxspace = connection.space("inputs")
@@ -69,7 +54,6 @@ def _group_transaction_by_ids(connection, txids: list):
     return _transactions
 
 
-@run_handled_query
 @register_query(TarantoolDBConnection)
 def store_transactions(connection, signed_transactions: list):
     txspace = connection.space("transactions")
@@ -103,21 +87,18 @@ def store_transactions(connection, signed_transactions: list):
             assetsxspace.insert(txtuples["asset"])
 
 
-@run_handled_query
 @register_query(TarantoolDBConnection)
 def get_transaction(connection, transaction_id: str):
     _transactions = _group_transaction_by_ids(txids=[transaction_id], connection=connection)
     return next(iter(_transactions), None)
 
 
-@run_handled_query
 @register_query(TarantoolDBConnection)
 def get_transactions(connection, transactions_ids: list):
     _transactions = _group_transaction_by_ids(txids=transactions_ids, connection=connection)
     return _transactions
 
 
-@run_handled_query
 @register_query(TarantoolDBConnection)
 def store_metadatas(connection, metadata: list):
     space = connection.space("meta_data")
@@ -125,7 +106,6 @@ def store_metadatas(connection, metadata: list):
         space.insert((meta["id"], meta["data"] if not "metadata" in meta else meta["metadata"]))
 
 
-@run_handled_query
 @register_query(TarantoolDBConnection)
 def get_metadata(connection, transaction_ids: list):
     _returned_data = []
@@ -137,7 +117,6 @@ def get_metadata(connection, transaction_ids: list):
     return _returned_data if len(_returned_data) > 0 else None
 
 
-@run_handled_query
 @register_query(TarantoolDBConnection)
 def store_asset(connection, asset):
     space = connection.space("assets")
@@ -148,7 +127,6 @@ def store_asset(connection, asset):
         print("DUPLICATE ERROR")
 
 
-@run_handled_query
 @register_query(TarantoolDBConnection)
 def store_assets(connection, assets: list):
     space = connection.space("assets")
@@ -160,7 +138,6 @@ def store_assets(connection, assets: list):
             print(f"EXCEPTION : {ex} ")
 
 
-@run_handled_query
 @register_query(TarantoolDBConnection)
 def get_asset(connection, asset_id: str):
     space = connection.space("assets")
@@ -169,7 +146,6 @@ def get_asset(connection, asset_id: str):
     return _data[0][0] if len(_data) > 0 else []
 
 
-@run_handled_query
 @register_query(TarantoolDBConnection)
 def get_assets(connection, assets_ids: list) -> list:
     _returned_data = []
@@ -179,7 +155,6 @@ def get_assets(connection, assets_ids: list) -> list:
     return sorted(_returned_data, key=lambda k: k["id"], reverse=False)
 
 
-@run_handled_query
 @register_query(TarantoolDBConnection)
 def get_spent(connection, fullfil_transaction_id: str, fullfil_output_index: str):
     space = connection.space("inputs")
@@ -189,7 +164,6 @@ def get_spent(connection, fullfil_transaction_id: str, fullfil_output_index: str
     return _transactions
 
 
-@run_handled_query
 @register_query(TarantoolDBConnection)
 def get_latest_block(connection):  # TODO Here is used DESCENDING OPERATOR
     space = connection.space("blocks")
@@ -210,7 +184,6 @@ def get_latest_block(connection):  # TODO Here is used DESCENDING OPERATOR
     return block
 
 
-@run_handled_query
 @register_query(TarantoolDBConnection)
 def store_block(connection, block: dict):
     space = connection.space("blocks")
@@ -223,7 +196,6 @@ def store_block(connection, block: dict):
         space.insert((txid, block_unique_id))
 
 
-@run_handled_query
 @register_query(TarantoolDBConnection)
 def get_txids_filtered(connection, asset_id: str, operation: str = None,
                        last_tx: any = None):  # TODO here is used 'OR' operator
@@ -285,7 +257,6 @@ def _remove_text_score(asset):
     return asset
 
 
-@run_handled_query
 @register_query(TarantoolDBConnection)
 def get_owned_ids(connection, owner: str):
     space = connection.space("keys")
@@ -297,7 +268,6 @@ def get_owned_ids(connection, owner: str):
     return _transactions
 
 
-@run_handled_query
 @register_query(TarantoolDBConnection)
 def get_spending_transactions(connection, inputs):
     _transactions = []
@@ -311,7 +281,6 @@ def get_spending_transactions(connection, inputs):
     return _transactions
 
 
-@run_handled_query
 @register_query(TarantoolDBConnection)
 def get_block(connection, block_id=[]):
     space = connection.space("blocks")
@@ -326,7 +295,6 @@ def get_block(connection, block_id=[]):
     return {"app_hash": _block[0], "height": _block[1], "transactions": [_tx[0] for _tx in _txblock]}
 
 
-@run_handled_query
 @register_query(TarantoolDBConnection)
 def get_block_with_transaction(connection, txid: str):
     space = connection.space("blocks_tx")
@@ -339,7 +307,6 @@ def get_block_with_transaction(connection, txid: str):
     return [{"height": _height[1]} for _height in _block.data]
 
 
-@run_handled_query
 @register_query(TarantoolDBConnection)
 def delete_transactions(connection, txn_ids: list):
     tx_space = connection.space("transactions")
@@ -368,7 +335,6 @@ def delete_transactions(connection, txn_ids: list):
         assets_space.delete(_id, index="txid_search")
 
 
-@run_handled_query
 @register_query(TarantoolDBConnection)
 def store_unspent_outputs(connection, *unspent_outputs: list):
     space = connection.space('utxos')
@@ -380,7 +346,6 @@ def store_unspent_outputs(connection, *unspent_outputs: list):
     return result
 
 
-@run_handled_query
 @register_query(TarantoolDBConnection)
 def delete_unspent_outputs(connection, *unspent_outputs: list):
     space = connection.space('utxos')
@@ -392,7 +357,6 @@ def delete_unspent_outputs(connection, *unspent_outputs: list):
     return result
 
 
-@run_handled_query
 @register_query(TarantoolDBConnection)
 def get_unspent_outputs(connection, query=None):  # for now we don't have implementation for 'query'.
     space = connection.space('utxos')
@@ -400,7 +364,6 @@ def get_unspent_outputs(connection, query=None):  # for now we don't have implem
     return [loads(utx[2]) for utx in _utxos]
 
 
-@run_handled_query
 @register_query(TarantoolDBConnection)
 def store_pre_commit_state(connection, state: dict):
     space = connection.space("pre_commits")
@@ -413,7 +376,6 @@ def store_pre_commit_state(connection, state: dict):
                  limit=1)
 
 
-@run_handled_query
 @register_query(TarantoolDBConnection)
 def get_pre_commit_state(connection):
     space = connection.space("pre_commits")
@@ -424,7 +386,6 @@ def get_pre_commit_state(connection):
     return {"height": _commit[1], "transactions": _commit[2]}
 
 
-@run_handled_query
 @register_query(TarantoolDBConnection)
 def store_validator_set(conn, validators_update: dict):
     space = conn.space("validators")
@@ -437,7 +398,6 @@ def store_validator_set(conn, validators_update: dict):
                  limit=1)
 
 
-@run_handled_query
 @register_query(TarantoolDBConnection)
 def delete_validator_set(connection, height: int):
     space = connection.space("validators")
@@ -446,7 +406,6 @@ def delete_validator_set(connection, height: int):
         space.delete(_valid[0])
 
 
-@run_handled_query
 @register_query(TarantoolDBConnection)
 def store_election(connection, election_id: str, height: int, is_concluded: bool):
     space = connection.space("elections")
@@ -457,7 +416,6 @@ def store_election(connection, election_id: str, height: int, is_concluded: bool
                  limit=1)
 
 
-@run_handled_query
 @register_query(TarantoolDBConnection)
 def store_elections(connection, elections: list):
     space = connection.space("elections")
@@ -467,7 +425,6 @@ def store_elections(connection, elections: list):
                                   election["is_concluded"]))
 
 
-@run_handled_query
 @register_query(TarantoolDBConnection)
 def delete_elections(connection, height: int):
     space = connection.space("elections")
@@ -476,7 +433,6 @@ def delete_elections(connection, height: int):
         space.delete(_elec[0])
 
 
-@run_handled_query
 @register_query(TarantoolDBConnection)
 def get_validator_set(connection, height: int = None):
     space = connection.space("validators")
@@ -491,7 +447,6 @@ def get_validator_set(connection, height: int = None):
         return next(iter(sorted(_validators, key=lambda k: k["height"], reverse=True)), None)
 
 
-@run_handled_query
 @register_query(TarantoolDBConnection)
 def get_election(connection, election_id: str):
     space = connection.space("elections")
@@ -503,7 +458,6 @@ def get_election(connection, election_id: str):
     return {"election_id": _election[0], "height": _election[1], "is_concluded": _election[2]}
 
 
-@run_handled_query
 @register_query(TarantoolDBConnection)
 def get_asset_tokens_for_public_key(connection, asset_id: str, public_key: str):
     space = connection.space("keys")
@@ -516,7 +470,6 @@ def get_asset_tokens_for_public_key(connection, asset_id: str, public_key: str):
     return _grouped_transactions
 
 
-@run_handled_query
 @register_query(TarantoolDBConnection)
 def store_abci_chain(connection, height: int, chain_id: str, is_synced: bool = True):
     space = connection.space("abci_chains")
@@ -527,7 +480,6 @@ def store_abci_chain(connection, height: int, chain_id: str, is_synced: bool = T
                  limit=1)
 
 
-@run_handled_query
 @register_query(TarantoolDBConnection)
 def delete_abci_chain(connection, height: int):
     space = connection.space("abci_chains")
@@ -536,7 +488,6 @@ def delete_abci_chain(connection, height: int):
         space.delete(_chain[2])
 
 
-@run_handled_query
 @register_query(TarantoolDBConnection)
 def get_latest_abci_chain(connection):
     space = connection.space("abci_chains")
