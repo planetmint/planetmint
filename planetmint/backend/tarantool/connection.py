@@ -8,6 +8,7 @@ import tarantool
 
 from planetmint.config import Config
 from planetmint.transactions.common.exceptions import ConfigurationError
+from planetmint.utils import Lazy
 from planetmint.backend.connection import Connection
 
 logger = logging.getLogger(__name__)
@@ -46,6 +47,9 @@ class TarantoolDBConnection(Connection):
             execute = f.readlines()
             f.close()
         return "".join(execute).encode()
+
+    def query(self):
+        return Lazy
 
     def _reconnect(self):
         self.db_connect = tarantool.connect(host=self.host, port=self.port)
