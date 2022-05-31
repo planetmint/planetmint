@@ -22,16 +22,10 @@ class TarantoolDBConnection(Connection):
             # TODO add user support later on
             print(f"host : {host}")
             print(f"port : {port}")
-            # self.db_connect = tarantool.connect(host=host, port=port, user=user, password=password)
             # TODO : raise configuraiton error if the connection cannot be established
             self.db_connect = tarantool.connect(host=self.host, port=self.port)
             self.init_path = Config().get()["database"]["init_config"]["absolute_path"]
             self.drop_path = Config().get()["database"]["drop_config"]["absolute_path"]
-            # args_reset_db = kwargs.get("kwargs").get("reset_database") if "kwargs" in kwargs else None
-            # if reset_database or args_reset_db is True:
-            #     self.drop_database()
-            #     self.init_database()
-            #     self._reconnect()
             self.SPACE_NAMES = ["abci_chains", "assets", "blocks", "blocks_tx",
                                 "elections", "meta_data", "pre_commits", "validators",
                                 "transactions", "inputs", "outputs", "keys"]
