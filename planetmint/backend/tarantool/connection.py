@@ -10,6 +10,7 @@ from planetmint.config import Config
 from planetmint.transactions.common.exceptions import ConfigurationError
 from planetmint.utils import Lazy
 from planetmint.backend.connection import Connection
+from planetmint.utils import Lazy
 
 logger = logging.getLogger(__name__)
 
@@ -35,17 +36,17 @@ class TarantoolDBConnection(Connection):
             logger.info('Exception in _connect(): {}')
             raise ConfigurationError
 
+    def query(self):
+        return Lazy()
+
     def _file_content_to_bytes(self, path):
         with open(path, "r") as f:
             execute = f.readlines()
             f.close()
         return "".join(execute).encode()
 
-    def query(self):
-        return Lazy()
-
-    def _reconnect(self):
-        self.conn = tarantool.connect(host=self.host, port=self.port)
+    def _connect(self):
+        return tarantool.connect(host=self.host, port=self.port)
 
     def get_space(self, space_name: str):
         return self.conn.space(space_name)
