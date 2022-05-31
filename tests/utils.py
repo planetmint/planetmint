@@ -10,7 +10,7 @@ import random
 from functools import singledispatch
 
 from planetmint.backend.localmongodb.connection import LocalMongoDBConnection
-from planetmint.backend.tarantool.connection import TarantoolDB
+from planetmint.backend.tarantool.connection import TarantoolDBConnection
 from planetmint.backend.schema import TABLES, SPACE_NAMES
 from planetmint.transactions.common import crypto
 from planetmint.transactions.common.transaction_mode_types import BROADCAST_TX_COMMIT
@@ -30,7 +30,7 @@ def flush_localmongo_db(connection, dbname):
         getattr(connection.conn[dbname], t).delete_many({})
 
 
-@flush_db.register(TarantoolDB)
+@flush_db.register(TarantoolDBConnection)
 def flush_tarantool_db(connection, dbname):
     for s in SPACE_NAMES:
         _space = connection.space(space_name=s)

@@ -94,8 +94,8 @@ install_requires = [
     'requests==2.25.1',
     'setproctitle==1.2.2',
     'werkzeug==2.0.3',
-    'nest-asyncio==1.5.5'
-
+    'nest-asyncio==1.5.5',
+    'protobuf==3.20'
 ]
 
 if sys.version_info < (3, 9):
