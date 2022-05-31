@@ -54,6 +54,16 @@ class TarantoolDBConnection(Connection):
     def space(self, space_name: str):
         return self.query().space(space_name)
 
+    def run(self, query):
+        try:
+            return query.run(self.db_connect)
+        except tarantool.error.NetworkError:
+            return None
+        except tarantool.error.OperationalError as op_error:
+            raise op_error
+        except tarantool.error.SchemaError as schema_error:
+            raise schema_error
+
     def get_connection(self):
         return self.db_connect
 
