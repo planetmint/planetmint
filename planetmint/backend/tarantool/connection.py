@@ -8,6 +8,7 @@ import tarantool
 
 from planetmint.config import Config
 from planetmint.transactions.common.exceptions import ConfigurationError
+from planetmint.utils import Lazy
 from planetmint.backend.connection import Connection
 
 logger = logging.getLogger(__name__)
@@ -40,11 +41,27 @@ class TarantoolDBConnection(Connection):
             f.close()
         return "".join(execute).encode()
 
-    def _connect(self):
-        return tarantool.connect(host=self.host, port=self.port)
+    def query(self):
+        return Lazy()
+
+    def _reconnect(self):
+        self.conn = tarantool.connect(host=self.host, port=self.port)
+
+    def get_space(self, space_name: str):
+        return self.conn.space(space_name)
 
     def space(self, space_name: str):
-        return self.conn.space(space_name)
+        return self.query().space(space_name)
+
+    def run(self, query, only_data=True):
+        try:
+            return query.run(self.conn).data if only_data else query.run(self.conn)
+        except tarantool.error.SchemaError:
+            return None
+        except tarantool.error.OperationalError as op_error:
+            raise op_error
+        except tarantool.error.NetworkError as net_error:
+            raise net_error
 
     def get_connection(self):
         return self.conn

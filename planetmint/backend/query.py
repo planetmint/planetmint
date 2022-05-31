@@ -6,7 +6,6 @@
 """Query interfaces for backends."""
 
 from functools import singledispatch
-
 from planetmint.backend.exceptions import OperationError
 
 

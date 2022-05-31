@@ -363,6 +363,7 @@ def inputs(user_pk, b, alice):
 
 
 def _drop_db(conn, dbname):
+    print(f"CONNECTION FOR DROPPING {conn}")
     try:
         schema.drop_database(conn, dbname)
     except DatabaseDoesNotExist:
