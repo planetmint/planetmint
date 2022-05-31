@@ -115,8 +115,9 @@ def get_metadata(connection, transaction_ids: list):
         metadata = connection.run(
             connection.space("meta_data").select(_id, index="id_search")
         )
-        if metadata is not None or len(metadata) > 0:
-            _returned_data.append(metadata)
+        if metadata is not None:
+            if len(metadata) > 0:
+                _returned_data.append(metadata)
     return _returned_data if len(_returned_data) > 0 else None
 
 
@@ -178,16 +179,17 @@ def get_latest_block(connection):  # TODO Here is used DESCENDING OPERATOR
     )
     block = {"app_hash": '', "height": 0, "transactions": []}
 
-    if len(_all_blocks) > 0:
-        _block = sorted(_all_blocks, key=itemgetter(1), reverse=True)[0]
-        _txids = connection.run(
-            connection.space("blocks_tx").select(_block[2], index="block_search")
-        )
-        block["app_hash"] = _block[0]
-        block["height"] = _block[1]
-        block["transactions"] = [tx[0] for tx in _txids]
-    else:
-        block = None
+    if _all_blocks is not None:
+        if len(_all_blocks) > 0:
+            _block = sorted(_all_blocks, key=itemgetter(1), reverse=True)[0]
+            _txids = connection.run(
+                connection.space("blocks_tx").select(_block[2], index="block_search")
+            )
+            block["app_hash"] = _block[0]
+            block["height"] = _block[1]
+            block["transactions"] = [tx[0] for tx in _txids]
+        else:
+            block = None
     return block
 
 
@@ -475,13 +477,14 @@ def get_validator_set(connection, height: int = None):
     _validators = connection.run(
         connection.space("validators").select()
     )
-    if height is not None:
+    if height is not None and _validators is not None:
         _validators = [{"height": validator[1], "validators": validator[2]} for validator in _validators if
                        validator[1] <= height]
         return next(iter(sorted(_validators, key=lambda k: k["height"], reverse=True)), None)
-    else:
+    elif _validators is not None:
         _validators = [{"height": validator[1], "validators": validator[2]} for validator in _validators]
         return next(iter(sorted(_validators, key=lambda k: k["height"], reverse=True)), None)
+    return None
 
 
 @register_query(TarantoolDBConnection)
