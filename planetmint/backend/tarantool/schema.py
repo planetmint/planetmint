@@ -1,10 +1,11 @@
-import warnings
+import logging
 
 import tarantool
 from planetmint.backend.utils import module_dispatch_registrar
 from planetmint import backend
 from planetmint.backend.tarantool.connection import TarantoolDBConnection
 
+logger = logging.getLogger(__name__)
 register_schema = module_dispatch_registrar(backend.schema)
 
 SPACE_NAMES = ("abci_chains", "assets", "blocks", "blocks_tx",
@@ -162,14 +163,15 @@ def drop_database(connection, not_used=None):
 
 
 @register_schema(TarantoolDBConnection)
-def create_database(connection, not_used=None):
+def create_database(connection, dbname):
     '''
 
     For tarantool implementation, this function runs
     create_tables, to initiate spaces, schema and indexes.
 
     '''
-    create_tables(None, None)
+    logger.info('Create database `%s`.', dbname)
+    create_tables(connection, dbname)
 
 
 def run_command_with_output(command):

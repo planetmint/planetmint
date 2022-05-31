@@ -24,7 +24,7 @@ import aiohttp
 
 from uuid import uuid4
 from concurrent.futures import CancelledError
-from planetmint import config
+from planetmint.config import Config
 from planetmint.web.websocket_dispatcher import Dispatcher
 
 
@@ -146,6 +146,6 @@ def start(sync_event_source, loop=None):
 
     app = init_app(tx_source, blk_source, loop=loop)
     aiohttp.web.run_app(app,
-                        host=config['wsserver']['host'],
-                        port=config['wsserver']['port'],
+                        host=Config().get()['wsserver']['host'],
+                        port=Config().get()['wsserver']['port'],
                         loop=loop)
