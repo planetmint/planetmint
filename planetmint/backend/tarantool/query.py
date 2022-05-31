@@ -4,7 +4,6 @@
 # Code is Apache-2.0 and docs are CC-BY-4.0
 
 """Query implementation for Tarantool"""
-
 from secrets import token_hex
 from operator import itemgetter
 
@@ -18,7 +17,7 @@ from json import dumps, loads
 
 register_query = module_dispatch_registrar(query)
 
-
+@register_query(TarantoolDBConnection)
 def _group_transaction_by_ids(connection, txids: list):
     txspace = connection.get_space("transactions")
     inxspace = connection.get_space("inputs")
