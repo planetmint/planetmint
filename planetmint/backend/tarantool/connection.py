@@ -48,8 +48,11 @@ class TarantoolDBConnection(Connection):
     def _reconnect(self):
         self.db_connect = tarantool.connect(host=self.host, port=self.port)
 
-    def space(self, space_name: str):
+    def get_space(self, space_name: str):
         return self.db_connect.space(space_name)
+
+    def space(self, space_name: str):
+        return self.query().space(space_name)
 
     def get_connection(self):
         return self.db_connect

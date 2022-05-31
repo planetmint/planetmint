@@ -186,7 +186,7 @@ def test_write_metadata(db_conn):
     query.store_metadatas(connection=conn, metadata=metadata)
 
     # check that 3 assets were written to the database
-    space = conn.space("meta_data")
+    space = conn.get_space("meta_data")
     metadatas = []
     for meta in metadata:
         _data = space.select(meta["id"])
@@ -306,7 +306,7 @@ def test_store_block(db_conn):
                   transactions=[])
     query.store_block(connection=conn, block=block._asdict())
     # block = query.get_block(connection=conn)
-    blocks = conn.space("blocks").select([])
+    blocks = conn.get_space("blocks").select([])
     assert len(blocks.data) == 1
 
 

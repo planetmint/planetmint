@@ -10,7 +10,7 @@ def _check_spaces_by_list(conn, space_names):
     _exists = []
     for name in space_names:
         try:
-            conn.space(name)
+            conn.get_space(name)
             _exists.append(name)
         except:
             pass

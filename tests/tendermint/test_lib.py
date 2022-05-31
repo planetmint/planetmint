@@ -157,7 +157,7 @@ def test_post_transaction_invalid_mode(b):
 @pytest.mark.bdb
 def test_update_utxoset(b, signed_create_tx, signed_transfer_tx, db_conn):
     b.update_utxoset(signed_create_tx)
-    utxoset = db_conn.space('utxos')
+    utxoset = db_conn.get_space('utxos')
     assert utxoset.select().rowcount == 1
     utxo = utxoset.select().data
     assert utxo[0][0] == signed_create_tx.id
@@ -318,7 +318,7 @@ def test_delete_one_unspent_outputs(b, utxoset):
         assert utxo_collection.count_documents(
             {'transaction_id': 'a', 'output_index': 0}) == 0
     else:
-        utx_space = b.connection.space("utxos")
+        utx_space = b.connection.get_space("utxos")
         res1 = utx_space.select(['a', 1], index="id_search").data
         res2 = utx_space.select(['b', 0], index="id_search").data
         assert len(res1) + len(res2) == 2
