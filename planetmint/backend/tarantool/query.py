@@ -23,14 +23,14 @@ def _group_transaction_by_ids(connection, txids: list):
     _transactions = []
     for txid in txids:
         _txobject = connection.run(connection.space("transactions").select(txid, index="id_search"))
-        if len(_txobject.data) == 0:
+        if len(_txobject) == 0:
             continue
-        _txobject = _txobject.data[0]
-        _txinputs = connection.run(connection.space("inputs").select(txid, index="id_search").data)
-        _txoutputs = connection.run(connection.space("outputs").select(txid, index="id_search").data)
-        _txkeys = connection.run(connection.space("keys").select(txid, index="txid_search").data)
-        _txassets = connection.run(connection.space("assets").select(txid, index="txid_search").data)
-        _txmeta = connection.run(connection.space("meta_data").select(txid, index="id_search").data)
+        _txobject = _txobject[0]
+        _txinputs = connection.run(connection.space("inputs").select(txid, index="id_search"))
+        _txoutputs = connection.run(connection.space("outputs").select(txid, index="id_search"))
+        _txkeys = connection.run(connection.space("keys").select(txid, index="txid_search"))
+        _txassets = connection.run(connection.space("assets").select(txid, index="txid_search"))
+        _txmeta = connection.run(connection.space("meta_data").select(txid, index="id_search"))
 
         _txinputs = sorted(_txinputs, key=itemgetter(6), reverse=False)
         _txoutputs = sorted(_txoutputs, key=itemgetter(8), reverse=False)
