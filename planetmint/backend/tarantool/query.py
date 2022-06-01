@@ -17,6 +17,7 @@ from json import dumps, loads
 
 register_query = module_dispatch_registrar(query)
 
+
 @register_query(TarantoolDBConnection)
 def _group_transaction_by_ids(connection, txids: list):
     _transactions = []
@@ -53,24 +54,42 @@ def store_transactions(connection, signed_transactions: list):
         txprepare = TransactionDecompose(transaction)
         txtuples = txprepare.convert_to_tuple()
         try:
-            connection.run(connection.space("transactions").insert(txtuples["transactions"]))
+            connection.run(
+                connection.space("transactions").insert(txtuples["transactions"]),
+                only_data=False
+            )
         except:  # This is used for omitting duplicate error in database for test -> test_bigchain_api::test_double_inclusion
             continue
 
         for _in in txtuples["inputs"]:
-            connection.run(connection.space("inputs").insert(_in))
+            connection.run(
+                connection.space("inputs").insert(_in),
+                only_data=False
+            )
 
         for _out in txtuples["outputs"]:
-            connection.run(connection.space("outputs").insert(_out))
+            connection.run(
+                connection.space("outputs").insert(_out),
+                only_data=False
+            )
 
         for _key in txtuples["keys"]:
-            connection.run(connection.space("keys").insert(_key))
+            connection.run(
+                connection.space("keys").insert(_key),
+                only_data=False
+            )
 
         if txtuples["metadata"] is not None:
-            connection.run(connection.space("meta_data").insert(txtuples["metadata"]))
+            connection.run(
+                connection.space("meta_data").insert(txtuples["metadata"]),
+                only_data=False
+            )
 
         if txtuples["asset"] is not None:
-            connection.run(connection.space("asset").insert(txtuples["asset"]))
+            connection.run(
+                connection.space("assets").insert(txtuples["asset"]),
+                only_data=False
+            )
 
 
 @register_query(TarantoolDBConnection)
@@ -485,7 +504,8 @@ def get_election(connection, election_id: str):
 
 
 @register_query(TarantoolDBConnection)
-def get_asset_tokens_for_public_key(connection, asset_id: str, public_key: str):  #  FIXME Something can be wrong with this function ! (public_key) is not used
+def get_asset_tokens_for_public_key(connection, asset_id: str,
+                                    public_key: str):  # FIXME Something can be wrong with this function ! (public_key) is not used
     # space = connection.space("keys")
     # _keys = space.select([public_key], index="keys_search")
     _transactions = connection.run(

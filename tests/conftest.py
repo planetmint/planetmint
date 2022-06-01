@@ -553,7 +553,7 @@ def tarantool_client(db_context):  # TODO Here add TarantoolConnectionClass
 
 @pytest.fixture
 def utxo_collection(tarantool_client):
-    return tarantool_client.space("utxos")
+    return tarantool_client.get_space("utxos")
 
 
 @pytest.fixture
