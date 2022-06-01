@@ -413,7 +413,7 @@ def store_validator_set(conn, validators_update: dict):
     _validator = conn.run(
         conn.space("validators").select(validators_update["height"], index="height_search", limit=1)
     )
-    unique_id = token_hex(8) if _validator is None or len(_validator.data) == 0 else _validator.data[0][0]
+    unique_id = token_hex(8) if _validator is None or len(_validator) == 0 else _validator.data[0][0]
     conn.run(
         conn.space("validators").upsert((unique_id, validators_update["height"], validators_update["validators"]),
                                         op_list=[('=', 0, unique_id),

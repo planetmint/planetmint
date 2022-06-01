@@ -33,15 +33,16 @@ def flush_localmongo_db(connection, dbname):
 @flush_db.register(TarantoolDBConnection)
 def flush_tarantool_db(connection, dbname):
     for s in SPACE_NAMES:
-        _space = connection.space(space_name=s)
-        _all_data = _space.select([]).data
+        _all_data = connection.run(connection.space(s).select([]))
+        if _all_data is None:
+            continue
         for _id in _all_data:
             if "assets" == s:
-                _space.delete(_id[1])
+                connection.run(connection.space(s).delete(_id[1]), only_data=False)
             elif "abci_chains" == s:
-                _space.delete(_id[2])
+                connection.run(connection.space(s).delete(_id[2], only_data=False))
             else:
-                _space.delete(_id[0])
+                connection.run(connection.space(s).delete(_id[0], only_data=False))
 
 
 def generate_block(planet):
