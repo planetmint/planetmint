@@ -19,23 +19,17 @@ register_query = module_dispatch_registrar(query)
 
 @register_query(TarantoolDBConnection)
 def _group_transaction_by_ids(connection, txids: list):
-    txspace = connection.get_space("transactions")
-    inxspace = connection.get_space("inputs")
-    outxspace = connection.get_space("outputs")
-    keysxspace = connection.get_space("keys")
-    assetsxspace = connection.get_space("assets")
-    metaxspace = connection.get_space("meta_data")
     _transactions = []
     for txid in txids:
-        _txobject = txspace.select(txid, index="id_search")
+        _txobject = connection.run(connection.space("transactions").select(txid, index="id_search"))
         if len(_txobject.data) == 0:
             continue
         _txobject = _txobject.data[0]
-        _txinputs = inxspace.select(txid, index="id_search").data
-        _txoutputs = outxspace.select(txid, index="id_search").data
-        _txkeys = keysxspace.select(txid, index="txid_search").data
-        _txassets = assetsxspace.select(txid, index="txid_search").data
-        _txmeta = metaxspace.select(txid, index="id_search").data
+        _txinputs = connection.run(connection.space("inputs").select(txid, index="id_search").data)
+        _txoutputs = connection.run(connection.space("outputs").select(txid, index="id_search").data)
+        _txkeys = connection.run(connection.space("keys").select(txid, index="txid_search").data)
+        _txassets = connection.run(connection.space("assets").select(txid, index="txid_search").data)
+        _txmeta = connection.run(connection.space("meta_data").select(txid, index="id_search").data)
 
         _txinputs = sorted(_txinputs, key=itemgetter(6), reverse=False)
         _txoutputs = sorted(_txoutputs, key=itemgetter(8), reverse=False)
@@ -55,35 +49,28 @@ def _group_transaction_by_ids(connection, txids: list):
 
 @register_query(TarantoolDBConnection)
 def store_transactions(connection, signed_transactions: list):
-    txspace = connection.get_space("transactions")
-    inxspace = connection.get_space("inputs")
-    outxspace = connection.get_space("outputs")
-    keysxspace = connection.get_space("keys")
-    metadatasxspace = connection.get_space("meta_data")
-    assetsxspace = connection.get_space("assets")
-
     for transaction in signed_transactions:
         txprepare = TransactionDecompose(transaction)
         txtuples = txprepare.convert_to_tuple()
         try:
-            txspace.insert(txtuples["transactions"])
+            connection.run(connection.space("transactions").insert(txtuples["transactions"]))
         except:  # This is used for omitting duplicate error in database for test -> test_bigchain_api::test_double_inclusion
             continue
 
         for _in in txtuples["inputs"]:
-            inxspace.insert(_in)
+            connection.run(connection.space("inputs").insert(_in))
 
         for _out in txtuples["outputs"]:
-            outxspace.insert(_out)
+            connection.run(connection.space("outputs").insert(_out))
 
         for _key in txtuples["keys"]:
-            keysxspace.insert(_key)
+            connection.run(connection.space("keys").insert(_key))
 
         if txtuples["metadata"] is not None:
-            metadatasxspace.insert(txtuples["metadata"])
+            connection.run(connection.space("meta_data").insert(txtuples["metadata"]))
 
         if txtuples["asset"] is not None:
-            assetsxspace.insert(txtuples["asset"])
+            connection.run(connection.space("asset").insert(txtuples["asset"]))
 
 
 @register_query(TarantoolDBConnection)
