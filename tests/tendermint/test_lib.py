@@ -29,11 +29,9 @@ def test_asset_is_separated_from_transaciton(b):
     import copy
     from planetmint.transactions.common.crypto import generate_key_pair
     from planetmint.backend.tarantool.connection import TarantoolDBConnection
-        
 
     if isinstance(b.connection, TarantoolDBConnection):
         pytest.skip("This specific function is skipped because, assets are stored differently if using Tarantool")
-
 
     alice = generate_key_pair()
     bob = generate_key_pair()
@@ -48,9 +46,9 @@ def test_asset_is_separated_from_transaciton(b):
                              'hurt you']}
 
     tx = Create.generate([alice.public_key],
-                            [([bob.public_key], 1)],
-                            metadata=None,
-                            asset=asset) \
+                         [([bob.public_key], 1)],
+                         metadata=None,
+                         asset=asset) \
         .sign([alice.private_key])
 
     # with store_bulk_transactions we use `insert_many` where PyMongo
@@ -92,8 +90,8 @@ def test_validation_error(b):
 
     alice = generate_key_pair()
     tx = Create.generate([alice.public_key],
-                            [([alice.public_key], 1)],
-                            asset=None) \
+                         [([alice.public_key], 1)],
+                         asset=None) \
         .sign([alice.private_key]).to_dict()
 
     tx['metadata'] = ''
@@ -107,8 +105,8 @@ def test_write_and_post_transaction(mock_post, b):
 
     alice = generate_key_pair()
     tx = Create.generate([alice.public_key],
-                            [([alice.public_key], 1)],
-                            asset=None) \
+                         [([alice.public_key], 1)],
+                         asset=None) \
         .sign([alice.private_key]).to_dict()
 
     tx = b.validate_transaction(tx)
@@ -131,8 +129,8 @@ def test_post_transaction_valid_modes(mock_post, b, mode):
     from planetmint.transactions.common.crypto import generate_key_pair
     alice = generate_key_pair()
     tx = Create.generate([alice.public_key],
-                            [([alice.public_key], 1)],
-                            asset=None) \
+                         [([alice.public_key], 1)],
+                         asset=None) \
         .sign([alice.private_key]).to_dict()
     tx = b.validate_transaction(tx)
     b.write_transaction(tx, mode)
@@ -146,8 +144,8 @@ def test_post_transaction_invalid_mode(b):
     from planetmint.transactions.common.exceptions import ValidationError
     alice = generate_key_pair()
     tx = Create.generate([alice.public_key],
-                            [([alice.public_key], 1)],
-                            asset=None) \
+                         [([alice.public_key], 1)],
+                         asset=None) \
         .sign([alice.private_key]).to_dict()
     tx = b.validate_transaction(tx)
     with pytest.raises(ValidationError):
@@ -342,13 +340,12 @@ def test_delete_many_unspent_outputs(b, utxoset):
         assert utxo_collection.count_documents(
             {'transaction_id': 'a', 'output_index': 1}) == 1
     else:  # TODO It looks ugly because query.get_unspent_outputs function, has not yet implemented query parameter.
-        utx_space = b.connection.space("utxos")
+        utx_space = b.connection.get_space("utxos")
         res1 = utx_space.select(['a', 0], index="id_search").data
         res2 = utx_space.select(['b', 0], index="id_search").data
         assert len(res1) + len(res2) == 0
         res3 = utx_space.select([], index="id_search").data
         assert len(res3) == 1
-
 
 
 @pytest.mark.bdb
@@ -370,10 +367,10 @@ def test_store_one_unspent_output(b, unspent_output_1, utxo_collection):
              'output_index': unspent_output_1['output_index']}
         ) == 1
     else:
-        utx_space = b.connection.space("utxos")
-        res = utx_space.select([unspent_output_1["transaction_id"], unspent_output_1["output_index"]], index="id_search")
+        utx_space = b.connection.get_space("utxos")
+        res = utx_space.select([unspent_output_1["transaction_id"], unspent_output_1["output_index"]],
+                               index="id_search")
         assert len(res.data) == 1
-
 
 
 @pytest.mark.bdb
@@ -387,7 +384,7 @@ def test_store_many_unspent_outputs(b, unspent_outputs, utxo_collection):
             {'transaction_id': unspent_outputs[0]['transaction_id']}
         ) == 3
     else:
-        utxo_space = b.connection.space("utxos")  # .select([], index="transaction_search").data
+        utxo_space = b.connection.get_space("utxos")  # .select([], index="transaction_search").data
         res = utxo_space.select([unspent_outputs[0]["transaction_id"]], index="transaction_search")
         assert len(res.data) == 3
 
@@ -413,23 +410,23 @@ def test_get_spent_transaction_critical_double_spend(b, alice, bob, carol):
     asset = {'test': 'asset'}
 
     tx = Create.generate([alice.public_key],
-                            [([alice.public_key], 1)],
-                            asset=asset) \
+                         [([alice.public_key], 1)],
+                         asset=asset) \
         .sign([alice.private_key])
 
     tx_transfer = Transfer.generate(tx.to_inputs(),
-                                       [([bob.public_key], 1)],
-                                       asset_id=tx.id) \
+                                    [([bob.public_key], 1)],
+                                    asset_id=tx.id) \
         .sign([alice.private_key])
 
     double_spend = Transfer.generate(tx.to_inputs(),
-                                        [([carol.public_key], 1)],
-                                        asset_id=tx.id) \
+                                     [([carol.public_key], 1)],
+                                     asset_id=tx.id) \
         .sign([alice.private_key])
 
     same_input_double_spend = Transfer.generate(tx.to_inputs() + tx.to_inputs(),
-                                                   [([bob.public_key], 1)],
-                                                   asset_id=tx.id) \
+                                                [([bob.public_key], 1)],
+                                                asset_id=tx.id) \
         .sign([alice.private_key])
 
     b.store_bulk_transactions([tx])
@@ -461,11 +458,11 @@ def test_validation_with_transaction_buffer(b):
 
     create_tx = Create.generate([pub_key], [([pub_key], 10)]).sign([priv_key])
     transfer_tx = Transfer.generate(create_tx.to_inputs(),
-                                       [([pub_key], 10)],
-                                       asset_id=create_tx.id).sign([priv_key])
+                                    [([pub_key], 10)],
+                                    asset_id=create_tx.id).sign([priv_key])
     double_spend = Transfer.generate(create_tx.to_inputs(),
-                                        [([pub_key], 10)],
-                                        asset_id=create_tx.id).sign([priv_key])
+                                     [([pub_key], 10)],
+                                     asset_id=create_tx.id).sign([priv_key])
 
     assert b.is_valid_transaction(create_tx)
     assert b.is_valid_transaction(transfer_tx, [create_tx])
@@ -517,8 +514,8 @@ def test_get_spent_key_order(b, user_pk, user_sk, user2_pk, user2_sk):
     bob = generate_key_pair()
 
     tx1 = Create.generate([user_pk],
-                             [([alice.public_key], 3), ([user_pk], 2)],
-                             asset=None) \
+                          [([alice.public_key], 3), ([user_pk], 2)],
+                          asset=None) \
         .sign([user_sk])
     b.store_bulk_transactions([tx1])
     assert tx1.validate(b)
