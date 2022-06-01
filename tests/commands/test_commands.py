@@ -91,7 +91,7 @@ def test_bigchain_show_config(capsys):
 
 def test__run_init(mocker):
     init_db_mock = mocker.patch(
-        'planetmint.backend.tarantool.connection.TarantoolDB.init_database')
+        'planetmint.backend.tarantool.connection.TarantoolDBConnection.init_database')
 
     from planetmint.backend.connection import connect
 

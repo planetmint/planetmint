@@ -55,35 +55,46 @@ def _group_transaction_by_ids(connection, txids: list):
 
 @register_query(TarantoolDBConnection)
 def store_transactions(connection, signed_transactions: list):
-    txspace = connection.get_space("transactions")
-    inxspace = connection.get_space("inputs")
-    outxspace = connection.get_space("outputs")
-    keysxspace = connection.get_space("keys")
-    metadatasxspace = connection.get_space("meta_data")
-    assetsxspace = connection.get_space("assets")
-
     for transaction in signed_transactions:
         txprepare = TransactionDecompose(transaction)
         txtuples = txprepare.convert_to_tuple()
         try:
-            txspace.insert(txtuples["transactions"])
+            connection.run(
+                connection.space("transactions").insert(txtuples["transactions"]),
+                only_data=False
+            )
         except:  # This is used for omitting duplicate error in database for test -> test_bigchain_api::test_double_inclusion
             continue
 
         for _in in txtuples["inputs"]:
-            inxspace.insert(_in)
+            connection.run(
+                connection.space("inputs").insert(_in),
+                only_data=False
+            )
 
         for _out in txtuples["outputs"]:
-            outxspace.insert(_out)
+            connection.run(
+                connection.space("outputs").insert(_out),
+                only_data=False
+            )
 
         for _key in txtuples["keys"]:
-            keysxspace.insert(_key)
+            connection.run(
+                connection.space("keys").insert(_key),
+                only_data=False
+            )
 
         if txtuples["metadata"] is not None:
-            metadatasxspace.insert(txtuples["metadata"])
+            connection.run(
+                connection.space("meta_data").insert(txtuples["metadata"]),
+                only_data=False
+            )
 
         if txtuples["asset"] is not None:
-            assetsxspace.insert(txtuples["asset"])
+            connection.run(
+                connection.space("assets").insert(txtuples["asset"]),
+                only_data=False
+            )
 
 
 @register_query(TarantoolDBConnection)
