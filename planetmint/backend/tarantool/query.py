@@ -17,6 +17,7 @@ from json import dumps, loads
 
 register_query = module_dispatch_registrar(query)
 
+
 @register_query(TarantoolDBConnection)
 def _group_transaction_by_ids(connection, txids: list):
     txspace = connection.get_space("transactions")
@@ -509,7 +510,8 @@ def get_election(connection, election_id: str):
 
 
 @register_query(TarantoolDBConnection)
-def get_asset_tokens_for_public_key(connection, asset_id: str, public_key: str):  #  FIXME Something can be wrong with this function ! (public_key) is not used
+def get_asset_tokens_for_public_key(connection, asset_id: str,
+                                    public_key: str):  # FIXME Something can be wrong with this function ! (public_key) is not used
     # space = connection.space("keys")
     # _keys = space.select([public_key], index="keys_search")
     _transactions = connection.run(
