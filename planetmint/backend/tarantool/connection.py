@@ -57,12 +57,11 @@ class TarantoolDBConnection(Connection):
     def run(self, query, only_data=True):
         try:
             return query.run(self.conn).data if only_data else query.run(self.conn)
-        except tarantool.error.SchemaError:
-            return None
         except tarantool.error.OperationalError as op_error:
             raise op_error
         except tarantool.error.NetworkError as net_error:
             raise net_error
+
 
     def get_connection(self):
         return self.conn

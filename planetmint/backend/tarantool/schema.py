@@ -1,6 +1,7 @@
 import logging
 
 import tarantool
+from planetmint.config import Config
 from planetmint.backend.utils import module_dispatch_registrar
 from planetmint import backend
 from planetmint.backend.tarantool.connection import TarantoolDBConnection
@@ -151,16 +152,10 @@ def drop_database(connection, not_used=None):
     for _space in SPACE_NAMES:
         try:
             cmd = SCHEMA_DROP_COMMANDS[_space].encode()
-            _output = run_command_with_output(command=cmd)
-            if "nil value" in _output:
-                raise tarantool.error.DatabaseError(f"Space '{_space}' does not exists.")
-            else:
-                print(f"Space '{_space}' was dropped succesfuly.")
-        except tarantool.error.DatabaseError as space_does_not_exists:
-            print(space_does_not_exists)
-
-    # connection.drop_database()
-
+            run_command_with_output(command=cmd)
+            print(f"Space '{_space}' was dropped succesfuly.")
+        except Exception:
+            print(f"Unexpected error while trying to drop space '{_space}'")
 
 @register_schema(TarantoolDBConnection)
 def create_database(connection, dbname):
@@ -176,7 +171,7 @@ def create_database(connection, dbname):
 
 def run_command_with_output(command):
     from subprocess import run
-    host_port = "%s:%s" % ("localhost", 3303)
+    host_port = "%s:%s" % (Config().get()["database"]["host"], Config().get()["database"]["port"])
     output = run(["tarantoolctl", "connect", host_port],
                  input=command,
                  capture_output=True).stderr
@@ -187,37 +182,30 @@ def run_command_with_output(command):
 @register_schema(TarantoolDBConnection)
 def create_tables(connection, dbname):
     for _space in SPACE_NAMES:
-        try:
+        try:        
             cmd = SPACE_COMMANDS[_space].encode()
-            _output = run_command_with_output(command=cmd)
-            if "exists" in _output:
-                raise tarantool.error.SchemaError(f"Space '{_space}' already exists")
-            else:
-                print(f"Space '{_space}' created.")
-        except tarantool.error.SchemaError as exists_error:
-            print(exists_error)
-            continue
+            run_command_with_output(command=cmd)
+            print(f"Space '{_space}' created.")
+        except Exception:
+            print(f"Unexpected error while trying to create '{_space}'")
         create_schema(space_name=_space)
         create_indexes(space_name=_space)
 
 
 def create_indexes(space_name):
-    try:
-        indexes = INDEX_COMMANDS[space_name]
-        for index_name, index_cmd in indexes.items():
-            _output = run_command_with_output(command=index_cmd.encode())
-            if "exists" in _output:
-                raise tarantool.error.SchemaError(f"Index {index_name} already exists.")
-            else:
-                print(f"Index '{index_name}' created succesfully.")
-    except tarantool.error.SchemaError as exists_error:
-        print(exists_error)
+    indexes = INDEX_COMMANDS[space_name]
+    for index_name, index_cmd in indexes.items():
+        try:
+            run_command_with_output(command=index_cmd.encode())
+            print(f"Index '{index_name}' created succesfully.")
+        except Exception:
+            print(f"Unexpected error while trying to create index '{index_name}'")
 
 
 def create_schema(space_name):
     try:
         cmd = SCHEMA_COMMANDS[space_name].encode()
-        _output = run_command_with_output(command=cmd)
+        run_command_with_output(command=cmd)
         print(f"Schema created for {space_name} succesfully.")
     except Exception as unexpected_error:
         print(f"Got unexpected error when creating index for '{space_name}' Space.\n {unexpected_error}")
