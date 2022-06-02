@@ -254,7 +254,12 @@ class App(BaseApplication):
 
 
 def rollback(b):
-    pre_commit = b.get_pre_commit_state()
+    pre_commit = None
+
+    try:
+        b.get_pre_commit_state()
+    except Exception as e:
+        logger.exception("Unexpected error occurred while executing get_pre_commit_state()", e)
 
     if pre_commit is None or len(pre_commit) == 0:
         # the pre_commit record is first stored in the first `end_block`
