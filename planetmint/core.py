@@ -257,7 +257,7 @@ def rollback(b):
     pre_commit = None
 
     try:
-        b.get_pre_commit_state()
+        pre_commit = b.get_pre_commit_state()
     except Exception as e:
         logger.exception("Unexpected error occurred while executing get_pre_commit_state()", e)
 
