@@ -162,8 +162,6 @@ def test_init_chain_successfully_registers_chain(b):
     request = generate_init_chain_request('chain-XYZ')
     res = App(b).init_chain(request)
     assert res == types.ResponseInitChain()
-
-    print('############# CONNECTION ############')
     print(b.connection)
 
     chain = query.get_latest_abci_chain(b.connection)

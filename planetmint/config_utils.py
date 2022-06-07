@@ -189,7 +189,7 @@ def set_config(config):
         Any previous changes made to ``planetmint.config`` will be lost.
     """
     # Deep copy the default config into planetmint.config
-    _config = Config().get() #copy.deepcopy(planetmint._config) 
+    _config = Config().get()
     # Update the default config with whatever is in the passed config
     update(_config, update_types(config, _config))
     _config['CONFIGURED'] = True

@@ -653,9 +653,7 @@ class Transaction(object):
             'version': tx['version'],
             'id': id
         }
-        
-        # print( f" Schema validation {tx}")
-        # print( f" Schema validation {local_dict}")
+
         if not skip_schema_validation:
             cls.validate_id(local_dict)
             cls.validate_schema(local_dict)
@@ -702,7 +700,6 @@ class Transaction(object):
         tx_ids = list(tx_map.keys())
         metadata_list = list(planet.get_metadata(tx_ids))
         for metadata in metadata_list:
-            # print (f"\n\nmetadata: { metadata}")
             if 'id' in metadata:
                 tx = tx_map[metadata['id']]
                 tx.update({'metadata': metadata.get('metadata')})

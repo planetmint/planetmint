@@ -59,20 +59,20 @@ dev_require = [
 ]
 
 tests_require = [
-                    'coverage',
-                    'pep8',
-                    'flake8',
-                    'flake8-quotes==0.8.1',
-                    'hypothesis>=5.3.0',
-                    'pytest>=3.0.0',
-                    'pytest-cov==2.8.1',
-                    'pytest-mock',
-                    'pytest-xdist',
-                    'pytest-flask',
-                    'pytest-aiohttp',
-                    'pytest-asyncio',
-                    'tox',
-                ] + docs_require
+    'coverage',
+    'pep8',
+    'flake8',
+    'flake8-quotes==0.8.1',
+    'hypothesis>=5.3.0',
+    'pytest>=3.0.0',
+    'pytest-cov==2.8.1',
+    'pytest-mock',
+    'pytest-xdist',
+    'pytest-flask',
+    'pytest-aiohttp',
+    'pytest-asyncio',
+    'tox',
+] + docs_require
 
 install_requires = [
     'chardet==3.0.4',
