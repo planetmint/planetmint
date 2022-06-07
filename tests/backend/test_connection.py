@@ -8,8 +8,7 @@ import pytest
 
 def test_get_connection_raises_a_configuration_error(monkeypatch):
     from planetmint.transactions.common.exceptions import ConfigurationError
-    from planetmint.backend import connect
-
+    from planetmint.backend.connection import connect
     with pytest.raises(ConfigurationError):
         connect('msaccess', 'localhost', '1337', 'mydb')
 

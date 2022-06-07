@@ -22,13 +22,10 @@ import json
 import logging
 import collections.abc
 from functools import lru_cache
-
 from pkg_resources import iter_entry_points, ResolutionError
 
+from planetmint.config import Config
 from planetmint.transactions.common import exceptions
-
-import planetmint
-
 from planetmint.validation import BaseValidationRules
 
 # TODO: move this to a proper configuration file for logging
@@ -192,10 +189,11 @@ def set_config(config):
         Any previous changes made to ``planetmint.config`` will be lost.
     """
     # Deep copy the default config into planetmint.config
-    planetmint.config = copy.deepcopy(planetmint._config)
+    _config = Config().get()
     # Update the default config with whatever is in the passed config
-    update(planetmint.config, update_types(config, planetmint.config))
-    planetmint.config['CONFIGURED'] = True
+    update(_config, update_types(config, _config))
+    _config['CONFIGURED'] = True
+    Config().set( _config )
 
 
 def update_config(config):
@@ -207,9 +205,11 @@ def update_config(config):
                        to the default config
     """
 
+    _config = Config().get()
     # Update the default config with whatever is in the passed config
-    update(planetmint.config, update_types(config, planetmint.config))
-    planetmint.config['CONFIGURED'] = True
+    update(_config, update_types(config, _config))
+    _config['CONFIGURED'] = True
+    Config().set( _config )
 
 
 def write_config(config, filename=None):
@@ -228,7 +228,7 @@ def write_config(config, filename=None):
 
 
 def is_configured():
-    return bool(planetmint.config.get('CONFIGURED'))
+    return bool(Config().get().get('CONFIGURED'))
 
 
 def autoconfigure(filename=None, config=None, force=False):
@@ -240,7 +240,7 @@ def autoconfigure(filename=None, config=None, force=False):
         return
 
     # start with the current configuration
-    newconfig = planetmint.config
+    newconfig = Config().get()
 
     # update configuration from file
     try:

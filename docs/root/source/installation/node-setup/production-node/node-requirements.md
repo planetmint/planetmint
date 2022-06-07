@@ -7,7 +7,7 @@ Code is Apache-2.0 and docs are CC-BY-4.0
 
 # Production Node Requirements
 
-**This page is about the requirements of Planetmint Server.** You can find the requirements of MongoDB, Tendermint and other [production node components](node-components) in the documentation for that software.
+**This page is about the requirements of Planetmint Server.** You can find the requirements of Tarantool, Tendermint and other [production node components](node-components) in the documentation for that software.
 
 ## OS Requirements
 

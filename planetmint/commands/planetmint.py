@@ -13,6 +13,7 @@ import argparse
 import copy
 import json
 import sys
+from planetmint.backend.tarantool.connection import TarantoolDBConnection
 
 from planetmint.core import rollback
 from planetmint.migrations.chain_migration_election import ChainMigrationElection
@@ -25,6 +26,7 @@ import planetmint
 from planetmint import (backend, ValidatorElection,
                         Planetmint)
 from planetmint.backend import schema
+from planetmint.backend import tarantool
 from planetmint.commands import utils
 from planetmint.commands.utils import (configure_planetmint,
                                        input_on_stderr)
@@ -32,6 +34,7 @@ from planetmint.log import setup_logging
 from planetmint.tendermint_utils import public_key_from_base64
 from planetmint.commands.election_types import elections
 from planetmint.version import __tm_supported_versions__
+from planetmint.config import Config
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -49,9 +52,9 @@ def run_show_config(args):
     # TODO Proposal: remove the "hidden" configuration. Only show config. If
     # the system needs to be configured, then display information on how to
     # configure the system.
-    config = copy.deepcopy(planetmint.config)
-    del config['CONFIGURED']
-    print(json.dumps(config, indent=4, sort_keys=True))
+    _config = Config().get()
+    del _config['CONFIGURED']
+    print(json.dumps(_config, indent=4, sort_keys=True))
 
 
 @configure_planetmint
@@ -70,16 +73,15 @@ def run_configure(args):
         if want != 'y':
             return
 
-    conf = copy.deepcopy(planetmint.config)
-
+    Config().init_config(args.backend)
+    conf = Config().get()
     # select the correct config defaults based on the backend
     print('Generating default configuration for backend {}'
           .format(args.backend), file=sys.stderr)
-    database_keys = planetmint._database_keys_map[args.backend]
-    conf['database'] = planetmint._database_map[args.backend]
 
+    database_keys = Config().get_db_key_map(args.backend)
     if not args.yes:
-        for key in ('bind', ):
+        for key in ('bind',):
             val = conf['server'][key]
             conf['server'][key] = input_on_stderr('API Server {}? (default `{}`): '.format(key, val), val)
 
@@ -99,6 +101,8 @@ def run_configure(args):
         planetmint.config_utils.write_config(conf, config_path)
     else:
         print(json.dumps(conf, indent=4, sort_keys=True))
+
+    Config().set(conf)
     print('Configuration written to {}'.format(config_path), file=sys.stderr)
     print('Ready to go!', file=sys.stderr)
 
@@ -241,8 +245,8 @@ def run_election_show(args, planet):
 
 
 def _run_init():
+    from planetmint.backend import schema
     bdb = planetmint.Planetmint()
-
     schema.init_database(connection=bdb.connection)
 
 
@@ -255,18 +259,19 @@ def run_init(args):
 @configure_planetmint
 def run_drop(args):
     """Drop the database"""
-    dbname = planetmint.config['database']['name']
 
     if not args.yes:
-        response = input_on_stderr('Do you want to drop `{}` database? [y/n]: '.format(dbname))
+        response = input_on_stderr('Do you want to drop `{}` database? [y/n]: ')
         if response != 'y':
             return
 
-    conn = backend.connect()
+    from planetmint.backend.connection import connect
+    from planetmint.backend import schema
+    conn = connect()
     try:
-        schema.drop_database(conn, dbname)
+        schema.drop_database(conn)
     except DatabaseDoesNotExist:
-        print("Cannot drop '{name}'. The database does not exist.".format(name=dbname), file=sys.stderr)
+        print("Drop was executed, but spaces doesn't exist.", file=sys.stderr)
 
 
 def run_recover(b):
@@ -280,12 +285,12 @@ def run_start(args):
     # Configure Logging
     setup_logging()
 
-    logger.info('Planetmint Version %s', planetmint.__version__)
-    run_recover(planetmint.lib.Planetmint())
-
     if not args.skip_initialize_database:
         logger.info('Initializing database')
         _run_init()
+
+    logger.info('Planetmint Version %s', planetmint.version.__version__)
+    run_recover(planetmint.lib.Planetmint())
 
     logger.info('Starting Planetmint main process.')
     from planetmint.start import start
@@ -318,12 +323,12 @@ def create_parser():
                                           help='Prepare the config file.')
 
     config_parser.add_argument('backend',
-                               choices=['localmongodb'],
-                               default='localmongodb',
-                               const='localmongodb',
+                               choices=['tarantool_db', 'localmongodb'],
+                               default='tarantool_db',
+                               const='tarantool_db',
                                nargs='?',
                                help='The backend to use. It can only be '
-                               '"localmongodb", currently.')
+                                    '"tarantool_db", currently.')
 
     # parser for managing elections
     election_parser = subparsers.add_parser('election',

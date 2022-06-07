@@ -106,6 +106,7 @@ async def test_bridge_sync_async_queue(event_loop):
     result = await async_queue.get()
     assert result == 'Autobahn'
 
+    print(f" queue ({async_queue.qsize()}): {async_queue} ")
     assert async_queue.qsize() == 0
 
 # TODO: fix the test and uncomment it

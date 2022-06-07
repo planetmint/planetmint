@@ -24,6 +24,7 @@ version = {}
 with open('planetmint/version.py') as fp:
     exec(fp.read(), version)
 
+
 def check_setuptools_features():
     """Check if setuptools is up to date."""
     import pkg_resources
@@ -53,7 +54,8 @@ dev_require = [
     'watchdog',
     'logging_tree',
     'pre-commit',
-    'twine'
+    'twine',
+    'ptvsd'
 ]
 
 tests_require = [
@@ -79,23 +81,24 @@ install_requires = [
     'planetmint-cryptoconditions>=0.9.4',
     'flask-cors==3.0.10',
     'flask-restful==0.3.9',
-    'flask==2.0.1',
+    'flask==2.1.2',
     'gunicorn==20.1.0',
     'jsonschema==3.2.0',
     'logstats==0.3.0',
-    'packaging>=20.9',
+    'packaging>=20.9',  
     # TODO Consider not installing the db drivers, or putting them in extras.
     'pymongo==3.11.4',
+    'tarantool==0.7.1',
     'python-rapidjson==1.0',
     'pyyaml==5.4.1',
     'requests==2.25.1',
     'setproctitle==1.2.2',
     'werkzeug==2.0.3',
-    'nest-asyncio==1.5.5'
-
+    'nest-asyncio==1.5.5',
+    'protobuf==3.20'
 ]
 
-if sys.version_info < (3, 6):
+if sys.version_info < (3, 9):
     install_requires.append('pysha3~=1.0.2')
 
 setup(
@@ -142,5 +145,6 @@ setup(
     },
     package_data={
         'planetmint.transactions.common.schema': ['v1.0/*.yaml','v2.0/*.yaml','v3.0/*.yaml' ],
+        'planetmint.backend.tarantool': ['*.lua'],
     },
 )

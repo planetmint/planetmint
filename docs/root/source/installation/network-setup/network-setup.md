@@ -155,13 +155,12 @@ recheck = false
 Note: The list of `persistent_peers` doesn't have to include all nodes
 in the network.
 
-## Member: Start MongoDB
+## Member: Start Tarantool
 
-If you installed MongoDB using `sudo apt install mongodb`, then MongoDB should already be running in the background. You can check using `systemctl status mongodb`.
+You install Tarantool as described [here](https://www.tarantool.io/ru/download/os-installation/ubuntu/).
 
-If MongoDB isn't running, then you can start it using the command `mongod`, but that will run it in the foreground. If you want to run it in the background (so it will continue running after you logout), you can use `mongod --fork --logpath /var/log/mongodb.log`. (You might have to create the `/var/log` directory if it doesn't already exist.)
+You can start it using the command `tarantool`.To run it in the background (so it will continue running after you logout), you can have to create a listener `box.cfg{listen=3301}`.
 
-If you installed MongoDB using `sudo apt install mongodb`, then a MongoDB startup script should already be installed (so MongoDB will start automatically when the machine is restarted). Otherwise, you should install a startup script for MongoDB.
 
 ## Member: Start Planetmint and Tendermint Using Monit
 

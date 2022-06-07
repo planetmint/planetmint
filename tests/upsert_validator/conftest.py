@@ -6,7 +6,7 @@ from unittest.mock import patch
 
 import pytest
 
-from planetmint.backend.localmongodb import query
+from planetmint.backend import query
 from planetmint.upsert_validator import ValidatorElection
 
 
@@ -44,3 +44,4 @@ def inconclusive_election(b, ongoing_validator_election, new_validator):
 
     query.store_validator_set(b.connection, validator_update)
     return ongoing_validator_election
+

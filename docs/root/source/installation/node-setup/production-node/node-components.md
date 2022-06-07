@@ -10,17 +10,15 @@ Code is Apache-2.0 and docs are CC-BY-4.0
 A production Planetmint node must include:
 
 * Planetmint Server
-* MongoDB Server 3.4+ (mongod)
+* Tarantool
 * Tendermint
 * Storage for MongoDB and Tendermint
 
 It could also include several other components, including:
 
 * NGINX or similar, to provide authentication, rate limiting, etc.
-* An NTP daemon running on all machines running Planetmint Server or mongod, and possibly other machines
-* Probably _not_ MongoDB Automation Agent. It's for automating the deployment of an entire MongoDB cluster.
-* MongoDB Monitoring Agent
-* MongoDB Backup Agent
+* An NTP daemon running on all machines running Planetmint Server or tarantool, and possibly other machines
+
 * Log aggregation software
 * Monitoring software
 * Maybe more

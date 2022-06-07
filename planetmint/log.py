@@ -8,59 +8,10 @@ import logging
 
 from planetmint.transactions.common.exceptions import ConfigurationError
 from logging.config import dictConfig as set_logging_config
+from planetmint.config import Config, DEFAULT_LOGGING_CONFIG
 import os
 
 
-DEFAULT_LOG_DIR = os.getcwd()
-
-DEFAULT_LOGGING_CONFIG = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'formatters': {
-        'console': {
-            'class': 'logging.Formatter',
-            'format': ('[%(asctime)s] [%(levelname)s] (%(name)s) '
-                       '%(message)s (%(processName)-10s - pid: %(process)d)'),
-            'datefmt': '%Y-%m-%d %H:%M:%S',
-        },
-        'file': {
-            'class': 'logging.Formatter',
-            'format': ('[%(asctime)s] [%(levelname)s] (%(name)s) '
-                       '%(message)s (%(processName)-10s - pid: %(process)d)'),
-            'datefmt': '%Y-%m-%d %H:%M:%S',
-        }
-    },
-    'handlers': {
-        'console': {
-            'class': 'logging.StreamHandler',
-            'formatter': 'console',
-            'level': logging.INFO,
-        },
-        'file': {
-            'class': 'logging.handlers.RotatingFileHandler',
-            'filename': os.path.join(DEFAULT_LOG_DIR, 'planetmint.log'),
-            'mode': 'w',
-            'maxBytes': 209715200,
-            'backupCount': 5,
-            'formatter': 'file',
-            'level': logging.INFO,
-        },
-        'errors': {
-            'class': 'logging.handlers.RotatingFileHandler',
-            'filename': os.path.join(DEFAULT_LOG_DIR, 'planetmint-errors.log'),
-            'mode': 'w',
-            'maxBytes': 209715200,
-            'backupCount': 5,
-            'formatter': 'file',
-            'level': logging.ERROR,
-        }
-    },
-    'loggers': {},
-    'root': {
-        'level': logging.DEBUG,
-        'handlers': ['console', 'file', 'errors'],
-    },
-}
 
 
 def _normalize_log_level(level):
@@ -84,7 +35,7 @@ def setup_logging():
     """
 
     logging_configs = DEFAULT_LOGGING_CONFIG
-    new_logging_configs = planetmint.config['log']
+    new_logging_configs = Config().get()['log']
 
     if 'file' in new_logging_configs:
         filename = new_logging_configs['file']
