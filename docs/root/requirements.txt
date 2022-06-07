@@ -37,3 +37,4 @@ urllib3==1.26.9
 wget==3.2
 zipp==3.8.0
 nest-asyncio==1.5.5
+sphinx-press-theme==0.8.0
