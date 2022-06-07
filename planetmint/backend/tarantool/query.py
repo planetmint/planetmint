@@ -392,7 +392,7 @@ def store_pre_commit_state(connection, state: dict):
     _precommit = connection.run(
         connection.space("pre_commits").select(state["height"], index="height_search", limit=1)
     )
-    unique_id = token_hex(8) if _precommit is None or len(_precommit.data) == 0 else _precommit.data[0][0]
+    unique_id = token_hex(8) if _precommit is None or len(_precommit) == 0 else _precommit[0][0]
     connection.run(
         connection.space("pre_commits").upsert((unique_id, state["height"], state["transactions"]),
                                                op_list=[('=', 0, unique_id),
