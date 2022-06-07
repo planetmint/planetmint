@@ -27,9 +27,7 @@ def test_get_txids_filtered(signed_create_tx, signed_transfer_tx, db_conn):
     # transfer transaction
     create_tx_dict = signed_create_tx.to_dict()
     transfer_tx_dict = signed_transfer_tx.to_dict()
-    print(create_tx_dict)
-    print(" ")
-    print(transfer_tx_dict)
+
     query.store_transactions(signed_transactions=[create_tx_dict], connection=db_conn)
     query.store_transactions(signed_transactions=[transfer_tx_dict], connection=db_conn)
 
@@ -49,9 +47,7 @@ def test_get_txids_filtered(signed_create_tx, signed_transfer_tx, db_conn):
 
 
 def test_write_assets(db_conn):
-    # from planetmint.backend.connection import Connection
     from planetmint.backend.tarantool import query
-    # conn = Connection().get_connection()
 
     assets = [
         {'id': '1', 'data': '1'},
@@ -67,8 +63,7 @@ def test_write_assets(db_conn):
 
     # check that 3 assets were written to the database
     documents = query.get_assets(assets_ids=[asset["id"] for asset in assets], connection=db_conn)
-    print(f"\nDOCUMENTS: {documents}")
-    print(f"\nASSETS: {assets}")
+
     assert len(documents) == 3
     assert list(documents)[0] == assets[:-1][0]
 
@@ -225,8 +220,6 @@ def test_get_owned_ids(signed_create_tx, user_pk, db_conn):
 
 
 def test_get_spending_transactions(user_pk, user_sk, db_conn):
-    from planetmint.models import Transaction
-    #
     from planetmint.backend.tarantool import query
 
     out = [([user_pk], 1)]
@@ -247,7 +240,6 @@ def test_get_spending_transactions(user_pk, user_sk, db_conn):
 
 
 def test_get_spending_transactions_multiple_inputs(db_conn):
-    from planetmint.models import Transaction
     from planetmint.transactions.common.crypto import generate_key_pair
     from planetmint.backend.tarantool import query
 
