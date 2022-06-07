@@ -31,6 +31,7 @@ For reference, the possible headings are:
 ### Maintenance
 
 * removed Korean documentation
+* removed Korean and Chinese README
 
 ## [2.2.2] - 2020-08-12
 
