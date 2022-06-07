@@ -29,5 +29,3 @@ More About Planetmint
    drivers/index
    query
    contributing/index
-   korean/index
-
