@@ -6,7 +6,7 @@
 from copy import deepcopy
 
 import pytest
-
+import tarantool
 from planetmint.transactions.types.assets.create import Create
 from planetmint.transactions.types.assets.transfer import Transfer
 
@@ -22,7 +22,6 @@ pytestmark = pytest.mark.bdb
 def test_get_txids_filtered(signed_create_tx, signed_transfer_tx, db_conn):
     from planetmint.backend.tarantool import query
     from planetmint.models import Transaction
-
     # create and insert two blocks, one for the create and one for the
     # transfer transaction
     create_tx_dict = signed_create_tx.to_dict()
@@ -284,7 +283,6 @@ def test_get_spending_transactions_multiple_inputs(db_conn):
 def test_store_block(db_conn):
     from planetmint.lib import Block
     from planetmint.backend.tarantool import query
-
     block = Block(app_hash='random_utxo',
                   height=3,
                   transactions=[])
