@@ -548,5 +548,5 @@ def get_latest_abci_chain(connection):
     )
     if _all_chains is None or len(_all_chains) == 0:
         return None
-    _chain = sorted(_all_chains, key=itemgetter(0), reverse=True)[0]
+    _chain = sorted(_all_chains, key=itemgetter(0), reverse=False)[0]
     return {"height": _chain[0], "is_synced": _chain[1], "chain_id": _chain[2]}
