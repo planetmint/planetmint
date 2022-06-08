@@ -195,7 +195,6 @@ class App(BaseApplication):
         self.abort_if_abci_chain_is_not_synced()
 
         chain_shift = 0 if self.chain is None else self.chain['height']
-
         height = request_end_block.height + chain_shift
         self.new_height = height
 

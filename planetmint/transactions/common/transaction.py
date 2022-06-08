@@ -606,7 +606,6 @@ class Transaction(object):
                 tx_body (dict): The Transaction to be transformed.
         """
         # NOTE: Remove reference to avoid side effects
-        print(f"\nbefore deepcopy {tx_body}")
         tx_body = deepcopy(tx_body)
         tx_body = rapidjson.loads(rapidjson.dumps(tx_body))
 
