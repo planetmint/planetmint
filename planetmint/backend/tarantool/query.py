@@ -60,13 +60,11 @@ def store_transactions(connection, signed_transactions: list):
             )
         except:  # This is used for omitting duplicate error in database for test -> test_bigchain_api::test_double_inclusion
             continue
-
         for _in in txtuples["inputs"]:
             connection.run(
                 connection.space("inputs").insert(_in),
                 only_data=False
             )
-
         for _out in txtuples["outputs"]:
             connection.run(
                 connection.space("outputs").insert(_out),

@@ -69,6 +69,7 @@ class TransactionDecompose:
         _inputs = []
         input_index = 0
         for _input in self._transaction["inputs"]:
+
             _inputs.append((self._transaction["id"],
                             _input["fulfillment"],
                             _input["owners_before"],
@@ -84,7 +85,6 @@ class TransactionDecompose:
         _keys = []
         output_index = 0
         for _output in self._transaction["outputs"]:
-            # print(f"\noutput: {_output}")
             output_id = self.__create_hash(7)
             if _output["condition"]["details"].get("subconditions") is None:
                 tmp_output = (self._transaction["id"],
