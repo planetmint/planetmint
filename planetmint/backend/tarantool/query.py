@@ -392,7 +392,7 @@ def store_pre_commit_state(connection, state: dict):
     _precommit = connection.run(
         connection.space("pre_commits").select(state["height"], index="height_search", limit=1)
     )
-    unique_id = token_hex(8) if _precommit is None or len(_precommit.data) == 0 else _precommit.data[0][0]
+    unique_id = token_hex(8) if _precommit is None or len(_precommit) == 0 else _precommit[0][0]
     connection.run(
         connection.space("pre_commits").upsert((unique_id, state["height"], state["transactions"]),
                                                op_list=[('=', 0, unique_id),
@@ -419,7 +419,7 @@ def store_validator_set(conn, validators_update: dict):
     _validator = conn.run(
         conn.space("validators").select(validators_update["height"], index="height_search", limit=1)
     )
-    unique_id = token_hex(8) if _validator is None or len(_validator) == 0 else _validator.data[0][0]
+    unique_id = token_hex(8) if _validator is None or len(_validator) == 0 else _validator[0][0]
     conn.run(
         conn.space("validators").upsert((unique_id, validators_update["height"], validators_update["validators"]),
                                         op_list=[('=', 0, unique_id),
