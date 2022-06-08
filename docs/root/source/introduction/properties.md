@@ -5,9 +5,9 @@ SPDX-License-Identifier: (Apache-2.0 AND CC-BY-4.0)
 Code is Apache-2.0 and docs are CC-BY-4.0
 --->
 
-# Properties of Planetmint 
+### Properties of Planetmint
 
-## Decentralization
+#### Decentralization
 
 Decentralization means that no one owns or controls everything, and there is no single point of failure.
 
@@ -23,12 +23,12 @@ If someone has (or gets) admin access to a node, they can mess with that node (e
 
 It’s worth noting that not even the admin or superuser of a node can transfer assets. The only way to create a valid transfer transaction is to fulfill the current crypto-conditions on the asset, and the admin/superuser can’t do that because the admin user doesn’t have the necessary information (e.g. private keys).
 
-## Byzantine Fault Tolerance
+#### Byzantine Fault Tolerance
 
 [Tendermint](https://tendermint.io/) is used for consensus and transaction replication,
 and Tendermint is [Byzantine Fault Tolerant (BFT)](https://en.wikipedia.org/wiki/Byzantine_fault_tolerance).
 
-## Node Diversity
+#### Node Diversity
 
 Steps should be taken to make it difficult for any one actor or event to control or damage “enough” of the nodes. (Because Planetmint Server uses Tendermint, "enough" is ⅓.) There are many kinds of diversity to consider, listed below. It may be quite difficult to have high diversity of all kinds.
 
@@ -39,7 +39,7 @@ Steps should be taken to make it difficult for any one actor or event to control
 
 Note: If all the nodes are running the same code, i.e. the same implementation of Planetmint, then a bug in that code could be used to compromise all of the nodes. Ideally, there would be several different, well-maintained implementations of Planetmint Server (e.g. one in Python, one in Go, etc.), so that a consortium could also have a diversity of server implementations. Similar remarks can be made about the operating system.
 
-## Immutability
+#### Immutability
 
 The blockchain community often describes blockchains as “immutable.” If we interpret that word literally, it means that blockchain data is unchangeable or permanent, which is absurd. The data _can_ be changed. For example, a plague might drive humanity extinct; the data would then get corrupted over time due to water damage, thermal noise, and the general increase of entropy.
 

@@ -18,7 +18,7 @@ in the Planetmint Server code, based on Python docstrings in the code itself.
 
 .. toctree::
    :maxdepth: 1
-
+   
    commands
    the-planetmint-class
    backend
