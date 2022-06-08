@@ -390,12 +390,12 @@ def get_unspent_outputs(connection, query=None):  # for now we don't have implem
 @register_query(TarantoolDBConnection)
 def store_pre_commit_state(connection, state: dict):
     _precommit = connection.run(
-        connection.space("pre_commits").select(state["height"], index="height_search", limit=1)
+        connection.space("pre_commits").select([], limit=1)
     )
-    unique_id = token_hex(8) if _precommit is None or len(_precommit.data) == 0 else _precommit.data[0][0]
+    _precommitTuple = (token_hex(8), state["height"], state["transactions"]) if _precommit is None or len(_precommit) == 0 else _precommit[0]
     connection.run(
-        connection.space("pre_commits").upsert((unique_id, state["height"], state["transactions"]),
-                                               op_list=[('=', 0, unique_id),
+        connection.space("pre_commits").upsert(_precommitTuple,
+                                               op_list=[('=', 0, _precommitTuple[0]),
                                                         ('=', 1, state["height"]),
                                                         ('=', 2, state["transactions"])],
                                                limit=1),
@@ -410,7 +410,7 @@ def get_pre_commit_state(connection):
     )
     if _commit is None or len(_commit) == 0:
         return None
-    _commit = sorted(_commit, key=itemgetter(1), reverse=True)[0]
+    _commit = sorted(_commit, key=itemgetter(1), reverse=False)[0]
     return {"height": _commit[1], "transactions": _commit[2]}
 
 
@@ -419,7 +419,7 @@ def store_validator_set(conn, validators_update: dict):
     _validator = conn.run(
         conn.space("validators").select(validators_update["height"], index="height_search", limit=1)
     )
-    unique_id = token_hex(8) if _validator is None or len(_validator) == 0 else _validator.data[0][0]
+    unique_id = token_hex(8) if _validator is None or len(_validator) == 0 else _validator[0][0]
     conn.run(
         conn.space("validators").upsert((unique_id, validators_update["height"], validators_update["validators"]),
                                         op_list=[('=', 0, unique_id),
@@ -519,8 +519,10 @@ def get_asset_tokens_for_public_key(connection, asset_id: str,
 
 @register_query(TarantoolDBConnection)
 def store_abci_chain(connection, height: int, chain_id: str, is_synced: bool = True):
+    _chain = connection.run(connection.space("abci_chains").select(height, index="height_search", limit=1))
+    _chainTuple = (height, is_synced, chain_id) if _chain is None or len(_chain) == 0 else _chain[0]
     connection.run(
-        connection.space("abci_chains").upsert((height, is_synced, chain_id),
+        connection.space("abci_chains").upsert(_chainTuple,
                                                op_list=[('=', 0, height),
                                                         ('=', 1, is_synced),
                                                         ('=', 2, chain_id)],
