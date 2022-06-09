@@ -199,7 +199,7 @@ If you want to start and manage the Planetmint and Tendermint processes yourself
 
 ## How Others Can Access Your Node
 
-If you followed the above instructions, then your node should be publicly-accessible with Planetmint Root URL `https://hostname` or `http://hostname:9984`. That is, anyone can interact with your node using the [Planetmint HTTP API](../api/http-client-server-api) exposed at that address. The most common way to do that is to use one of the [Planetmint Drivers](../../drivers/index).
+If you followed the above instructions, then your node should be publicly-accessible with Planetmint Root URL `https://hostname` or `http://hostname:9984`. That is, anyone can interact with your node using the [Planetmint HTTP API](../connecting/api/http-client-server-api) exposed at that address. The most common way to do that is to use one of the [Planetmint Drivers](../connecting/drivers).
 
 [bdb:software]: https://github.com/planetmint/planetmint/
 [bdb:pypi]: https://pypi.org/project/Planetmint/#history

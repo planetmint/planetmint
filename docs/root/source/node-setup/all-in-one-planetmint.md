@@ -71,7 +71,7 @@ Let's analyze that command:
 $ docker ps | grep planetmint
 ```
 
-Send your first transaction using [Planetmint drivers](../../drivers/index).
+Send your first transaction using [Planetmint drivers](../connecting/drivers).
 
 
 ## Building Your Own Image

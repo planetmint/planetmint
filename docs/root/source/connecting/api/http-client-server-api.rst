@@ -4,8 +4,6 @@
    SPDX-License-Identifier: (Apache-2.0 AND CC-BY-4.0)
    Code is Apache-2.0 and docs are CC-BY-4.0
 
-.. _the-http-client-server-api:
-
 The HTTP Client-Server API
 ==========================
 
@@ -18,7 +16,6 @@ If you set up a Planetmint node or reverse proxy yourself,
 and you're not sure what the API Root URL is,
 then see the last section of this page for help.
 
-.. _planetmint-root-url:
 
 Planetmint Root URL
 -------------------
@@ -34,8 +31,7 @@ with something like the following in the body:
     :language: http
 
 
-.. _api-root-endpoint:
-
+.. _Api root endpoint:
 API Root Endpoint
 -----------------
 
@@ -713,7 +709,7 @@ so you can access it from the same machine,
 but it won't be directly accessible from the outside world.
 (The outside world could connect via a SOCKS proxy or whatnot.)
 
-The documentation about Planetmint Server :doc:`Configuration Settings <../../installation/node-setup/configuration>`
+The documentation about Planetmint Server :doc:`Configuration Settings <../../node-setup/configuration>`
 has a section about how to set ``server.bind`` so as to make
 the HTTP API publicly accessible.
 

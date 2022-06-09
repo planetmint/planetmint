@@ -22,7 +22,7 @@ Show the version number. `planetmint -v` does the same thing.
 
 ## planetmint configure
 
-Generate a local configuration file (which can be used to set some or all [Planetmint node configuration settings](configuration)). It will ask you for the values of some configuration settings.
+Generate a local configuration file (which can be used to set some or all [Planetmint node configuration settings](../node-setup/configuration)). It will ask you for the values of some configuration settings.
 If you press Enter for a value, it will use the default value.
 
 At this point, only one database backend is supported: `localmongodb`.
@@ -42,7 +42,7 @@ planetmint -y configure localmongodb
 
 ## planetmint show-config
 
-Show the values of the [Planetmint node configuration settings](configuration).
+Show the values of the [Planetmint node configuration settings](../node-setup/configuration).
 
 
 ## planetmint init
@@ -79,7 +79,7 @@ section of Python's documentation.
 
 For a more fine-grained control over the logging configuration you can use the
 configuration file as documented under
-[Configuration Settings](configuration).
+[Configuration Settings](../node-setup/configuration).
 
 
 ## planetmint election
@@ -94,7 +94,7 @@ Create a new election which proposes a change to the Planetmint network.
 
 If the command succeeds, it will post an election transaction and output `election_id`.
 
-The election proposal consists of vote tokens allocated to every current validator proportional to his voting power. Validators spend their votes to approve the election using the [election-approve command](#election-approve).
+The election proposal consists of vote tokens allocated to every current validator proportional to his voting power. Validators spend their votes to approve the election using the [election-approve command](election-approve).
 
 Every election has a type. Currently supported types are `upsert-validator` and `chain-migration`. Their transaction operations are `VALIDATOR_ELECTION` and `CHAIN_MIGRATION` accordingly. See below for how to create an election of a particular type.
 
@@ -148,11 +148,12 @@ $ planetmint election new migration --private-key /home/user/.tendermint/config/
 ```
 
 Concluded chain migration elections halt block production at whichever block height they are approved.
-Afterwards, validators are supposed to upgrade Tendermint, set new `chain_id`, `app_hash`, and `validators` (to learn these values, use the [election show](#election-show) command) in `genesis.json`, make and save a MongoDB dump, and restart the system.
+Afterwards, validators are supposed to upgrade Tendermint, set new `chain_id`, `app_hash`, and `validators` (to learn these values, use the [election show](election-show) command) in `genesis.json`, make and save a MongoDB dump, and restart the system.
 
 
 For more details about how chain migrations work, refer to [Type 3 scenarios in BEP-42](https://github.com/planetmint/BEPs/tree/master/42).
 
+(election-approve)=
 ### election approve
 
 Approve an election by voting for it. The command places a `VOTE` transaction, spending all of the validator's vote tokens to the election address.
@@ -173,6 +174,7 @@ $ planetmint election approve 04a067582cf03eba2b53b82e4adb5ece424474cbd4f7183780
 
 Once a proposal has been approved by the sufficient amount of validators (contributing more than `2/3` of the total voting power), the proposed change is applied to the network.
 
+(election-show)=
 ### election show
 
 Retrieves the information about elections.

@@ -4,13 +4,14 @@
    SPDX-License-Identifier: (Apache-2.0 AND CC-BY-4.0)
    Code is Apache-2.0 and docs are CC-BY-4.0
 
-Drivers
-=======
+Drivers & Bindings
+******************
+
 
 Connectors to Planetmint are referred to as drivers within the community. A driver is used to create valid transactions, to generate key pairs, to sign transactions and to post the transaction to the Planetmint API. 
 
-These drivers were originally created by the original BigchainDB team:
-Planetmint
+These drivers or bindings were originally created by the original BigchainDB team: 
+
 * `Python Driver <https://docs.planetmint.io/projects/py-driver/en/latest/index.html>`_
 * `JavaScript / Node.js Driver <https://github.com/bigchaindb/js-bigchaindb-driver>`_
 * `Java Driver <https://github.com/bigchaindb/java-bigchaindb-driver>`_

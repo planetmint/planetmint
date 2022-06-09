@@ -1,0 +1,21 @@
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+{
+  "api": {
+    "v1": {
+      "assets": "/api/v1/assets/",
+      "blocks": "/api/v1/blocks/",
+      "docs": "https://docs.planetmint.com/projects/server/en/v0.9.3/http-client-server-api.html",
+      "metadata": "/api/v1/metadata/",
+      "outputs": "/api/v1/outputs/",
+      "streamedblocks": "ws://localhost:9985/api/v1/streams/valid_blocks",
+      "streams": "ws://localhost:9985/api/v1/streams/valid_transactions",
+      "transactions": "/api/v1/transactions/",
+      "validators": "/api/v1/validators"
+    }
+  },
+  "docs": "https://docs.planetmint.com/projects/server/en/v0.9.3/",
+  "software": "Planetmint",
+  "version": "0.9.3"
+}

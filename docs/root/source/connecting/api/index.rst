@@ -4,13 +4,11 @@
    SPDX-License-Identifier: (Apache-2.0 AND CC-BY-4.0)
    Code is Apache-2.0 and docs are CC-BY-4.0
 
-Installation
-############
+   
+
+API
+###
 
 
-You can install a single node to test out Planetmint, connect it to a network or setup a network of nodes. 
-
-
-   api/index
-   commands-and-backend/index
-   appendices/index
+.. include:: http-client-server-api.rst
+.. include:: websocket-event-stream-api.rst

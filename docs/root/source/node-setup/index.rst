@@ -13,9 +13,9 @@ You can use the all-in-one docker solution, or install Tendermint, MongoDB, and 
 
 .. include:: deploy-a-machine.md
     :parser: myst_parser.sphinx_
-.. include:: aws-setup.rst
+.. include:: aws-setup.md
     :parser: myst_parser.sphinx_
-.. include:: ll-in-one-planetmint.md
+.. include:: all-in-one-planetmint.md
     :parser: myst_parser.sphinx_
 .. include:: planetmint-node-ansible.md
     :parser: myst_parser.sphinx_
@@ -25,9 +25,7 @@ You can use the all-in-one docker solution, or install Tendermint, MongoDB, and 
     :parser: myst_parser.sphinx_
 .. include:: configuration.md
     :parser: myst_parser.sphinx_
-.. include:: troubleshooting.md
-    :parser: myst_parser.sphinx_
-.. include:: production/index.rst
+.. include:: production-node/index.rst
     :parser: myst_parser.sphinx_
 
 

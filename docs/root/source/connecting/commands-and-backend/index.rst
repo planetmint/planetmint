@@ -5,7 +5,8 @@
    Code is Apache-2.0 and docs are CC-BY-4.0
 
 Commands And Backend
-====================
+********************
+
 
 This section contains auto-generated documentation of various functions, classes and methods
 in the Planetmint Server code, based on Python docstrings in the code itself.
@@ -16,11 +17,9 @@ in the Planetmint Server code, based on Python docstrings in the code itself.
    if you want to know *for sure* what the code does,
    then you have to read the code itself.
 
-.. toctree::
-   :maxdepth: 1
-   
-   commands
-   the-planetmint-class
-   backend
+.. include:: ./commands.rst
+.. include:: the-planetmint-class.rst
+.. include:: backend.rst
+
    
    
