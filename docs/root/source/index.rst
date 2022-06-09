@@ -15,7 +15,7 @@ including decentralization, immutability and native support for assets.
 At a high level, one can communicate with a Planetmint network (set of nodes) using the Planetmint HTTP API, or a wrapper for that API, such as the Planetmint Python Driver. Each Planetmint node runs Planetmint Server and various other software. The `terminology page <terminology.html>`_ explains some of those terms in more detail.
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 3
    
    Introdcution <introduction/index>
    Using Planetmint <basic-usage>
@@ -25,7 +25,5 @@ At a high level, one can communicate with a Planetmint network (set of nodes) us
    tools/index
    contributing/index
    terminology
-   release-notes
    troubleshooting
 
-   installation/index

@@ -190,7 +190,7 @@ def main():
 
 
     base_path = os.path.join(os.path.dirname(__file__),
-                             'source/installation/api/http-samples')
+                             'source/connecting/http-samples')
     if not os.path.exists(base_path):
         os.makedirs(base_path)
 
