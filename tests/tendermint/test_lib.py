@@ -518,11 +518,11 @@ def test_get_spent_key_order(b, user_pk, user_sk, user2_pk, user2_sk):
     bob = generate_key_pair()
 
     tx1 = Create.generate([user_pk],
-                          [([alice.public_key], 3), ([user_pk], 2)],
-                          asset=None) \
+                            [([alice.public_key], 3), ([user_pk], 2)],
+                            asset=None) \
         .sign([user_sk])
     b.store_bulk_transactions([tx1])
-    assert tx1.validate(b)
+
     inputs = tx1.to_inputs()
     tx2 = Transfer.generate([inputs[1]], [([user2_pk], 2)], tx1.id).sign([user_sk])
     assert tx2.validate(b)
