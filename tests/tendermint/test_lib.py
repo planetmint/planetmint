@@ -288,9 +288,11 @@ def test_store_bulk_transaction(mocker, b, signed_create_tx,
 @pytest.mark.bdb
 def test_delete_zero_unspent_outputs(b, utxoset):
     unspent_outputs, utxo_collection = utxoset
+    num_rows_before_operation = utxo_collection.select().rowcount
     delete_res = b.delete_unspent_outputs()
+    num_rows_after_operation = utxo_collection.select().rowcount
     # assert delete_res is None
-    assert utxo_collection.select().rowcount == 3
+    assert num_rows_before_operation == num_rows_after_operation
     # assert utxo_collection.count_documents(
     #     {'$or': [
     #         {'transaction_id': 'a', 'output_index': 0},
@@ -350,9 +352,11 @@ def test_delete_many_unspent_outputs(b, utxoset):
 
 @pytest.mark.bdb
 def test_store_zero_unspent_output(b, utxo_collection):
+    num_rows_before_operation = utxo_collection.select().rowcount
     res = b.store_unspent_outputs()
+    num_rows_after_operation = utxo_collection.select().rowcount
     assert res is None
-    assert utxo_collection.select().rowcount == 0
+    assert num_rows_before_operation == num_rows_after_operation
 
 
 @pytest.mark.bdb
