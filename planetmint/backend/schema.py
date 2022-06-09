@@ -22,7 +22,7 @@ TABLES = ('transactions', 'blocks', 'assets', 'metadata',
 
 SPACE_NAMES = ("abci_chains", "assets", "blocks", "blocks_tx",
                "elections", "meta_data", "pre_commits", "validators",
-               "transactions", "inputs", "outputs", "keys")
+               "transactions", "inputs", "outputs", "keys", "utxos")
 
 VALID_LANGUAGES = ('danish', 'dutch', 'english', 'finnish', 'french', 'german',
                    'hungarian', 'italian', 'norwegian', 'portuguese', 'romanian',

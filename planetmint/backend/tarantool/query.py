@@ -390,11 +390,11 @@ def store_pre_commit_state(connection, state: dict):
     _precommit = connection.run(
         connection.space("pre_commits").select([], limit=1)
     )
-    _precommitTuple = (token_hex(8), state["height"], state["transactions"]) if _precommit is None or len(_precommit) == 0 else _precommit[0]
+    _precommitTuple = (token_hex(8), state["height"], state["transactions"]) if _precommit is None or len(
+        _precommit) == 0 else _precommit[0]
     connection.run(
         connection.space("pre_commits").upsert(_precommitTuple,
-                                               op_list=[('=', 0, _precommitTuple[0]),
-                                                        ('=', 1, state["height"]),
+                                               op_list=[('=', 1, state["height"]),
                                                         ('=', 2, state["transactions"])],
                                                limit=1),
         only_data=False
@@ -420,8 +420,7 @@ def store_validator_set(conn, validators_update: dict):
     unique_id = token_hex(8) if _validator is None or len(_validator) == 0 else _validator[0][0]
     conn.run(
         conn.space("validators").upsert((unique_id, validators_update["height"], validators_update["validators"]),
-                                        op_list=[('=', 0, unique_id),
-                                                 ('=', 1, validators_update["height"]),
+                                        op_list=[('=', 1, validators_update["height"]),
                                                  ('=', 2, validators_update["validators"])],
                                         limit=1),
         only_data=False
@@ -444,8 +443,7 @@ def delete_validator_set(connection, height: int):
 def store_election(connection, election_id: str, height: int, is_concluded: bool):
     connection.run(
         connection.space("elections").upsert((election_id, height, is_concluded),
-                                             op_list=[('=', 0, election_id),
-                                                      ('=', 1, height),
+                                             op_list=[('=', 1, height),
                                                       ('=', 2, is_concluded)],
                                              limit=1),
         only_data=False
@@ -517,16 +515,8 @@ def get_asset_tokens_for_public_key(connection, asset_id: str,
 
 @register_query(TarantoolDBConnection)
 def store_abci_chain(connection, height: int, chain_id: str, is_synced: bool = True):
-    _chain = connection.run(connection.space("abci_chains").select(height, index="height_search", limit=1))
-    _chainTuple = (height, is_synced, chain_id) if _chain is None or len(_chain) == 0 else _chain[0]
-    connection.run(
-        connection.space("abci_chains").upsert(_chainTuple,
-                                               op_list=[('=', 0, height),
-                                                        ('=', 1, is_synced),
-                                                        ('=', 2, chain_id)],
-                                               limit=1),
-        only_data=False
-    )
+    connection.run(connection.space("abci_chains").delete(chain_id), only_data=False)
+    connection.run(connection.space("abci_chains").insert((height, is_synced, chain_id)), only_data=False)
 
 
 @register_query(TarantoolDBConnection)
