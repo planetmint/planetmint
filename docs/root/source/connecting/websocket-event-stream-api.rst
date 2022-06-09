@@ -6,8 +6,9 @@
 
 .. _the-websocket-event-stream-api:
 
-The WebSocket Event Stream API
-==============================
+WebSocket Event Stream API
+******************************
+
 
 .. important::
     The WebSocket Event Stream runs on a different port than the Web API. The
@@ -21,14 +22,16 @@ to notify you as events occur, such as new `valid transactions <#valid-transacti
 
 
 Demoing the API
----------------
+===============
+
 
 You may be interested in demoing the Event Stream API with the `WebSocket echo test <http://websocket.org/echo.html>`_
 to familiarize yourself before attempting an integration.
 
 
 Determining Support for the Event Stream API
---------------------------------------------
+============================================
+
 
 It's a good idea to make sure that the node you're connecting with
 has advertised support for the Event Stream API. To do so, send a HTTP GET
@@ -46,7 +49,8 @@ response contains a ``streams`` property:
 
 
 Connection Keep-Alive
----------------------
+=====================
+
 
 The Event Stream API supports Ping/Pong frames as descibed in
 `RFC 6455  <https://tools.ietf.org/html/rfc6455#section-5.5.2>`_.
@@ -58,7 +62,8 @@ The Event Stream API supports Ping/Pong frames as descibed in
     same.
 
 Streams
--------
+=======
+
 
 Each stream is meant as a unidirectional communication channel, where the
 Planetmint node is the only party sending messages. Any messages sent to the
@@ -85,7 +90,8 @@ All messages sent in a stream are in the JSON format.
     API, consider creating a new `BEP <https://github.com/planetmint/BEPs>`_.
 
 Valid Transactions
-~~~~~~~~~~~~~~~~~~
+==================
+
 
 ``/valid_transactions``
 

@@ -4,8 +4,9 @@
    SPDX-License-Identifier: (Apache-2.0 AND CC-BY-4.0)
    Code is Apache-2.0 and docs are CC-BY-4.0
 
-The HTTP Client-Server API
-==========================
+HTTP Client-Server API
+**************************
+
 
 This page assumes you already know an API Root URL
 for a Planetmint node or reverse proxy.
@@ -18,7 +19,8 @@ then see the last section of this page for help.
 
 
 Planetmint Root URL
--------------------
+===================
+
 
 If you send an HTTP GET request to the Planetmint Root URL
 e.g. ``http://localhost:9984``
@@ -33,7 +35,8 @@ with something like the following in the body:
 
 .. _Api root endpoint:
 API Root Endpoint
------------------
+=================
+
 
 If you send an HTTP GET request to the API Root Endpoint
 e.g. ``http://localhost:9984/api/v1/``
@@ -46,7 +49,8 @@ that allows you to discover the Planetmint API endpoints:
 
 
 Transactions Endpoint
----------------------
+=====================
+
 
 .. note::
 
@@ -206,7 +210,8 @@ Transactions Endpoint
 
 
 Transaction Outputs
--------------------
+===================
+
 
 The ``/api/v1/outputs`` endpoint returns transactions outputs filtered by a
 given public key, and optionally filtered to only include either spent or
@@ -328,7 +333,8 @@ unspent outputs.
 
 
 Assets
-------
+======
+
 
 .. note::
 
@@ -452,7 +458,8 @@ Assets
 
 
 Transaction Metadata
---------------------
+====================
+
 
 .. note::
 
@@ -576,7 +583,8 @@ Transaction Metadata
 
 
 Validators
---------------------
+==========
+
 
 .. http:get:: /api/v1/validators
 
@@ -620,7 +628,8 @@ Validators
 
 
 Blocks
-------
+======
+
 
 .. http:get:: /api/v1/blocks/{block_height}
 
@@ -697,7 +706,8 @@ Blocks
 .. _determining-the-api-root-url:
 
 Determining the API Root URL
-----------------------------
+============================
+
 
 When you start Planetmint Server using ``planetmint start``,
 an HTTP API is exposed at some address. The default is:

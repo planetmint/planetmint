@@ -22,7 +22,6 @@ At a high level, one can communicate with a Planetmint network (set of nodes) us
    Node Setup <node-setup/index>
    Networks & Federations <network-setup/index>
    Connecting to Planetmint <connecting/index>
-   query
    tools/index
    contributing/index
    terminology

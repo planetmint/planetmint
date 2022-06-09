@@ -4,14 +4,15 @@
    SPDX-License-Identifier: (Apache-2.0 AND CC-BY-4.0)
    Code is Apache-2.0 and docs are CC-BY-4.0
 
-Queries in Planetmint
-=====================
+Database Queries
+******************
 
 A node operator can use the full power of MongoDB's query engine to search and query all stored data, including all transactions, assets and metadata.
 The node operator can decide for themselves how much of that query power they expose to external users.
 
-Blog Post with Example Queries
-------------------------------
+Querying MongoDB
+==============================
+
 
 We wrote a blog post in The Planetmint Blog to show
 how to use some MongoDB tools to query a Planetmint node's MongoDB database.
@@ -22,6 +23,7 @@ about custom cars and their ownership histories.
 How to Connect to MongoDB
 -------------------------
 
+
 Before you can query a MongoDB database, you must connect to it, and to do that, you need to know its hostname and port.
 
 If you're running a Planetmint node on your local machine (e.g. for dev and test), then the hostname should be ``localhost`` and the port should be ``27017``, unless you did something to change those values. If you're running a Planetmint node on a remote machine and you can SSH to that machine, then the same is true.
@@ -30,6 +32,7 @@ If you're running a Planetmint node on a remote machine and you configured its M
 
 How to Query
 ------------
+
 
 A Planetmint node operator has full access to their local MongoDB instance, so they can use any of MongoDB's APIs for running queries, including:
 

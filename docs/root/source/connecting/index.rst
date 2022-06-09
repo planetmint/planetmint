@@ -7,10 +7,17 @@
 Connecting to Planetmint
 ########################
 
+Planetmint enables you to connect to it via variaous ways:
 
-A single node or a node of a network exposes RESTful interafaces. Those can be connected and worked with by
+* Bindings or drivers for varioues languages exist
+* RESTful APIs and direct database queries
+
+Details are listed below.
 
 .. include:: drivers.rst
+.. include:: http-client-server-api.rst
+.. include:: websocket-event-stream-api.rst
+.. include:: query.rst
 .. .. include:: api/index.rst
 .. .. include:: commands-and-backend/index.rst
 
