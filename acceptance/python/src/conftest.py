@@ -20,7 +20,7 @@ SK_TO_PK = \
     Rule output encoding base58
     Scenario 'ecdh': Create the keypair
     Given that I am known as '{}'
-    Given I have the 'keys'
+    Given I have the 'keyring'
     When I create the ecdh public key
     When I create the testnet address
     Then print my 'ecdh public key'
@@ -58,7 +58,7 @@ ZENROOM_DATA = {
 CONDITION_SCRIPT = """Rule input encoding base58
     Rule output encoding base58
     Scenario 'ecdh': create the signature of an object
-    Given I have the 'keys'
+    Given I have the 'keyring'
     Given that I have a 'string dictionary' named 'houses' inside 'asset'
     When I create the signature of 'houses'
     When I rename the 'signature' to 'data.signature'

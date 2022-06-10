@@ -16,13 +16,13 @@ from json.decoder import JSONDecodeError
 
 def test_zenroom(gen_key_zencode, secret_key_to_private_key_zencode, fulfill_script_zencode, 
 condition_script_zencode, zenroom_data, zenroom_house_assets):
-    alice = json.loads(ZenroomSha256.run_zenroom(gen_key_zencode).output)['keys']
-    bob = json.loads(ZenroomSha256.run_zenroom(gen_key_zencode).output)['keys']
+    alice = json.loads(ZenroomSha256.run_zenroom(gen_key_zencode).output)['keyring']
+    bob = json.loads(ZenroomSha256.run_zenroom(gen_key_zencode).output)['keyring']
 
     zen_public_keys = json.loads(ZenroomSha256.run_zenroom(secret_key_to_private_key_zencode.format('Alice'),
-                                                keys={'keys': alice}).output)
+                                                keys={'keyring': alice}).output)
     zen_public_keys.update(json.loads(ZenroomSha256.run_zenroom(secret_key_to_private_key_zencode.format('Bob'),
-                                                keys={'keys': bob}).output))
+                                                keys={'keyring': bob}).output))
 
     # CRYPTO-CONDITIONS: instantiate an Ed25519 crypto-condition for buyer
     zenSha = ZenroomSha256(script=fulfill_script_zencode, keys=zen_public_keys, data=zenroom_data)
