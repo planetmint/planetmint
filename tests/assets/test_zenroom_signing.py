@@ -20,14 +20,14 @@ from planetmint_driver import Planetmint
 def test_zenroom_signing():
 #    bdb_root_url = 'http://localhost:9984/'
 #    bdb = Planetmint(bdb_root_url)
+
     # generate the keypairs/wallets for biolabs and the hospital
     # the pacemaker will only e represented by its public key address
     # derived from the attached RFID tag's EPC code
-    from planetmint_driver.crypto import generate_keypair, CryptoKeypair
+    from planetmint_driver.crypto import generate_keypair
 
     biolabs, hospital = generate_keypair(), generate_keypair()
-    # biolabs = CryptoKeypair(private_key='2KF5Qx4ksFWQ7j7DgTj1jYhQ6eoP38WoyFVMjTR5hDgK', public_key='2KF5Qx4ksFWQ7j7DgTj1jYhQ6eoP38WoyFVMjTR5hDgK')
-
+    
     print(biolabs.private_key)
     print(biolabs.public_key)
     print(hospital.private_key)
@@ -38,30 +38,54 @@ def test_zenroom_signing():
     # hospital = CryptoKeypair(private_key='ASHwLY9zG43rNkCZgRFBV6K9j9oHM1joxYMxHRiNyPja', public_key='A7fpfDpaGkJubquXbj3cssMhx5GQ1599Sxc7MxR9SWa8')
     # create a digital asset for biolabs
     # for readability we turn the original EPC code into capital hex chars
-    rfid_token = {
-        'data': {
-            'token_for': {
-                'UCODE_DNA': {
-                    'EPC_serial_number': 'E2003787C9AE8209161AF72F',
-                    'amount_issued': 100,
-                    'pegged_to'    : 'SFR',
-                    #'pub_key'      : elements.public_key,
+#    rfid_token = {
+#        'data': {
+#            'token_for': {
+#                'UCODE_DNA': {
+#                    'EPC_serial_number': 'E2003787C9AE8209161AF72F',
+#                    'amount_issued': 100,
+#                    'pegged_to'    : 'SFR',
+#                    #'pub_key'      : elements.public_key,
+#                }
+#            },
+#            #'description': 'Biolab\'s blockchain settlement system for pacemakers.',
+#        },
+#    }
+    HOUSE_ASSETS = {
+        "data": {
+            "houses": [
+                {
+                    "name": "Harry",
+                    "team": "Gryffindor",
+                },
+                {
+                    "name": "Draco",
+                    "team": "Slytherin",
                 }
-            },
-            #'description': 'Biolab\'s blockchain settlement system for pacemakers.',
-        },
-    }
+            ],
+        }
+}
     version = '2.0'
-    script = """Scenario 'TakeoutCTL': "To provision, the pacemaker id#527663 the first time and store the output as keypair.keys"
-    Given that I am known as 'identifier'
-    When I create my new keypair
-    Then print all data
-    """
-    script2 = """Scenario 'TakeoutCTL': "For settlement, the pacemaker id#527663 with keypair.keys activated locck 'did:r3c:MBs2h46THPD3ezJ7Giisq5MJbuWo7mpz8GF9NbW1BspjoICAgIGtleXJpbmcgPSBFQ0RILm5ldygpCiAgICBrZXlyaW5nOmtleWdlbigpCiAgICAKICAgIC0tIGV4cG9ydCB0aGUga2V5cGFpciB0byBqc29uCiAgICBleHBvcnQgPSBKU09OLmVuY29kZSgKICAgICAgIHsKICAgICAgICAgIHB1YmxpYyAgPSBrZXlyaW5nOiBwdWJsaWMoKTpiYXNlNjQoKSwKICAgICAgICAgIHByaXZhdGUgPSBrZXlyaW5nOnByaXZhdGUoKTpiYXNlNjQoKQogICAgICAgfQogICAgKQogICAgcHJpbnQoZXhwb3J0KQoWBE5vbmUWBE5vbmUWBE5vbmUCAQA='"
-    Given that I am known as 'identifier'
-    When my signature validated
-    Then verify transaction and settle
-    """
+
+    CONDITION_SCRIPT = """Rule input encoding base58
+        Rule output encoding base58
+        Scenario 'ecdh': create the signature of an object
+        Given I have the 'keys'
+        Given that I have a 'string dictionary' named 'houses' inside 'asset'
+        When I create the signature of 'houses'
+        When I rename the 'signature' to 'data.signature'
+        Then print the 'data.signature'"""
+        
+    FULFILL_SCRIPT = \
+        """Rule input encoding base58
+        Rule output encoding base58
+        Scenario 'ecdh': Bob verifies the signature from Alice
+        Given I have a 'ecdh public key' from 'Alice'
+        Given that I have a 'string dictionary' named 'houses' inside 'asset'
+        Given I have a 'signature' named 'data.signature' inside 'result'
+        When I verify the 'houses' has a signature in 'data.signature' by 'Alice'
+        Then print the string 'ok'"""
+        
     SK_TO_PK = \
         """Rule input encoding base58
         Rule output encoding base58
@@ -94,23 +118,19 @@ def test_zenroom_signing():
                                                 keys={'keys': bob}).output))
 
 
-    # CRYPTO-CONDITIONS: instantiate an Ed25519|Zenroom crypto-condition for hospital
-    #ed25519 = Ed25519Sha256(public_key=base58.b58decode(hospital.public_key))
-    zenroomscpt = ZenroomSha256(script=script2, data=ZENROOM_DATA, keys=zen_public_keys)
-    # print(F'ed25519 is: {ed25519.public_key}')
+
+    zenroomscpt = ZenroomSha256(script=FULFILL_SCRIPT, data=ZENROOM_DATA, keys=zen_public_keys)
     print(F'zenroom is: {zenroomscpt.script}')
+    
     # CRYPTO-CONDITIONS: generate the condition uri
-    # condition_uri = ed25519.condition.serialize_uri()
-    condition_uri_zen = zenroomscpt.condition.serialize_uri()
+    condition_uri_zen = zenroomscpt.condition.serialize_uri()    
+    print(F'\nzenroom condition URI: {condition_uri_zen}')
     #print(F'condition_uri is: {condition_uri}')
     # # print(F'condition_uri_zen is: {condition_uri_zen}')
     # ZEN-CRYPTO-CONDITION: generate the condition did
-    zen_condition_did = 'did:bdb:MIIBMxaCARoKICAgIC0tIGdlbmVyYXRlIGEgc2ltcGxlIGtleXJpbmcKICAgIGtleXJpbmcgPSBFQ0RILm5ldygpCiAgICBrZXlyaW5nOmtleWdlbigpCiAgICAKICAgIC0tIGV4cG9ydCB0aGUga2V5cGFpciB0byBqc29uCiAgICBleHBvcnQgPSBKU09OLmVuY29kZSgKICAgICAgIHsKICAgICAgICAgIHB1YmxpYyAgPSBrZXlyaW5nOiBwdWJsaWMoKTpiYXNlNjQoKSwKICAgICAgICAgIHByaXZhdGUgPSBrZXlyaW5nOnByaXZhdGUoKTpiYXNlNjQoKQogICAgICAgfQogICAgKQogICAgcHJpbnQoZXhwb3J0KQoWBE5vbmUWBE5vbmUWBE5vbmUCAQA='
+    #zen_condition_did = 'did:bdb:MIIBMxaCARoKICAgIC0tIGdlbmVyYXRlIGEgc2ltcGxlIGtleXJpbmcKICAgIGtleXJpbmcgPSBFQ0RILm5ldygpCiAgICBrZXlyaW5nOmtleWdlbigpCiAgICAKICAgIC0tIGV4cG9ydCB0aGUga2V5cGFpciB0byBqc29uCiAgICBleHBvcnQgPSBKU09OLmVuY29kZSgKICAgICAgIHsKICAgICAgICAgIHB1YmxpYyAgPSBrZXlyaW5nOiBwdWJsaWMoKTpiYXNlNjQoKSwKICAgICAgICAgIHByaXZhdGUgPSBrZXlyaW5nOnByaXZhdGUoKTpiYXNlNjQoKQogICAgICAgfQogICAgKQogICAgcHJpbnQoZXhwb3J0KQoWBE5vbmUWBE5vbmUWBE5vbmUCAQA='
+    
     # CRYPTO-CONDITIONS: construct an unsigned fulfillment dictionary
-    """unsigned_fulfillment_dict = {
-        'type': ed25519.TYPE_NAME,
-        'public_key': base58.b58encode(ed25519.public_key).decode(),
-    }"""
     unsigned_fulfillment_dict_zen = {
         'type': zenroomscpt.TYPE_NAME,
         'public_key': base58.b58encode(hospital.public_key).decode(),
@@ -118,9 +138,7 @@ def test_zenroom_signing():
     output = {
         'amount': '10',
         'condition': {
-            #'details': unsigned_fulfillment_dict,
             'details': unsigned_fulfillment_dict_zen,
-            #'uri': condition_uri,
             'uri': condition_uri_zen,
             #'did': zen_condition_did,
             #'script': script,
@@ -138,21 +156,39 @@ def test_zenroom_signing():
     }
     token_creation_tx = {
         'operation': 'CREATE',
-        'asset': rfid_token,
+        'asset': HOUSE_ASSETS,#rfid_token,
         'metadata': None,
         'outputs': (output,),
         'inputs': (input_,),
         'version': version,
         'id': None,
     }
+    
+    
+    
     # JSON: serialize the transaction-without-id to a json formatted string
     message = json.dumps(
         token_creation_tx,
         sort_keys=True,
+        skipkeys=False,
         separators=(',', ':'),
         ensure_ascii=False,
     )
-    message = sha3.sha3_256(message.encode())
+
+    # major workflow:
+    # we store the fulfill script in the transaction/message (zenroom-sha)
+    # the condition script is used to fulfill the transaction and create the signature
+    # 
+    # the server should ick the fulfill script and recreate the zenroom-sha and verify the signature
+
+    
+    
+    message = zenroomscpt.sign(message, CONDITION_SCRIPT, alice)
+    assert(zenroomscpt.validate(message=message))
+
+### WORkS until here
+    
+    
     # CRYPTO-CONDITIONS: sign the serialized transaction-without-id
     #ed25519.sign(message.digest(), base58.b58decode(biolabs.private_key))
     ##  zenroomscpt.sign(message.digest(), base58.b58decode(biolabs.private_key))
@@ -161,7 +197,7 @@ def test_zenroom_signing():
     # CRYPTO-CONDITIONS: generate the fulfillment uri
     # fulfillment_uri = ed25519.serialize_uri()
     fulfillment_uri_zen = zenroomscpt.serialize_uri()
-    print(f'\nfulfillment_uri_zen is: {fulfillment_uri_zen}\n\n')
+    print(f'\nfulfillment_uri_zen is: {fulfillment_uri_zen}')
     fulfillment_fromuri_zen = zenroomscpt.from_uri(fulfillment_uri_zen)
     # print(F'fulfillment_uri is: {fulfillment_uri}')
 
@@ -182,19 +218,26 @@ def test_zenroom_signing():
     #token_creation_tx['inputs'][0]['fulfillment'] = fulfillment_uri ## there is the problem with fulfillment uri
     #print(F'token_creation_tx is: {token_creation_tx}')
     # JSON: serialize the id-less transaction to a json formatted string
+    tx = token_creation_tx
+    tx['id'] = None
     json_str_tx = json.dumps(
-        token_creation_tx,
+        tx,
         sort_keys=True,
-        separators=(',', ':'),
-        ensure_ascii=False,
+        skipkeys=False,
+        separators=(',', ':')
     )
     # SHA3: hash the serialized id-less transaction to generate the id
     shared_creation_txid = sha3.sha3_256(json_str_tx.encode()).hexdigest()
     # add the id
     token_creation_tx['id'] = shared_creation_txid
-    print(F'The TX to be consensed: {token_creation_tx}')
+    #print(F'The TX to be consensed: {token_creation_tx}')
     # send CREATE tx into the bdb network
-
+    ##tx = signed_create_tx.to_dict()
+    ##tx['id'] = None
+    ##payload = json.dumps(tx, skipkeys=False, sort_keys=True,
+    ##                     separators=(',', ':'))
+    ##assert sha3.sha3_256(payload.encode()).hexdigest() == signed_create_tx.id
+    
     #returned_creation_tx = bdb.transactions.send_commit(token_creation_tx)    
     #tx = request.get_json(force=True)
 
@@ -210,6 +253,7 @@ def test_zenroom_signing():
     except SchemaValidationError as e:
         assert()
     except ValidationError as e:
+        print(e)
         assert()
     #pool = current_app.config['bigchain_pool']
     #with pool() as planet:
@@ -227,39 +271,26 @@ def test_zenroom_signing():
     assert()
     
     #assert status_code == 202
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+
+
+
     #returned_creation_tx = bdb.transactions.send_async(token_creation_tx)
     #print(f"created TX : {returned_creation_tx}" )
     # result, errors = zenroom.zencode_exec(script)
     # result, errors = zenroom.zencode_exec(script)
     #print(result)
-    '''
-    Settlement on the Magic Mote chain is a prerequisite to sttlement on the respective settlement chain,
-    Liquid, Ethereum, Bitcoin, Hyperledger Fabric or Coreda R3.
-    Therefore, policies can become part of the transaction fulfillment logic. Quite exciting.
-    This way the Oracle Servce ith built right inro the transaction itself.
-    More precisely, it is part of the fulfillment.
-    Therefore, interweaving the blockchain transactions with external systems becomes trivial.
-    Add to this the capability to multipart each and every transaction thanks to code mobility
-    and thanks to transferring code with the state of the VM itself, the power of the system
-    becomes comprehensible.
-    Then consider that each and evry transaction is enabled to carry around its very own
-    interface to visualize transaction and chainstate on DLT enabled machines via the
-    Magic Mote UI.
-    Smart dust , indeed.
-    '''
+#    '''
+#    Settlement on the Magic Mote chain is a prerequisite to sttlement on the respective settlement chain,
+#    Liquid, Ethereum, Bitcoin, Hyperledger Fabric or Coreda R3.
+#    Therefore, policies can become part of the transaction fulfillment logic. Quite exciting.
+#    This way the Oracle Servce ith built right inro the transaction itself.
+#    More precisely, it is part of the fulfillment.
+#    Therefore, interweaving the blockchain transactions with external systems becomes trivial.
+#    Add to this the capability to multipart each and every transaction thanks to code mobility
+#    and thanks to transferring code with the state of the VM itself, the power of the system
+#    becomes comprehensible.
+#    Then consider that each and evry transaction is enabled to carry around its very own
+#    interface to visualize transaction and chainstate on DLT enabled machines via the
+#    Magic Mote UI.
+#    Smart dust , indeed.
+#    '''
