@@ -288,9 +288,11 @@ def test_store_bulk_transaction(mocker, b, signed_create_tx,
 @pytest.mark.bdb
 def test_delete_zero_unspent_outputs(b, utxoset):
     unspent_outputs, utxo_collection = utxoset
+    num_rows_before_operation = utxo_collection.select().rowcount
     delete_res = b.delete_unspent_outputs()
+    num_rows_after_operation = utxo_collection.select().rowcount
     # assert delete_res is None
-    assert utxo_collection.select().rowcount == 3
+    assert num_rows_before_operation == num_rows_after_operation
     # assert utxo_collection.count_documents(
     #     {'$or': [
     #         {'transaction_id': 'a', 'output_index': 0},
@@ -350,9 +352,11 @@ def test_delete_many_unspent_outputs(b, utxoset):
 
 @pytest.mark.bdb
 def test_store_zero_unspent_output(b, utxo_collection):
+    num_rows_before_operation = utxo_collection.select().rowcount
     res = b.store_unspent_outputs()
+    num_rows_after_operation = utxo_collection.select().rowcount
     assert res is None
-    assert utxo_collection.select().rowcount == 0
+    assert num_rows_before_operation == num_rows_after_operation
 
 
 @pytest.mark.bdb
@@ -514,11 +518,11 @@ def test_get_spent_key_order(b, user_pk, user_sk, user2_pk, user2_sk):
     bob = generate_key_pair()
 
     tx1 = Create.generate([user_pk],
-                          [([alice.public_key], 3), ([user_pk], 2)],
-                          asset=None) \
+                            [([alice.public_key], 3), ([user_pk], 2)],
+                            asset=None) \
         .sign([user_sk])
     b.store_bulk_transactions([tx1])
-    assert tx1.validate(b)
+
     inputs = tx1.to_inputs()
     tx2 = Transfer.generate([inputs[1]], [([user2_pk], 2)], tx1.id).sign([user_sk])
     assert tx2.validate(b)

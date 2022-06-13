@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 
 class TarantoolDBConnection(Connection):
-    def __init__(self, host: str = "localhost", port: int = 3303, user: str = None, password: str = None,  **kwargs):
+    def __init__(self, host: str = "localhost", port: int = 3303, user: str = None, password: str = None, **kwargs):
         try:
             super().__init__(**kwargs)
             self.host = host
@@ -61,7 +61,6 @@ class TarantoolDBConnection(Connection):
             raise op_error
         except tarantool.error.NetworkError as net_error:
             raise net_error
-
 
     def get_connection(self):
         return self.conn
