@@ -32,8 +32,8 @@ SPACE_COMMANDS = {
 INDEX_COMMANDS = {
     "abci_chains":
         {
-            "id_search": "abci_chains:create_index('id_search' ,{type='hash', parts={'chain_id'}})",
-            "height_search": "abci_chains:create_index('height_search' ,{type='tree',unique=false, parts={'height'}})"
+            "id_search": "abci_chains:create_index('id_search' ,{type='hash', parts={'id'}})",
+            "height_search": "abci_chains:create_index('height_search' ,{type='tree', unique=false, parts={'height'}})"
         },
     "assets":
         {
@@ -105,7 +105,7 @@ INDEX_COMMANDS = {
 
 SCHEMA_COMMANDS = {
     "abci_chains":
-        "abci_chains:format({{name='height' , type='integer'},{name='is_synched' , type='boolean'},{name='chain_id',type='string'}})",
+        "abci_chains:format({{name='height' , type='integer'},{name='is_synched' , type='boolean'},{name='chain_id',type='string'}, {name='id', type='string'}})",
     "assets":
         "assets:format({{name='data' , type='any'}, {name='tx_id', type='string'}, {name='asset_id', type='string'}})",
     "blocks":

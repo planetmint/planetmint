@@ -39,7 +39,7 @@ def flush_tarantool_db(connection, dbname):
         for _id in _all_data:
             if "assets" == s:
                 connection.run(connection.space(s).delete(_id[1]), only_data=False)
-            elif s in ["blocks", "abci_chains"]:
+            elif s == "blocks":
                 connection.run(connection.space(s).delete(_id[2]), only_data=False)
             elif s == "inputs":
                 connection.run(connection.space(s).delete(_id[-2]), only_data=False)
@@ -47,6 +47,8 @@ def flush_tarantool_db(connection, dbname):
                 connection.run(connection.space(s).delete(_id[-4]), only_data=False)
             elif s == "utxos":
                 connection.run(connection.space(s).delete([_id[0], _id[1]]), only_data=False)
+            elif s == "abci_chains":
+                connection.run(connection.space(s).delete(_id[-1]), only_data=False)
             else:
                 connection.run(connection.space(s).delete(_id[0]), only_data=False)
 

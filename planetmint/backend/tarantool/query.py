@@ -5,6 +5,7 @@
 
 """Query implementation for Tarantool"""
 from secrets import token_hex
+from hashlib import sha256
 from operator import itemgetter
 
 import tarantool.error
@@ -14,6 +15,7 @@ from planetmint.backend.utils import module_dispatch_registrar
 from planetmint.backend.tarantool.connection import TarantoolDBConnection
 from planetmint.backend.tarantool.transaction.tools import TransactionCompose, TransactionDecompose
 from json import dumps, loads
+
 
 register_query = module_dispatch_registrar(query)
 
@@ -515,20 +517,25 @@ def get_asset_tokens_for_public_key(connection, asset_id: str,
 
 @register_query(TarantoolDBConnection)
 def store_abci_chain(connection, height: int, chain_id: str, is_synced: bool = True):
-    connection.run(connection.space("abci_chains").delete(chain_id), only_data=False)
-    connection.run(connection.space("abci_chains").insert((height, is_synced, chain_id)), only_data=False)
+    hash_id_primarykey = sha256(dumps(obj={"height": height}).encode()).hexdigest()
+    connection.run(
+        connection.space("abci_chains").upsert((height, is_synced, chain_id, hash_id_primarykey),
+                                               op_list=[
+                                                   ('=', 0, height),
+                                                   ('=', 1, is_synced),
+                                                   ('=', 2, chain_id)
+                                               ]),
+        only_data=False
+    )
 
 
 @register_query(TarantoolDBConnection)
 def delete_abci_chain(connection, height: int):
-    _chains = connection.run(
-        connection.space("abci_chains").select(height, index="height_search")
+    hash_id_primarykey = sha256(dumps(obj={"height": height}).encode()).hexdigest()
+    connection.run(
+        connection.space("abci_chains").delete(hash_id_primarykey),
+        only_data=False
     )
-    for _chain in _chains:
-        connection.run(
-            connection.space("abci_chains").delete(_chain[2]),
-            only_data=False
-        )
 
 
 @register_query(TarantoolDBConnection)
