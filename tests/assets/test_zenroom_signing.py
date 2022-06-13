@@ -1,21 +1,186 @@
 import pytest
 import json
 import base58
-import sha3
+from hashlib import sha3_256
 import cryptoconditions as cc
 from cryptoconditions.types.ed25519 import Ed25519Sha256
 from cryptoconditions.types.zenroom import ZenroomSha256
 from cryptoconditions.crypto import Ed25519SigningKey as SigningKey
 from nacl.signing import VerifyKey
-
-#from zenroom import zenroom
-#from zenroom.zenroom import ZenroomException
+from planetmint_driver.crypto import generate_keypair
 
 import zenroom
-import lupa
-from lupa import LuaRuntime
-from planetmint_driver import Planetmint
+
+
 #bdb_root_url = 'https://ipdb3.riddleandcode.com'
+
+def test_manual_tx_crafting():
+    
+    producer, buyer, reseller = generate_keypair(), generate_keypair(), generate_keypair()
+    HOUSE_ASSETS = {
+        "data": {
+            "houses": [
+                {
+                    "name": "Harry",
+                    "team": "Gryffindor",
+                },
+                {
+                    "name": "Draco",
+                    "team": "Slytherin",
+                }
+            ],
+        }
+}
+
+    metadata = {
+        'units': 300,
+        'type': 'KG'
+    }
+    
+
+
+    from planetmint_driver import Planetmint as plntmnt_p
+    server = 'https://test.ipdb.io'
+    api = 'api/v1/transactions'
+    plmnt = plntmnt_p(server)
+
+    prepared_token_tx = plmnt.transactions.prepare(
+                operation='CREATE',
+                signers=producer.public_key,
+                recipients=[([producer.public_key], 3000)],
+                asset=HOUSE_ASSETS,
+                metadata=metadata)
+
+    print( f"prepared: {prepared_token_tx}")
+    signed_asset_creation = plmnt.transactions.fulfill(
+                prepared_token_tx,
+                private_keys=producer.private_key)
+    print( f"signed: {signed_asset_creation}")
+
+
+    from planetmint.models import Transaction
+    from planetmint.transactions.common.exceptions import SchemaValidationError, ValidationError
+    validated = None
+    try:
+        tx_obj = Transaction.from_dict(signed_asset_creation)
+    except SchemaValidationError as e:
+        assert()
+    except ValidationError as e:
+        print(e)
+        assert()
+
+    from planetmint.lib import Planetmint
+    planet = Planetmint()
+    validated = planet.validate_transaction(tx_obj)
+    print( f"\n\nVALIDATED =====: {validated}")
+    assert not validated == False
+
+def test_manual_tx_crafting_ext():
+    
+    producer, buyer, reseller = generate_keypair(), generate_keypair(), generate_keypair()
+    HOUSE_ASSETS = {
+        "data": {
+            "houses": [
+                {
+                    "name": "Harry",
+                    "team": "Gryffindor",
+                },
+                {
+                    "name": "Draco",
+                    "team": "Slytherin",
+                }
+            ],
+        }
+}
+
+    metadata = {
+        'units': 300,
+        'type': 'KG'
+    }
+    producer_ed25519 = Ed25519Sha256(public_key=base58.b58decode(producer.public_key))
+    condition_uri = producer_ed25519.condition.serialize_uri()
+    output = {
+        'amount': '3000',
+        'condition': {
+            'details': {
+              "type": "ed25519-sha-256",
+              "public_key": producer.public_key      
+            },
+            'uri': condition_uri,
+
+        },
+        'public_keys': [producer.public_key,],
+    }
+    input_ = {
+        'fulfillment': None,
+        'fulfills': None,
+        'owners_before': [producer.public_key,]
+    }
+    version = '2.0'
+    from planetmint_driver import Planetmint as plntmnt_p
+    server = 'https://test.ipdb.io'
+    api = 'api/v1/transactions'
+    plmnt = plntmnt_p(server)
+
+    prepared_token_tx = {
+        'operation': 'CREATE',
+        'asset': HOUSE_ASSETS,#rfid_token,
+        'metadata': metadata,
+        'outputs': [output,],
+        'inputs': [input_,],
+        'version': version,
+        'id': None,
+    }
+
+    print( f"prepared: {prepared_token_tx}")
+    
+        # Create sha3-256 of message to sign
+    message = json.dumps(
+        prepared_token_tx,
+        sort_keys=True,
+        separators=(',', ':'),
+        ensure_ascii=False,
+    )
+    message_hash = sha3_256(message.encode())
+    
+    producer_ed25519.sign(message_hash.digest(), base58.b58decode(producer.private_key))
+    
+    fulfillment_uri = producer_ed25519.serialize_uri()
+
+    prepared_token_tx['inputs'][0]['fulfillment'] = fulfillment_uri
+    
+    json_str_tx = json.dumps(
+        prepared_token_tx,
+        sort_keys=True,
+        separators=(',', ':'),
+        ensure_ascii=False,
+    )
+    creation_txid = sha3_256(json_str_tx.encode()).hexdigest()
+
+    prepared_token_tx['id'] = creation_txid
+
+    print( f"signed: {prepared_token_tx}")
+    #assert False == True
+    from planetmint.transactions.types.assets.create import Create
+    from planetmint.transactions.types.assets.transfer import Transfer
+    from planetmint.models import Transaction
+    from planetmint.transactions.common.exceptions import SchemaValidationError, ValidationError
+    from flask import current_app
+    from planetmint.transactions.common.transaction_mode_types import BROADCAST_TX_ASYNC
+    validated = None
+    try:
+        tx_obj = Transaction.from_dict(prepared_token_tx)
+    except SchemaValidationError as e:
+        assert()
+    except ValidationError as e:
+        print(e)
+        assert()
+
+    from planetmint.lib import Planetmint
+    planet = Planetmint()
+    validated = planet.validate_transaction(tx_obj)
+    print( f"\n\nVALIDATED =====: {validated}")
+    assert not validated == False
 
 def test_zenroom_signing():
 #    bdb_root_url = 'http://localhost:9984/'
@@ -24,7 +189,7 @@ def test_zenroom_signing():
     # generate the keypairs/wallets for biolabs and the hospital
     # the pacemaker will only e represented by its public key address
     # derived from the attached RFID tag's EPC code
-    from planetmint_driver.crypto import generate_keypair
+
 
     biolabs, hospital = generate_keypair(), generate_keypair()
     
@@ -140,12 +305,7 @@ def test_zenroom_signing():
         'condition': {
             'details': unsigned_fulfillment_dict_zen,
             'uri': condition_uri_zen,
-            #'did': zen_condition_did,
-            #'script': script,
-            #'keys': '',
-            #'data': '',
-            #'conf': '',zenroomscpt
-            #'verbosity': '0',
+
         },
         'public_keys': [hospital.public_key,],
     }
@@ -189,35 +349,11 @@ def test_zenroom_signing():
 ### WORkS until here
     
     
-    # CRYPTO-CONDITIONS: sign the serialized transaction-without-id
-    #ed25519.sign(message.digest(), base58.b58decode(biolabs.private_key))
-    ##  zenroomscpt.sign(message.digest(), base58.b58decode(biolabs.private_key))
-    # CRYPTO-CONDITIONS: check the zenroom script
-    #ed25519.zenroom = script
-    # CRYPTO-CONDITIONS: generate the fulfillment uri
-    # fulfillment_uri = ed25519.serialize_uri()
+
     fulfillment_uri_zen = zenroomscpt.serialize_uri()
     print(f'\nfulfillment_uri_zen is: {fulfillment_uri_zen}')
     fulfillment_fromuri_zen = zenroomscpt.from_uri(fulfillment_uri_zen)
-    # print(F'fulfillment_uri is: {fulfillment_uri}')
 
-    print(f'\nfulfillment_fromuri_zen is: {fulfillment_fromuri_zen}\n\n')
-    print(f"\nfulfillment from uri dict: {fulfillment_fromuri_zen.__dict__}\n")
-    print(f"\nkey : {hospital.public_key}\n")
-    print(f"\nfulfillment from uri zenscript :  {fulfillment_fromuri_zen.script}\n")
-    print()
-    ## print(fulfillment_fromuri_zen.signature.hex())
-    print('\n')
-    ## print(fulfillment_frofulfillment_uri_zenmuri_zen.validate(message=message.digest()))
-    #vk = VerifyKey(fulfillment_fromuri_zen.public_key)
-    #vk.verify(fulfillment_fromuri_zen.signature, message.digest())
-    #  pGSAIP5dZUoZ4y219VVzwHUVFWavq9ZiKeUb7CTyWzqGQE6ZgUDK9QIdbA7GjVSq6Mg7i3d6Cp22MyeRkpBY3oqhBz4owCQ7L6YtO9D2CrxPnMpdxdF2McdfL0QxR6gIycZnUPcO
-    #  pWSAIP5dZUoZ4y219VVzwHUVFWavq9ZiKeUb7CTyWzqGQE6ZgUDK9QIdbA7GjVSq6Mg7i3d6Cp22MyeRkpBY3oqhBz4owCQ7L6YtO9D2CrxPnMpdxdF2McdfL0QxR6gIycZnUPcO
-    # add the fulfillment uri (signature)
-    token_creation_tx['inputs'][0]['fulfillment'] = fulfillment_uri_zen ## there is the problem with fulfillment uri
-    #token_creation_tx['inputs'][0]['fulfillment'] = fulfillment_uri ## there is the problem with fulfillment uri
-    #print(F'token_creation_tx is: {token_creation_tx}')
-    # JSON: serialize the id-less transaction to a json formatted string
     tx = token_creation_tx
     tx['id'] = None
     json_str_tx = json.dumps(
@@ -227,7 +363,7 @@ def test_zenroom_signing():
         separators=(',', ':')
     )
     # SHA3: hash the serialized id-less transaction to generate the id
-    shared_creation_txid = sha3.sha3_256(json_str_tx.encode()).hexdigest()
+    shared_creation_txid = sha3_256(json_str_tx.encode()).hexdigest()
     # add the id
     token_creation_tx['id'] = shared_creation_txid
     #print(F'The TX to be consensed: {token_creation_tx}')
@@ -236,7 +372,7 @@ def test_zenroom_signing():
     ##tx['id'] = None
     ##payload = json.dumps(tx, skipkeys=False, sort_keys=True,
     ##                     separators=(',', ':'))
-    ##assert sha3.sha3_256(payload.encode()).hexdigest() == signed_create_tx.id
+    ##assert sha3_256(payload.encode()).hexdigest() == signed_create_tx.id
     
     #returned_creation_tx = bdb.transactions.send_commit(token_creation_tx)    
     #tx = request.get_json(force=True)
@@ -270,27 +406,3 @@ def test_zenroom_signing():
     print( f"VALIDATED : {validated}")
     assert()
     
-    #assert status_code == 202
-
-
-
-    #returned_creation_tx = bdb.transactions.send_async(token_creation_tx)
-    #print(f"created TX : {returned_creation_tx}" )
-    # result, errors = zenroom.zencode_exec(script)
-    # result, errors = zenroom.zencode_exec(script)
-    #print(result)
-#    '''
-#    Settlement on the Magic Mote chain is a prerequisite to sttlement on the respective settlement chain,
-#    Liquid, Ethereum, Bitcoin, Hyperledger Fabric or Coreda R3.
-#    Therefore, policies can become part of the transaction fulfillment logic. Quite exciting.
-#    This way the Oracle Servce ith built right inro the transaction itself.
-#    More precisely, it is part of the fulfillment.
-#    Therefore, interweaving the blockchain transactions with external systems becomes trivial.
-#    Add to this the capability to multipart each and every transaction thanks to code mobility
-#    and thanks to transferring code with the state of the VM itself, the power of the system
-#    becomes comprehensible.
-#    Then consider that each and evry transaction is enabled to carry around its very own
-#    interface to visualize transaction and chainstate on DLT enabled machines via the
-#    Magic Mote UI.
-#    Smart dust , indeed.
-#    '''
