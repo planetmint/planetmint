@@ -11,19 +11,16 @@ from planetmint_driver.crypto import generate_keypair
 from ast import literal_eval
 import zenroom
 
-CONDITION_SCRIPT = """Rule input encoding base58
-    Rule output encoding base58
+
+CONDITION_SCRIPT = """
     Scenario 'ecdh': create the signature of an object
-    Given I have the 'keys'
+    Given I have the 'keyring'
     Given that I have a 'string dictionary' named 'houses' inside 'asset'
     When I create the signature of 'houses'
-    When I rename the 'signature' to 'signature'
     Then print the 'signature'"""
     
 FULFILL_SCRIPT = \
-    """Rule input encoding base58
-    Rule output encoding base58
-    Scenario 'ecdh': Bob verifies the signature from Alice
+    """Scenario 'ecdh': Bob verifies the signature from Alice
     Given I have a 'ecdh public key' from 'Alice'
     Given that I have a 'string dictionary' named 'houses' inside 'asset'
     Given I have a 'signature' named 'signature' inside 'result'
@@ -31,58 +28,51 @@ FULFILL_SCRIPT = \
     Then print the string 'ok'"""
     
 SK_TO_PK = \
-    """Rule input encoding base58
-    Rule output encoding base58
-    Scenario 'ecdh': Create the keypair
+    """Scenario 'ecdh': Create the keypair
     Given that I am known as '{}'
-    Given I have the 'keys'
+    Given I have the 'keyring'
     When I create the ecdh public key
-    When I create the testnet address
+    When I create the bitcoin address
     Then print my 'ecdh public key'
-    Then print my 'testnet address'"""
+    Then print my 'bitcoin address'"""
 
 GENERATE_KEYPAIR = \
-    """Rule input encoding base58
-    Rule output encoding base58
-    Scenario 'ecdh': Create the keypair
+    """Scenario 'ecdh': Create the keypair
     Given that I am known as 'Pippo'
     When I create the ecdh key
-    When I create the testnet key
+    When I create the bitcoin key
     Then print data"""
 
 ZENROOM_DATA = {
     'also': 'more data'
 }
-#bdb_root_url = 'https://ipdb3.riddleandcode.com'
+
+HOUSE_ASSETS = {
+    "data": {
+        "houses": [
+            {
+                "name": "Harry",
+                "team": "Gryffindor",
+            },
+            {
+                "name": "Draco",
+                "team": "Slytherin",
+            }
+        ],
+    }
+}
+
+metadata = {
+    'units': 300,
+    'type': 'KG'
+}
 
 def test_manual_tx_crafting():
     
-    producer, buyer, reseller = generate_keypair(), generate_keypair(), generate_keypair()
-    HOUSE_ASSETS = {
-        "data": {
-            "houses": [
-                {
-                    "name": "Harry",
-                    "team": "Gryffindor",
-                },
-                {
-                    "name": "Draco",
-                    "team": "Slytherin",
-                }
-            ],
-        }
-    }
-
-    metadata = {
-        'units': 300,
-        'type': 'KG'
-    }
-    
-
+    producer = generate_keypair()
 
     from planetmint_driver import Planetmint as plntmnt_p
     server = 'https://test.ipdb.io'
-    api = 'api/v1/transactions'
     plmnt = plntmnt_p(server)
 
     prepared_token_tx = plmnt.transactions.prepare(
@@ -91,14 +81,10 @@ def test_manual_tx_crafting():
                 recipients=[([producer.public_key], 3000)],
                 asset=HOUSE_ASSETS,
                 metadata=metadata)
-
-    print( f"prepared: {prepared_token_tx}")
     signed_asset_creation = plmnt.transactions.fulfill(
                 prepared_token_tx,
                 private_keys=producer.private_key)
-    print( f"signed: {signed_asset_creation}")
-
-
+    
     from planetmint.models import Transaction
     from planetmint.transactions.common.exceptions import SchemaValidationError, ValidationError
     validated = None
@@ -107,37 +93,17 @@ def test_manual_tx_crafting():
     except SchemaValidationError as e:
         assert()
     except ValidationError as e:
-        print(e)
         assert()
 
     from planetmint.lib import Planetmint
     planet = Planetmint()
     validated = planet.validate_transaction(tx_obj)
-    print( f"\n\nVALIDATED =====: {validated}")
     assert not validated == False
 
 def test_manual_tx_crafting_ext():
     
     producer, buyer, reseller = generate_keypair(), generate_keypair(), generate_keypair()
-    HOUSE_ASSETS = {
-        "data": {
-            "houses": [
-                {
-                    "name": "Harry",
-                    "team": "Gryffindor",
-                },
-                {
-                    "name": "Draco",
-                    "team": "Slytherin",
-                }
-            ],
-        }
-    }
 
-    metadata = {
-        'units': 300,
-        'type': 'KG'
-    }
     producer_ed25519 = Ed25519Sha256(public_key=base58.b58decode(producer.public_key))
     condition_uri = producer_ed25519.condition.serialize_uri()
     output = {
@@ -224,27 +190,7 @@ def test_manual_tx_crafting_ext():
     assert not validated == False
 
 def test_manual_tx_crafting_ext_zenroom():
-    
     producer= generate_keypair()
-    HOUSE_ASSETS = {
-        "data": {
-            "houses": [
-                {
-                    "name": "Harry",
-                    "team": "Gryffindor",
-                },
-                {
-                    "name": "Draco",
-                    "team": "Slytherin",
-                }
-            ],
-        }
-    }
-
-    metadata = {
-        'units': 300,
-        'type': 'KG'
-    }
     producer_ed25519 = Ed25519Sha256(public_key=base58.b58decode(producer.public_key))
     condition_uri = producer_ed25519.condition.serialize_uri()
     output = {
@@ -265,11 +211,6 @@ def test_manual_tx_crafting_ext_zenroom():
         'owners_before': [producer.public_key,]
     }
     version = '2.0'
-    from planetmint_driver import Planetmint as plntmnt_p
-    server = 'https://test.ipdb.io'
-    api = 'api/v1/transactions'
-    plmnt = plntmnt_p(server)
-
     prepared_token_tx = {
         'operation': 'CREATE',
         'asset': HOUSE_ASSETS,#rfid_token,
@@ -282,7 +223,7 @@ def test_manual_tx_crafting_ext_zenroom():
 
     print( f"prepared: {prepared_token_tx}")
     
-        # Create sha3-256 of message to sign
+    # Create sha3-256 of message to sign
     message = json.dumps(
         prepared_token_tx,
         sort_keys=True,
@@ -331,89 +272,10 @@ def test_manual_tx_crafting_ext_zenroom():
     assert not validated == False
 
 def test_zenroom_signing():
-#    bdb_root_url = 'http://localhost:9984/'
-#    bdb = Planetmint(bdb_root_url)
 
-    # generate the keypairs/wallets for biolabs and the hospital
-    # the pacemaker will only e represented by its public key address
-    # derived from the attached RFID tag's EPC code
-
-
-    biolabs, hospital = generate_keypair(), generate_keypair()
-    
-    print(biolabs.private_key)
-    print(biolabs.public_key)
-    print(hospital.private_key)
-    print(hospital.public_key)
-    print('\n\n\n')
-    # biolabs = CryptoKeypair(private_key='2KF5Qx4ksFWQ7j7DgTj1jYhQ6eoP38WoyFVMjTR5hDgK', public_key='2KF5Qx4ksFWQ7j7DgTj1jYhQ6eoP38WoyFVMjTR5hDgK')
-    # print(biolabs.private_key)
-    # hospital = CryptoKeypair(private_key='ASHwLY9zG43rNkCZgRFBV6K9j9oHM1joxYMxHRiNyPja', public_key='A7fpfDpaGkJubquXbj3cssMhx5GQ1599Sxc7MxR9SWa8')
-    # create a digital asset for biolabs
-    # for readability we turn the original EPC code into capital hex chars
-#    rfid_token = {
-#        'data': {
-#            'token_for': {
-#                'UCODE_DNA': {
-#                    'EPC_serial_number': 'E2003787C9AE8209161AF72F',
-#                    'amount_issued': 100,
-#                    'pegged_to'    : 'SFR',
-#                    #'pub_key'      : elements.public_key,
-#                }
-#            },
-#            #'description': 'Biolab\'s blockchain settlement system for pacemakers.',
-#        },
-#    }
-    HOUSE_ASSETS = {
-        "data": {
-            "houses": [
-                {
-                    "name": "Harry",
-                    "team": "Gryffindor",
-                },
-                {
-                    "name": "Draco",
-                    "team": "Slytherin",
-                }
-            ],
-        }
-}
+    biolabs = generate_keypair()
     version = '2.0'
 
-    CONDITION_SCRIPT = """
-        Scenario 'ecdh': create the signature of an object
-        Given I have the 'keyring'
-        Given that I have a 'string dictionary' named 'houses' inside 'asset'
-        When I create the signature of 'houses'
-        Then print the 'signature'"""
-        
-    FULFILL_SCRIPT = \
-        """Scenario 'ecdh': Bob verifies the signature from Alice
-        Given I have a 'ecdh public key' from 'Alice'
-        Given that I have a 'string dictionary' named 'houses' inside 'asset'
-        Given I have a 'signature' named 'signature' inside 'result'
-        When I verify the 'houses' has a signature in 'signature' by 'Alice'
-        Then print the string 'ok'"""
-        
-    SK_TO_PK = \
-        """Scenario 'ecdh': Create the keypair
-        Given that I am known as '{}'
-        Given I have the 'keyring'
-        When I create the ecdh public key
-        When I create the bitcoin address
-        Then print my 'ecdh public key'
-        Then print my 'bitcoin address'"""
-
-    GENERATE_KEYPAIR = \
-        """Scenario 'ecdh': Create the keypair
-        Given that I am known as 'Pippo'
-        When I create the ecdh key
-        When I create the bitcoin key
-        Then print data"""
-
-    ZENROOM_DATA = {
-        'also': 'more data'
-    }
     alice = json.loads(ZenroomSha256.run_zenroom(GENERATE_KEYPAIR).output)['keyring']
     bob = json.loads(ZenroomSha256.run_zenroom(GENERATE_KEYPAIR).output)['keyring']
 
@@ -459,9 +321,7 @@ def test_zenroom_signing():
         'version': version,
         'id': None,
     }
-    
-    
-    
+
     # JSON: serialize the transaction-without-id to a json formatted string
     message = json.dumps(
         token_creation_tx,
