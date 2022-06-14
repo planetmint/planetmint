@@ -8,7 +8,7 @@ from cryptoconditions.types.zenroom import ZenroomSha256
 from cryptoconditions.crypto import Ed25519SigningKey as SigningKey
 from nacl.signing import VerifyKey
 from planetmint_driver.crypto import generate_keypair
-
+from ast import literal_eval
 import zenroom
 
 CONDITION_SCRIPT = """Rule input encoding base58
@@ -17,8 +17,8 @@ CONDITION_SCRIPT = """Rule input encoding base58
     Given I have the 'keys'
     Given that I have a 'string dictionary' named 'houses' inside 'asset'
     When I create the signature of 'houses'
-    When I rename the 'signature' to 'data.signature'
-    Then print the 'data.signature'"""
+    When I rename the 'signature' to 'signature'
+    Then print the 'signature'"""
     
 FULFILL_SCRIPT = \
     """Rule input encoding base58
@@ -26,8 +26,8 @@ FULFILL_SCRIPT = \
     Scenario 'ecdh': Bob verifies the signature from Alice
     Given I have a 'ecdh public key' from 'Alice'
     Given that I have a 'string dictionary' named 'houses' inside 'asset'
-    Given I have a 'signature' named 'data.signature' inside 'result'
-    When I verify the 'houses' has a signature in 'data.signature' by 'Alice'
+    Given I have a 'signature' named 'signature' inside 'result'
+    When I verify the 'houses' has a signature in 'signature' by 'Alice'
     Then print the string 'ok'"""
     
 SK_TO_PK = \
@@ -380,55 +380,47 @@ def test_zenroom_signing():
 }
     version = '2.0'
 
-    CONDITION_SCRIPT = """Rule input encoding base58
-        Rule output encoding base58
+    CONDITION_SCRIPT = """
         Scenario 'ecdh': create the signature of an object
-        Given I have the 'keys'
+        Given I have the 'keyring'
         Given that I have a 'string dictionary' named 'houses' inside 'asset'
         When I create the signature of 'houses'
-        When I rename the 'signature' to 'data.signature'
-        Then print the 'data.signature'"""
+        Then print the 'signature'"""
         
     FULFILL_SCRIPT = \
-        """Rule input encoding base58
-        Rule output encoding base58
-        Scenario 'ecdh': Bob verifies the signature from Alice
+        """Scenario 'ecdh': Bob verifies the signature from Alice
         Given I have a 'ecdh public key' from 'Alice'
         Given that I have a 'string dictionary' named 'houses' inside 'asset'
-        Given I have a 'signature' named 'data.signature' inside 'result'
-        When I verify the 'houses' has a signature in 'data.signature' by 'Alice'
+        Given I have a 'signature' named 'signature' inside 'result'
+        When I verify the 'houses' has a signature in 'signature' by 'Alice'
         Then print the string 'ok'"""
         
     SK_TO_PK = \
-        """Rule input encoding base58
-        Rule output encoding base58
-        Scenario 'ecdh': Create the keypair
+        """Scenario 'ecdh': Create the keypair
         Given that I am known as '{}'
-        Given I have the 'keys'
+        Given I have the 'keyring'
         When I create the ecdh public key
-        When I create the testnet address
+        When I create the bitcoin address
         Then print my 'ecdh public key'
-        Then print my 'testnet address'"""
+        Then print my 'bitcoin address'"""
 
     GENERATE_KEYPAIR = \
-        """Rule input encoding base58
-        Rule output encoding base58
-        Scenario 'ecdh': Create the keypair
+        """Scenario 'ecdh': Create the keypair
         Given that I am known as 'Pippo'
         When I create the ecdh key
-        When I create the testnet key
+        When I create the bitcoin key
         Then print data"""
 
     ZENROOM_DATA = {
         'also': 'more data'
     }
-    alice = json.loads(ZenroomSha256.run_zenroom(GENERATE_KEYPAIR).output)['keys']
-    bob = json.loads(ZenroomSha256.run_zenroom(GENERATE_KEYPAIR).output)['keys']
+    alice = json.loads(ZenroomSha256.run_zenroom(GENERATE_KEYPAIR).output)['keyring']
+    bob = json.loads(ZenroomSha256.run_zenroom(GENERATE_KEYPAIR).output)['keyring']
 
     zen_public_keys = json.loads(ZenroomSha256.run_zenroom(SK_TO_PK.format('Alice'),
-                                                keys={'keys': alice}).output)
+                                                keys={'keyring': alice}).output)
     zen_public_keys.update(json.loads(ZenroomSha256.run_zenroom(SK_TO_PK.format('Bob'),
-                                                keys={'keys': bob}).output))
+                                                keys={'keyring': bob}).output))
 
 
 
@@ -438,11 +430,7 @@ def test_zenroom_signing():
     # CRYPTO-CONDITIONS: generate the condition uri
     condition_uri_zen = zenroomscpt.condition.serialize_uri()    
     print(F'\nzenroom condition URI: {condition_uri_zen}')
-    #print(F'condition_uri is: {condition_uri}')
-    # # print(F'condition_uri_zen is: {condition_uri_zen}')
-    # ZEN-CRYPTO-CONDITION: generate the condition did
-    #zen_condition_did = 'did:bdb:MIIBMxaCARoKICAgIC0tIGdlbmVyYXRlIGEgc2ltcGxlIGtleXJpbmcKICAgIGtleXJpbmcgPSBFQ0RILm5ldygpCiAgICBrZXlyaW5nOmtleWdlbigpCiAgICAKICAgIC0tIGV4cG9ydCB0aGUga2V5cGFpciB0byBqc29uCiAgICBleHBvcnQgPSBKU09OLmVuY29kZSgKICAgICAgIHsKICAgICAgICAgIHB1YmxpYyAgPSBrZXlyaW5nOiBwdWJsaWMoKTpiYXNlNjQoKSwKICAgICAgICAgIHByaXZhdGUgPSBrZXlyaW5nOnByaXZhdGUoKTpiYXNlNjQoKQogICAgICAgfQogICAgKQogICAgcHJpbnQoZXhwb3J0KQoWBE5vbmUWBE5vbmUWBE5vbmUCAQA='
-    
+
     # CRYPTO-CONDITIONS: construct an unsigned fulfillment dictionary
     unsigned_fulfillment_dict_zen = {
         'type': zenroomscpt.TYPE_NAME,
@@ -464,7 +452,7 @@ def test_zenroom_signing():
     }
     token_creation_tx = {
         'operation': 'CREATE',
-        'asset': HOUSE_ASSETS,#rfid_token,
+        'asset': HOUSE_ASSETS,
         'metadata': None,
         'outputs': [output,],
         'inputs': [input_,],
@@ -493,15 +481,11 @@ def test_zenroom_signing():
     message = zenroomscpt.sign(message, CONDITION_SCRIPT, alice)
     assert(zenroomscpt.validate(message=message))
 
-    ### WORkS until here
-    
-    
-
+    message = json.loads(message)
     fulfillment_uri_zen = zenroomscpt.serialize_uri()
-    print(f'\nfulfillment_uri_zen is: {fulfillment_uri_zen}')
-    fulfillment_fromuri_zen = zenroomscpt.from_uri(fulfillment_uri_zen)
-    token_creation_tx['inputs'][0]['fulfillment'] = fulfillment_uri_zen
-    tx = token_creation_tx
+    
+    message['inputs'][0]['fulfillment'] = fulfillment_uri_zen
+    tx = message
     tx['id'] = None
     json_str_tx = json.dumps(
         tx,
@@ -511,18 +495,8 @@ def test_zenroom_signing():
     )
     # SHA3: hash the serialized id-less transaction to generate the id
     shared_creation_txid = sha3_256(json_str_tx.encode()).hexdigest()
-    # add the id
-    token_creation_tx['id'] = shared_creation_txid
-    #print(F'The TX to be consensed: {token_creation_tx}')
-    # send CREATE tx into the bdb network
-    ##tx = signed_create_tx.to_dict()
-    ##tx['id'] = None
-    ##payload = json.dumps(tx, skipkeys=False, sort_keys=True,
-    ##                     separators=(',', ':'))
-    ##assert sha3_256(payload.encode()).hexdigest() == signed_create_tx.id
-    
-    #returned_creation_tx = bdb.transactions.send_commit(token_creation_tx)    
-    #tx = request.get_json(force=True)
+    message['id'] = shared_creation_txid
+
 
     from planetmint.transactions.types.assets.create import Create
     from planetmint.transactions.types.assets.transfer import Transfer
@@ -532,24 +506,20 @@ def test_zenroom_signing():
     from planetmint.transactions.common.transaction_mode_types import BROADCAST_TX_ASYNC
     validated = None
     try:
-        tx_obj = Transaction.from_dict(token_creation_tx)
+        tx_obj = Transaction.from_dict(message)
     except SchemaValidationError as e:
         assert()
     except ValidationError as e:
         print(e)
         assert()
-    #pool = current_app.config['bigchain_pool']
-    #with pool() as planet:
-    #try:
+
     from planetmint.lib import Planetmint
     planet = Planetmint()
     validated = planet.validate_transaction(tx_obj)
-    print( f"\n\nVALIDATED =====: {validated}")
-    #except ValidationError as e:
-    #    assert()
+ 
     mode = BROADCAST_TX_ASYNC
     status_code, message = planet.write_transaction(tx_obj, mode)
     print( f"\n\nstatus and result : {status_code} + {message}")
     print( f"VALIDATED : {validated}")
-    assert()
+
     
