@@ -508,9 +508,21 @@ class Transaction(object):
         ccffill = input_.fulfillment
         try:
             parsed_ffill = Fulfillment.from_uri(ccffill.serialize_uri())
-        except (TypeError, ValueError,
-                ParsingError, ASN1DecodeError, ASN1EncodeError):
-            return False
+        except TypeError as e:
+            print( f"Exception TypeError : {e}")
+            return False;
+        except ValueError as e:
+            print( f"Exception ValueError : {e}")
+            return False;
+        except ParsingError as e:
+            print( f"Exception ParsingError : {e}")
+            return False;
+        except ASN1DecodeError as e:
+            print( f"Exception ASN1DecodeError : {e}")
+            return False;
+        except ASN1EncodeError as e:
+            print( f"Exception ASN1EncodeError : {e}")
+            return False;
 
         if operation == self.CREATE:
             # NOTE: In the case of a `CREATE` transaction, the
@@ -519,17 +531,21 @@ class Transaction(object):
         else:
             output_valid = output_condition_uri == ccffill.condition_uri
 
-        message = sha3_256(message.encode())
-        if input_.fulfills:
-            message.update('{}{}'.format(
-                input_.fulfills.txid, input_.fulfills.output).encode())
+        ffill_valid = False
+        if isinstance( parsed_ffill, ZenroomSha256 ):
+            ffill_valid = parsed_ffill.validate(message=message)
+        else:
+            message = sha3_256(message.encode())
+            if input_.fulfills:
+                message.update('{}{}'.format(
+                    input_.fulfills.txid, input_.fulfills.output).encode())
 
-        # NOTE: We pass a timestamp to `.validate`, as in case of a timeout
-        #       condition we'll have to validate against it
+            # NOTE: We pass a timestamp to `.validate`, as in case of a timeout
+            #       condition we'll have to validate against it
 
-        # cryptoconditions makes no assumptions of the encoding of the
-        # message to sign or verify. It only accepts bytestrings
-        ffill_valid = parsed_ffill.validate(message=message.digest())
+            # cryptoconditions makes no assumptions of the encoding of the
+            # message to sign or verify. It only accepts bytestrings
+            ffill_valid = parsed_ffill.validate(message=message.digest())
         return output_valid and ffill_valid
 
     # This function is required by `lru_cache` to create a key for memoization
