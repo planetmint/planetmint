@@ -11,7 +11,48 @@ from planetmint_driver.crypto import generate_keypair
 
 import zenroom
 
+CONDITION_SCRIPT = """Rule input encoding base58
+    Rule output encoding base58
+    Scenario 'ecdh': create the signature of an object
+    Given I have the 'keys'
+    Given that I have a 'string dictionary' named 'houses' inside 'asset'
+    When I create the signature of 'houses'
+    When I rename the 'signature' to 'data.signature'
+    Then print the 'data.signature'"""
+    
+FULFILL_SCRIPT = \
+    """Rule input encoding base58
+    Rule output encoding base58
+    Scenario 'ecdh': Bob verifies the signature from Alice
+    Given I have a 'ecdh public key' from 'Alice'
+    Given that I have a 'string dictionary' named 'houses' inside 'asset'
+    Given I have a 'signature' named 'data.signature' inside 'result'
+    When I verify the 'houses' has a signature in 'data.signature' by 'Alice'
+    Then print the string 'ok'"""
+    
+SK_TO_PK = \
+    """Rule input encoding base58
+    Rule output encoding base58
+    Scenario 'ecdh': Create the keypair
+    Given that I am known as '{}'
+    Given I have the 'keys'
+    When I create the ecdh public key
+    When I create the testnet address
+    Then print my 'ecdh public key'
+    Then print my 'testnet address'"""
 
+GENERATE_KEYPAIR = \
+    """Rule input encoding base58
+    Rule output encoding base58
+    Scenario 'ecdh': Create the keypair
+    Given that I am known as 'Pippo'
+    When I create the ecdh key
+    When I create the testnet key
+    Then print data"""
+
+ZENROOM_DATA = {
+    'also': 'more data'
+}
 #bdb_root_url = 'https://ipdb3.riddleandcode.com'
 
 def test_manual_tx_crafting():
@@ -30,7 +71,7 @@ def test_manual_tx_crafting():
                 }
             ],
         }
-}
+    }
 
     metadata = {
         'units': 300,
@@ -91,7 +132,7 @@ def test_manual_tx_crafting_ext():
                 }
             ],
         }
-}
+    }
 
     metadata = {
         'units': 300,
@@ -160,7 +201,114 @@ def test_manual_tx_crafting_ext():
     prepared_token_tx['id'] = creation_txid
 
     print( f"signed: {prepared_token_tx}")
-    #assert False == True
+
+    from planetmint.transactions.types.assets.create import Create
+    from planetmint.transactions.types.assets.transfer import Transfer
+    from planetmint.models import Transaction
+    from planetmint.transactions.common.exceptions import SchemaValidationError, ValidationError
+    from flask import current_app
+    from planetmint.transactions.common.transaction_mode_types import BROADCAST_TX_ASYNC
+    validated = None
+    try:
+        tx_obj = Transaction.from_dict(prepared_token_tx)
+    except SchemaValidationError as e:
+        assert()
+    except ValidationError as e:
+        print(e)
+        assert()
+
+    from planetmint.lib import Planetmint
+    planet = Planetmint()
+    validated = planet.validate_transaction(tx_obj)
+    print( f"\n\nVALIDATED =====: {validated}")
+    assert not validated == False
+
+def test_manual_tx_crafting_ext_zenroom():
+    
+    producer= generate_keypair()
+    HOUSE_ASSETS = {
+        "data": {
+            "houses": [
+                {
+                    "name": "Harry",
+                    "team": "Gryffindor",
+                },
+                {
+                    "name": "Draco",
+                    "team": "Slytherin",
+                }
+            ],
+        }
+    }
+
+    metadata = {
+        'units': 300,
+        'type': 'KG'
+    }
+    producer_ed25519 = Ed25519Sha256(public_key=base58.b58decode(producer.public_key))
+    condition_uri = producer_ed25519.condition.serialize_uri()
+    output = {
+        'amount': '3000',
+        'condition': {
+            'details': {
+              "type": "ed25519-sha-256",
+              "public_key": producer.public_key      
+            },
+            'uri': condition_uri,
+
+        },
+        'public_keys': [producer.public_key,],
+    }
+    input_ = {
+        'fulfillment': None,
+        'fulfills': None,
+        'owners_before': [producer.public_key,]
+    }
+    version = '2.0'
+    from planetmint_driver import Planetmint as plntmnt_p
+    server = 'https://test.ipdb.io'
+    api = 'api/v1/transactions'
+    plmnt = plntmnt_p(server)
+
+    prepared_token_tx = {
+        'operation': 'CREATE',
+        'asset': HOUSE_ASSETS,#rfid_token,
+        'metadata': metadata,
+        'outputs': [output,],
+        'inputs': [input_,],
+        'version': version,
+        'id': None,
+    }
+
+    print( f"prepared: {prepared_token_tx}")
+    
+        # Create sha3-256 of message to sign
+    message = json.dumps(
+        prepared_token_tx,
+        sort_keys=True,
+        separators=(',', ':'),
+        ensure_ascii=False,
+    )
+    message_hash = sha3_256(message.encode())
+    
+    producer_ed25519.sign(message_hash.digest(), base58.b58decode(producer.private_key))
+    
+    fulfillment_uri = producer_ed25519.serialize_uri()
+
+    prepared_token_tx['inputs'][0]['fulfillment'] = fulfillment_uri
+    
+    json_str_tx = json.dumps(
+        prepared_token_tx,
+        sort_keys=True,
+        separators=(',', ':'),
+        ensure_ascii=False,
+    )
+    creation_txid = sha3_256(json_str_tx.encode()).hexdigest()
+
+    prepared_token_tx['id'] = creation_txid
+
+    print( f"signed: {prepared_token_tx}")
+
     from planetmint.transactions.types.assets.create import Create
     from planetmint.transactions.types.assets.transfer import Transfer
     from planetmint.models import Transaction
@@ -298,7 +446,7 @@ def test_zenroom_signing():
     # CRYPTO-CONDITIONS: construct an unsigned fulfillment dictionary
     unsigned_fulfillment_dict_zen = {
         'type': zenroomscpt.TYPE_NAME,
-        'public_key': base58.b58encode(hospital.public_key).decode(),
+        'public_key': base58.b58encode(biolabs.public_key).decode(),
     }
     output = {
         'amount': '10',
@@ -307,7 +455,7 @@ def test_zenroom_signing():
             'uri': condition_uri_zen,
 
         },
-        'public_keys': [hospital.public_key,],
+        'public_keys': [biolabs.public_key,],
     }
     input_ = {
         'fulfillment': None,
@@ -318,8 +466,8 @@ def test_zenroom_signing():
         'operation': 'CREATE',
         'asset': HOUSE_ASSETS,#rfid_token,
         'metadata': None,
-        'outputs': (output,),
-        'inputs': (input_,),
+        'outputs': [output,],
+        'inputs': [input_,],
         'version': version,
         'id': None,
     }
@@ -330,7 +478,6 @@ def test_zenroom_signing():
     message = json.dumps(
         token_creation_tx,
         sort_keys=True,
-        skipkeys=False,
         separators=(',', ':'),
         ensure_ascii=False,
     )
@@ -346,14 +493,14 @@ def test_zenroom_signing():
     message = zenroomscpt.sign(message, CONDITION_SCRIPT, alice)
     assert(zenroomscpt.validate(message=message))
 
-### WORkS until here
+    ### WORkS until here
     
     
 
     fulfillment_uri_zen = zenroomscpt.serialize_uri()
     print(f'\nfulfillment_uri_zen is: {fulfillment_uri_zen}')
     fulfillment_fromuri_zen = zenroomscpt.from_uri(fulfillment_uri_zen)
-
+    token_creation_tx['inputs'][0]['fulfillment'] = fulfillment_uri_zen
     tx = token_creation_tx
     tx['id'] = None
     json_str_tx = json.dumps(
