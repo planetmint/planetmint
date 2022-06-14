@@ -37,10 +37,10 @@ INDEX_COMMANDS = {
         },
     "assets":
         {
+            "secondary": "assets:create_index('secondary', {unique=false,parts={1,'string',2,'string',3,'string'}})",
             "txid_search": "assets:create_index('txid_search', {type='hash', parts={'tx_id'}})",
             "assetid_search": "assets:create_index('assetid_search', {type='tree',unique=false, parts={'asset_id', 'tx_id'}})",
-            "only_asset_search": "assets:create_index('only_asset_search', {type='tree', unique=false, parts={'asset_id'}})",
-            "secondary": "assets:create_index('secondary', {unique=false,parts={1,'string',2,'string',3,'string'}})"
+            "only_asset_search": "assets:create_index('only_asset_search', {type='tree', unique=false, parts={'asset_id'}})"
         },
     "blocks":
         {
@@ -61,6 +61,7 @@ INDEX_COMMANDS = {
         },
     "meta_data":
         {
+            "secondary": "meta_datas:create_index('secondary', {unique=false,parts={1,'string',2,'string'}}",
             "id_search": "meta_datas:create_index('id_search', { type='hash' , parts={'transaction_id'}})"
         },
     "pre_commits":
@@ -114,7 +115,7 @@ SCHEMA_COMMANDS = {
     "blocks_tx": "blocks_tx:format{{name='transaction_id', type = 'string'}, {name = 'block_id', type = 'string'}}",
     "elections":
         "elections:format({{name='election_id' , type='string'},{name='height' , type='integer'}, {name='is_concluded' , type='boolean'}})",
-    "meta_data": "meta_datas:format({{name='transaction_id' , type='string'}, {name='meta_data' , type='any'}})",
+    "meta_data": "meta_datas:format({{name='transaction_id' , type='string'}, {name='meta_data' , type='string'}})",
     "pre_commits":
         "pre_commits:format({{name='commit_id', type='string'}, {name='height',type='integer'}, {name='transactions',type=any}})",
     "validators":

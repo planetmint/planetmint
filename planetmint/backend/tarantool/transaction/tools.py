@@ -1,5 +1,6 @@
 from secrets import token_hex
 import copy
+import json
 from planetmint.transactions.common.memoize import HDict
 
 
@@ -56,14 +57,14 @@ class TransactionDecompose:
         if metadata is None:
             return
 
-        self._tuple_transaction["metadata"] = (self._transaction["id"], metadata)
+        self._tuple_transaction["metadata"] = (self._transaction["id"], json.dumps(metadata))
 
     def __asset_check(self):
         _asset = self._transaction.get("asset")
         if _asset is None:
             return
         asset_id = _asset["id"] if _asset.get("id") is not None else self._transaction["id"]
-        self._tuple_transaction["asset"] = (_asset, self._transaction["id"], asset_id)
+        self._tuple_transaction["asset"] = (json.loads(_asset), self._transaction["id"], asset_id)
 
     def __prepare_inputs(self):
         _inputs = []
@@ -152,12 +153,15 @@ class TransactionCompose:
         return self.db_results["transaction"][0]
 
     def _get_asset(self):
+        print('_GET_ASSET')
         _asset = iter(self.db_results["asset"])
+        print(_asset)
         _res_asset = next(iter(next(_asset, iter([]))), None)
-        return _res_asset
+        print(_res_asset)
+        return json.loads(_res_asset)
 
     def _get_metadata(self):
-        return self.db_results["metadata"][0][1] if len(self.db_results["metadata"]) == 1 else None
+        return json.loads(self.db_results["metadata"][0][1]) if len(self.db_results["metadata"]) == 1 else None
 
     def _get_inputs(self):
         _inputs = []
