@@ -126,7 +126,10 @@ def get_metadata(connection, transaction_ids: list):
         )
         if metadata is not None:
             if len(metadata) > 0:
-                _returned_data.append(json.loads(metadata))
+                metadata[0] = list(metadata[0])
+                metadata[0][1] = json.loads(metadata[0][1])
+                metadata[0] = tuple(metadata[0])
+                _returned_data.append(metadata)
     return _returned_data if len(_returned_data) > 0 else None
 
 
