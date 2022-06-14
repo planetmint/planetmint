@@ -39,7 +39,8 @@ INDEX_COMMANDS = {
         {
             "txid_search": "assets:create_index('txid_search', {type='hash', parts={'tx_id'}})",
             "assetid_search": "assets:create_index('assetid_search', {type='tree',unique=false, parts={'asset_id', 'tx_id'}})",
-            "only_asset_search": "assets:create_index('only_asset_search', {type='tree', unique=false, parts={'asset_id'}})"
+            "only_asset_search": "assets:create_index('only_asset_search', {type='tree', unique=false, parts={'asset_id'}})",
+            "secondary": "assets:create_index('secondary', {unique=false,parts={1,'string',2,'string',3,'string'}})"
         },
     "blocks":
         {
@@ -107,7 +108,7 @@ SCHEMA_COMMANDS = {
     "abci_chains":
         "abci_chains:format({{name='height' , type='integer'},{name='is_synched' , type='boolean'},{name='chain_id',type='string'}, {name='id', type='string'}})",
     "assets":
-        "assets:format({{name='data' , type='any'}, {name='tx_id', type='string'}, {name='asset_id', type='string'}})",
+        "assets:format({{name='data' , type='string'}, {name='tx_id', type='string'}, {name='asset_id', type='string'}})",
     "blocks":
         "blocks:format{{name='app_hash',type='string'},{name='height' , type='integer'},{name='block_id' , type='string'}}",
     "blocks_tx": "blocks_tx:format{{name='transaction_id', type = 'string'}, {name = 'block_id', type = 'string'}}",

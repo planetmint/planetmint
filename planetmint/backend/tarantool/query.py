@@ -275,6 +275,13 @@ def get_txids_filtered(connection, asset_id: str, operation: str = None,
 #
 #     return (_remove_text_score(obj) for obj in cursor)
 
+@register_query(TarantoolDBConnection)
+def text_search(conn, search, table='assets'):
+    pattern = ".{}.".format(search)
+    res = conn.run(
+        conn.space(table).call('indexed_pattern_search', (table, 1, pattern))
+    )
+    return res
 
 def _remove_text_score(asset):
     asset.pop('score', None)
