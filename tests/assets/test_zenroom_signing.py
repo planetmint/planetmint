@@ -5,12 +5,7 @@ from hashlib import sha3_256
 import cryptoconditions as cc
 from cryptoconditions.types.ed25519 import Ed25519Sha256
 from cryptoconditions.types.zenroom import ZenroomSha256
-from cryptoconditions.crypto import Ed25519SigningKey as SigningKey
-from nacl.signing import VerifyKey
-from planetmint_driver.crypto import generate_keypair
-from ast import literal_eval
-import zenroom
-
+from planetmint.transactions.common.crypto import generate_key_pair
 
 CONDITION_SCRIPT = """
     Scenario 'ecdh': create the signature of an object
@@ -67,42 +62,9 @@ metadata = {
     'type': 'KG'
 }
 
-def test_manual_tx_crafting():
-    
-    producer = generate_keypair()
-
-    from planetmint_driver import Planetmint as plntmnt_p
-    server = 'https://test.ipdb.io'
-    plmnt = plntmnt_p(server)
-
-    prepared_token_tx = plmnt.transactions.prepare(
-                operation='CREATE',
-                signers=producer.public_key,
-                recipients=[([producer.public_key], 3000)],
-                asset=HOUSE_ASSETS,
-                metadata=metadata)
-    signed_asset_creation = plmnt.transactions.fulfill(
-                prepared_token_tx,
-                private_keys=producer.private_key)
-    
-    from planetmint.models import Transaction
-    from planetmint.transactions.common.exceptions import SchemaValidationError, ValidationError
-    validated = None
-    try:
-        tx_obj = Transaction.from_dict(signed_asset_creation)
-    except SchemaValidationError as e:
-        assert()
-    except ValidationError as e:
-        assert()
-
-    from planetmint.lib import Planetmint
-    planet = Planetmint()
-    validated = planet.validate_transaction(tx_obj)
-    assert not validated == False
-
 def test_manual_tx_crafting_ext():
     
-    producer, buyer, reseller = generate_keypair(), generate_keypair(), generate_keypair()
+    producer, buyer, reseller = generate_key_pair(), generate_key_pair(), generate_key_pair()
 
     producer_ed25519 = Ed25519Sha256(public_key=base58.b58decode(producer.public_key))
     condition_uri = producer_ed25519.condition.serialize_uri()
@@ -124,10 +86,6 @@ def test_manual_tx_crafting_ext():
         'owners_before': [producer.public_key,]
     }
     version = '2.0'
-    from planetmint_driver import Planetmint as plntmnt_p
-    server = 'https://test.ipdb.io'
-    api = 'api/v1/transactions'
-    plmnt = plntmnt_p(server)
 
     prepared_token_tx = {
         'operation': 'CREATE',
@@ -190,7 +148,7 @@ def test_manual_tx_crafting_ext():
     assert not validated == False
 
 def test_manual_tx_crafting_ext_zenroom():
-    producer= generate_keypair()
+    producer= generate_key_pair()
     producer_ed25519 = Ed25519Sha256(public_key=base58.b58decode(producer.public_key))
     condition_uri = producer_ed25519.condition.serialize_uri()
     output = {
@@ -273,7 +231,7 @@ def test_manual_tx_crafting_ext_zenroom():
 
 def test_zenroom_signing():
 
-    biolabs = generate_keypair()
+    biolabs = generate_key_pair()
     version = '2.0'
 
     alice = json.loads(ZenroomSha256.run_zenroom(GENERATE_KEYPAIR).output)['keyring']
