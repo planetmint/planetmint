@@ -4,6 +4,7 @@ import base58
 from hashlib import sha3_256
 from cryptoconditions.types.ed25519 import Ed25519Sha256
 from cryptoconditions.types.zenroom import ZenroomSha256
+from zenroom import zencode_exec
 from planetmint_driver import Planetmint
 from planetmint_driver.crypto import generate_keypair
 
@@ -18,13 +19,13 @@ def test_zenroom_signing(gen_key_zencode, secret_key_to_private_key_zencode,
     biolabs = generate_keypair()
     version = '2.0'
 
-    alice = json.loads(ZenroomSha256.run_zenroom(gen_key_zencode).output)['keyring']
-    bob = json.loads(ZenroomSha256.run_zenroom(gen_key_zencode).output)['keyring']
+    alice = json.loads(zencode_exec(gen_key_zencode).output)['keyring']
+    bob = json.loads(zencode_exec(gen_key_zencode).output)['keyring']
 
-    zen_public_keys = json.loads(ZenroomSha256.run_zenroom(secret_key_to_private_key_zencode.format('Alice'),
-                                                keys={'keyring': alice}).output)
-    zen_public_keys.update(json.loads(ZenroomSha256.run_zenroom(secret_key_to_private_key_zencode.format('Bob'),
-                                                keys={'keyring': bob}).output))
+    zen_public_keys = json.loads(zencode_exec(secret_key_to_private_key_zencode.format('Alice'),
+                                                keys=json.dumps({'keyring': alice})).output)
+    zen_public_keys.update(json.loads(zencode_exec(secret_key_to_private_key_zencode.format('Bob'),
+                                                keys=json.dumps({'keyring': bob})).output))
 
 
 
@@ -54,10 +55,16 @@ def test_zenroom_signing(gen_key_zencode, secret_key_to_private_key_zencode,
         'fulfills': None,
         'owners_before': [biolabs.public_key,]
     }
+    metadata = {
+        "result": {
+            "output": ["ok"]
+        }
+    }
+    
     token_creation_tx = {
         'operation': 'CREATE',
         'asset': zenroom_house_assets,
-        'metadata': None,
+        'metadata': metadata,
         'outputs': [output,],
         'inputs': [input_,],
         'version': version,

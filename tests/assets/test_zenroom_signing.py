@@ -2,6 +2,7 @@ import pytest
 import json
 import base58
 from hashlib import sha3_256
+from zenroom import zencode_exec
 from cryptoconditions.types.ed25519 import Ed25519Sha256
 from cryptoconditions.types.zenroom import ZenroomSha256
 from planetmint.transactions.common.crypto import generate_key_pair
@@ -59,18 +60,18 @@ def test_zenroom_signing():
     biolabs = generate_key_pair()
     version = "2.0"
 
-    alice = json.loads(ZenroomSha256.run_zenroom(GENERATE_KEYPAIR).output)["keyring"]
-    bob = json.loads(ZenroomSha256.run_zenroom(GENERATE_KEYPAIR).output)["keyring"]
+    alice = json.loads(zencode_exec(GENERATE_KEYPAIR).output)["keyring"]
+    bob = json.loads(zencode_exec(GENERATE_KEYPAIR).output)["keyring"]
 
     zen_public_keys = json.loads(
-        ZenroomSha256.run_zenroom(
-            SK_TO_PK.format("Alice"), keys={"keyring": alice}
+        zencode_exec(
+            SK_TO_PK.format("Alice"), keys=json.dumps({"keyring": alice})
         ).output
     )
     zen_public_keys.update(
         json.loads(
-            ZenroomSha256.run_zenroom(
-                SK_TO_PK.format("Bob"), keys={"keyring": bob}
+            zencode_exec(
+                SK_TO_PK.format("Bob"), keys=json.dumps({"keyring": bob})
             ).output
         )
     )
@@ -106,10 +107,15 @@ def test_zenroom_signing():
             biolabs.public_key,
         ],
     }
+    metadata = {
+        "result": {
+            "output": ["ok"]
+        }
+    }
     token_creation_tx = {
         "operation": "CREATE",
         "asset": HOUSE_ASSETS,
-        "metadata": None,
+        "metadata": metadata,
         "outputs": [
             output,
         ],

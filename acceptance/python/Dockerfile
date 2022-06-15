@@ -13,6 +13,6 @@ RUN pip install --upgrade \
 	pycco \
 	websocket-client~=0.47.0 \
 	pytest~=3.0 \
-	planetmint-cryptoconditions>=0.9.8\
+	planetmint-cryptoconditions>=0.9.9\
 	planetmint-driver>=0.9.2 \
 	blns
