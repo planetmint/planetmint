@@ -245,6 +245,7 @@ class App(BaseApplication):
         if self.events_queue:
             event = Event(EventTypes.BLOCK_VALID, {
                 'height': self.new_height,
+                'hash': self.block_txn_hash,
                 'transactions': self.block_transactions
             })
             self.events_queue.put(event)

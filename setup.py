@@ -35,6 +35,15 @@ def check_setuptools_features():
                  ' $ pip3 install --upgrade setuptools\n'
                  'and then run this command again')
 
+import pathlib
+import pkg_resources
+
+with pathlib.Path('docs/root/requirements.txt').open() as requirements_txt:
+    docs_require= [
+        str(requirement)
+        for requirement
+        in pkg_resources.parse_requirements(requirements_txt)
+    ]
 
 check_setuptools_features()
 
@@ -43,18 +52,8 @@ dev_require = [
     'ipython',
     'watchdog',
     'logging_tree',
-    'pre-commit'
-]
-
-docs_require = [
-    'Sphinx~=1.0',
-    'recommonmark>=0.4.0',
-    'sphinx-rtd-theme>=0.1.9',
-    'sphinxcontrib-httpdomain>=1.5.0',
-    'sphinxcontrib-napoleon>=0.4.4',
-    'aafigure>=0.6',
-    'wget',
-    'jinja2==3.0.0'
+    'pre-commit',
+    'twine'
 ]
 
 tests_require = [
@@ -93,6 +92,9 @@ install_requires = [
     'requests>=2.25.1',
     'setproctitle==1.2.2',
     'werkzeug==2.0.3',
+    'nest-asyncio==1.5.5',
+    'protobuf==3.20.1'
+
 ]
 
 if sys.version_info < (3, 6):

@@ -13,6 +13,25 @@ from flask_restful import Resource, reqparse
 from planetmint.web.views.base import make_error
 
 
+class LatestBlock(Resource):
+    def get(self):
+        """API endpoint to get details about a block.
+
+        Return:
+            A JSON string containing the data about the block.
+        """
+
+        pool = current_app.config['bigchain_pool']
+
+        with pool() as planet:
+            block = planet.get_latest_block()
+
+        if not block:
+            return make_error(404)
+
+        return block
+
+
 class BlockApi(Resource):
     def get(self, block_id):
         """API endpoint to get details about a block.

@@ -168,6 +168,7 @@ def validate_key(obj_name, key):
                      '".", "$" or null characters').format(key, obj_name)
         raise ValidationError(error_str)
 
+
 def _fulfillment_to_details(fulfillment):
     """Encode a fulfillment as a details dictionary
 

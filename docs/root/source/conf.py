@@ -23,9 +23,6 @@ import sys
 import inspect
 
 from os import rename, remove
-from recommonmark.parser import CommonMarkParser
-
-  
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
@@ -51,9 +48,12 @@ sys.path.insert(0,parentdir)
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
+project = 'Planetmint'
+
 import sphinx_rtd_theme
 
 extensions = [
+    'myst_parser',
     'sphinx.ext.autosectionlabel',
     'sphinx.ext.autodoc',
     'sphinx.ext.intersphinx',
@@ -63,6 +63,7 @@ extensions = [
     'sphinx.ext.napoleon',
     'sphinxcontrib.httpdomain',
     'aafigure.sphinxext',
+    #'sphinx_toolbox.collapse',
     # Below are actually build steps made to look like sphinx extensions.
     # It was the easiest way to get it running with ReadTheDocs.
     'generate_http_server_api_documentation',
@@ -99,10 +100,6 @@ autodoc_default_options = {
     'members': None,
 }
 
-source_parsers = {
-    '.md': CommonMarkParser,
-}
-
 # The suffix(es) of source filenames.
 # You can specify multiple suffix as a list of string:
 #
@@ -115,9 +112,8 @@ source_suffix = ['.rst', '.md']
 
 # The master toctree document.
 master_doc = 'index'
-
+autosectionlabel_prefix_document = True
 # General information about the project.
-project = 'Planetmint'
 now = datetime.datetime.now()
 copyright = str(now.year) + ', Planetmint Contributors'
 author = 'Planetmint Contributors'
@@ -137,7 +133,7 @@ release = _version['__version__']
 #
 # This is also used if you do content translation via gettext catalogs.
 # Usually you set "language" from the command line for these cases.
-language = None
+language = 'en'
 
 # There are two options for replacing |today|: either, you set today to some
 # non-false value, then it is used:
@@ -190,7 +186,7 @@ todo_include_todos = False
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'sphinx_rtd_theme'
+html_theme = 'press'
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
@@ -199,7 +195,7 @@ html_theme = 'sphinx_rtd_theme'
 # html_theme_options = {}
 
 # Add any paths that contain custom themes here, relative to this directory.
-html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
+#html_theme_path = [press.get_html_theme_path()]
 
 # The name for this set of Sphinx documents.
 # "<project> v<release> documentation" by default.
@@ -213,7 +209,7 @@ html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
 # The name of an image file (relative to this directory) to place at the top
 # of the sidebar.
 #
-# html_logo = None
+html_logo = '_static/PLANETMINT_COLOR_POS.png'
 
 # The name of an image file (relative to this directory) to use as a favicon of
 # the docs.  This file should be a Windows icon file (.ico) being 16x16 or 32x32

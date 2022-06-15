@@ -7,6 +7,7 @@ from planetmint.models import Transaction
 from planetmint.transactions.common.output import Output
 from copy import deepcopy
 
+
 class Transfer(Transaction):
 
     OPERATION = 'TRANSFER'

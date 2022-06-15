@@ -26,6 +26,6 @@ class OutputListApi(Resource):
         pool = current_app.config['bigchain_pool']
         with pool() as planet:
             outputs = planet.get_outputs_filtered(args['public_key'],
-                                                    args['spent'])
+                                                  args['spent'])
             return [{'transaction_id': output.txid, 'output_index': output.output}
                     for output in outputs]

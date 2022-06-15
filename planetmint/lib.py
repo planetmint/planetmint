@@ -34,6 +34,7 @@ from planetmint.validation import BaseValidationRules
 
 logger = logging.getLogger(__name__)
 
+
 class Planetmint(object):
     """Planetmint API
 

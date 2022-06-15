@@ -7,6 +7,7 @@ from planetmint.models import Transaction
 from planetmint.transactions.common.input import Input
 from planetmint.transactions.common.output import Output
 
+
 class Create(Transaction):
 
     OPERATION = 'CREATE'

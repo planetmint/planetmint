@@ -25,6 +25,14 @@ For reference, the possible headings are:
 * **Known Issues**
 * **Notes**
 
+
+## [0.9.6] - 2022-06-08
+
+### Maintenance
+
+* removed Korean documentation
+* removed Korean and Chinese README
+
 ## [2.2.2] - 2020-08-12
 
 ### Security

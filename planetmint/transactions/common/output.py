@@ -12,6 +12,7 @@ from cryptoconditions import Fulfillment
 from planetmint.transactions.common.exceptions import AmountError
 from .utils import _fulfillment_to_details, _fulfillment_from_details
 
+
 class Output(object):
     """An Output is used to lock an asset.
 

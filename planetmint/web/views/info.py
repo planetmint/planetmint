@@ -10,7 +10,7 @@ from flask_restful import Resource
 
 from planetmint.web.views.base import base_ws_uri
 from planetmint import version
-from planetmint.web.websocket_server import EVENTS_ENDPOINT
+from planetmint.web.websocket_server import EVENTS_ENDPOINT, EVENTS_ENDPOINT_BLOCKS
 
 
 class RootIndex(Resource):
@@ -38,7 +38,8 @@ def get_api_v1_info(api_prefix):
     """Return a dict with all the information specific for the v1 of the
     api.
     """
-    websocket_root = base_ws_uri() + EVENTS_ENDPOINT
+    websocket_root_tx = base_ws_uri() + EVENTS_ENDPOINT
+    websocket_root_block = base_ws_uri() + EVENTS_ENDPOINT_BLOCKS
     docs_url = [
         'https://docs.planetmint.com/projects/server/en/v',
         version.__version__,
@@ -51,7 +52,8 @@ def get_api_v1_info(api_prefix):
         'blocks': '{}blocks/'.format(api_prefix),
         'assets': '{}assets/'.format(api_prefix),
         'outputs': '{}outputs/'.format(api_prefix),
-        'streams': websocket_root,
+        'streams': websocket_root_tx,
+        'streamedblocks': websocket_root_block,
         'metadata': '{}metadata/'.format(api_prefix),
         'validators': '{}validators'.format(api_prefix),
     }

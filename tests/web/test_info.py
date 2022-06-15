@@ -22,6 +22,8 @@ def test_api_root_endpoint(client, wsserver_base_url):
                 'outputs': '/api/v1/outputs/',
                 'streams': '{}/api/v1/streams/valid_transactions'.format(
                     wsserver_base_url),
+                'streamedblocks': '{}/api/v1/streams/valid_blocks'.format(
+                    wsserver_base_url),
                 'metadata': '/api/v1/metadata/',
                 'validators': '/api/v1/validators',
             }
@@ -45,6 +47,8 @@ def test_api_v1_endpoint(client, wsserver_base_url):
         'outputs': '/outputs/',
                 'streams': '{}/api/v1/streams/valid_transactions'.format(
                     wsserver_base_url),
+        'streamedblocks': '{}/api/v1/streams/valid_blocks'.format(
+            wsserver_base_url),
         'metadata': '/metadata/',
         'validators': '/validators'
     }
