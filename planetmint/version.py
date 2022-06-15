@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: (Apache-2.0 AND CC-BY-4.0)
 # Code is Apache-2.0 and docs are CC-BY-4.0
 
-__version__ = '0.9.4'
+__version__ = '0.9.5'
 __short_version__ = '0.9'
 
 # Supported Tendermint versions
