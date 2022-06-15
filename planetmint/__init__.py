@@ -8,7 +8,7 @@ import logging
 
 from planetmint.log import DEFAULT_LOGGING_CONFIG as log_config
 from planetmint.lib import Planetmint  # noqa
-from planetmint.migrations.chain_migration_election import ChainMigrationElection
+from planetmint.transactions.types.elections.chain_migration_election import ChainMigrationElection
 from planetmint.version import __version__  # noqa
 from planetmint.core import App  # noqa
 

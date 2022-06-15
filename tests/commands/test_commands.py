@@ -15,7 +15,7 @@ from planetmint import ValidatorElection
 from planetmint.commands.planetmint import run_election_show
 from planetmint.transactions.types.elections.election import Election
 from planetmint.lib import Block
-from planetmint.migrations.chain_migration_election import ChainMigrationElection
+from planetmint.transactions.types.elections.chain_migration_election import ChainMigrationElection
 
 from tests.utils import generate_election, generate_validators
 
