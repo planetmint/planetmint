@@ -45,6 +45,9 @@ class MetadataApi(Resource):
             args['table'] = 'meta_data'
             metadata = planet.text_search(**args)
 
+        print('########### METADATA API ############')
+        print(metadata)
+
         try:
             # This only works with MongoDB as the backend
             return list(metadata)
