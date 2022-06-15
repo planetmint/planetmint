@@ -77,7 +77,7 @@ install_requires = [
     'chardet==3.0.4',
     'aiohttp==3.8.1',
     'abci==0.8.3',
-    'planetmint-cryptoconditions>=0.9.4',
+    'planetmint-cryptoconditions>=0.9.7',
     'flask-cors==3.0.10',
     'flask-restful==0.3.9',
     'flask==2.0.1',
@@ -86,6 +86,7 @@ install_requires = [
     'logstats==0.3.0',
     'packaging>=20.9',
     # TODO Consider not installing the db drivers, or putting them in extras.
+    'protobuf==3.20.1',
     'pymongo==3.11.4',
     'python-rapidjson==1.0',
     'pyyaml==5.4.1',

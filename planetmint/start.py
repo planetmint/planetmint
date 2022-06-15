@@ -43,7 +43,7 @@ def start(args):
         settings=planetmint.config['server'],
         log_config=planetmint.config['log'],
         planetmint_factory=Planetmint)
-    p_webapi = Process(name='planetmint_webapi', target=app_server.run, daemon=True)
+    p_webapi = Process(name='planetmint_webapi', target=app_server.run, daemon=False)
     p_webapi.start()
 
     logger.info(BANNER.format(planetmint.config['server']['bind']))
