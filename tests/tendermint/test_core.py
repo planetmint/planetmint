@@ -20,7 +20,7 @@ from planetmint.core import (OkCode,
                              rollback)
 from planetmint.transactions.types.elections.election import Election
 from planetmint.lib import Block
-from planetmint.migrations.chain_migration_election import ChainMigrationElection
+from planetmint.transactions.types.elections.chain_migration_election import ChainMigrationElection
 from planetmint.upsert_validator.validator_election import ValidatorElection
 from planetmint.upsert_validator.validator_utils import new_validator_set
 from planetmint.tendermint_utils import public_key_to_base64
