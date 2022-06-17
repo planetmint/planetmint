@@ -126,6 +126,6 @@ things. We documented those things in a post on *The Planetmint Blog*:
 ### Example Transactions
 
 There are example Planetmint transactions in
-[the HTTP API documentation](./connecting/api/http-client-server-api)
+[the HTTP API documentation](./connecting/http-client-server-api)
 and
 [the Python Driver documentation](./connecting/drivers).

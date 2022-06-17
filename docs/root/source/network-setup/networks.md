@@ -25,7 +25,7 @@ We now describe how *we* set up the external (public-facing) DNS records for a P
 There were several goals:
 
 * Allow external users/clients to connect directly to any Planetmint node in the network (over the internet), if they want.
-* Each Planetmint node operator should get an SSL certificate for their Planetmint node, so that their Planetmint node can serve the [Planetmint HTTP API](../connecting/api/http-client-server-api) via HTTPS. (The same certificate might also be used to serve the [WebSocket API](../connecting/api/websocket-event-stream-api).)
+* Each Planetmint node operator should get an SSL certificate for their Planetmint node, so that their Planetmint node can serve the [Planetmint HTTP API](../connecting/http-client-server-api) via HTTPS. (The same certificate might also be used to serve the [WebSocket API](../connecting/websocket-event-stream-api).)
 * There should be no sharing of SSL certificates among Planetmint node operators.
 * Optional: Allow clients to connect to a "random" Planetmint node in the network at one particular domain (or subdomain).
 
