@@ -36,26 +36,29 @@ BANNER = """
 
 def start(args):
     # Exchange object for event stream api
-    logger.info('Starting Planetmint')
+    logger.info("Starting Planetmint")
     exchange = Exchange()
     # start the web api
     app_server = server.create_server(
-        settings=planetmint.config['server'],
-        log_config=planetmint.config['log'],
-        planetmint_factory=Planetmint)
-    p_webapi = Process(name='planetmint_webapi', target=app_server.run, daemon=True)
+        settings=planetmint.config["server"],
+        log_config=planetmint.config["log"],
+        planetmint_factory=Planetmint,
+    )
+    p_webapi = Process(name="planetmint_webapi", target=app_server.run, daemon=True)
     p_webapi.start()
 
-    logger.info(BANNER.format(planetmint.config['server']['bind']))
+    logger.info(BANNER.format(planetmint.config["server"]["bind"]))
 
     # start websocket server
-    p_websocket_server = Process(name='planetmint_ws',
-                                 target=websocket_server.start,
-                                 daemon=True,
-                                 args=(exchange.get_subscriber_queue(EventTypes.BLOCK_VALID),))
+    p_websocket_server = Process(
+        name="planetmint_ws",
+        target=websocket_server.start,
+        daemon=True,
+        args=(exchange.get_subscriber_queue(EventTypes.BLOCK_VALID),),
+    )
     p_websocket_server.start()
 
-    p_exchange = Process(name='planetmint_exchange', target=exchange.run, daemon=True)
+    p_exchange = Process(name="planetmint_exchange", target=exchange.run, daemon=True)
     p_exchange.start()
 
     # We need to import this after spawning the web server
@@ -63,7 +66,7 @@ def start(args):
     # for gevent.
     from abci.server import ABCIServer
 
-    setproctitle.setproctitle('planetmint')
+    setproctitle.setproctitle("planetmint")
 
     # Start the ABCIServer
     # abci = ABCI(TmVersion(planetmint.config['tendermint']['version']))
@@ -82,5 +85,5 @@ def start(args):
     app.run()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     start()

@@ -5,36 +5,40 @@
 
 import pytest
 
-GENERATE_KEYPAIR = \
-    """Rule input encoding base58
-    Rule output encoding base58
-    Scenario 'ecdh': Create the keypair
-    Given that I am known as 'Pippo'
-    When I create the ecdh key
-    When I create the testnet key
-    Then print data"""
-
-# secret key to public key
-SK_TO_PK = \
-    """Rule input encoding base58
-    Rule output encoding base58
-    Scenario 'ecdh': Create the keypair
-    Given that I am known as '{}'
-    Given I have the 'keys'
-    When I create the ecdh public key
-    When I create the testnet address
-    Then print my 'ecdh public key'
-    Then print my 'testnet address'"""
-
+CONDITION_SCRIPT = """
+    Scenario 'ecdh': create the signature of an object
+    Given I have the 'keyring'
+    Given that I have a 'string dictionary' named 'houses' inside 'asset'
+    When I create the signature of 'houses'
+    Then print the 'signature'"""
+    
 FULFILL_SCRIPT = \
-    """Rule input encoding base58
-    Rule output encoding base58
-    Scenario 'ecdh': Bob verifies the signature from Alice
+    """Scenario 'ecdh': Bob verifies the signature from Alice
     Given I have a 'ecdh public key' from 'Alice'
     Given that I have a 'string dictionary' named 'houses' inside 'asset'
-    Given I have a 'signature' named 'data.signature' inside 'result'
-    When I verify the 'houses' has a signature in 'data.signature' by 'Alice'
+    Given I have a 'signature' named 'signature' inside 'result'
+    When I verify the 'houses' has a signature in 'signature' by 'Alice'
     Then print the string 'ok'"""
+    
+SK_TO_PK = \
+    """Scenario 'ecdh': Create the keypair
+    Given that I am known as '{}'
+    Given I have the 'keyring'
+    When I create the ecdh public key
+    When I create the bitcoin address
+    Then print my 'ecdh public key'
+    Then print my 'bitcoin address'"""
+
+GENERATE_KEYPAIR = \
+    """Scenario 'ecdh': Create the keypair
+    Given that I am known as 'Pippo'
+    When I create the ecdh key
+    When I create the bitcoin key
+    Then print data"""
+
+ZENROOM_DATA = {
+    'also': 'more data'
+}
 
 HOUSE_ASSETS = {
     "data": {
@@ -51,18 +55,10 @@ HOUSE_ASSETS = {
     }
 }
 
-ZENROOM_DATA = {
-    'also': 'more data'
+metadata = {
+    'units': 300,
+    'type': 'KG'
 }
-
-CONDITION_SCRIPT = """Rule input encoding base58
-    Rule output encoding base58
-    Scenario 'ecdh': create the signature of an object
-    Given I have the 'keys'
-    Given that I have a 'string dictionary' named 'houses' inside 'asset'
-    When I create the signature of 'houses'
-    When I rename the 'signature' to 'data.signature'
-    Then print the 'data.signature'"""
 
 @pytest.fixture
 def gen_key_zencode():

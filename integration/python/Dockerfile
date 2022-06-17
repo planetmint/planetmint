@@ -13,10 +13,8 @@ RUN mkdir -p /src
 RUN pip install --upgrade meson ninja
 RUN pip install --upgrade \
     pytest~=6.2.5 \
-    planetmint-driver~=0.9.0 \
     pycco \
     websocket-client~=0.47.0 \
-    #git+https://github.com/planetmint/cryptoconditions.git@gitzenroom  \
-    #git+https://github.com/planetmint/planetmint-driver.git@gitzenroom \
+    planetmint-cryptoconditions>=0.9.9\
+    planetmint-driver>=0.9.2 \
     blns
-
