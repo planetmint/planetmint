@@ -260,12 +260,10 @@ def get_txids_filtered(connection, asset_id: str, operation: str = None,
 @register_query(TarantoolDBConnection)
 def text_search(conn, search, table='assets', limit=0):
     pattern = ".{}.".format(search)
-    print("TEXT SEARCH FOR: {}".format(search))
     res = conn.run(
         conn.space(table).call('indexed_pattern_search', (table, 1, pattern))
     )
-    print("TEXT SEARCH RES: {}".format(res))
-    return res
+    return res[0] if limit == 0 else res[0][:limit]
 
 def _remove_text_score(asset):
     asset.pop('score', None)
