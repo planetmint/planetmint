@@ -64,7 +64,7 @@ class TransactionDecompose:
         if _asset is None:
             return
         asset_id = _asset["id"] if _asset.get("id") is not None else self._transaction["id"]
-        self._tuple_transaction["asset"] = (json.loads(_asset), self._transaction["id"], asset_id)
+        self._tuple_transaction["asset"] = (json.dumps(_asset), self._transaction["id"], asset_id)
 
     def __prepare_inputs(self):
         _inputs = []
