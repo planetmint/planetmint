@@ -153,11 +153,8 @@ class TransactionCompose:
         return self.db_results["transaction"][0]
 
     def _get_asset(self):
-        print('_GET_ASSET')
         _asset = iter(self.db_results["asset"])
-        print(_asset)
         _res_asset = next(iter(next(_asset, iter([]))), None)
-        print(_res_asset)
         return json.loads(_res_asset)
 
     def _get_metadata(self):

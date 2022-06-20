@@ -35,9 +35,6 @@ def _group_transaction_by_ids(connection, txids: list):
         _txassets = connection.run(connection.space("assets").select(txid, index="txid_search"))
         _txmeta = connection.run(connection.space("meta_data").select(txid, index="id_search"))
 
-        print('TX ASSETS')
-        print(_txassets)
-
         _txinputs = sorted(_txinputs, key=itemgetter(6), reverse=False)
         _txoutputs = sorted(_txoutputs, key=itemgetter(8), reverse=False)
         result_map = {
@@ -160,10 +157,6 @@ def get_asset(connection, asset_id: str):
     _data = connection.run(
         connection.space("assets").select(asset_id, index="txid_search")
     )
-    
-    print('GET ASSET')
-
-    print(_data)
 
     return json.loads(_data[0][0]) if len(_data) > 0 else []
 
@@ -174,9 +167,6 @@ def get_assets(connection, assets_ids: list) -> list:
     for _id in list(set(assets_ids)):
         asset = get_asset(connection, _id)
         _returned_data.append(asset)
-
-    print('############# RETURNED DATA ##########')
-    print(_returned_data)
 
     return sorted(_returned_data, key=lambda k: k["id"], reverse=False)
 
