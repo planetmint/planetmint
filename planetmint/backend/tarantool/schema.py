@@ -37,10 +37,10 @@ INDEX_COMMANDS = {
         },
     "assets":
         {
-            "secondary": "assets:create_index('secondary', {unique=false,parts={1,'string',2,'string',3,'string'}})",
             "txid_search": "assets:create_index('txid_search', {type='hash', parts={'tx_id'}})",
             "assetid_search": "assets:create_index('assetid_search', {type='tree',unique=false, parts={'asset_id', 'tx_id'}})",
-            "only_asset_search": "assets:create_index('only_asset_search', {type='tree', unique=false, parts={'asset_id'}})"
+            "only_asset_search": "assets:create_index('only_asset_search', {type='tree', unique=false, parts={'asset_id'}})",
+            "text_search": "assets:create_index('secondary', {unique=false,parts={1,'string'}})"
         },
     "blocks":
         {
@@ -61,8 +61,8 @@ INDEX_COMMANDS = {
         },
     "meta_data":
         {
-            "secondary": "meta_datas:create_index('secondary', {unique=false,parts={1,'string',2,'string'}}",
-            "id_search": "meta_datas:create_index('id_search', { type='hash' , parts={'transaction_id'}})"
+            "id_search": "meta_datas:create_index('id_search', { type='hash' , parts={'transaction_id'}})",
+            "text_search": "meta_datas:create_index('secondary', {unique=false,parts={2,'string'}}"
         },
     "pre_commits":
         {

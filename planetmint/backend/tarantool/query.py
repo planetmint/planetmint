@@ -130,7 +130,7 @@ def get_metadata(connection, transaction_ids: list):
                 metadata[0][1] = json.loads(metadata[0][1])
                 metadata[0] = tuple(metadata[0])
                 _returned_data.append(metadata)
-    return _returned_data if len(_returned_data) > 0 else None
+    return _returned_data
 
 
 @register_query(TarantoolDBConnection)
@@ -267,33 +267,14 @@ def get_txids_filtered(connection, asset_id: str, operation: str = None,
 
     return tuple([elem[0] for elem in _transactions])
 
-
-# @register_query(TarantoolDB)
-# def text_search(conn, search, *, language='english', case_sensitive=False,
-#                 # TODO review text search in tarantool (maybe, remove)
-#                 diacritic_sensitive=False, text_score=False, limit=0, table='assets'):
-#     cursor = conn.run(
-#         conn.collection(table)
-#             .find({'$text': {
-#             '$search': search,
-#             '$language': language,
-#             '$caseSensitive': case_sensitive,
-#             '$diacriticSensitive': diacritic_sensitive}},
-#             {'score': {'$meta': 'textScore'}, '_id': False})
-#             .sort([('score', {'$meta': 'textScore'})])
-#             .limit(limit))
-#
-#     if text_score:
-#         return cursor
-#
-#     return (_remove_text_score(obj) for obj in cursor)
-
 @register_query(TarantoolDBConnection)
 def text_search(conn, search, table='assets', limit=0):
     pattern = ".{}.".format(search)
+    print("TEXT SEARCH FOR: {}".format(search))
     res = conn.run(
         conn.space(table).call('indexed_pattern_search', (table, 1, pattern))
     )
+    print("TEXT SEARCH RES: {}".format(res))
     return res
 
 def _remove_text_score(asset):
