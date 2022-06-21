@@ -266,7 +266,24 @@ def text_search(conn, search, table='assets', limit=0):
     res = conn.run(
         conn.space(table).call('indexed_pattern_search', (table, field_no, pattern))
     )
-    return res[0] if limit == 0 else res[0][:limit]
+
+    to_return = []
+
+    if len(res[0]):  # NEEDS BEAUTIFICATION
+        if table == 'assets':
+            for result in res[0]:
+                to_return.append({
+                    'data': json.loads(result[0])['data'],
+                    'id': result[1]
+                })
+        else:
+            for result in res[0]:
+                to_return.append({
+                    'metadata': json.loads(result[1]),
+                    'id': result[0]
+                })
+
+    return to_return if limit == 0 else to_return[:limit]
 
 def _remove_text_score(asset):
     asset.pop('score', None)
