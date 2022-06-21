@@ -6,15 +6,9 @@
 from copy import deepcopy
 
 import pytest
-import tarantool
+import json
 from planetmint.transactions.types.assets.create import Create
 from planetmint.transactions.types.assets.transfer import Transfer
-
-# import pymongo
-
-# # from planetmint.backend.connection import Connection, query
-# from planetmint.backend.connection import Connection
-# conn = Connection(backend="tarantool_db").get_connection()
 
 pytestmark = pytest.mark.bdb
 
@@ -167,9 +161,7 @@ def test_text_search(table):
 
 
 def test_write_metadata(db_conn):
-    # from planetmint.backend.connection import Connection
     from planetmint.backend.tarantool import query
-    # conn = Connection().get_connection()
 
     metadata = [
         {'id': "1", 'data': '1'},
@@ -183,7 +175,7 @@ def test_write_metadata(db_conn):
     metadatas = []
     for meta in metadata:
         _data = db_conn.run(db_conn.space("meta_data").select(meta["id"]))[0]
-        metadatas.append({"id": _data[0], "data": _data[1]})
+        metadatas.append({"id": _data[0], "data": json.loads(_data[1])})
 
     metadatas = sorted(metadatas, key=lambda k: k["id"])
 
