@@ -148,6 +148,7 @@ def store_asset(connection, asset):
         pass
 
 
+
 @register_query(TarantoolDBConnection)
 def store_assets(connection, assets: list):
     for asset in assets:
@@ -284,6 +285,7 @@ def text_search(conn, search, table='assets', limit=0):
                 })
 
     return to_return if limit == 0 else to_return[:limit]
+
 
 def _remove_text_score(asset):
     asset.pop('score', None)
