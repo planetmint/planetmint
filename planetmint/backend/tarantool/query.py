@@ -262,8 +262,9 @@ def get_txids_filtered(connection, asset_id: str, operation: str = None,
 @register_query(TarantoolDBConnection)
 def text_search(conn, search, table='assets', limit=0):
     pattern = ".{}.".format(search)
+    field_no = 1 if table == 'assets' else 2  # 2 for meta_data
     res = conn.run(
-        conn.space(table).call('indexed_pattern_search', (table, 1, pattern))
+        conn.space(table).call('indexed_pattern_search', (table, field_no, pattern))
     )
     return res[0] if limit == 0 else res[0][:limit]
 
