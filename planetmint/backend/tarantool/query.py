@@ -7,9 +7,9 @@
 from secrets import token_hex
 from hashlib import sha256
 from operator import itemgetter
-
-import tarantool.error
 import json
+
+from tarantool.error import DatabaseError
 
 from planetmint.backend import query
 from planetmint.backend.utils import module_dispatch_registrar
@@ -138,12 +138,14 @@ def store_asset(connection, asset):
             obj[0] = json.dumps(obj[0])
             return tuple(obj)
         else:
-            (json.dumps(obj), obj["id"], obj["id"])
-
-    return connection.run(
-        connection.space("assets").insert(convert(asset)),
-        only_data=False
-    )
+            return (json.dumps(obj), obj["id"], obj["id"])
+    try:
+        return connection.run(
+            connection.space("assets").insert(convert(asset)),
+            only_data=False
+        )
+    except DatabaseError:
+        pass
 
 
 @register_query(TarantoolDBConnection)
