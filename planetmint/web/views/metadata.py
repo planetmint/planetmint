@@ -46,7 +46,6 @@ class MetadataApi(Resource):
             metadata = planet.text_search(**args)
 
         try:
-            # This only works with MongoDB as the backend
             return list(metadata)
         except OperationError as e:
             return make_error(

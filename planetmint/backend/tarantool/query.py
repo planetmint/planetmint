@@ -7,9 +7,9 @@
 from secrets import token_hex
 from hashlib import sha256
 from operator import itemgetter
-
-import tarantool.error
 import json
+
+from tarantool.error import DatabaseError
 
 from planetmint.backend import query
 from planetmint.backend.utils import module_dispatch_registrar
@@ -138,12 +138,15 @@ def store_asset(connection, asset):
             obj[0] = json.dumps(obj[0])
             return tuple(obj)
         else:
-            (json.dumps(obj), obj["id"], obj["id"])
+            return (json.dumps(obj), obj["id"], obj["id"])
+    try:
+        return connection.run(
+            connection.space("assets").insert(convert(asset)),
+            only_data=False
+        )
+    except DatabaseError:
+        pass
 
-    return connection.run(
-        connection.space("assets").insert(convert(asset)),
-        only_data=False
-    )
 
 
 @register_query(TarantoolDBConnection)
@@ -260,10 +263,29 @@ def get_txids_filtered(connection, asset_id: str, operation: str = None,
 @register_query(TarantoolDBConnection)
 def text_search(conn, search, table='assets', limit=0):
     pattern = ".{}.".format(search)
+    field_no = 1 if table == 'assets' else 2  # 2 for meta_data
     res = conn.run(
-        conn.space(table).call('indexed_pattern_search', (table, 1, pattern))
+        conn.space(table).call('indexed_pattern_search', (table, field_no, pattern))
     )
-    return res[0] if limit == 0 else res[0][:limit]
+
+    to_return = []
+
+    if len(res[0]):  # NEEDS BEAUTIFICATION
+        if table == 'assets':
+            for result in res[0]:
+                to_return.append({
+                    'data': json.loads(result[0])['data'],
+                    'id': result[1]
+                })
+        else:
+            for result in res[0]:
+                to_return.append({
+                    'metadata': json.loads(result[1]),
+                    'id': result[0]
+                })
+
+    return to_return if limit == 0 else to_return[:limit]
+
 
 def _remove_text_score(asset):
     asset.pop('score', None)

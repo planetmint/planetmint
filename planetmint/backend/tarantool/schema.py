@@ -62,7 +62,7 @@ INDEX_COMMANDS = {
     "meta_data":
         {
             "id_search": "meta_datas:create_index('id_search', { type='hash' , parts={'transaction_id'}})",
-            "text_search": "meta_datas:create_index('secondary', {unique=false,parts={2,'string'}}"
+            "text_search": "meta_datas:create_index('secondary', {unique=false,parts={2,'string'}})"
         },
     "pre_commits":
         {
