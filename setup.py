@@ -84,6 +84,7 @@ docs_require = [
     "zipp==3.8.0",
     "nest-asyncio==1.5.5",
     "sphinx-press-theme==0.8.0",
+    "sphinx-documatt-theme",
 ]
 
 check_setuptools_features()

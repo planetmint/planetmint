@@ -11,8 +11,6 @@ There is some specialized terminology associated with Planetmint. To get started
 
 ## Planetmint Node
 
-**Planetmint node** is a machine (or logical machine) running [Planetmint Server](https://docs.planetmint.com/projects/server/en/latest/introduction.html) and related software. Each node is controlled by one person or organization.
-
 **Planetmint node** is a machine (or logical machine) running [Planetmint Server](https://docs.planetmint.io/projects/server/en/latest/introduction.html) and related software. Each node is controlled by one person or organization.
 
 ## Planetmint Network
@@ -26,6 +24,10 @@ The people and organizations that run the nodes in a Planetmint network belong t
 **What's the Difference Between a Planetmint Network and a Consortium?**
 
 A Planetmint network is just a bunch of connected nodes. A consortium is an organization which has a Planetmint network, and where each node in that network has a different operator.
+
+## Validators
+
+A validator node is a Planetmint node that is a validator as it is defined for Tendermint (see [Tendermint Validator](https://docs.tendermint.com/master/nodes/validators.html)).
 
 ## Transactions
 

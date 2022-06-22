@@ -27,3 +27,7 @@ At a high level, one can communicate with a Planetmint network (set of nodes) us
    terminology
    troubleshooting
 
+..toctree::
+   :maxdepth: 1
+   Crypto Conditions
+   Smart Contracts
