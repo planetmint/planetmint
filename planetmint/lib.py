@@ -22,6 +22,7 @@ except ImportError:
 import requests
 
 import planetmint
+from copy import deepcopy
 from planetmint.config import Config
 from planetmint import backend, config_utils, fastquery
 from planetmint.models import Transaction
@@ -128,24 +129,30 @@ class Planetmint(object):
         txns = []
         assets = []
         txn_metadatas = []
+
         for t in transactions:
             transaction = t.tx_dict if t.tx_dict else rapidjson.loads(rapidjson.dumps(t.to_dict()))
 
             asset = transaction.pop('asset')
-            asset_id = transaction['id']
-            if transaction['operation'] != t.CREATE:
-                asset_id = asset['id']
-            assets.append((asset,
-                           transaction['id'],
-                           asset_id))
-
             metadata = transaction.pop('metadata')
-            txn_metadatas.append({'id': transaction['id'],
-                                  'metadata': metadata})
+
+            asset = backend.convert.prepare_asset(self.connection,
+                                                  transaction_type=transaction["operation"],
+                                                  transaction_id=transaction["id"],
+                                                  filter_operation=t.CREATE,
+                                                  asset=asset)
+
+            metadata = backend.convert.prepare_metadata(self.connection,
+                                                        transaction_id=transaction["id"],
+                                                        metadata=metadata)
+
+            txn_metadatas.append(metadata)
+            assets.append(asset)
             txns.append(transaction)
 
         backend.query.store_metadatas(self.connection, txn_metadatas)
-        backend.query.store_assets(self.connection, assets)
+        if assets:
+            backend.query.store_assets(self.connection, assets)
         return backend.query.store_transactions(self.connection, txns)
 
     def delete_transactions(self, txs):
@@ -509,7 +516,6 @@ class Planetmint(object):
 
     def delete_elections(self, height):
         return backend.query.delete_elections(self.connection, height)
-
 
 
 Block = namedtuple('Block', ('app_hash', 'height', 'transactions'))
