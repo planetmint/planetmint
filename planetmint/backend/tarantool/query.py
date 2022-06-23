@@ -7,8 +7,9 @@
 from secrets import token_hex
 from hashlib import sha256
 from operator import itemgetter
+import json
 
-import tarantool.error
+from tarantool.error import DatabaseError
 
 from planetmint.backend import query
 from planetmint.backend.utils import module_dispatch_registrar
@@ -109,7 +110,7 @@ def store_metadatas(connection, metadata: list):
     for meta in metadata:
         connection.run(
             connection.space("meta_data").insert(
-                (meta["id"], meta["data"] if not "metadata" in meta else meta["metadata"]))
+                (meta["id"], json.dumps(meta["data"] if not "metadata" in meta else meta["metadata"])))
         )
 
 
@@ -122,33 +123,36 @@ def get_metadata(connection, transaction_ids: list):
         )
         if metadata is not None:
             if len(metadata) > 0:
+                metadata[0] = list(metadata[0])
+                metadata[0][1] = json.loads(metadata[0][1])
+                metadata[0] = tuple(metadata[0])
                 _returned_data.append(metadata)
-    return _returned_data if len(_returned_data) > 0 else None
+    return _returned_data
 
 
 @register_query(TarantoolDBConnection)
 def store_asset(connection, asset):
-    convert = lambda obj: obj if isinstance(obj, tuple) else (obj, obj["id"], obj["id"])
+    def convert(obj):
+        if isinstance(obj, tuple):
+            obj = list(obj)
+            obj[0] = json.dumps(obj[0])
+            return tuple(obj)
+        else:
+            return (json.dumps(obj), obj["id"], obj["id"])
     try:
         return connection.run(
             connection.space("assets").insert(convert(asset)),
             only_data=False
         )
-    except tarantool.error.DatabaseError:
+    except DatabaseError:
         pass
+
 
 
 @register_query(TarantoolDBConnection)
 def store_assets(connection, assets: list):
-    convert = lambda obj: obj if isinstance(obj, tuple) else (obj, obj["id"], obj["id"])
     for asset in assets:
-        try:
-            connection.run(
-                connection.space("assets").insert(convert(asset)),
-                only_data=False
-            )
-        except tarantool.error.DatabaseError:
-            pass
+        store_asset(connection, asset)
 
 
 @register_query(TarantoolDBConnection)
@@ -156,7 +160,8 @@ def get_asset(connection, asset_id: str):
     _data = connection.run(
         connection.space("assets").select(asset_id, index="txid_search")
     )
-    return _data[0][0] if len(_data) > 0 else []
+
+    return json.loads(_data[0][0]) if len(_data) > 0 else []
 
 
 @register_query(TarantoolDBConnection)
@@ -165,6 +170,7 @@ def get_assets(connection, assets_ids: list) -> list:
     for _id in list(set(assets_ids)):
         asset = get_asset(connection, _id)
         _returned_data.append(asset)
+
     return sorted(_returned_data, key=lambda k: k["id"], reverse=False)
 
 
@@ -254,26 +260,31 @@ def get_txids_filtered(connection, asset_id: str, operation: str = None,
 
     return tuple([elem[0] for elem in _transactions])
 
+@register_query(TarantoolDBConnection)
+def text_search(conn, search, table='assets', limit=0):
+    pattern = ".{}.".format(search)
+    field_no = 1 if table == 'assets' else 2  # 2 for meta_data
+    res = conn.run(
+        conn.space(table).call('indexed_pattern_search', (table, field_no, pattern))
+    )
 
-# @register_query(TarantoolDB)
-# def text_search(conn, search, *, language='english', case_sensitive=False,
-#                 # TODO review text search in tarantool (maybe, remove)
-#                 diacritic_sensitive=False, text_score=False, limit=0, table='assets'):
-#     cursor = conn.run(
-#         conn.collection(table)
-#             .find({'$text': {
-#             '$search': search,
-#             '$language': language,
-#             '$caseSensitive': case_sensitive,
-#             '$diacriticSensitive': diacritic_sensitive}},
-#             {'score': {'$meta': 'textScore'}, '_id': False})
-#             .sort([('score', {'$meta': 'textScore'})])
-#             .limit(limit))
-#
-#     if text_score:
-#         return cursor
-#
-#     return (_remove_text_score(obj) for obj in cursor)
+    to_return = []
+
+    if len(res[0]):  # NEEDS BEAUTIFICATION
+        if table == 'assets':
+            for result in res[0]:
+                to_return.append({
+                    'data': json.loads(result[0])['data'],
+                    'id': result[1]
+                })
+        else:
+            for result in res[0]:
+                to_return.append({
+                    'metadata': json.loads(result[1]),
+                    'id': result[0]
+                })
+
+    return to_return if limit == 0 else to_return[:limit]
 
 
 def _remove_text_score(asset):

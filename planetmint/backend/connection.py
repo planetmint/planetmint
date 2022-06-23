@@ -12,7 +12,7 @@ from planetmint.config import Config
 from planetmint.backend.exceptions import ConnectionError
 from planetmint.transactions.common.exceptions import ConfigurationError
 
-BACKENDS = {  # This is path to MongoDBClass
+BACKENDS = {
     'tarantool_db': 'planetmint.backend.tarantool.connection.TarantoolDBConnection',
     'localmongodb': 'planetmint.backend.localmongodb.connection.LocalMongoDBConnection'
 }
@@ -22,14 +22,18 @@ logger = logging.getLogger(__name__)
 
 def connect(host: str = None, port: int = None, login: str = None, password: str = None, backend: str = None,
                **kwargs):
-    backend = backend
-    if not backend and kwargs and kwargs.get("backend"):
-        backend = kwargs["backend"]
+    try:
+        backend = backend
+        if not backend and kwargs and kwargs.get("backend"):
+            backend = kwargs["backend"]
 
-    if backend and backend != Config().get()["database"]["backend"]:
-        Config().init_config(backend)
-    else:
-        backend = Config().get()["database"]["backend"]
+        if backend and backend != Config().get()["database"]["backend"]:
+            Config().init_config(backend)
+        else:
+            backend = Config().get()["database"]["backend"]
+    except KeyError:
+        logger.info("Backend {} not supported".format(backend))
+        raise ConfigurationError
 
     host = host or Config().get()["database"]["host"] if not kwargs.get("host") else kwargs["host"]
     port = port or Config().get()['database']['port'] if not kwargs.get("port") else kwargs["port"]
@@ -72,9 +76,6 @@ def connect(host: str = None, port: int = None, login: str = None, password: str
     except tarantool.error.NetworkError as network_err:
         print(f"Host {host}:{port} can't be reached.\n{network_err}")
         raise network_err
-    except:
-        logger.info('Exception in _connect(): {}')
-        raise ConfigurationError
 
 
 def _kwargs_parser(key, kwargs):
