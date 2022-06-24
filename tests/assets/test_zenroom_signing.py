@@ -17,7 +17,7 @@ CONDITION_SCRIPT = """
 FULFILL_SCRIPT = """Scenario 'ecdh': Bob verifies the signature from Alice
     Given I have a 'ecdh public key' from 'Alice'
     Given that I have a 'string dictionary' named 'houses' inside 'asset'
-    Given I have a 'signature' named 'signature' inside 'result'
+    Given I have a 'signature' named 'signature' inside 'metadata'
     When I verify the 'houses' has a signature in 'signature' by 'Alice'
     Then print the string 'ok'"""
 
