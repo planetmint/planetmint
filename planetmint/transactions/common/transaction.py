@@ -694,7 +694,7 @@ class Transaction(object):
         for asset in assets:
             if asset is not None:
                 tx = tx_map[asset[1]]
-                tx['asset'] = asset
+                tx['asset'] = asset[0]
 
         tx_ids = list(tx_map.keys())
         metadata_list = list(planet.get_metadata(tx_ids))
