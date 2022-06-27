@@ -693,6 +693,7 @@ class Transaction(object):
         assets = list(planet.get_assets(tx_ids))
         for asset in assets:
             if asset is not None:
+                # This is tarantool specific behaviour needs to be addressed
                 tx = tx_map[asset[1]]
                 tx['asset'] = asset[0]
 
