@@ -11,17 +11,15 @@ CONDITION_SCRIPT = """
     Given that I have a 'string dictionary' named 'houses' inside 'asset'
     When I create the signature of 'houses'
     Then print the 'signature'"""
-    
-FULFILL_SCRIPT = \
-    """Scenario 'ecdh': Bob verifies the signature from Alice
+
+FULFILL_SCRIPT = """Scenario 'ecdh': Bob verifies the signature from Alice
     Given I have a 'ecdh public key' from 'Alice'
     Given that I have a 'string dictionary' named 'houses' inside 'asset'
-    Given I have a 'signature' named 'signature' inside 'result'
+    Given I have a 'signature' named 'signature' inside 'metadata'
     When I verify the 'houses' has a signature in 'signature' by 'Alice'
     Then print the string 'ok'"""
-    
-SK_TO_PK = \
-    """Scenario 'ecdh': Create the keypair
+
+SK_TO_PK = """Scenario 'ecdh': Create the keypair
     Given that I am known as '{}'
     Given I have the 'keyring'
     When I create the ecdh public key
@@ -29,16 +27,13 @@ SK_TO_PK = \
     Then print my 'ecdh public key'
     Then print my 'bitcoin address'"""
 
-GENERATE_KEYPAIR = \
-    """Scenario 'ecdh': Create the keypair
+GENERATE_KEYPAIR = """Scenario 'ecdh': Create the keypair
     Given that I am known as 'Pippo'
     When I create the ecdh key
     When I create the bitcoin key
     Then print data"""
 
-ZENROOM_DATA = {
-    'also': 'more data'
-}
+ZENROOM_DATA = {"also": "more data"}
 
 HOUSE_ASSETS = {
     "data": {
@@ -50,35 +45,38 @@ HOUSE_ASSETS = {
             {
                 "name": "Draco",
                 "team": "Slytherin",
-            }
+            },
         ],
     }
 }
 
-metadata = {
-    'units': 300,
-    'type': 'KG'
-}
+metadata = {"units": 300, "type": "KG"}
+
 
 @pytest.fixture
 def gen_key_zencode():
     return GENERATE_KEYPAIR
 
+
 @pytest.fixture
 def secret_key_to_private_key_zencode():
     return SK_TO_PK
+
 
 @pytest.fixture
 def fulfill_script_zencode():
     return FULFILL_SCRIPT
 
+
 @pytest.fixture
 def condition_script_zencode():
     return CONDITION_SCRIPT
 
+
 @pytest.fixture
 def zenroom_house_assets():
     return HOUSE_ASSETS
+
 
 @pytest.fixture
 def zenroom_data():
