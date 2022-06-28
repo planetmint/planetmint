@@ -25,7 +25,7 @@ using private IP addresses, but we don't cover that here.)
 
 ## Operating System
 
-**Use Ubuntu 18.04 or Ubuntu Server 18.04 as the operating system.**
+**Use Ubuntu 18.04 Server or above versions as the operating system.**
 
 Similar instructions will work on other versions of Ubuntu,
 and other recent Debian-like Linux distros,

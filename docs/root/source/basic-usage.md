@@ -119,13 +119,19 @@ of the outgoing paperclips (100).
 ### Transaction Validity
 
 When a node is asked to check if a transaction is valid, it checks several
-things. We documented those things in a post on *The Planetmint Blog*:
-["What is a Valid Transaction in Planetmint?"](https://blog.planetmint.io/what-is-a-valid-transaction-in-planetmint-9a1a075a9598)
+things. This got documentet by a BigchainDB post (previous version of Planetmint) at*The BigchainDB Blog*:
+["What is a Valid Transaction in BigchainDB?"](https://blog.bigchaindb.com/what-is-a-valid-transaction-in-planetmint-9a1a075a9598)
 (Note: That post was about Planetmint Server v1.0.0.)
 
 ### Example Transactions
 
 There are example Planetmint transactions in
-[the HTTP API documentation](./connecting/api/http-client-server-api)
+[the HTTP API documentation](./connecting/http-client-server-api)
 and
 [the Python Driver documentation](./connecting/drivers).
+
+## Contracts & Conditions
+
+Planetmint has been developed with simple logical gateways in mind. The logic got introduced by [cryptoconditions](https://https://docs.planetmint.io/projects/cryptoconditions). The cryptocondition documentation contains all details about how conditoins are defined and how they can be verified and fulfilled. 
+
+The integration of such into the transaction schema of Planetmint is shown below.
