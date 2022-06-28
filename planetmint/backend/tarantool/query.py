@@ -168,8 +168,10 @@ def get_asset(connection, asset_id: str):
 def get_assets(connection, assets_ids: list) -> list:
     _returned_data = []
     for _id in list(set(assets_ids)):
-        asset = get_asset(connection, _id)
-        _returned_data.append(asset)
+        res = connection.run(
+            connection.space("assets").select(_id, index="txid_search")
+        )
+        _returned_data.append(res[0])
 
     sorted_assets = sorted(_returned_data, key=lambda k: k[1], reverse=False)
     return [(json.loads(asset[0]), asset[1]) for asset in sorted_assets]
