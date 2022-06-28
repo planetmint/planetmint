@@ -13,9 +13,11 @@ from planetmint.transactions.types.assets.transfer import Transfer
 pytestmark = pytest.mark.bdb
 
 
+
 def test_get_txids_filtered(signed_create_tx, signed_transfer_tx, db_conn):
     from planetmint.backend.tarantool import query
     from planetmint.models import Transaction
+
     # create and insert two blocks, one for the create and one for the
     # transfer transaction
     create_tx_dict = signed_create_tx.to_dict()
@@ -37,6 +39,7 @@ def test_get_txids_filtered(signed_create_tx, signed_transfer_tx, db_conn):
     # Test get by asset and TRANSFER
     txids = set(query.get_txids_filtered(connection=db_conn, asset_id=asset_id, operation=Transaction.TRANSFER))
     assert txids == {signed_transfer_tx.id}
+
 
 
 def test_write_assets(db_conn):
