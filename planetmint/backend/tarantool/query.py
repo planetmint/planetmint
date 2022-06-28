@@ -171,7 +171,8 @@ def get_assets(connection, assets_ids: list) -> list:
         asset = get_asset(connection, _id)
         _returned_data.append(asset)
 
-    return _returned_data
+    sorted_assets = sorted(_returned_data, key=lambda k: k[1], reverse=False)
+    return [(json.loads(asset[0]), asset[1]) for asset in sorted_assets]
 
 
 @register_query(TarantoolDBConnection)
