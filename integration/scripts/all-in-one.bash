@@ -6,12 +6,16 @@
 
 
 # MongoDB configuration
-[ "$(stat -c %U /data/db)" = mongodb ] || chown -R mongodb /data/db
+# [ "$(stat -c %U /data/db)" = mongodb ] || chown -R mongodb /data/db
+# Tarantool configuration
+echo STARTING TARANTOOL NOW
+tarantool /usr/src/app/scripts/init.lua
 
 # Planetmint configuration
 /usr/src/app/scripts/planetmint-monit-config
 
-nohup mongod --bind_ip_all > "$HOME/.planetmint-monit/logs/mongodb_log_$(date +%Y%m%d_%H%M%S)" 2>&1 &
+# nohup mongod --bind_ip_all > "$HOME/.planetmint-monit/logs/mongodb_log_$(date +%Y%m%d_%H%M%S)" 2>&1 &
+
 
 # Start services
 monit -d 5 -I -B
