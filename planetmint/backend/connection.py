@@ -43,13 +43,10 @@ def connect(host: str = None, port: int = None, login: str = None, password: str
         if backend == "tarantool_db":
             modulepath, _, class_name = BACKENDS[backend].rpartition('.')
             Class = getattr(import_module(modulepath), class_name)
-            print("LOGIN " + str(login))
-            print("PASSWORD " + str(password))
             return Class(host=host, port=port, user=login, password=password, kwargs=kwargs)
         elif backend == "localmongodb":
             modulepath, _, class_name = BACKENDS[backend].rpartition('.')
             Class = getattr(import_module(modulepath), class_name)
-            print(Config().get())
             dbname = _kwargs_parser(key="name", kwargs=kwargs) or Config().get()['database']['name']
             replicaset = _kwargs_parser(key="replicaset", kwargs=kwargs) or Config().get()['database']['replicaset']
             ssl = _kwargs_parser(key="ssl", kwargs=kwargs) or Config().get()['database']['ssl']

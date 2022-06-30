@@ -22,8 +22,6 @@ class TarantoolDBConnection(Connection):
             self.host = host
             self.port = port
             # TODO add user support later on
-            print(f"host : {host}")
-            print(f"port : {port}")
             self.init_path = Config().get()["database"]["init_config"]["absolute_path"]
             self.drop_path = Config().get()["database"]["drop_config"]["absolute_path"]
             self.SPACE_NAMES = ["abci_chains", "assets", "blocks", "blocks_tx",
