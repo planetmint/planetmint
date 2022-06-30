@@ -100,8 +100,8 @@ definitions:
           uri:
             type: string
             pattern: "^ni:///sha-256;([a-zA-Z0-9_-]{0,86})[?]\
-              (fpt=(ed25519|threshold)-sha-256(&)?|cost=[0-9]+(&)?|\
-              subtypes=ed25519-sha-256(&)?){2,3}$"
+              (fpt=(ed25519|threshold|zenroom)-sha-256(&)?|cost=[0-9]+(&)?|\
+              subtypes=(ed25519|zenroom)-sha-256(&)?){2,3}$"
       public_keys:
         "$ref": "#/definitions/public_keys"
   input:
@@ -147,7 +147,7 @@ definitions:
       properties:
         type:
           type: string
-          pattern: "^ed25519-sha-256$"
+          pattern: "^(ed25519|zenroom)-sha-256$"
         public_key:
           "$ref": "#/definitions/base58"
     - type: object

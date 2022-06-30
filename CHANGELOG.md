@@ -25,6 +25,24 @@ For reference, the possible headings are:
 * **Known Issues**
 * **Notes**
 
+## [0.9.8] - 2022-06-27
+
+### Feature Update
+Changed license to AGPLv3
+
+
+## [0.9.7] - 2022-06-17
+
+### Feature Update
+Deep Zenroom integration
+
+## [0.9.6] - 2022-06-08
+
+### Maintenance
+
+* removed Korean documentation
+* removed Korean and Chinese README
+
 ## [2.2.2] - 2020-08-12
 
 ### Security
