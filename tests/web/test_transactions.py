@@ -243,9 +243,7 @@ def test_post_create_transaction_with_invalid_signature(mock_logger, b, client):
 @pytest.mark.abci
 def test_post_create_transaction_with_invalid_structure(client):
     res = client.post(TX_ENDPOINT, data="{}")
-    print(f"res: {res.message}")
     assert res.status_code == 400
-    assert res.message == 200
 
 
 @pytest.mark.abci
