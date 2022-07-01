@@ -6,7 +6,8 @@
 from functools import reduce
 
 import base58
-from cryptoconditions import Fulfillment, ThresholdSha256, Ed25519Sha256
+from cryptoconditions import ThresholdSha256, Ed25519Sha256, ZenroomSha256
+from cryptoconditions import Fulfillment
 
 from planetmint.transactions.common.exceptions import AmountError
 from .utils import _fulfillment_to_details, _fulfillment_from_details
@@ -24,30 +25,30 @@ class Output(object):
                 owners before a Transaction was confirmed.
     """
 
-    MAX_AMOUNT = 9 * 10 ** 18
+    MAX_AMOUNT = 9 * 10**18
 
     def __init__(self, fulfillment, public_keys=None, amount=1):
         """Create an instance of a :class:`~.Output`.
 
-            Args:
-                fulfillment (:class:`cryptoconditions.Fulfillment`): A
-                    Fulfillment to extract a Condition from.
-                public_keys (:obj:`list` of :obj:`str`, optional): A list of
-                    owners before a Transaction was confirmed.
-                amount (int): The amount of Assets to be locked with this
-                    Output.
+        Args:
+            fulfillment (:class:`cryptoconditions.Fulfillment`): A
+                Fulfillment to extract a Condition from.
+            public_keys (:obj:`list` of :obj:`str`, optional): A list of
+                owners before a Transaction was confirmed.
+            amount (int): The amount of Assets to be locked with this
+                Output.
 
-            Raises:
-                TypeError: if `public_keys` is not instance of `list`.
+        Raises:
+            TypeError: if `public_keys` is not instance of `list`.
         """
         if not isinstance(public_keys, list) and public_keys is not None:
-            raise TypeError('`public_keys` must be a list instance or None')
+            raise TypeError("`public_keys` must be a list instance or None")
         if not isinstance(amount, int):
-            raise TypeError('`amount` must be an int')
+            raise TypeError("`amount` must be an int")
         if amount < 1:
-            raise AmountError('`amount` must be greater than 0')
+            raise AmountError("`amount` must be greater than 0")
         if amount > self.MAX_AMOUNT:
-            raise AmountError('`amount` must be <= %s' % self.MAX_AMOUNT)
+            raise AmountError("`amount` must be <= %s" % self.MAX_AMOUNT)
 
         self.fulfillment = fulfillment
         self.amount = amount
@@ -60,30 +61,31 @@ class Output(object):
     def to_dict(self):
         """Transforms the object to a Python dictionary.
 
-            Note:
-                A dictionary serialization of the Input the Output was
-                derived from is always provided.
+        Note:
+            A dictionary serialization of the Input the Output was
+            derived from is always provided.
 
-            Returns:
-                dict: The Output as an alternative serialization format.
+        Returns:
+            dict: The Output as an alternative serialization format.
         """
         # TODO FOR CC: It must be able to recognize a hashlock condition
         #              and fulfillment!
         condition = {}
         try:
-            condition['details'] = _fulfillment_to_details(self.fulfillment)
+            # TODO verify if a script is returned in case of zenroom fulfillments
+            condition["details"] = _fulfillment_to_details(self.fulfillment)
         except AttributeError:
             pass
 
         try:
-            condition['uri'] = self.fulfillment.condition_uri
+            condition["uri"] = self.fulfillment.condition_uri
         except AttributeError:
-            condition['uri'] = self.fulfillment
+            condition["uri"] = self.fulfillment
 
         output = {
-            'public_keys': self.public_keys,
-            'condition': condition,
-            'amount': str(self.amount),
+            "public_keys": self.public_keys,
+            "condition": condition,
+            "amount": str(self.amount),
         }
         return output
 
@@ -91,66 +93,65 @@ class Output(object):
     def generate(cls, public_keys, amount):
         """Generates a Output from a specifically formed tuple or list.
 
-            Note:
-                If a ThresholdCondition has to be generated where the threshold
-                is always the number of subconditions it is split between, a
-                list of the following structure is sufficient:
+        Note:
+            If a ThresholdCondition has to be generated where the threshold
+            is always the number of subconditions it is split between, a
+            list of the following structure is sufficient:
 
-                [(address|condition)*, [(address|condition)*, ...], ...]
+            [(address|condition)*, [(address|condition)*, ...], ...]
 
-            Args:
-                public_keys (:obj:`list` of :obj:`str`): The public key of
-                    the users that should be able to fulfill the Condition
-                    that is being created.
-                amount (:obj:`int`): The amount locked by the Output.
+        Args:
+            public_keys (:obj:`list` of :obj:`str`): The public key of
+                the users that should be able to fulfill the Condition
+                that is being created.
+            amount (:obj:`int`): The amount locked by the Output.
 
-            Returns:
-                An Output that can be used in a Transaction.
+        Returns:
+            An Output that can be used in a Transaction.
 
-            Raises:
-                TypeError: If `public_keys` is not an instance of `list`.
-                ValueError: If `public_keys` is an empty list.
+        Raises:
+            TypeError: If `public_keys` is not an instance of `list`.
+            ValueError: If `public_keys` is an empty list.
         """
         threshold = len(public_keys)
         if not isinstance(amount, int):
-            raise TypeError('`amount` must be a int')
+            raise TypeError("`amount` must be a int")
         if amount < 1:
-            raise AmountError('`amount` needs to be greater than zero')
+            raise AmountError("`amount` needs to be greater than zero")
         if not isinstance(public_keys, list):
-            raise TypeError('`public_keys` must be an instance of list')
+            raise TypeError("`public_keys` must be an instance of list")
         if len(public_keys) == 0:
-            raise ValueError('`public_keys` needs to contain at least one'
-                             'owner')
+            raise ValueError("`public_keys` needs to contain at least one" "owner")
         elif len(public_keys) == 1 and not isinstance(public_keys[0], list):
             if isinstance(public_keys[0], Fulfillment):
                 ffill = public_keys[0]
+            elif isinstance(public_keys[0], ZenroomSha256):
+                ffill = ZenroomSha256(public_key=base58.b58decode(public_keys[0]))
             else:
-                ffill = Ed25519Sha256(
-                    public_key=base58.b58decode(public_keys[0]))
+                ffill = Ed25519Sha256(public_key=base58.b58decode(public_keys[0]))
             return cls(ffill, public_keys, amount=amount)
         else:
             initial_cond = ThresholdSha256(threshold=threshold)
-            threshold_cond = reduce(cls._gen_condition, public_keys,
-                                    initial_cond)
+            threshold_cond = reduce(cls._gen_condition, public_keys, initial_cond)
             return cls(threshold_cond, public_keys, amount=amount)
 
     @classmethod
     def _gen_condition(cls, initial, new_public_keys):
         """Generates ThresholdSha256 conditions from a list of new owners.
 
-            Note:
-                This method is intended only to be used with a reduce function.
-                For a description on how to use this method, see
-                :meth:`~.Output.generate`.
+        Note:
+            This method is intended only to be used with a reduce function.
+            For a description on how to use this method, see
+            :meth:`~.Output.generate`.
 
-            Args:
-                initial (:class:`cryptoconditions.ThresholdSha256`):
-                    A Condition representing the overall root.
-                new_public_keys (:obj:`list` of :obj:`str`|str): A list of new
-                    owners or a single new owner.
+        Args:
+            initial (:class:`cryptoconditions.ThresholdSha256`):
+                A Condition representing the overall root.
+            new_public_keys (:obj:`list` of :obj:`str`|str): A list of new
+                owners or a single new owner.
 
-            Returns:
-                :class:`cryptoconditions.ThresholdSha256`:
+        Returns:
+            :class:`cryptoconditions.ThresholdSha256`:
         """
         try:
             threshold = len(new_public_keys)
@@ -161,7 +162,7 @@ class Output(object):
             ffill = ThresholdSha256(threshold=threshold)
             reduce(cls._gen_condition, new_public_keys, ffill)
         elif isinstance(new_public_keys, list) and len(new_public_keys) <= 1:
-            raise ValueError('Sublist cannot contain single owner')
+            raise ValueError("Sublist cannot contain single owner")
         else:
             try:
                 new_public_keys = new_public_keys.pop()
@@ -176,8 +177,7 @@ class Output(object):
             if isinstance(new_public_keys, Fulfillment):
                 ffill = new_public_keys
             else:
-                ffill = Ed25519Sha256(
-                    public_key=base58.b58decode(new_public_keys))
+                ffill = Ed25519Sha256(public_key=base58.b58decode(new_public_keys))
         initial.add_subfulfillment(ffill)
         return initial
 
@@ -185,25 +185,25 @@ class Output(object):
     def from_dict(cls, data):
         """Transforms a Python dictionary to an Output object.
 
-            Note:
-                To pass a serialization cycle multiple times, a
-                Cryptoconditions Fulfillment needs to be present in the
-                passed-in dictionary, as Condition URIs are not serializable
-                anymore.
+        Note:
+            To pass a serialization cycle multiple times, a
+            Cryptoconditions Fulfillment needs to be present in the
+            passed-in dictionary, as Condition URIs are not serializable
+            anymore.
 
-            Args:
-                data (dict): The dict to be transformed.
+        Args:
+            data (dict): The dict to be transformed.
 
-            Returns:
-                :class:`~planetmint.transactions.common.transaction.Output`
+        Returns:
+            :class:`~planetmint.transactions.common.transaction.Output`
         """
         try:
-            fulfillment = _fulfillment_from_details(data['condition']['details'])
+            fulfillment = _fulfillment_from_details(data["condition"]["details"])
         except KeyError:
             # NOTE: Hashlock condition case
-            fulfillment = data['condition']['uri']
+            fulfillment = data["condition"]["uri"]
         try:
-            amount = int(data['amount'])
+            amount = int(data["amount"])
         except ValueError:
-            raise AmountError('Invalid amount: %s' % data['amount'])
-        return cls(fulfillment, data['public_keys'], amount)
+            raise AmountError("Invalid amount: %s" % data["amount"])
+        return cls(fulfillment, data["public_keys"], amount)
