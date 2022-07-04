@@ -10,30 +10,45 @@ from planetmint.config import Config
 from planetmint.transactions.common.exceptions import ConfigurationError
 from planetmint.utils import Lazy
 from planetmint.backend.connection import Connection
-from planetmint.utils import Lazy
 
 logger = logging.getLogger(__name__)
 
 
 class TarantoolDBConnection(Connection):
-    def __init__(self, host: str = "localhost", port: int = 3303, user: str = None, password: str = None, **kwargs):
+    def __init__(
+        self,
+        host: str = "localhost",
+        port: int = 3303,
+        user: str = None,
+        password: str = None,
+        **kwargs,
+    ):
         try:
             super().__init__(**kwargs)
             self.host = host
             self.port = port
             # TODO add user support later on
-            print(f"host : {host}")
-            print(f"port : {port}")
             self.init_path = Config().get()["database"]["init_config"]["absolute_path"]
             self.drop_path = Config().get()["database"]["drop_config"]["absolute_path"]
-            self.SPACE_NAMES = ["abci_chains", "assets", "blocks", "blocks_tx",
-                                "elections", "meta_data", "pre_commits", "validators",
-                                "transactions", "inputs", "outputs", "keys"]
+            self.SPACE_NAMES = [
+                "abci_chains",
+                "assets",
+                "blocks",
+                "blocks_tx",
+                "elections",
+                "meta_data",
+                "pre_commits",
+                "validators",
+                "transactions",
+                "inputs",
+                "outputs",
+                "keys",
+            ]
         except tarantool.error.NetworkError as network_err:
-            logger.info('Host cant be reached')
+            logger.info("Host cant be reached")
             raise network_err
         except:
-            logger.info('Exception in _connect(): {}')
+            logger.info("Exception in _connect(): {}")
             raise ConfigurationError
 
     def query(self):
@@ -75,11 +90,14 @@ class TarantoolDBConnection(Connection):
 
     def run_command(self, command: str, config: dict):
         from subprocess import run
+
         print(f" commands: {command}")
         host_port = "%s:%s" % (self.host, self.port)
         execute_cmd = self._file_content_to_bytes(path=command)
-        output = run(["tarantoolctl", "connect", host_port],
-                     input=execute_cmd,
-                     capture_output=True).stderr
+        output = run(
+            ["tarantoolctl", "connect", host_port],
+            input=execute_cmd,
+            capture_output=True,
+        ).stderr
         output = output.decode()
         return output

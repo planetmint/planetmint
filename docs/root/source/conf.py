@@ -30,14 +30,14 @@ from os import rename, remove
 
 # get version
 _version = {}
-with open('../../../planetmint/version.py') as fp:
+with open("../../../planetmint/version.py") as fp:
     exec(fp.read(), _version)
 
 
 currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 parentdir = os.path.dirname(currentdir)
-sys.path.insert(0,parentdir) 
-#sys.path.insert(0, "/home/myname/pythonfiles")
+sys.path.insert(0, parentdir)
+# sys.path.insert(0, "/home/myname/pythonfiles")
 
 # -- General configuration ------------------------------------------------
 
@@ -48,83 +48,95 @@ sys.path.insert(0,parentdir)
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-project = 'Planetmint'
+project = "Planetmint"
 
 import sphinx_rtd_theme
 
 extensions = [
-    'myst_parser',
-    'sphinx.ext.autosectionlabel',
-    'sphinx.ext.autodoc',
-    'sphinx.ext.intersphinx',
-    'sphinx.ext.coverage',
-    'sphinx.ext.viewcode',
-    'sphinx.ext.todo',
-    'sphinx.ext.napoleon',
-    'sphinxcontrib.httpdomain',
-    'aafigure.sphinxext',
+    "myst_parser",
+    "sphinx.ext.autosectionlabel",
+    "sphinx.ext.autodoc",
+    "sphinx.ext.intersphinx",
+    "sphinx.ext.coverage",
+    "sphinx.ext.viewcode",
+    "sphinx.ext.todo",
+    "sphinx.ext.napoleon",
+    "sphinxcontrib.httpdomain",
+    "aafigure.sphinxext",
+    #'sphinx_toolbox.collapse',
     # Below are actually build steps made to look like sphinx extensions.
     # It was the easiest way to get it running with ReadTheDocs.
-    'generate_http_server_api_documentation',
+    "generate_http_server_api_documentation",
 ]
 
 try:
-    remove('contributing/cross-project-policies/code-of-conduct.md')
-    remove('contributing/cross-project-policies/release-process.md')
-    remove('contributing/cross-project-policies/python-style-guide.md')
+    remove("contributing/cross-project-policies/code-of-conduct.md")
+    remove("contributing/cross-project-policies/release-process.md")
+    remove("contributing/cross-project-policies/python-style-guide.md")
 except:
-    print('done')
+    print("done")
+
 
 def get_old_new(url, old, new):
     filename = wget.download(url)
     rename(old, new)
 
-get_old_new('https://raw.githubusercontent.com/planetmint/planetmint/master/CODE_OF_CONDUCT.md',
-            'CODE_OF_CONDUCT.md', 'contributing/cross-project-policies/code-of-conduct.md')
 
-get_old_new('https://raw.githubusercontent.com/planetmint/planetmint/master/RELEASE_PROCESS.md',
-            'RELEASE_PROCESS.md', 'contributing/cross-project-policies/release-process.md')
+get_old_new(
+    "https://raw.githubusercontent.com/planetmint/planetmint/master/CODE_OF_CONDUCT.md",
+    "CODE_OF_CONDUCT.md",
+    "contributing/cross-project-policies/code-of-conduct.md",
+)
 
-get_old_new('https://raw.githubusercontent.com/planetmint/planetmint/master/PYTHON_STYLE_GUIDE.md',
-            'PYTHON_STYLE_GUIDE.md', 'contributing/cross-project-policies/python-style-guide.md')
+get_old_new(
+    "https://raw.githubusercontent.com/planetmint/planetmint/master/RELEASE_PROCESS.md",
+    "RELEASE_PROCESS.md",
+    "contributing/cross-project-policies/release-process.md",
+)
 
-suppress_warnings = ['misc.highlighting_failure']
+get_old_new(
+    "https://raw.githubusercontent.com/planetmint/planetmint/master/PYTHON_STYLE_GUIDE.md",
+    "PYTHON_STYLE_GUIDE.md",
+    "contributing/cross-project-policies/python-style-guide.md",
+)
+
+suppress_warnings = ["misc.highlighting_failure"]
 
 # Add any paths that contain templates here, relative to this directory.
-templates_path = ['_templates']
+templates_path = ["_templates"]
 
 # autodoc settings
-autodoc_member_order = 'bysource'
+autodoc_member_order = "bysource"
 autodoc_default_options = {
-    'members': None,
+    "members": None,
 }
 
 # The suffix(es) of source filenames.
 # You can specify multiple suffix as a list of string:
 #
 # source_suffix = ['.rst', '.md']
-source_suffix = ['.rst', '.md']
+source_suffix = [".rst", ".md"]
 
 # The encoding of source files.
 #
 # source_encoding = 'utf-8-sig'
 
 # The master toctree document.
-master_doc = 'index'
+master_doc = "index"
 autosectionlabel_prefix_document = True
 # General information about the project.
 now = datetime.datetime.now()
-copyright = str(now.year) + ', Planetmint Contributors'
-author = 'Planetmint Contributors'
+copyright = str(now.year) + ", Planetmint Contributors"
+author = "Planetmint Contributors"
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
 # built documents.
 #
 # The short X.Y version.
-version = _version['__short_version__']
+version = _version["__short_version__"]
 # The full version, including alpha/beta/rc tags.
-release = _version['__version__']
+release = _version["__version__"]
 # The full version, including alpha/beta/rc tags.
 
 # The language for content autogenerated by Sphinx. Refer to documentation
@@ -132,7 +144,7 @@ release = _version['__version__']
 #
 # This is also used if you do content translation via gettext catalogs.
 # Usually you set "language" from the command line for these cases.
-language = 'en'
+language = "en"
 
 # There are two options for replacing |today|: either, you set today to some
 # non-false value, then it is used:
@@ -168,7 +180,7 @@ exclude_patterns = []
 # show_authors = False
 
 # The name of the Pygments (syntax highlighting) style to use.
-pygments_style = 'sphinx'
+pygments_style = "sphinx"
 
 # A list of ignored prefixes for module index sorting.
 # modindex_common_prefix = []
@@ -185,7 +197,8 @@ todo_include_todos = False
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'sphinx_rtd_theme'
+html_theme = "press"
+# html_theme = 'sphinx_documatt_theme'
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
@@ -194,7 +207,7 @@ html_theme = 'sphinx_rtd_theme'
 # html_theme_options = {}
 
 # Add any paths that contain custom themes here, relative to this directory.
-html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
+# html_theme_path = [press.get_html_theme_path()]
 
 # The name for this set of Sphinx documents.
 # "<project> v<release> documentation" by default.
@@ -208,7 +221,7 @@ html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
 # The name of an image file (relative to this directory) to place at the top
 # of the sidebar.
 #
-# html_logo = None
+html_logo = "_static/planetmint-logo.png"
 
 # The name of an image file (relative to this directory) to use as a favicon of
 # the docs.  This file should be a Windows icon file (.ico) being 16x16 or 32x32
@@ -219,7 +232,7 @@ html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['_static']
+html_static_path = ["_static"]
 
 # Add any extra paths that contain custom files (such as robots.txt or
 # .htaccess) here, relative to this directory. These files are copied
@@ -299,34 +312,36 @@ html_static_path = ['_static']
 # html_search_scorer = 'scorer.js'
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'Planetmintdoc'
+htmlhelp_basename = "Planetmintdoc"
 
 # -- Options for LaTeX output ---------------------------------------------
 
 latex_elements = {
-     # The paper size ('letterpaper' or 'a4paper').
-     #
-     'papersize': 'letterpaper',
-
-     # The font size ('10pt', '11pt' or '12pt').
-     #
-     # 'pointsize': '10pt',
-
-     # Additional stuff for the LaTeX preamble.
-     #
-     # 'preamble': '',
-
-     # Latex figure (float) alignment
-     #
-     # 'figure_align': 'htbp',
+    # The paper size ('letterpaper' or 'a4paper').
+    #
+    "papersize": "letterpaper",
+    # The font size ('10pt', '11pt' or '12pt').
+    #
+    # 'pointsize': '10pt',
+    # Additional stuff for the LaTeX preamble.
+    #
+    # 'preamble': '',
+    # Latex figure (float) alignment
+    #
+    # 'figure_align': 'htbp',
 }
 
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'Planetmint.tex', 'Planetmint Documentation',
-     'Planetmint Contributors', 'manual'),
+    (
+        master_doc,
+        "Planetmint.tex",
+        "Planetmint Documentation",
+        "Planetmint Contributors",
+        "manual",
+    ),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -366,10 +381,7 @@ latex_documents = [
 
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
-man_pages = [
-    (master_doc, 'planetmint', 'Planetmint Documentation',
-     [author], 1)
-]
+man_pages = [(master_doc, "planetmint", "Planetmint Documentation", [author], 1)]
 
 # If true, show URL addresses after external links.
 #
@@ -382,9 +394,15 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'Planetmint', 'Planetmint Documentation',
-     author, 'Planetmint', 'One line description of project.',
-     'Miscellaneous'),
+    (
+        master_doc,
+        "Planetmint",
+        "Planetmint Documentation",
+        author,
+        "Planetmint",
+        "One line description of project.",
+        "Miscellaneous",
+    ),
 ]
 
 # Documents to append as an appendix to all manuals.
