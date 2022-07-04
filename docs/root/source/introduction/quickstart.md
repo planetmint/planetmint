@@ -45,8 +45,16 @@ $ python notarize.py
 Planemtint is a Tendermint applicatoin with an attached database.
 A basic installation installs the database, Tenermint and therafter Planetmint.
 
-The instalation of the database is as follows:
+Planetmint currently supports Tarantool and MongoDB database. The instalation is as follows:
 ```
+# Tarantool
+$ curl -L https://tarantool.io/release/2/installer.sh | bash 
+$ sudo apt-get -y install tarantool
+```
+*Caveat:* Tarantool versions before [2.4.2](https://www.tarantool.io/en/doc/latest/release/2.4.2/) automatically enable and start a demonstration instance that listens on port `3301` by default. Refer to the [Tarantool documentation](https://www.tarantool.io/en/doc/latest/getting_started/getting_started_db/#creating-db-locally) for more information.
+
+```
+# MongoDB
 $ sudo apt install mongodb
 ```
 Tendermint can be installed and started as follows
