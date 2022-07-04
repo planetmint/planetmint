@@ -45,7 +45,7 @@ $ python notarize.py
 Planemtint is a Tendermint applicatoin with an attached database.
 A basic installation installs the database, Tenermint and therafter Planetmint.
 
-Planetmint currently supports Tarantool and MongoDB database. The instalation is as follows:
+Planetmint currently supports Tarantool and MongoDB database. The installation is as follows:
 ```
 # Tarantool
 $ curl -L https://tarantool.io/release/2/installer.sh | bash 
