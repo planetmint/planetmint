@@ -3,29 +3,30 @@
 # SPDX-License-Identifier: (Apache-2.0 AND CC-BY-4.0)
 # Code is Apache-2.0 and docs are CC-BY-4.0
 
+
 class TransactionLink(object):
     """An object for unidirectional linking to a Transaction's Output.
 
-        Attributes:
-            txid (str, optional): A Transaction to link to.
-            output (int, optional): An output's index in a Transaction with id
-            `txid`.
+    Attributes:
+        txid (str, optional): A Transaction to link to.
+        output (int, optional): An output's index in a Transaction with id
+        `txid`.
     """
 
     def __init__(self, txid=None, output=None):
         """Create an instance of a :class:`~.TransactionLink`.
 
-            Note:
-                In an IPLD implementation, this class is not necessary anymore,
-                as an IPLD link can simply point to an object, as well as an
-                objects properties. So instead of having a (de)serializable
-                class, we can have a simple IPLD link of the form:
-                `/<tx_id>/transaction/outputs/<output>/`.
+        Note:
+            In an IPLD implementation, this class is not necessary anymore,
+            as an IPLD link can simply point to an object, as well as an
+            objects properties. So instead of having a (de)serializable
+            class, we can have a simple IPLD link of the form:
+            `/<tx_id>/transaction/outputs/<output>/`.
 
-            Args:
-                txid (str, optional): A Transaction to link to.
-                output (int, optional): An Outputs's index in a Transaction with
-                    id `txid`.
+        Args:
+            txid (str, optional): A Transaction to link to.
+            output (int, optional): An Outputs's index in a Transaction with
+                id `txid`.
         """
         self.txid = txid
         self.output = output
@@ -44,33 +45,32 @@ class TransactionLink(object):
     def from_dict(cls, link):
         """Transforms a Python dictionary to a TransactionLink object.
 
-            Args:
-                link (dict): The link to be transformed.
+        Args:
+            link (dict): The link to be transformed.
 
-            Returns:
-                :class:`~planetmint.transactions.common.transaction.TransactionLink`
+        Returns:
+            :class:`~planetmint.transactions.common.transaction.TransactionLink`
         """
         try:
-            return cls(link['transaction_id'], link['output_index'])
+            return cls(link["transaction_id"], link["output_index"])
         except TypeError:
             return cls()
 
     def to_dict(self):
         """Transforms the object to a Python dictionary.
 
-            Returns:
-                (dict|None): The link as an alternative serialization format.
+        Returns:
+            (dict|None): The link as an alternative serialization format.
         """
         if self.txid is None and self.output is None:
             return None
         else:
             return {
-                'transaction_id': self.txid,
-                'output_index': self.output,
+                "transaction_id": self.txid,
+                "output_index": self.output,
             }
 
-    def to_uri(self, path=''):
+    def to_uri(self, path=""):
         if self.txid is None and self.output is None:
             return None
-        return '{}/transactions/{}/outputs/{}'.format(path, self.txid,
-                                                      self.output)
+        return "{}/transactions/{}/outputs/{}".format(path, self.txid, self.output)

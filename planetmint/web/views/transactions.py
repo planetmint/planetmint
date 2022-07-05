@@ -65,9 +65,7 @@ class TransactionListApi(Resource):
             A ``dict`` containing the data about the transaction.
         """
         parser = reqparse.RequestParser()
-        parser.add_argument(
-            "mode", type=parameters.valid_mode, default=BROADCAST_TX_ASYNC
-        )
+        parser.add_argument("mode", type=parameters.valid_mode, default=BROADCAST_TX_ASYNC)
         args = parser.parse_args()
         mode = str(args["mode"])
 
@@ -85,21 +83,15 @@ class TransactionListApi(Resource):
                 message="Invalid transaction schema: {}".format(e.__cause__.message),
             )
         except KeyError as e:
-            return make_error(
-                400, "Invalid transaction ({}): {}".format(type(e).__name__, e)
-            )
+            return make_error(400, "Invalid transaction ({}): {}".format(type(e).__name__, e))
         except ValidationError as e:
-            return make_error(
-                400, "Invalid transaction ({}): {}".format(type(e).__name__, e)
-            )
+            return make_error(400, "Invalid transaction ({}): {}".format(type(e).__name__, e))
 
         with pool() as planet:
             try:
                 planet.validate_transaction(tx_obj)
             except ValidationError as e:
-                return make_error(
-                    400, "Invalid transaction ({}): {}".format(type(e).__name__, e)
-                )
+                return make_error(400, "Invalid transaction ({}): {}".format(type(e).__name__, e))
             else:
                 status_code, message = planet.write_transaction(tx_obj, mode)
 

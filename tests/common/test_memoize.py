@@ -18,16 +18,17 @@ pytestmark = pytest.mark.bdb
 def test_memoize_to_dict(b):
     alice = generate_key_pair()
     asset = {
-        'data': {'id': 'test_id'},
+        "data": {"id": "test_id"},
     }
 
     assert to_dict.cache_info().hits == 0
     assert to_dict.cache_info().misses == 0
 
-    tx = Create.generate([alice.public_key],
-                            [([alice.public_key], 1)],
-                            asset=asset,)\
-                    .sign([alice.private_key])
+    tx = Create.generate(
+        [alice.public_key],
+        [([alice.public_key], 1)],
+        asset=asset,
+    ).sign([alice.private_key])
 
     tx.to_dict()
 
@@ -44,16 +45,17 @@ def test_memoize_to_dict(b):
 def test_memoize_from_dict(b):
     alice = generate_key_pair()
     asset = {
-        'data': {'id': 'test_id'},
+        "data": {"id": "test_id"},
     }
 
     assert from_dict.cache_info().hits == 0
     assert from_dict.cache_info().misses == 0
 
-    tx = Create.generate([alice.public_key],
-                            [([alice.public_key], 1)],
-                            asset=asset,)\
-                    .sign([alice.private_key])
+    tx = Create.generate(
+        [alice.public_key],
+        [([alice.public_key], 1)],
+        asset=asset,
+    ).sign([alice.private_key])
     tx_dict = deepcopy(tx.to_dict())
 
     Transaction.from_dict(tx_dict)
@@ -71,16 +73,17 @@ def test_memoize_from_dict(b):
 def test_memoize_input_valid(b):
     alice = generate_key_pair()
     asset = {
-        'data': {'id': 'test_id'},
+        "data": {"id": "test_id"},
     }
 
     assert Transaction._input_valid.cache_info().hits == 0
     assert Transaction._input_valid.cache_info().misses == 0
 
-    tx = Create.generate([alice.public_key],
-                            [([alice.public_key], 1)],
-                            asset=asset,)\
-                    .sign([alice.private_key])
+    tx = Create.generate(
+        [alice.public_key],
+        [([alice.public_key], 1)],
+        asset=asset,
+    ).sign([alice.private_key])
 
     tx.inputs_valid()
 

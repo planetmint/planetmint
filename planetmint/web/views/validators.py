@@ -15,7 +15,7 @@ class ValidatorsApi(Resource):
             A JSON string containing the validator set of the current node.
         """
 
-        pool = current_app.config['bigchain_pool']
+        pool = current_app.config["bigchain_pool"]
 
         with pool() as planet:
             validators = planet.get_validators()

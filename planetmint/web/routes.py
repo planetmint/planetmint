@@ -21,7 +21,7 @@ def add_routes(app):
     for (prefix, routes) in API_SECTIONS:
         api = Api(app, prefix=prefix)
         for ((pattern, resource, *args), kwargs) in routes:
-            kwargs.setdefault('strict_slashes', False)
+            kwargs.setdefault("strict_slashes", False)
             api.add_resource(resource, pattern, *args, **kwargs)
 
 
@@ -30,20 +30,20 @@ def r(*args, **kwargs):
 
 
 ROUTES_API_V1 = [
-    r('/', info.ApiV1Index),
-    r('assets/', assets.AssetListApi),
-    r('metadata/', metadata.MetadataApi),
-    r('blocks/<int:block_id>', blocks.BlockApi),
-    r('blocks/latest', blocks.LatestBlock),
-    r('blocks/', blocks.BlockListApi),
-    r('transactions/<string:tx_id>', tx.TransactionApi),
-    r('transactions', tx.TransactionListApi),
-    r('outputs/', outputs.OutputListApi),
-    r('validators/', validators.ValidatorsApi),
+    r("/", info.ApiV1Index),
+    r("assets/", assets.AssetListApi),
+    r("metadata/", metadata.MetadataApi),
+    r("blocks/<int:block_id>", blocks.BlockApi),
+    r("blocks/latest", blocks.LatestBlock),
+    r("blocks/", blocks.BlockListApi),
+    r("transactions/<string:tx_id>", tx.TransactionApi),
+    r("transactions", tx.TransactionListApi),
+    r("outputs/", outputs.OutputListApi),
+    r("validators/", validators.ValidatorsApi),
 ]
 
 
 API_SECTIONS = [
-    (None, [r('/', info.RootIndex)]),
-    ('/api/v1/', ROUTES_API_V1),
+    (None, [r("/", info.RootIndex)]),
+    ("/api/v1/", ROUTES_API_V1),
 ]

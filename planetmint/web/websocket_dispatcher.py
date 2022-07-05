@@ -15,7 +15,7 @@ class Dispatcher:
     This class implements a simple publish/subscribe pattern.
     """
 
-    def __init__(self, event_source, type='tx'):
+    def __init__(self, event_source, type="tx"):
         """Create a new instance.
 
         Args:
@@ -49,20 +49,18 @@ class Dispatcher:
     @staticmethod
     def simplified_block(block):
         txids = []
-        for tx in block['transactions']:
+        for tx in block["transactions"]:
             txids.append(tx.id)
-        return {'height': block['height'], 'hash': block['hash'], 'transaction_ids': txids}
+        return {"height": block["height"], "hash": block["hash"], "transaction_ids": txids}
 
     @staticmethod
     def eventify_block(block):
-        for tx in block['transactions']:
+        for tx in block["transactions"]:
             if tx.asset:
-                asset_id = tx.asset.get('id', tx.id)
+                asset_id = tx.asset.get("id", tx.id)
             else:
                 asset_id = tx.id
-            yield {'height': block['height'],
-                   'asset_id': asset_id,
-                   'transaction_id': tx.id}
+            yield {"height": block["height"], "asset_id": asset_id, "transaction_id": tx.id}
 
     async def publish(self):
         """Publish new events to the subscribers."""
@@ -77,9 +75,9 @@ class Dispatcher:
             if isinstance(event, str):
                 str_buffer.append(event)
             elif event.type == EventTypes.BLOCK_VALID:
-                if self.type == 'tx':
+                if self.type == "tx":
                     str_buffer = map(json.dumps, self.eventify_block(event.data))
-                elif self.type == 'blk':
+                elif self.type == "blk":
                     str_buffer = [json.dumps(self.simplified_block(event.data))]
                 else:
                     return
