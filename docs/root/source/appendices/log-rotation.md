@@ -9,7 +9,7 @@ Code is Apache-2.0 and docs are CC-BY-4.0
 
 Each Planetmint node runs:
 
-- MongoDB
+- Tarantool
 - Planetmint Server
 - Tendermint
 
@@ -17,11 +17,6 @@ When running a Planetmint node for long periods
 of time, we need to consider doing log rotation, i.e. we do not want the logs taking
 up large amounts of storage and making the node unresponsive or getting it into a bad state.
 
-## MongoDB Logging and Log Rotation
-
-See the MongoDB docs about
-[logging](https://docs.mongodb.com/v3.6/administration/monitoring/#monitoring-standard-loggging)
-and [log rotation](https://docs.mongodb.com/v3.6/tutorial/rotate-log-files/).
 
 ## Planetmint Server Logging and Log Rotation
 

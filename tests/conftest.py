@@ -18,9 +18,11 @@ import codecs
 from collections import namedtuple
 from logging import getLogger
 from logging.config import dictConfig
+from planetmint.backend.connection import connect
+from planetmint.backend.tarantool.connection import TarantoolDBConnection
 
 import pytest
-from pymongo import MongoClient
+# from pymongo import MongoClient
 
 from planetmint import ValidatorElection
 from planetmint.transactions.common import crypto
@@ -32,6 +34,8 @@ from planetmint.transactions.common.crypto import (
 from planetmint.transactions.common.exceptions import DatabaseDoesNotExist
 from planetmint.lib import Block
 from tests.utils import gen_vote
+from planetmint.config import Config
+from planetmint.upsert_validator import ValidatorElection  # noqa
 
 from tendermint.abci import types_pb2 as types
 from tendermint.crypto import keys_pb2
@@ -61,7 +65,7 @@ def pytest_addoption(parser):
     parser.addoption(
         '--database-backend',
         action='store',
-        default=os.environ.get('PLANETMINT_DATABASE_BACKEND', 'localmongodb'),
+        default=os.environ.get('PLANETMINT_DATABASE_BACKEND', 'tarantool_db'),
         help='Defines the backend to use (available: {})'.format(backends),
     )
 
@@ -93,15 +97,11 @@ def _bdb_marker(request):
 
 @pytest.fixture(autouse=True)
 def _restore_config(_configure_planetmint):
-    from planetmint import config, config_utils
-    config_before_test = copy.deepcopy(config)
-    yield
-    config_utils.set_config(config_before_test)
+    config_before_test = Config().init_config('tarantool_db')  # noqa
 
 
 @pytest.fixture(scope='session')
 def _configure_planetmint(request):
-    import planetmint
     from planetmint import config_utils
     test_db_name = TEST_DB_NAME
     # Put a suffix like _gw0, _gw1 etc on xdist processes
@@ -109,14 +109,12 @@ def _configure_planetmint(request):
     if xdist_suffix:
         test_db_name = '{}_{}'.format(TEST_DB_NAME, xdist_suffix)
 
-    backend = request.config.getoption('--database-backend')
+    # backend = request.config.getoption('--database-backend')
+    backend = "tarantool_db"
 
     config = {
-        'database': planetmint._database_map[backend],
-        'tendermint': {
-            'host': 'localhost',
-            'port': 26657,
-        }
+        'database': Config().get_db_map(backend),
+        'tendermint': Config()._private_real_config["tendermint"]
     }
     config['database']['name'] = test_db_name
     config = config_utils.env_config(config)
@@ -124,15 +122,15 @@ def _configure_planetmint(request):
 
 
 @pytest.fixture(scope='session')
-def _setup_database(_configure_planetmint):
-    from planetmint import config
-    from planetmint.backend import connect
+def _setup_database(_configure_planetmint):  # TODO Here is located setup database
+    from planetmint.config import Config
+
     print('Initializing test db')
-    dbname = config['database']['name']
+    dbname = Config().get()['database']['name']
     conn = connect()
 
     _drop_db(conn, dbname)
-    schema.init_database(conn)
+    schema.init_database(conn, dbname)
     print('Finishing init database')
 
     yield
@@ -146,14 +144,13 @@ def _setup_database(_configure_planetmint):
 
 @pytest.fixture
 def _bdb(_setup_database, _configure_planetmint):
-    from planetmint import config
-    from planetmint.backend import connect
-    from .utils import flush_db
     from planetmint.transactions.common.memoize import to_dict, from_dict
     from planetmint.models import Transaction
+    from .utils import flush_db
+    from planetmint.config import Config
     conn = connect()
     yield
-    dbname = config['database']['name']
+    dbname = Config().get()['database']['name']
     flush_db(conn, dbname)
 
     to_dict.cache_clear()
@@ -253,16 +250,17 @@ def abci_fixture():
     from tendermint.abci import types_pb2
     return types_pb2
 
-
 @pytest.fixture
 def b():
     from planetmint import Planetmint
     return Planetmint()
 
+
 @pytest.fixture
 def eventqueue_fixture():
     from multiprocessing import Queue
     return Queue()
+
 
 @pytest.fixture
 def b_mock(b, network_validators):
@@ -343,24 +341,26 @@ def inputs(user_pk, b, alice):
         b.store_bulk_transactions(transactions)
 
 
-@pytest.fixture
-def dummy_db(request):
-    from planetmint.backend import connect
-
-    conn = connect()
-    dbname = request.fixturename
-    xdist_suffix = getattr(request.config, 'slaveinput', {}).get('slaveid')
-    if xdist_suffix:
-        dbname = '{}_{}'.format(dbname, xdist_suffix)
-
-    _drop_db(conn, dbname)  # make sure we start with a clean DB
-    schema.init_database(conn, dbname)
-    yield dbname
-
-    _drop_db(conn, dbname)
+# @pytest.fixture
+# def dummy_db(request):
+#     from planetmint.backend import Connection
+#
+#     conn = Connection()
+#     dbname = request.fixturename
+#     xdist_suffix = getattr(request.config, 'slaveinput', {}).get('slaveid')
+#     if xdist_suffix:
+#         dbname = '{}_{}'.format(dbname, xdist_suffix)
+#
+#
+#     _drop_db(conn, dbname)  # make sure we start with a clean DB
+#     schema.init_database(conn, dbname)
+#     yield dbname
+#
+#     _drop_db(conn, dbname)
 
 
 def _drop_db(conn, dbname):
+    print(f"CONNECTION FOR DROPPING {conn}")
     try:
         schema.drop_database(conn, dbname)
     except DatabaseDoesNotExist:
@@ -369,8 +369,7 @@ def _drop_db(conn, dbname):
 
 @pytest.fixture
 def db_config():
-    from planetmint import config
-    return config['database']
+    return Config().get()['database']
 
 
 @pytest.fixture
@@ -390,7 +389,6 @@ def db_name(db_config):
 
 @pytest.fixture
 def db_conn():
-    from planetmint.backend import connect
     return connect()
 
 
@@ -471,8 +469,7 @@ def abci_server():
 
 @pytest.fixture
 def wsserver_config():
-    from planetmint import config
-    return config['wsserver']
+    return Config().get()['wsserver']
 
 
 @pytest.fixture
@@ -501,7 +498,8 @@ def unspent_output_0():
         'amount': 1,
         'asset_id': 'e897c7a0426461a02b4fca8ed73bc0debed7570cf3b40fb4f49c963434225a4d',
         'condition_uri': 'ni:///sha-256;RmovleG60-7K0CX60jjfUunV3lBpUOkiQOAnBzghm0w?fpt=ed25519-sha-256&cost=131072',
-        'fulfillment_message': '{"asset":{"data":{"hash":"06e47bcf9084f7ecfd2a2a2ad275444a"}},"id":"e897c7a0426461a02b4fca8ed73bc0debed7570cf3b40fb4f49c963434225a4d","inputs":[{"fulfillment":"pGSAIIQT0Jm6LDlcSs9coJK4Q4W-SNtsO2EtMtQJ04EUjBMJgUAXKIqeaippbF-IClhhZNNaP6EIZ_OgrVQYU4mH6b-Vc3Tg-k6p-rJOlLGUUo_w8C5QgPHNRYFOqUk2f1q0Cs4G","fulfills":null,"owners_before":["9taLkHkaBXeSF8vrhDGFTAmcZuCEPqjQrKadfYGs4gHv"]}],"metadata":null,"operation":"CREATE","outputs":[{"amount":"1","condition":{"details":{"public_key":"6FDGsHrR9RZqNaEm7kBvqtxRkrvuWogBW2Uy7BkWc5Tz","type":"ed25519-sha-256"},"uri":"ni:///sha-256;RmovleG60-7K0CX60jjfUunV3lBpUOkiQOAnBzghm0w?fpt=ed25519-sha-256&cost=131072"},"public_keys":["6FDGsHrR9RZqNaEm7kBvqtxRkrvuWogBW2Uy7BkWc5Tz"]},{"amount":"2","condition":{"details":{"public_key":"AH9D7xgmhyLmVE944zvHvuvYWuj5DfbMBJhnDM4A5FdT","type":"ed25519-sha-256"},"uri":"ni:///sha-256;-HlYmgwwl-vXwE52IaADhvYxaL1TbjqfJ-LGn5a1PFc?fpt=ed25519-sha-256&cost=131072"},"public_keys":["AH9D7xgmhyLmVE944zvHvuvYWuj5DfbMBJhnDM4A5FdT"]},{"amount":"3","condition":{"details":{"public_key":"HpmSVrojHvfCXQbmoAs4v6Aq1oZiZsZDnjr68KiVtPbB","type":"ed25519-sha-256"},"uri":"ni:///sha-256;xfn8pvQkTCPtvR0trpHy2pqkkNTmMBCjWMMOHtk3WO4?fpt=ed25519-sha-256&cost=131072"},"public_keys":["HpmSVrojHvfCXQbmoAs4v6Aq1oZiZsZDnjr68KiVtPbB"]}],"version":"1.0"}',   # noqa
+        'fulfillment_message': '{"asset":{"data":{"hash":"06e47bcf9084f7ecfd2a2a2ad275444a"}},"id":"e897c7a0426461a02b4fca8ed73bc0debed7570cf3b40fb4f49c963434225a4d","inputs":[{"fulfillment":"pGSAIIQT0Jm6LDlcSs9coJK4Q4W-SNtsO2EtMtQJ04EUjBMJgUAXKIqeaippbF-IClhhZNNaP6EIZ_OgrVQYU4mH6b-Vc3Tg-k6p-rJOlLGUUo_w8C5QgPHNRYFOqUk2f1q0Cs4G","fulfills":null,"owners_before":["9taLkHkaBXeSF8vrhDGFTAmcZuCEPqjQrKadfYGs4gHv"]}],"metadata":null,"operation":"CREATE","outputs":[{"amount":"1","condition":{"details":{"public_key":"6FDGsHrR9RZqNaEm7kBvqtxRkrvuWogBW2Uy7BkWc5Tz","type":"ed25519-sha-256"},"uri":"ni:///sha-256;RmovleG60-7K0CX60jjfUunV3lBpUOkiQOAnBzghm0w?fpt=ed25519-sha-256&cost=131072"},"public_keys":["6FDGsHrR9RZqNaEm7kBvqtxRkrvuWogBW2Uy7BkWc5Tz"]},{"amount":"2","condition":{"details":{"public_key":"AH9D7xgmhyLmVE944zvHvuvYWuj5DfbMBJhnDM4A5FdT","type":"ed25519-sha-256"},"uri":"ni:///sha-256;-HlYmgwwl-vXwE52IaADhvYxaL1TbjqfJ-LGn5a1PFc?fpt=ed25519-sha-256&cost=131072"},"public_keys":["AH9D7xgmhyLmVE944zvHvuvYWuj5DfbMBJhnDM4A5FdT"]},{"amount":"3","condition":{"details":{"public_key":"HpmSVrojHvfCXQbmoAs4v6Aq1oZiZsZDnjr68KiVtPbB","type":"ed25519-sha-256"},"uri":"ni:///sha-256;xfn8pvQkTCPtvR0trpHy2pqkkNTmMBCjWMMOHtk3WO4?fpt=ed25519-sha-256&cost=131072"},"public_keys":["HpmSVrojHvfCXQbmoAs4v6Aq1oZiZsZDnjr68KiVtPbB"]}],"version":"1.0"}',  # noqa: E501
+        # noqa
         'output_index': 0,
         'transaction_id': 'e897c7a0426461a02b4fca8ed73bc0debed7570cf3b40fb4f49c963434225a4d'
     }
@@ -513,7 +511,8 @@ def unspent_output_1():
         'amount': 2,
         'asset_id': 'e897c7a0426461a02b4fca8ed73bc0debed7570cf3b40fb4f49c963434225a4d',
         'condition_uri': 'ni:///sha-256;-HlYmgwwl-vXwE52IaADhvYxaL1TbjqfJ-LGn5a1PFc?fpt=ed25519-sha-256&cost=131072',
-        'fulfillment_message': '{"asset":{"data":{"hash":"06e47bcf9084f7ecfd2a2a2ad275444a"}},"id":"e897c7a0426461a02b4fca8ed73bc0debed7570cf3b40fb4f49c963434225a4d","inputs":[{"fulfillment":"pGSAIIQT0Jm6LDlcSs9coJK4Q4W-SNtsO2EtMtQJ04EUjBMJgUAXKIqeaippbF-IClhhZNNaP6EIZ_OgrVQYU4mH6b-Vc3Tg-k6p-rJOlLGUUo_w8C5QgPHNRYFOqUk2f1q0Cs4G","fulfills":null,"owners_before":["9taLkHkaBXeSF8vrhDGFTAmcZuCEPqjQrKadfYGs4gHv"]}],"metadata":null,"operation":"CREATE","outputs":[{"amount":"1","condition":{"details":{"public_key":"6FDGsHrR9RZqNaEm7kBvqtxRkrvuWogBW2Uy7BkWc5Tz","type":"ed25519-sha-256"},"uri":"ni:///sha-256;RmovleG60-7K0CX60jjfUunV3lBpUOkiQOAnBzghm0w?fpt=ed25519-sha-256&cost=131072"},"public_keys":["6FDGsHrR9RZqNaEm7kBvqtxRkrvuWogBW2Uy7BkWc5Tz"]},{"amount":"2","condition":{"details":{"public_key":"AH9D7xgmhyLmVE944zvHvuvYWuj5DfbMBJhnDM4A5FdT","type":"ed25519-sha-256"},"uri":"ni:///sha-256;-HlYmgwwl-vXwE52IaADhvYxaL1TbjqfJ-LGn5a1PFc?fpt=ed25519-sha-256&cost=131072"},"public_keys":["AH9D7xgmhyLmVE944zvHvuvYWuj5DfbMBJhnDM4A5FdT"]},{"amount":"3","condition":{"details":{"public_key":"HpmSVrojHvfCXQbmoAs4v6Aq1oZiZsZDnjr68KiVtPbB","type":"ed25519-sha-256"},"uri":"ni:///sha-256;xfn8pvQkTCPtvR0trpHy2pqkkNTmMBCjWMMOHtk3WO4?fpt=ed25519-sha-256&cost=131072"},"public_keys":["HpmSVrojHvfCXQbmoAs4v6Aq1oZiZsZDnjr68KiVtPbB"]}],"version":"1.0"}',   # noqa
+        'fulfillment_message': '{"asset":{"data":{"hash":"06e47bcf9084f7ecfd2a2a2ad275444a"}},"id":"e897c7a0426461a02b4fca8ed73bc0debed7570cf3b40fb4f49c963434225a4d","inputs":[{"fulfillment":"pGSAIIQT0Jm6LDlcSs9coJK4Q4W-SNtsO2EtMtQJ04EUjBMJgUAXKIqeaippbF-IClhhZNNaP6EIZ_OgrVQYU4mH6b-Vc3Tg-k6p-rJOlLGUUo_w8C5QgPHNRYFOqUk2f1q0Cs4G","fulfills":null,"owners_before":["9taLkHkaBXeSF8vrhDGFTAmcZuCEPqjQrKadfYGs4gHv"]}],"metadata":null,"operation":"CREATE","outputs":[{"amount":"1","condition":{"details":{"public_key":"6FDGsHrR9RZqNaEm7kBvqtxRkrvuWogBW2Uy7BkWc5Tz","type":"ed25519-sha-256"},"uri":"ni:///sha-256;RmovleG60-7K0CX60jjfUunV3lBpUOkiQOAnBzghm0w?fpt=ed25519-sha-256&cost=131072"},"public_keys":["6FDGsHrR9RZqNaEm7kBvqtxRkrvuWogBW2Uy7BkWc5Tz"]},{"amount":"2","condition":{"details":{"public_key":"AH9D7xgmhyLmVE944zvHvuvYWuj5DfbMBJhnDM4A5FdT","type":"ed25519-sha-256"},"uri":"ni:///sha-256;-HlYmgwwl-vXwE52IaADhvYxaL1TbjqfJ-LGn5a1PFc?fpt=ed25519-sha-256&cost=131072"},"public_keys":["AH9D7xgmhyLmVE944zvHvuvYWuj5DfbMBJhnDM4A5FdT"]},{"amount":"3","condition":{"details":{"public_key":"HpmSVrojHvfCXQbmoAs4v6Aq1oZiZsZDnjr68KiVtPbB","type":"ed25519-sha-256"},"uri":"ni:///sha-256;xfn8pvQkTCPtvR0trpHy2pqkkNTmMBCjWMMOHtk3WO4?fpt=ed25519-sha-256&cost=131072"},"public_keys":["HpmSVrojHvfCXQbmoAs4v6Aq1oZiZsZDnjr68KiVtPbB"]}],"version":"1.0"}',  # noqa: E501
+        # noqa
         'output_index': 1,
         'transaction_id': 'e897c7a0426461a02b4fca8ed73bc0debed7570cf3b40fb4f49c963434225a4d',
     }
@@ -525,7 +524,8 @@ def unspent_output_2():
         'amount': 3,
         'asset_id': 'e897c7a0426461a02b4fca8ed73bc0debed7570cf3b40fb4f49c963434225a4d',
         'condition_uri': 'ni:///sha-256;xfn8pvQkTCPtvR0trpHy2pqkkNTmMBCjWMMOHtk3WO4?fpt=ed25519-sha-256&cost=131072',
-        'fulfillment_message': '{"asset":{"data":{"hash":"06e47bcf9084f7ecfd2a2a2ad275444a"}},"id":"e897c7a0426461a02b4fca8ed73bc0debed7570cf3b40fb4f49c963434225a4d","inputs":[{"fulfillment":"pGSAIIQT0Jm6LDlcSs9coJK4Q4W-SNtsO2EtMtQJ04EUjBMJgUAXKIqeaippbF-IClhhZNNaP6EIZ_OgrVQYU4mH6b-Vc3Tg-k6p-rJOlLGUUo_w8C5QgPHNRYFOqUk2f1q0Cs4G","fulfills":null,"owners_before":["9taLkHkaBXeSF8vrhDGFTAmcZuCEPqjQrKadfYGs4gHv"]}],"metadata":null,"operation":"CREATE","outputs":[{"amount":"1","condition":{"details":{"public_key":"6FDGsHrR9RZqNaEm7kBvqtxRkrvuWogBW2Uy7BkWc5Tz","type":"ed25519-sha-256"},"uri":"ni:///sha-256;RmovleG60-7K0CX60jjfUunV3lBpUOkiQOAnBzghm0w?fpt=ed25519-sha-256&cost=131072"},"public_keys":["6FDGsHrR9RZqNaEm7kBvqtxRkrvuWogBW2Uy7BkWc5Tz"]},{"amount":"2","condition":{"details":{"public_key":"AH9D7xgmhyLmVE944zvHvuvYWuj5DfbMBJhnDM4A5FdT","type":"ed25519-sha-256"},"uri":"ni:///sha-256;-HlYmgwwl-vXwE52IaADhvYxaL1TbjqfJ-LGn5a1PFc?fpt=ed25519-sha-256&cost=131072"},"public_keys":["AH9D7xgmhyLmVE944zvHvuvYWuj5DfbMBJhnDM4A5FdT"]},{"amount":"3","condition":{"details":{"public_key":"HpmSVrojHvfCXQbmoAs4v6Aq1oZiZsZDnjr68KiVtPbB","type":"ed25519-sha-256"},"uri":"ni:///sha-256;xfn8pvQkTCPtvR0trpHy2pqkkNTmMBCjWMMOHtk3WO4?fpt=ed25519-sha-256&cost=131072"},"public_keys":["HpmSVrojHvfCXQbmoAs4v6Aq1oZiZsZDnjr68KiVtPbB"]}],"version":"1.0"}',   # noqa
+        'fulfillment_message': '{"asset":{"data":{"hash":"06e47bcf9084f7ecfd2a2a2ad275444a"}},"id":"e897c7a0426461a02b4fca8ed73bc0debed7570cf3b40fb4f49c963434225a4d","inputs":[{"fulfillment":"pGSAIIQT0Jm6LDlcSs9coJK4Q4W-SNtsO2EtMtQJ04EUjBMJgUAXKIqeaippbF-IClhhZNNaP6EIZ_OgrVQYU4mH6b-Vc3Tg-k6p-rJOlLGUUo_w8C5QgPHNRYFOqUk2f1q0Cs4G","fulfills":null,"owners_before":["9taLkHkaBXeSF8vrhDGFTAmcZuCEPqjQrKadfYGs4gHv"]}],"metadata":null,"operation":"CREATE","outputs":[{"amount":"1","condition":{"details":{"public_key":"6FDGsHrR9RZqNaEm7kBvqtxRkrvuWogBW2Uy7BkWc5Tz","type":"ed25519-sha-256"},"uri":"ni:///sha-256;RmovleG60-7K0CX60jjfUunV3lBpUOkiQOAnBzghm0w?fpt=ed25519-sha-256&cost=131072"},"public_keys":["6FDGsHrR9RZqNaEm7kBvqtxRkrvuWogBW2Uy7BkWc5Tz"]},{"amount":"2","condition":{"details":{"public_key":"AH9D7xgmhyLmVE944zvHvuvYWuj5DfbMBJhnDM4A5FdT","type":"ed25519-sha-256"},"uri":"ni:///sha-256;-HlYmgwwl-vXwE52IaADhvYxaL1TbjqfJ-LGn5a1PFc?fpt=ed25519-sha-256&cost=131072"},"public_keys":["AH9D7xgmhyLmVE944zvHvuvYWuj5DfbMBJhnDM4A5FdT"]},{"amount":"3","condition":{"details":{"public_key":"HpmSVrojHvfCXQbmoAs4v6Aq1oZiZsZDnjr68KiVtPbB","type":"ed25519-sha-256"},"uri":"ni:///sha-256;xfn8pvQkTCPtvR0trpHy2pqkkNTmMBCjWMMOHtk3WO4?fpt=ed25519-sha-256&cost=131072"},"public_keys":["HpmSVrojHvfCXQbmoAs4v6Aq1oZiZsZDnjr68KiVtPbB"]}],"version":"1.0"}',  # noqa: E501
+        # noqa
         'output_index': 2,
         'transaction_id': 'e897c7a0426461a02b4fca8ed73bc0debed7570cf3b40fb4f49c963434225a4d',
     }
@@ -537,13 +537,19 @@ def unspent_outputs(unspent_output_0, unspent_output_1, unspent_output_2):
 
 
 @pytest.fixture
-def mongo_client(db_context):
-    return MongoClient(host=db_context.host, port=db_context.port)
+def tarantool_client(db_context):  # TODO Here add TarantoolConnectionClass
+    return TarantoolDBConnection(host=db_context.host, port=db_context.port)
 
+
+# @pytest.fixture
+# def mongo_client(db_context):  # TODO Here add TarantoolConnectionClass
+#    return None  # MongoClient(host=db_context.host, port=db_context.port)
+#
+#
 
 @pytest.fixture
-def utxo_collection(db_context, mongo_client):
-    return mongo_client[db_context.name].utxos
+def utxo_collection(tarantool_client, _setup_database):
+    return tarantool_client.get_space("utxos")
 
 
 @pytest.fixture
@@ -557,9 +563,13 @@ def dummy_unspent_outputs():
 
 @pytest.fixture
 def utxoset(dummy_unspent_outputs, utxo_collection):
-    res = utxo_collection.insert_many(copy.deepcopy(dummy_unspent_outputs))
-    assert res.acknowledged
-    assert len(res.inserted_ids) == 3
+    from json import dumps
+    num_rows_before_operation = utxo_collection.select().rowcount
+    for utxo in dummy_unspent_outputs:
+        res = utxo_collection.insert((utxo["transaction_id"], utxo["output_index"], dumps(utxo)))
+        assert res
+    num_rows_after_operation = utxo_collection.select().rowcount
+    assert num_rows_after_operation == num_rows_before_operation + 3
     return dummy_unspent_outputs, utxo_collection
 
 
@@ -603,13 +613,13 @@ def ed25519_node_keys(node_keys):
 @pytest.fixture
 def node_keys():
     return {'zL/DasvKulXZzhSNFwx4cLRXKkSM9GPK7Y0nZ4FEylM=':
-            'cM5oW4J0zmUSZ/+QRoRlincvgCwR0pEjFoY//ZnnjD3Mv8Nqy8q6VdnOFI0XDHhwtFcqRIz0Y8rtjSdngUTKUw==',
+                'cM5oW4J0zmUSZ/+QRoRlincvgCwR0pEjFoY//ZnnjD3Mv8Nqy8q6VdnOFI0XDHhwtFcqRIz0Y8rtjSdngUTKUw==',
             'GIijU7GBcVyiVUcB0GwWZbxCxdk2xV6pxdvL24s/AqM=':
-            'mdz7IjP6mGXs6+ebgGJkn7kTXByUeeGhV+9aVthLuEAYiKNTsYFxXKJVRwHQbBZlvELF2TbFXqnF28vbiz8Cow==',
+                'mdz7IjP6mGXs6+ebgGJkn7kTXByUeeGhV+9aVthLuEAYiKNTsYFxXKJVRwHQbBZlvELF2TbFXqnF28vbiz8Cow==',
             'JbfwrLvCVIwOPm8tj8936ki7IYbmGHjPiKb6nAZegRA=':
-            '83VINXdj2ynOHuhvSZz5tGuOE5oYzIi0mEximkX1KYMlt/Csu8JUjA4+by2Pz3fqSLshhuYYeM+IpvqcBl6BEA==',
+                '83VINXdj2ynOHuhvSZz5tGuOE5oYzIi0mEximkX1KYMlt/Csu8JUjA4+by2Pz3fqSLshhuYYeM+IpvqcBl6BEA==',
             'PecJ58SaNRsWJZodDmqjpCWqG6btdwXFHLyE40RYlYM=':
-            'uz8bYgoL4rHErWT1gjjrnA+W7bgD/uDQWSRKDmC8otc95wnnxJo1GxYlmh0OaqOkJaobpu13BcUcvITjRFiVgw=='}
+                'uz8bYgoL4rHErWT1gjjrnA+W7bgD/uDQWSRKDmC8otc95wnnxJo1GxYlmh0OaqOkJaobpu13BcUcvITjRFiVgw=='}
 
 
 @pytest.fixture
@@ -697,7 +707,6 @@ def validators(b, node_keys):
 
 
 def get_block_height(b):
-
     if b.get_latest_block():
         height = b.get_latest_block()['height']
     else:

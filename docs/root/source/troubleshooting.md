@@ -2,7 +2,7 @@
 
 ## General Tips
 
-- Check the Planetmint, Tendermint and MongoDB logs.
+- Check the Planetmint, Tendermint and Tarantool logs.
   For help with that, see the page about [Logging and Log Rotation](../appendices/log-rotation).
 - Try Googling the error message.
 
@@ -36,7 +36,7 @@ addr_book_strict = false
 
 If you want to refresh your node back to a fresh empty state, then your best bet is to terminate it and deploy a new machine, but if that's not an option, then you can:
 
-* drop the `planetmint` database in MongoDB using `planetmint drop` (but that only works if MongoDB is running)
+* drop the `planetmint` database in tarantool using `planetmint drop` (but that only works if tarantool is running)
 * reset Tendermint using `tendermint unsafe_reset_all`
 * delete the directory `$HOME/.tendermint`
 

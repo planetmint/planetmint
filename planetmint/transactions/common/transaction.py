@@ -647,7 +647,8 @@ class Transaction(object):
 
     # TODO: This method shouldn't call `_remove_signatures`
     def __str__(self):
-        tx = Transaction._remove_signatures(self.to_dict())
+        _tx = self.to_dict()
+        tx = Transaction._remove_signatures(_tx)
         return Transaction._to_str(tx)
 
     @classmethod
@@ -698,7 +699,7 @@ class Transaction(object):
             tx_body (dict): The Transaction to be transformed.
         """
         # NOTE: Remove reference to avoid side effects
-        # tx_body = deepcopy(tx_body)
+        tx_body = deepcopy(tx_body)
         tx_body = rapidjson.loads(rapidjson.dumps(tx_body))
 
         try:
@@ -710,7 +711,6 @@ class Transaction(object):
 
         tx_body_serialized = Transaction._to_str(tx_body)
         valid_tx_id = Transaction._to_hash(tx_body_serialized)
-
         if proposed_tx_id != valid_tx_id:
             err_msg = (
                 "The transaction's id '{}' isn't equal to "
@@ -736,9 +736,25 @@ class Transaction(object):
         )
         cls = Transaction.resolve_class(operation)
 
+        id = None
+        try:
+            id = tx['id']
+        except KeyError:
+            id = None
+        # tx['asset'] = tx['asset'][0] if isinstance( tx['asset'], list) or isinstance( tx['asset'], tuple) else tx['asset'],  # noqa: E501
+        local_dict = {
+            'inputs': tx['inputs'],
+            'outputs': tx['outputs'],
+            'operation': operation,
+            'metadata': tx['metadata'],
+            'asset': tx['asset'],  # [0] if isinstance( tx['asset'], list) or isinstance( tx['asset'], tuple) else tx['asset'],  # noqa: E501
+            'version': tx['version'],
+            'id': id
+        }
+
         if not skip_schema_validation:
-            cls.validate_id(tx)
-            cls.validate_schema(tx)
+            cls.validate_id(local_dict)
+            cls.validate_schema(local_dict)
 
         inputs = [Input.from_dict(input_) for input_ in tx["inputs"]]
         outputs = [Output.from_dict(output) for output in tx["outputs"]]
@@ -784,15 +800,16 @@ class Transaction(object):
         assets = list(planet.get_assets(tx_ids))
         for asset in assets:
             if asset is not None:
-                tx = tx_map[asset["id"]]
-                del asset["id"]
-                tx["asset"] = asset
+                # This is tarantool specific behaviour needs to be addressed
+                tx = tx_map[asset[1]]
+                tx['asset'] = asset[0]
 
         tx_ids = list(tx_map.keys())
         metadata_list = list(planet.get_metadata(tx_ids))
         for metadata in metadata_list:
-            tx = tx_map[metadata["id"]]
-            tx.update({"metadata": metadata.get("metadata")})
+            if 'id' in metadata:
+                tx = tx_map[metadata['id']]
+                tx.update({'metadata': metadata.get('metadata')})
 
         if return_list:
             tx_list = []
@@ -826,7 +843,6 @@ class Transaction(object):
         for input_ in self.inputs:
             input_txid = input_.fulfills.txid
             input_tx = planet.get_transaction(input_txid)
-
             if input_tx is None:
                 for ctxn in current_transactions:
                     if ctxn.id == input_txid:

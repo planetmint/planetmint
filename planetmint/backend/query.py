@@ -6,12 +6,12 @@
 """Query interfaces for backends."""
 
 from functools import singledispatch
-
 from planetmint.backend.exceptions import OperationError
 
 
+# FIXME ADD HERE HINT FOR RETURNING TYPE
 @singledispatch
-def store_asset(connection, asset):
+def store_asset(asset: dict, connection):
     """Write an asset to the asset table.
 
     Args:
@@ -25,9 +25,9 @@ def store_asset(connection, asset):
 
 
 @singledispatch
-def store_assets(connection, assets):
+def store_assets(assets: list, connection):
     """Write a list of assets to the assets table.
-
+backend
     Args:
         assets (list): a list of assets to write.
 
@@ -191,7 +191,7 @@ def get_metadata(connection, transaction_ids):
 
 
 @singledispatch
-def get_assets(connection, asset_ids):
+def get_assets(connection, asset_ids) -> list:
     """Get a list of assets from the assets table.
     Args:
         asset_ids (list): a list of ids for the assets to be retrieved from
@@ -426,5 +426,12 @@ def delete_abci_chain(conn, height):
 def get_latest_abci_chain(conn):
     """Returns the ABCI chain stored at the biggest height, if any,
     None otherwise.
+    """
+    raise NotImplementedError
+
+
+@singledispatch
+def _group_transaction_by_ids(txids: list, connection):
+    """Returns the transactions object (JSON TYPE), from list of ids.
     """
     raise NotImplementedError

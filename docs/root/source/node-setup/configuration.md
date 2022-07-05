@@ -22,28 +22,24 @@ The value of each setting is determined according to the following rules:
 * Otherwise, use the default value
 
 The local config file is `$HOME/.planetmint` by default (a file which might not even exist), but you can tell Planetmint to use a different file by using the `-c` command-line option, e.g. `planetmint -c path/to/config_file.json start`
-or using the `PLANETMINT_CONFIG_PATH` environment variable, e.g. `BIGHAINDB_CONFIG_PATH=.my_planetmint_config planetmint start`.
+or using the `PLANETMINT_CONFIG_PATH` environment variable, e.g. `PLANETMINT_CONFIG_PATH=.my_planetmint_config planetmint start`.
 Note that the `-c` command line option will always take precedence if both the `PLANETMINT_CONFIG_PATH` and the `-c` command line option are used.
 
 You can read the current default values in the file [planetmint/\_\_init\_\_.py](https://github.com/planetmint/planetmint/blob/master/planetmint/__init__.py). (The link is to the latest version.)
 
-Running `planetmint -y configure localmongodb` will generate a local config file in `$HOME/.planetmint` with all the default values.
 
 ## database.*
 
 The settings with names of the form `database.*` are for the backend database
-(currently only MongoDB). They are:
+(currently only Tarantool). They are:
 
-* `database.backend` can only be `localmongodb`, currently.
+* `database.backend` can only be `localtarantool`, currently.
 * `database.host` is the hostname (FQDN) of the backend database.
 * `database.port` is self-explanatory.
-* `database.name` is a user-chosen name for the database inside MongoDB, e.g. `planetmint`.
-* `database.connection_timeout` is the maximum number of milliseconds that Planetmint will wait before giving up on one attempt to connect to the backend database.
-* `database.max_tries` is the maximum number of times that Planetmint will try to establish a connection with the backend database. If 0, then it will try forever.
-* `database.replicaset` is the name of the MongoDB replica set. The default value is `null` because in Planetmint 2.0+, each Planetmint node has its own independent MongoDB database and no replica set is necessary. Replica set must already exist if this option is configured, Planetmint will not create it.
-* `database.ssl` must be `true` or `false`. It tells Planetmint Server whether it should connect to MongoDB using TLS/SSL or not. The default value is `false`.
+* `database.user` is a user-chosen name for the database inside Tarantool, e.g. `planetmint`.
+* `database.pass` is the password of the user for connection to tarantool listener.
 
-There are three ways for Planetmint Server to authenticate itself with MongoDB (or a specific MongoDB database): no authentication, username/password, and x.509 certificate authentication.
+There are two ways for Planetmint Server to authenticate itself with Tarantool (or a specific Tarantool service): no authentication, username/password.
 
 **No Authentication**
 
@@ -51,58 +47,18 @@ If you use all the default Planetmint configuration settings, then no authentica
 
 **Username/Password Authentication**
 
-To use username/password authentication, a MongoDB instance must already be running somewhere (maybe in another machine), it must already have a database for use by Planetmint (usually named `planetmint`, which is the default `database.name`), and that database must already have a "readWrite" user with associated username and password. To create such a user, login to your MongoDB instance as Admin and run the following commands:
-
-```text
-use <database.name>
-db.createUser({user: "<database.login>", pwd: "<database.password>", roles: [{role: "readWrite", db: "<database.name>"}]})
-```
-
-* `database.login` is the user's username.
-* `database.password` is the user's password, given in plaintext.
-* `database.ca_cert`, `database.certfile`, `database.keyfile`, `database.crlfile`, and `database.keyfile_passphrase` are not used so they can have their default values.
-
-**x.509 Certificate Authentication**
-
-To use x.509 certificate authentication, a MongoDB instance must be running somewhere (maybe in another machine), it must already have a database for use by Planetmint (usually named `planetmint`, which is the default `database.name`), and that database must be set up to use x.509 authentication. See the MongoDB docs about how to do that.
-
-* `database.login` is the user's username.
-* `database.password` isn't used so the default value (`null`) is fine.
-* `database.ca_cert`, `database.certfile`, `database.keyfile` and `database.crlfile` are the paths to the CA, signed certificate, private key and certificate revocation list files respectively.
-* `database.keyfile_passphrase` is the private key decryption passphrase, specified in plaintext.
-
-**Example using environment variables**
-
-```text
-export PLANETMINT_DATABASE_BACKEND=localmongodb
-export PLANETMINT_DATABASE_HOST=localhost
-export PLANETMINT_DATABASE_PORT=27017
-export PLANETMINT_DATABASE_NAME=database8
-export PLANETMINT_DATABASE_CONNECTION_TIMEOUT=5000
-export PLANETMINT_DATABASE_MAX_TRIES=3
-```
+To use username/password authentication, a Tarantool instance must already be running somewhere (maybe in another machine), it must already have a spaces for use by Planetmint, and that database must already have a "readWrite" user with associated username and password.
 
 **Default values**
 
-If (no environment variables were set and there's no local config file), or you used `planetmint -y configure localmongodb` to create a default local config file for a `localmongodb` backend, then the defaults will be:
-
 ```js
 "database": {
-    "backend": "localmongodb",
+    "backend": "tarantool",
     "host": "localhost",
-    "port": 27017,
-    "name": "planetmint",
-    "connection_timeout": 5000,
-    "max_tries": 3,
-    "replicaset": null,
-    "login": null,
+    "port": 3301,
+    "username": null,
     "password": null
-    "ssl": false,
-    "ca_cert": null,
-    "certfile": null,
-    "keyfile": null,
-    "crlfile": null,
-    "keyfile_passphrase": null,
+    
 }
 ```
 

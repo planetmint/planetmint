@@ -6,7 +6,7 @@
 import logging
 import setproctitle
 
-import planetmint
+from planetmint.config import Config
 from planetmint.lib import Planetmint
 from planetmint.core import App
 from planetmint.parallel_validation import ParallelValidationApp
@@ -40,14 +40,13 @@ def start(args):
     exchange = Exchange()
     # start the web api
     app_server = server.create_server(
-        settings=planetmint.config["server"],
-        log_config=planetmint.config["log"],
-        planetmint_factory=Planetmint,
-    )
-    p_webapi = Process(name="planetmint_webapi", target=app_server.run, daemon=True)
+        settings=Config().get()['server'],
+        log_config=Config().get()['log'],
+        planetmint_factory=Planetmint)
+    p_webapi = Process(name='planetmint_webapi', target=app_server.run, daemon=True)
     p_webapi.start()
 
-    logger.info(BANNER.format(planetmint.config["server"]["bind"]))
+    logger.info(BANNER.format(Config().get()['server']['bind']))
 
     # start websocket server
     p_websocket_server = Process(
@@ -69,7 +68,6 @@ def start(args):
     setproctitle.setproctitle("planetmint")
 
     # Start the ABCIServer
-    # abci = ABCI(TmVersion(planetmint.config['tendermint']['version']))
     if args.experimental_parallel_validation:
         app = ABCIServer(
             app=ParallelValidationApp(

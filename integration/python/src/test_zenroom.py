@@ -24,14 +24,14 @@ def test_zenroom_signing(
     bob = json.loads(zencode_exec(gen_key_zencode).output)["keyring"]
 
     zen_public_keys = json.loads(
-        ZenroomSha256.run_zenroom(
+        zencode_exec(
             secret_key_to_private_key_zencode.format("Alice"),
             keys=json.dumps({"keyring": alice}),
         ).output
     )
     zen_public_keys.update(
         json.loads(
-            ZenroomSha256.run_zenroom(
+            zencode_exec(
                 secret_key_to_private_key_zencode.format("Bob"),
                 keys=json.dumps({"keyring": bob}),
             ).output

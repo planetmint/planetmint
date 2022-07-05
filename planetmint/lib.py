@@ -22,6 +22,8 @@ except ImportError:
 import requests
 
 import planetmint
+from copy import deepcopy
+from planetmint.config import Config
 from planetmint import backend, config_utils, fastquery
 from planetmint.models import Transaction
 from planetmint.transactions.common.exceptions import (
@@ -62,18 +64,17 @@ class Planetmint(object):
         self.mode_list = (BROADCAST_TX_ASYNC,
                           BROADCAST_TX_SYNC,
                           self.mode_commit)
-        self.tendermint_host = planetmint.config['tendermint']['host']
-        self.tendermint_port = planetmint.config['tendermint']['port']
+        self.tendermint_host = Config().get()['tendermint']['host']
+        self.tendermint_port = Config().get()['tendermint']['port']
         self.endpoint = 'http://{}:{}/'.format(self.tendermint_host, self.tendermint_port)
 
-        validationPlugin = planetmint.config.get('validation_plugin')
+        validationPlugin = Config().get().get('validation_plugin')
 
         if validationPlugin:
             self.validation = config_utils.load_validation_plugin(validationPlugin)
         else:
             self.validation = BaseValidationRules
-
-        self.connection = connection if connection else backend.connect(**planetmint.config['database'])
+        self.connection = connection if connection is not None else planetmint.backend.connect()
 
     def post_transaction(self, transaction, mode):
         """Submit a valid transaction to the mempool."""
@@ -128,16 +129,25 @@ class Planetmint(object):
         txns = []
         assets = []
         txn_metadatas = []
+
         for t in transactions:
             transaction = t.tx_dict if t.tx_dict else rapidjson.loads(rapidjson.dumps(t.to_dict()))
-            if transaction['operation'] == t.CREATE:
-                asset = transaction.pop('asset')
-                asset['id'] = transaction['id']
-                assets.append(asset)
 
+            asset = transaction.pop('asset')
             metadata = transaction.pop('metadata')
-            txn_metadatas.append({'id': transaction['id'],
-                                  'metadata': metadata})
+
+            asset = backend.convert.prepare_asset(self.connection,
+                                                  transaction_type=transaction["operation"],
+                                                  transaction_id=transaction["id"],
+                                                  filter_operation=t.CREATE,
+                                                  asset=asset)
+
+            metadata = backend.convert.prepare_metadata(self.connection,
+                                                        transaction_id=transaction["id"],
+                                                        metadata=metadata)
+
+            txn_metadatas.append(metadata)
+            assets.append(asset)
             txns.append(transaction)
 
         backend.query.store_metadatas(self.connection, txn_metadatas)
@@ -149,13 +159,13 @@ class Planetmint(object):
         return backend.query.delete_transactions(self.connection, txs)
 
     def update_utxoset(self, transaction):
-        """Update the UTXO set given ``transaction``. That is, remove
+        self.updated__ = """Update the UTXO set given ``transaction``. That is, remove
         the outputs that the given ``transaction`` spends, and add the
         outputs that the given ``transaction`` creates.
 
         Args:
             transaction (:obj:`~planetmint.models.Transaction`): A new
-                transaction incoming into the system for which the UTXO
+                transaction incoming into the system for which the UTXOF
                 set needs to be updated.
         """
         spent_outputs = [
@@ -176,7 +186,7 @@ class Planetmint(object):
         """
         if unspent_outputs:
             return backend.query.store_unspent_outputs(
-                                            self.connection, *unspent_outputs)
+                self.connection, *unspent_outputs)
 
     def get_utxoset_merkle_root(self):
         """Returns the merkle root of the utxoset. This implies that
@@ -230,7 +240,7 @@ class Planetmint(object):
         """
         if unspent_outputs:
             return backend.query.delete_unspent_outputs(
-                                        self.connection, *unspent_outputs)
+                self.connection, *unspent_outputs)
 
     def is_committed(self, transaction_id):
         transaction = backend.query.get_transaction(self.connection, transaction_id)
@@ -238,7 +248,6 @@ class Planetmint(object):
 
     def get_transaction(self, transaction_id):
         transaction = backend.query.get_transaction(self.connection, transaction_id)
-
         if transaction:
             asset = backend.query.get_asset(self.connection, transaction_id)
             metadata = backend.query.get_metadata(self.connection, [transaction_id])
@@ -300,16 +309,17 @@ class Planetmint(object):
         current_spent_transactions = []
         for ctxn in current_transactions:
             for ctxn_input in ctxn.inputs:
-                if ctxn_input.fulfills and\
-                   ctxn_input.fulfills.txid == txid and\
-                   ctxn_input.fulfills.output == output:
+                if ctxn_input.fulfills and \
+                        ctxn_input.fulfills.txid == txid and \
+                        ctxn_input.fulfills.output == output:
                     current_spent_transactions.append(ctxn)
 
         transaction = None
         if len(transactions) + len(current_spent_transactions) > 1:
             raise DoubleSpend('tx "{}" spends inputs twice'.format(txid))
         elif transactions:
-            transaction = Transaction.from_db(self, transactions[0])
+            transaction = backend.query.get_transactions(self.connection, [transactions[0]['id']])
+            transaction = Transaction.from_dict(transaction[0])
         elif current_spent_transactions:
             transaction = current_spent_transactions[0]
 

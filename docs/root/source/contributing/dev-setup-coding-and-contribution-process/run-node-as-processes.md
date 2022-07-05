@@ -11,16 +11,16 @@ The following doc describes how to run a local node for developing Planetmint Te
 
 There are two crucial dependencies required to start a local node:
 
-- MongoDB
+- Tarantool
 - Tendermint
 
 and of course you also need to install Planetmint Sever from the local code you just developed.
 
-## Install and Run MongoDB
+## Install and Run Tarantool
 
-MongoDB can be easily installed, just refer to their [installation documentation](https://docs.mongodb.com/manual/installation/) for your distro.
-We know MongoDB 3.4 and 3.6 work with Planetmint.
-After the installation of MongoDB is complete, run MongoDB using `sudo mongod`
+Tarantool can be easily installed, just refer to their [installation documentation](https://www.tarantool.io/en/download/os-installation/ubuntu/) for your distro.
+We know Tarantool 2.8 work with Planetmint.
+After the installation of Tarantool is complete, run Tarantool using `tarantool` and to create a listener `box.cfg{listen=3301}` in cli of Tarantool.
 
 ## Install and Run Tendermint
 
@@ -125,7 +125,7 @@ To execute tests when developing a feature or fixing a bug one could use the fol
 $ pytest -v
 ```
 
-NOTE: MongoDB and Tendermint should be running as discussed above.
+NOTE: Tarantool and Tendermint should be running as discussed above.
 
 One could mark a specific test and execute the same by appending `-m my_mark` to the above command.
 

@@ -10,7 +10,8 @@ import random
 from functools import singledispatch
 
 from planetmint.backend.localmongodb.connection import LocalMongoDBConnection
-from planetmint.backend.schema import TABLES
+from planetmint.backend.tarantool.connection import TarantoolDBConnection
+from planetmint.backend.schema import TABLES, SPACE_NAMES
 from planetmint.transactions.common import crypto
 from planetmint.transactions.common.transaction_mode_types import BROADCAST_TX_COMMIT
 from planetmint.transactions.types.assets.create import Create
@@ -29,14 +30,37 @@ def flush_localmongo_db(connection, dbname):
         getattr(connection.conn[dbname], t).delete_many({})
 
 
+@flush_db.register(TarantoolDBConnection)
+def flush_tarantool_db(connection, dbname):
+    for s in SPACE_NAMES:
+        _all_data = connection.run(connection.space(s).select([]))
+        if _all_data is None:
+            continue
+        for _id in _all_data:
+            if "assets" == s:
+                connection.run(connection.space(s).delete(_id[1]), only_data=False)
+            elif s == "blocks":
+                connection.run(connection.space(s).delete(_id[2]), only_data=False)
+            elif s == "inputs":
+                connection.run(connection.space(s).delete(_id[-2]), only_data=False)
+            elif s == "outputs":
+                connection.run(connection.space(s).delete(_id[-4]), only_data=False)
+            elif s == "utxos":
+                connection.run(connection.space(s).delete([_id[0], _id[1]]), only_data=False)
+            elif s == "abci_chains":
+                connection.run(connection.space(s).delete(_id[-1]), only_data=False)
+            else:
+                connection.run(connection.space(s).delete(_id[0]), only_data=False)
+
+
 def generate_block(planet):
     from planetmint.transactions.common.crypto import generate_key_pair
 
     alice = generate_key_pair()
     tx = Create.generate([alice.public_key],
-                            [([alice.public_key], 1)],
-                            asset=None)\
-                    .sign([alice.private_key])
+                         [([alice.public_key], 1)],
+                         asset=None) \
+        .sign([alice.private_key])
 
     code, message = planet.write_transaction(tx, BROADCAST_TX_COMMIT)
     assert code == 202
@@ -55,7 +79,7 @@ def gen_vote(election, i, ed25519_node_keys):
     election_pub_key = Election.to_public_key(election.id)
     return Vote.generate([input_i],
                          [([election_pub_key], votes_i)],
-                         election_id=election.id)\
+                         election_id=election.id) \
         .sign([key_i.private_key])
 
 
