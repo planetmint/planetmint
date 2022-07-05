@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: (Apache-2.0 AND CC-BY-4.0)
 # Code is Apache-2.0 and docs are CC-BY-4.0
 
+from itertools import repeat
 import logging
 from importlib import import_module
 
@@ -51,10 +52,10 @@ def connect(host: str = None, port: int = None, login: str = None, password: str
             replicaset = _kwargs_parser(key="replicaset", kwargs=kwargs) or Config().get()['database']['replicaset']
             ssl = _kwargs_parser(key="ssl", kwargs=kwargs) or Config().get()['database']['ssl']
             login = login or Config().get()['database']['login'] if _kwargs_parser(key="login",
-                                                                                   kwargs=kwargs) is None else _kwargs_parser(
+                                                                                   kwargs=kwargs) is None else _kwargs_parser(  # noqa: E501
                 key="login", kwargs=kwargs)
             password = password or Config().get()['database']['password'] if _kwargs_parser(key="password",
-                                                                                            kwargs=kwargs) is None else _kwargs_parser(
+                                                                                            kwargs=kwargs) is None else _kwargs_parser(  # noqa: E501
                 key="password", kwargs=kwargs)
             ca_cert = _kwargs_parser(key="ca_cert", kwargs=kwargs) or Config().get()['database']['ca_cert']
             certfile = _kwargs_parser(key="certfile", kwargs=kwargs) or Config().get()['database']['certfile']

@@ -44,4 +44,3 @@ def inconclusive_election(b, ongoing_validator_election, new_validator):
 
     query.store_validator_set(b.connection, validator_update)
     return ongoing_validator_election
-

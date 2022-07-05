@@ -38,8 +38,8 @@ INDEX_COMMANDS = {
     "assets":
         {
             "txid_search": "assets:create_index('txid_search', {type='hash', parts={'tx_id'}})",
-            "assetid_search": "assets:create_index('assetid_search', {type='tree',unique=false, parts={'asset_id', 'tx_id'}})",
-            "only_asset_search": "assets:create_index('only_asset_search', {type='tree', unique=false, parts={'asset_id'}})",
+            "assetid_search": "assets:create_index('assetid_search', {type='tree',unique=false, parts={'asset_id', 'tx_id'}})",  # noqa: E501
+            "only_asset_search": "assets:create_index('only_asset_search', {type='tree', unique=false, parts={'asset_id'}})",  # noqa: E501
             "text_search": "assets:create_index('secondary', {unique=false,parts={1,'string'}})"
         },
     "blocks":
@@ -57,7 +57,7 @@ INDEX_COMMANDS = {
         {
             "id_search": "elections:create_index('id_search' , {type='hash', parts={'election_id'}})",
             "height_search": "elections:create_index('height_search' , {type='tree',unique=false, parts={'height'}})",
-            "update_search": "elections:create_index('update_search', {type='tree', unique=false, parts={'election_id', 'height'}})"
+            "update_search": "elections:create_index('update_search', {type='tree', unique=false, parts={'election_id', 'height'}})"  # noqa: E501
         },
     "meta_data":
         {
@@ -77,12 +77,12 @@ INDEX_COMMANDS = {
     "transactions":
         {
             "id_search": "transactions:create_index('id_search' , {type = 'hash' , parts={'transaction_id'}})",
-            "transaction_search": "transactions:create_index('transaction_search' , {type = 'tree',unique=false, parts={'operation', 'transaction_id'}})"
+            "transaction_search": "transactions:create_index('transaction_search' , {type = 'tree',unique=false, parts={'operation', 'transaction_id'}})"  # noqa: E501
         },
     "inputs":
         {
             "delete_search": "inputs:create_index('delete_search' , {type = 'hash', parts={'input_id'}})",
-            "spent_search": "inputs:create_index('spent_search' , {type = 'tree', unique=false, parts={'fulfills_transaction_id', 'fulfills_output_index'}})",
+            "spent_search": "inputs:create_index('spent_search' , {type = 'tree', unique=false, parts={'fulfills_transaction_id', 'fulfills_output_index'}})",  # noqa: E501
             "id_search": "inputs:create_index('id_search', {type = 'tree', unique=false, parts = {'transaction_id'}})"
         },
     "outputs":
@@ -100,36 +100,36 @@ INDEX_COMMANDS = {
     "utxos":
         {
             "id_search": "utxos:create_index('id_search', {type='hash' , parts={'transaction_id', 'output_index'}})",
-            "transaction_search": "utxos:create_index('transaction_search', {type='tree', unique=false, parts={'transaction_id'}})",
+            "transaction_search": "utxos:create_index('transaction_search', {type='tree', unique=false, parts={'transaction_id'}})",  # noqa: E501
             "index_Search": "utxos:create_index('index_search', {type='tree', unique=false, parts={'output_index'}})"
         }
 }
 
 SCHEMA_COMMANDS = {
     "abci_chains":
-        "abci_chains:format({{name='height' , type='integer'},{name='is_synched' , type='boolean'},{name='chain_id',type='string'}, {name='id', type='string'}})",
+        "abci_chains:format({{name='height' , type='integer'},{name='is_synched' , type='boolean'},{name='chain_id',type='string'}, {name='id', type='string'}})",  # noqa: E501
     "assets":
-        "assets:format({{name='data' , type='string'}, {name='tx_id', type='string'}, {name='asset_id', type='string'}})",
+        "assets:format({{name='data' , type='string'}, {name='tx_id', type='string'}, {name='asset_id', type='string'}})",  # noqa: E501
     "blocks":
-        "blocks:format{{name='app_hash',type='string'},{name='height' , type='integer'},{name='block_id' , type='string'}}",
+        "blocks:format{{name='app_hash',type='string'},{name='height' , type='integer'},{name='block_id' , type='string'}}",  # noqa: E501
     "blocks_tx": "blocks_tx:format{{name='transaction_id', type = 'string'}, {name = 'block_id', type = 'string'}}",
     "elections":
-        "elections:format({{name='election_id' , type='string'},{name='height' , type='integer'}, {name='is_concluded' , type='boolean'}})",
-    "meta_data": "meta_datas:format({{name='transaction_id' , type='string'}, {name='meta_data' , type='string'}})",
+        "elections:format({{name='election_id' , type='string'},{name='height' , type='integer'}, {name='is_concluded' , type='boolean'}})",  # noqa: E501
+    "meta_data": "meta_datas:format({{name='transaction_id' , type='string'}, {name='meta_data' , type='string'}})",  # noqa: E501
     "pre_commits":
-        "pre_commits:format({{name='commit_id', type='string'}, {name='height',type='integer'}, {name='transactions',type=any}})",
+        "pre_commits:format({{name='commit_id', type='string'}, {name='height',type='integer'}, {name='transactions',type=any}})",  # noqa: E501
     "validators":
-        "validators:format({{name='validator_id' , type='string'},{name='height',type='integer'},{name='validators' , type='any'}})",
+        "validators:format({{name='validator_id' , type='string'},{name='height',type='integer'},{name='validators' , type='any'}})",  # noqa: E501
     "transactions":
-        "transactions:format({{name='transaction_id' , type='string'}, {name='operation' , type='string'}, {name='version' ,type='string'}, {name='dict_map', type='any'}})",
+        "transactions:format({{name='transaction_id' , type='string'}, {name='operation' , type='string'}, {name='version' ,type='string'}, {name='dict_map', type='any'}})",  # noqa: E501
     "inputs":
-        "inputs:format({{name='transaction_id' , type='string'}, {name='fulfillment' , type='any'}, {name='owners_before' , type='array'}, {name='fulfills_transaction_id', type = 'string'}, {name='fulfills_output_index', type = 'string'}, {name='input_id', type='string'}, {name='input_index', type='number'}})",
+        "inputs:format({{name='transaction_id' , type='string'}, {name='fulfillment' , type='any'}, {name='owners_before' , type='array'}, {name='fulfills_transaction_id', type = 'string'}, {name='fulfills_output_index', type = 'string'}, {name='input_id', type='string'}, {name='input_index', type='number'}})",  # noqa: E501
     "outputs":
-        "outputs:format({{name='transaction_id' , type='string'}, {name='amount' , type='string'}, {name='uri', type='string'}, {name='details_type', type='string'}, {name='details_public_key', type='any'}, {name = 'output_id', type = 'string'}, {name='treshold', type='any'}, {name='subconditions', type='any'}, {name='output_index', type='number'}})",
+        "outputs:format({{name='transaction_id' , type='string'}, {name='amount' , type='string'}, {name='uri', type='string'}, {name='details_type', type='string'}, {name='details_public_key', type='any'}, {name = 'output_id', type = 'string'}, {name='treshold', type='any'}, {name='subconditions', type='any'}, {name='output_index', type='number'}})",  # noqa: E501
     "keys":
-        "keys:format({{name = 'id', type='string'}, {name = 'transaction_id', type = 'string'} ,{name = 'output_id', type = 'string'}, {name = 'public_key', type = 'string'}, {name = 'key_index', type = 'integer'}})",
+        "keys:format({{name = 'id', type='string'}, {name = 'transaction_id', type = 'string'} ,{name = 'output_id', type = 'string'}, {name = 'public_key', type = 'string'}, {name = 'key_index', type = 'integer'}})",  # noqa: E501
     "utxos":
-        "utxos:format({{name='transaction_id' , type='string'}, {name='output_index' , type='integer'}, {name='utxo_dict', type='string'}})"
+        "utxos:format({{name='transaction_id' , type='string'}, {name='output_index' , type='integer'}, {name='utxo_dict', type='string'}})"  # noqa: E501
 }
 
 SCHEMA_DROP_COMMANDS = {
@@ -184,7 +184,7 @@ def run_command_with_output(command):
 @register_schema(TarantoolDBConnection)
 def create_tables(connection, dbname):
     for _space in SPACE_NAMES:
-        try:        
+        try:
             cmd = SPACE_COMMANDS[_space].encode()
             run_command_with_output(command=cmd)
             print(f"Space '{_space}' created.")

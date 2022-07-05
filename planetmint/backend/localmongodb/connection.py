@@ -41,7 +41,7 @@ class LocalMongoDBConnection(Connection):
         self.keyfile = keyfile or Config().get()['database']['keyfile']
         self.keyfile_passphrase = keyfile_passphrase or Config().get()['database']['keyfile_passphrase']
         self.crlfile = crlfile or Config().get()['database']['crlfile']
-        if not self.ssl :
+        if not self.ssl:
             self.ssl = False
         if not self.keyfile_passphrase:
             self.keyfile_passphrase = None

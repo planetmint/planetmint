@@ -1,10 +1,10 @@
-## Copyright © 2020 Interplanetary Database Association e.V.,
-## Planetmint and IPDB software contributors.
-## SPDX-License-Identifier: (Apache-2.0 AND CC-BY-4.0)
-## Code is Apache-2.0 and docs are CC-BY-4.0
+# # Copyright © 2020 Interplanetary Database Association e.V.,
+# # Planetmint and IPDB software contributors.
+# # SPDX-License-Identifier: (Apache-2.0 AND CC-BY-4.0)
+# # Code is Apache-2.0 and docs are CC-BY-4.0
 #
 #
-#def test_init_database_is_graceful_if_db_exists():
+# def test_init_database_is_graceful_if_db_exists():
 #    import planetmint
 #    from planetmint import backend
 #    from planetmint.backend.schema import init_database
@@ -18,7 +18,7 @@
 #    init_database()
 #
 #
-#def test_create_tables():
+# def test_create_tables():
 #    import planetmint
 #    from planetmint import backend
 #    from planetmint.backend import schema
@@ -66,7 +66,7 @@
 #    assert indexes['height']['unique']
 #
 #
-#def test_drop(dummy_db):
+# def test_drop(dummy_db):
 #    from planetmint import backend
 #    from planetmint.backend import schema
 #
@@ -74,4 +74,3 @@
 #    assert dummy_db in conn.conn.list_database_names()
 #    schema.drop_database(conn, dummy_db)
 #    assert dummy_db not in conn.conn.list_database_names()
-#
