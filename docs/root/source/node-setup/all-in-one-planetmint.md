@@ -40,8 +40,9 @@ $ docker run \
   --name planetmint \
   --publish 9984:9984 \
   --publish 9985:9985 \
-  --publish 27017:27017 \
+  --publish 3303:3303 \
   --publish 26657:26657 \
+  --volume $HOME/planetmint_docker/tarantool:/var/lib/tarantool \
   --volume $HOME/planetmint_docker/tendermint:/tendermint \
   planetmint/planetmint:all-in-one
 ```
@@ -54,10 +55,11 @@ Let's analyze that command:
  (the Planetmint API server) 
   * `9985` Planetmint Websocket server
   * `26657` Tendermint RPC server
- this allows us to have the data persisted on the host machine,
+  * `3303` Configured port for Tarantool
+* `$HOME/planetmint_docker/tarantool:/var/lib/tarantool` this allows us to have the data persisted on the host machine,
  you can read more in the [official Docker
  documentation](https://docs.docker.com/engine/tutorials/dockervolumes)
-  * `$HOME/planetmint_docker/tendermint:/tendermint` to persist Tendermint data.
+* `$HOME/planetmint_docker/tendermint:/tendermint` to persist Tendermint data.
 * `planetmint/planetmint:all-in-one` the image to use. All the options after the container name are passed on to the entrypoint inside the container.
 
 ## Verify
