@@ -40,10 +40,10 @@ def mock_generate_key_pair(monkeypatch):
 @pytest.fixture
 def mock_planetmint_backup_config(monkeypatch):
     _config = Config().get()
-    _config['database']['host']='host'
-    _config['database']['port']=12345
-    _config['database']['name']='adbname'
-    Config().set( _config )
+    _config['database']['host'] = 'host'
+    _config['database']['port'] = 12345
+    _config['database']['name'] = 'adbname'
+    Config().set(_config)
 
 
 @pytest.fixture

@@ -179,7 +179,6 @@ def test_autoconfigure_read_both_from_file_and_env(monkeypatch,
         'PLANETMINT_DATABASE_KEYFILE_PASSPHRASE': 'passphrase',
     })
 
-    import planetmint
     from planetmint import config_utils
     from planetmint.log import DEFAULT_LOGGING_CONFIG as log_config
     config_utils.autoconfigure()
@@ -270,7 +269,6 @@ def test_autoconfigure_explicit_file(monkeypatch):
 
 
 def test_update_config(monkeypatch):
-    import planetmint
     from planetmint import config_utils
 
     file_config = {
@@ -320,7 +318,6 @@ def test_write_config():
         ('PLANETMINT_DATABASE_NAME', 'test-db', 'name'),
 ))
 def test_database_envs(env_name, env_value, config_key, monkeypatch):
-    import planetmint
 
     monkeypatch.setattr('os.environ', {env_name: env_value})
     planetmint.config_utils.autoconfigure()

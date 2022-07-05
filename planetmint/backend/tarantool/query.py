@@ -61,7 +61,7 @@ def store_transactions(connection, signed_transactions: list):
                 connection.space("transactions").insert(txtuples["transactions"]),
                 only_data=False
             )
-        except:  # This is used for omitting duplicate error in database for test -> test_bigchain_api::test_double_inclusion
+        except:  # This is used for omitting duplicate error in database for test -> test_bigchain_api::test_double_inclusion  # noqa: E501
             continue
         for _in in txtuples["inputs"]:
             connection.run(
@@ -110,7 +110,7 @@ def store_metadatas(connection, metadata: list):
     for meta in metadata:
         connection.run(
             connection.space("meta_data").insert(
-                (meta["id"], json.dumps(meta["data"] if not "metadata" in meta else meta["metadata"])))
+                (meta["id"], json.dumps(meta["data"] if not "metadata" in meta else meta["metadata"])))  # noqa: E713
         )
 
 
@@ -146,8 +146,6 @@ def store_asset(connection, asset):
         )
     except DatabaseError:
         pass
-
-
 
 @register_query(TarantoolDBConnection)
 def store_assets(connection, assets: list):
@@ -469,7 +467,7 @@ def store_election(connection, election_id: str, height: int, is_concluded: bool
 @register_query(TarantoolDBConnection)
 def store_elections(connection, elections: list):
     for election in elections:
-        _election = connection.run(
+        _election = connection.run(  # noqa: F841
             connection.space("elections").insert((election["election_id"],
                                                   election["height"],
                                                   election["is_concluded"])),
@@ -517,7 +515,7 @@ def get_election(connection, election_id: str):
 
 @register_query(TarantoolDBConnection)
 def get_asset_tokens_for_public_key(connection, asset_id: str,
-                                    public_key: str):  # FIXME Something can be wrong with this function ! (public_key) is not used
+                                    public_key: str):  # FIXME Something can be wrong with this function ! (public_key) is not used  # noqa: E501
     # space = connection.space("keys")
     # _keys = space.select([public_key], index="keys_search")
     _transactions = connection.run(

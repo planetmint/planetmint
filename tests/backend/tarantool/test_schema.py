@@ -12,7 +12,7 @@ def _check_spaces_by_list(conn, space_names):
         try:
             conn.get_space(name)
             _exists.append(name)
-        except:
+        except:  # noqa
             pass
     return _exists
 
@@ -27,4 +27,3 @@ def test_drop(db_conn):  # remove dummy_db as argument
     db_conn.drop_database()
     actual_spaces = _check_spaces_by_list(conn=db_conn, space_names=db_conn.SPACE_NAMES)
     assert [] == actual_spaces
-

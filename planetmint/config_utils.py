@@ -193,7 +193,7 @@ def set_config(config):
     # Update the default config with whatever is in the passed config
     update(_config, update_types(config, _config))
     _config['CONFIGURED'] = True
-    Config().set( _config )
+    Config().set(_config)
 
 
 def update_config(config):
@@ -209,7 +209,7 @@ def update_config(config):
     # Update the default config with whatever is in the passed config
     update(_config, update_types(config, _config))
     _config['CONFIGURED'] = True
-    Config().set( _config )
+    Config().set(_config)
 
 
 def write_config(config, filename=None):

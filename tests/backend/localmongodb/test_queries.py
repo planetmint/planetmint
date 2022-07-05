@@ -1,22 +1,22 @@
-## # Copyright © 2020 Interplanetary Database Association e.V.,
-## # Planetmint and IPDB software contributors.
-## # SPDX-License-Identifier: (Apache-2.0 AND CC-BY-4.0)
-## # Code is Apache-2.0 and docs are CC-BY-4.0
+# # # Copyright © 2020 Interplanetary Database Association e.V.,
+# # # Planetmint and IPDB software contributors.
+# # # SPDX-License-Identifier: (Apache-2.0 AND CC-BY-4.0)
+# # # Code is Apache-2.0 and docs are CC-BY-4.0
 #
-#from copy import deepcopy
-#from planetmint.transactions.types.assets.create import Create
-#from planetmint.transactions.types.assets.transfer import Transfer
+# from copy import deepcopy
+# from planetmint.transactions.types.assets.create import Create
+# from planetmint.transactions.types.assets.transfer import Transfer
 #
-## import pytest
-## import pymongo
+# # import pytest
+# # import pymongo
 #
-## from planetmint.backend import Connection, query
+# # from planetmint.backend import Connection, query
 #
 #
-## pytestmark = pytest.mark.bdb
+# # pytestmark = pytest.mark.bdb
 #
-#@pytest.mark.skip
-#def test_get_txids_filtered(signed_create_tx, signed_transfer_tx):
+# @pytest.mark.skip
+# def test_get_txids_filtered(signed_create_tx, signed_transfer_tx):
 #    from planetmint.backend import connect, query
 #    from planetmint.models import Transaction
 #    conn = connect()
@@ -40,8 +40,8 @@
 #    txids = set(query.get_txids_filtered(conn, asset_id, Transaction.TRANSFER))
 #    assert txids == {signed_transfer_tx.id}
 #
-#@pytest.mark.skip
-#def test_write_assets():
+# @pytest.mark.skip
+# def test_write_assets():
 #    from planetmint.backend import connect, query
 #    conn = connect()
 #
@@ -64,8 +64,8 @@
 #    assert cursor.collection.count_documents({}) == 3
 #    assert list(cursor) == assets[:-1]
 #
-#@pytest.mark.skip
-#def test_get_assets():
+# @pytest.mark.skip
+# def test_get_assets():
 #    from planetmint.backend import connect, query
 #    conn = connect()
 #
@@ -80,9 +80,9 @@
 #    for asset in assets:
 #        assert query.get_asset(conn, asset['id'])
 #
-#@pytest.mark.skip
-#@pytest.mark.parametrize('table', ['assets', 'metadata'])
-#def test_text_search(table):
+# @pytest.mark.skip
+# @pytest.mark.parametrize('table', ['assets', 'metadata'])
+# def test_text_search(table):
 #    from planetmint.backend import connect, query
 #    conn = connect()
 #
@@ -165,8 +165,8 @@
 #        {'id': 2, 'subject': 'Coffee Shopping', 'author': 'efg', 'views': 5},
 #    ]
 #
-#@pytest.mark.skip
-#def test_write_metadata():
+# @pytest.mark.skip
+# def test_write_metadata():
 #    from planetmint.backend import connect, query
 #    conn = connect()
 #
@@ -186,8 +186,8 @@
 #    assert cursor.collection.count_documents({}) == 3
 #    assert list(cursor) == metadata
 #
-#@pytest.mark.skip
-#def test_get_metadata():
+# @pytest.mark.skip
+# def test_get_metadata():
 #    from planetmint.backend import connect, query
 #    conn = connect()
 #
@@ -202,8 +202,8 @@
 #    for meta in metadata:
 #        assert query.get_metadata(conn, [meta['id']])
 #
-#@pytest.mark.skip
-#def test_get_owned_ids(signed_create_tx, user_pk):
+# @pytest.mark.skip
+# def test_get_owned_ids(signed_create_tx, user_pk):
 #    from planetmint.backend import connect, query
 #    conn = connect()
 #
@@ -214,8 +214,8 @@
 #
 #    assert txns[0] == signed_create_tx.to_dict()
 #
-#@pytest.mark.skip
-#def test_get_spending_transactions(user_pk, user_sk):
+# @pytest.mark.skip
+# def test_get_spending_transactions(user_pk, user_sk):
 #    from planetmint.backend import connect, query
 #    conn = connect()
 #
@@ -235,8 +235,8 @@
 #    # tx3 not a member because input 1 not asked for
 #    assert txns == [tx2.to_dict(), tx4.to_dict()]
 #
-#@pytest.mark.skip
-#def test_get_spending_transactions_multiple_inputs():
+# @pytest.mark.skip
+# def test_get_spending_transactions_multiple_inputs():
 #    from planetmint.backend import connect, query
 #    from planetmint.transactions.common.crypto import generate_key_pair
 #    conn = connect()
@@ -277,8 +277,8 @@
 #        if len(txns):
 #            assert [tx['id'] for tx in txns] == match
 #
-#@pytest.mark.skip
-#def test_store_block():
+# @pytest.mark.skip
+# def test_store_block():
 #    from planetmint.backend import connect, query
 #    from planetmint.lib import Block
 #    conn = connect()
@@ -290,8 +290,8 @@
 #    cursor = conn.db.blocks.find({}, projection={'_id': False})
 #    assert cursor.collection.count_documents({}) == 1
 #
-#@pytest.mark.skip
-#def test_get_block():
+# @pytest.mark.skip
+# def test_get_block():
 #    from planetmint.backend import connect, query
 #    from planetmint.lib import Block
 #    conn = connect()
@@ -305,8 +305,8 @@
 #    block = dict(query.get_block(conn, 3))
 #    assert block['height'] == 3
 #
-#@pytest.mark.skip
-#def test_delete_zero_unspent_outputs(db_context, utxoset):
+# @pytest.mark.skip
+# def test_delete_zero_unspent_outputs(db_context, utxoset):
 #    from planetmint.backend import query
 #    unspent_outputs, utxo_collection = utxoset
 #    delete_res = query.delete_unspent_outputs(db_context.conn)
@@ -320,8 +320,8 @@
 #        ]}
 #    ) == 3
 #
-#@pytest.mark.skip
-#def test_delete_one_unspent_outputs(db_context, utxoset):
+# @pytest.mark.skip
+# def test_delete_one_unspent_outputs(db_context, utxoset):
 #    from planetmint.backend import query
 #    unspent_outputs, utxo_collection = utxoset
 #    delete_res = query.delete_unspent_outputs(db_context.conn,
@@ -336,8 +336,8 @@
 #    assert utxo_collection.count_documents(
 #            {'transaction_id': 'a', 'output_index': 0}) == 0
 #
-#@pytest.mark.skip
-#def test_delete_many_unspent_outputs(db_context, utxoset):
+# @pytest.mark.skip
+# def test_delete_many_unspent_outputs(db_context, utxoset):
 #    from planetmint.backend import query
 #    unspent_outputs, utxo_collection = utxoset
 #    delete_res = query.delete_unspent_outputs(db_context.conn,
@@ -352,15 +352,15 @@
 #    assert utxo_collection.count_documents(
 #            {'transaction_id': 'a', 'output_index': 1}) == 1
 #
-#@pytest.mark.skip
-#def test_store_zero_unspent_output(db_context, utxo_collection):
+# @pytest.mark.skip
+# def test_store_zero_unspent_output(db_context, utxo_collection):
 #    from planetmint.backend import query
 #    res = query.store_unspent_outputs(db_context.conn)
 #    assert res is None
 #    assert utxo_collection.count_documents({}) == 0
 #
-#@pytest.mark.skip
-#def test_store_one_unspent_output(db_context,
+# @pytest.mark.skip
+# def test_store_one_unspent_output(db_context,
 #                                  unspent_output_1, utxo_collection):
 #    from planetmint.backend import query
 #    res = query.store_unspent_outputs(db_context.conn, unspent_output_1)
@@ -371,8 +371,8 @@
 #         'output_index': unspent_output_1['output_index']}
 #    ) == 1
 #
-#@pytest.mark.skip
-#def test_store_many_unspent_outputs(db_context,
+# @pytest.mark.skip
+# def test_store_many_unspent_outputs(db_context,
 #                                    unspent_outputs, utxo_collection):
 #    from planetmint.backend import query
 #    res = query.store_unspent_outputs(db_context.conn, *unspent_outputs)
@@ -382,8 +382,8 @@
 #        {'transaction_id': unspent_outputs[0]['transaction_id']}
 #    ) == 3
 #
-#@pytest.mark.skip
-#def test_get_unspent_outputs(db_context, utxoset):
+# @pytest.mark.skip
+# def test_get_unspent_outputs(db_context, utxoset):
 #    from planetmint.backend import query
 #    cursor = query.get_unspent_outputs(db_context.conn)
 #    assert cursor.collection.count_documents({}) == 3
@@ -393,8 +393,8 @@
 #        utxo_collection.find(projection={'_id': False}))
 #    assert retrieved_utxoset == unspent_outputs
 #
-#@pytest.mark.skip
-#def test_store_pre_commit_state(db_context):
+# @pytest.mark.skip
+# def test_store_pre_commit_state(db_context):
 #    from planetmint.backend import query
 #
 #    state = dict(height=3, transactions=[])
@@ -404,8 +404,8 @@
 #                                                projection={'_id': False})
 #    assert cursor.collection.count_documents({}) == 1
 #
-#@pytest.mark.skip
-#def test_get_pre_commit_state(db_context):
+# @pytest.mark.skip
+# def test_get_pre_commit_state(db_context):
 #    from planetmint.backend import query
 #
 #    state = dict(height=3, transactions=[])
@@ -413,8 +413,8 @@
 #    resp = query.get_pre_commit_state(db_context.conn)
 #    assert resp == state
 #
-#@pytest.mark.skip
-#def test_validator_update():
+# @pytest.mark.skip
+# def test_validator_update():
 #    from planetmint.backend import connect, query
 #
 #    conn = connect()
@@ -435,8 +435,8 @@
 #    v91 = query.get_validator_set(conn)
 #    assert v91['height'] == 91
 #
-#@pytest.mark.skip
-#@pytest.mark.parametrize('description,stores,expected', [
+# @pytest.mark.skip
+# @pytest.mark.parametrize('description,stores,expected', [
 #    (
 #        'Query empty database.',
 #        [],
@@ -473,8 +473,8 @@
 #        ],
 #        {'height': 10, 'chain_id': 'another-id', 'is_synced': True},
 #    ),
-#])
-#def test_store_abci_chain(description, stores, expected):
+# ])
+# def test_store_abci_chain(description, stores, expected):
 #    conn = connect()
 #
 #    for store in stores:
