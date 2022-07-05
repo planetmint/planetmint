@@ -26,6 +26,8 @@ For reference, the possible headings are:
 * **Notes**
 
 ## [Unreleased]
+
+## [1.0.0]
 ### Feature Update
 Tarantool integration
 
