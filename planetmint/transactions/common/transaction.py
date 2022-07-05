@@ -735,19 +735,19 @@ class Transaction(object):
             else Transaction.CREATE
         )
         cls = Transaction.resolve_class(operation)
-        
+
         id = None
         try:
             id = tx['id']
         except KeyError:
             id = None
-        # tx['asset'] = tx['asset'][0] if isinstance( tx['asset'], list) or isinstance( tx['asset'], tuple) else tx['asset'],
+        # tx['asset'] = tx['asset'][0] if isinstance( tx['asset'], list) or isinstance( tx['asset'], tuple) else tx['asset'],  # noqa: E501
         local_dict = {
             'inputs': tx['inputs'],
             'outputs': tx['outputs'],
             'operation': operation,
             'metadata': tx['metadata'],
-            'asset': tx['asset'],  # [0] if isinstance( tx['asset'], list) or isinstance( tx['asset'], tuple) else tx['asset'],
+            'asset': tx['asset'],  # [0] if isinstance( tx['asset'], list) or isinstance( tx['asset'], tuple) else tx['asset'],  # noqa: E501
             'version': tx['version'],
             'id': id
         }

@@ -47,7 +47,7 @@ class TarantoolDBConnection(Connection):
         except tarantool.error.NetworkError as network_err:
             logger.info("Host cant be reached")
             raise network_err
-        except:
+        except ConfigurationError:
             logger.info("Exception in _connect(): {}")
             raise ConfigurationError
 
@@ -82,11 +82,11 @@ class TarantoolDBConnection(Connection):
 
     def drop_database(self):
         db_config = Config().get()["database"]
-        cmd_resp = self.run_command(command=self.drop_path, config=db_config)
+        cmd_resp = self.run_command(command=self.drop_path, config=db_config)  # noqa: F841
 
     def init_database(self):
         db_config = Config().get()["database"]
-        cmd_resp = self.run_command(command=self.init_path, config=db_config)
+        cmd_resp = self.run_command(command=self.init_path, config=db_config)  # noqa: F841
 
     def run_command(self, command: str, config: dict):
         from subprocess import run

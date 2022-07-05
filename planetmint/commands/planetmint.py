@@ -245,7 +245,6 @@ def run_election_show(args, planet):
 
 
 def _run_init():
-    from planetmint.backend import schema
     bdb = planetmint.Planetmint()
     schema.init_database(connection=bdb.connection)
 
@@ -266,7 +265,6 @@ def run_drop(args):
             return
 
     from planetmint.backend.connection import connect
-    from planetmint.backend import schema
     conn = connect()
     try:
         schema.drop_database(conn)

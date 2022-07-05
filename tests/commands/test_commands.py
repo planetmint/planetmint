@@ -125,7 +125,7 @@ def test_drop_db_when_interactive_yes(mock_db_drop, monkeypatch):
 def test_drop_db_when_db_does_not_exist(mock_db_drop, capsys):
     from planetmint.transactions.common.exceptions import DatabaseDoesNotExist
     from planetmint.commands.planetmint import run_drop
-    
+
     args = Namespace(config=None, yes=True)
     mock_db_drop.side_effect = DatabaseDoesNotExist
 
