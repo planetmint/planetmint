@@ -61,7 +61,7 @@ def store_transactions(connection, signed_transactions: list):
                 connection.space("transactions").insert(txtuples["transactions"]),
                 only_data=False
             )
-        except:  # This is used for omitting duplicate error in database for test -> test_bigchain_api::test_double_inclusion  # noqa: E501
+        except:  # This is used for omitting duplicate error in database for test -> test_bigchain_api::test_double_inclusion  # noqa: E501, E722
             continue
         for _in in txtuples["inputs"]:
             connection.run(
