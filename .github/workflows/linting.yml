@@ -1,0 +1,10 @@
+name: Linting
+on: [push]
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    container:
+      image: cytopia/black
+      steps:
+        - name: Check code with black
+        run: black --check -l 119 .
