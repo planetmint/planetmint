@@ -89,15 +89,7 @@ docs_require = [
 
 check_setuptools_features()
 
-dev_require = [
-    "ipdb",
-    "ipython",
-    "watchdog",
-    "logging_tree",
-    "pre-commit",
-    "twine",
-    "ptvsd"
-]
+dev_require = ["ipdb", "ipython", "watchdog", "logging_tree", "pre-commit", "twine", "ptvsd"]
 
 tests_require = [
     "coverage",
@@ -116,27 +108,27 @@ tests_require = [
 ] + docs_require
 
 install_requires = [
-    'chardet==3.0.4',
-    'aiohttp==3.8.1',
-    'abci==0.8.3',
-    'planetmint-cryptoconditions>=0.9.9',
-    'flask-cors==3.0.10',
-    'flask-restful==0.3.9',
-    'flask==2.1.2',
-    'gunicorn==20.1.0',
-    'jsonschema==3.2.0',
-    'logstats==0.3.0',
-    'packaging>=20.9',
+    "chardet==3.0.4",
+    "aiohttp==3.8.1",
+    "abci==0.8.3",
+    "planetmint-cryptoconditions>=0.9.9",
+    "flask-cors==3.0.10",
+    "flask-restful==0.3.9",
+    "flask==2.1.2",
+    "gunicorn==20.1.0",
+    "jsonschema==3.2.0",
+    "logstats==0.3.0",
+    "packaging>=20.9",
     # TODO Consider not installing the db drivers, or putting them in extras.
-    'pymongo==3.11.4',
-    'tarantool==0.7.1',
-    'python-rapidjson==1.0',
-    'pyyaml==5.4.1',
-    'requests==2.25.1',
-    'setproctitle==1.2.2',
-    'werkzeug==2.0.3',
-    'nest-asyncio==1.5.5',
-    'protobuf==3.20.1'
+    "pymongo==3.11.4",
+    "tarantool==0.7.1",
+    "python-rapidjson==1.0",
+    "pyyaml==5.4.1",
+    "requests==2.25.1",
+    "setproctitle==1.2.2",
+    "werkzeug==2.0.3",
+    "nest-asyncio==1.5.5",
+    "protobuf==3.20.1",
 ]
 
 setup(

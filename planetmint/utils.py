@@ -17,9 +17,7 @@ from planetmint.transactions.common.crypto import key_pair_from_ed25519_key
 
 
 class ProcessGroup(object):
-
-    def __init__(self, concurrency=None, group=None, target=None, name=None,
-                 args=None, kwargs=None, daemon=None):
+    def __init__(self, concurrency=None, group=None, target=None, name=None, args=None, kwargs=None, daemon=None):
         self.concurrency = concurrency or mp.cpu_count()
         self.group = group
         self.target = target
@@ -31,9 +29,14 @@ class ProcessGroup(object):
 
     def start(self):
         for i in range(self.concurrency):
-            proc = mp.Process(group=self.group, target=self.target,
-                              name=self.name, args=self.args,
-                              kwargs=self.kwargs, daemon=self.daemon)
+            proc = mp.Process(
+                group=self.group,
+                target=self.target,
+                name=self.name,
+                args=self.args,
+                kwargs=self.kwargs,
+                daemon=self.daemon,
+            )
             proc.start()
             self.processes.append(proc)
 
@@ -117,8 +120,8 @@ def condition_details_has_owner(condition_details, owner):
         bool: True if the public key is found in the condition details, False otherwise
 
     """
-    if 'subconditions' in condition_details:
-        result = condition_details_has_owner(condition_details['subconditions'], owner)
+    if "subconditions" in condition_details:
+        result = condition_details_has_owner(condition_details["subconditions"], owner)
         if result:
             return True
 
@@ -128,8 +131,7 @@ def condition_details_has_owner(condition_details, owner):
             if result:
                 return True
     else:
-        if 'public_key' in condition_details \
-                and owner == condition_details['public_key']:
+        if "public_key" in condition_details and owner == condition_details["public_key"]:
             return True
     return False
 
@@ -157,7 +159,7 @@ class Lazy:
         return self
 
     def __getitem__(self, key):
-        self.stack.append('__getitem__')
+        self.stack.append("__getitem__")
         self.stack.append(([key], {}))
         return self
 
@@ -184,7 +186,7 @@ class Lazy:
 def load_node_key(path):
     with open(path) as json_data:
         priv_validator = json.load(json_data)
-        priv_key = priv_validator['priv_key']['value']
+        priv_key = priv_validator["priv_key"]["value"]
         hex_private_key = key_from_base64(priv_key)
         return key_pair_from_ed25519_key(hex_private_key)
 
@@ -200,7 +202,7 @@ def tendermint_version_is_compatible(running_tm_ver):
     """
 
     # Splitting because version can look like this e.g. 0.22.8-40d6dc2e
-    tm_ver = running_tm_ver.split('-')
+    tm_ver = running_tm_ver.split("-")
     if not tm_ver:
         return False
     for ver in __tm_supported_versions__:

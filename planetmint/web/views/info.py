@@ -15,23 +15,20 @@ from planetmint.web.websocket_server import EVENTS_ENDPOINT, EVENTS_ENDPOINT_BLO
 
 class RootIndex(Resource):
     def get(self):
-        docs_url = [
-            'https://docs.planetmint.com/projects/server/en/v',
-            version.__version__ + '/'
-        ]
-        return flask.jsonify({
-            'api': {
-                'v1': get_api_v1_info('/api/v1/')
-            },
-            'docs': ''.join(docs_url),
-            'software': 'Planetmint',
-            'version': version.__version__,
-        })
+        docs_url = ["https://docs.planetmint.com/projects/server/en/v", version.__version__ + "/"]
+        return flask.jsonify(
+            {
+                "api": {"v1": get_api_v1_info("/api/v1/")},
+                "docs": "".join(docs_url),
+                "software": "Planetmint",
+                "version": version.__version__,
+            }
+        )
 
 
 class ApiV1Index(Resource):
     def get(self):
-        return flask.jsonify(get_api_v1_info('/'))
+        return flask.jsonify(get_api_v1_info("/"))
 
 
 def get_api_v1_info(api_prefix):
@@ -41,19 +38,19 @@ def get_api_v1_info(api_prefix):
     websocket_root_tx = base_ws_uri() + EVENTS_ENDPOINT
     websocket_root_block = base_ws_uri() + EVENTS_ENDPOINT_BLOCKS
     docs_url = [
-        'https://docs.planetmint.com/projects/server/en/v',
+        "https://docs.planetmint.com/projects/server/en/v",
         version.__version__,
-        '/http-client-server-api.html',
+        "/http-client-server-api.html",
     ]
 
     return {
-        'docs': ''.join(docs_url),
-        'transactions': '{}transactions/'.format(api_prefix),
-        'blocks': '{}blocks/'.format(api_prefix),
-        'assets': '{}assets/'.format(api_prefix),
-        'outputs': '{}outputs/'.format(api_prefix),
-        'streams': websocket_root_tx,
-        'streamedblocks': websocket_root_block,
-        'metadata': '{}metadata/'.format(api_prefix),
-        'validators': '{}validators'.format(api_prefix),
+        "docs": "".join(docs_url),
+        "transactions": "{}transactions/".format(api_prefix),
+        "blocks": "{}blocks/".format(api_prefix),
+        "assets": "{}assets/".format(api_prefix),
+        "outputs": "{}outputs/".format(api_prefix),
+        "streams": websocket_root_tx,
+        "streamedblocks": websocket_root_block,
+        "metadata": "{}metadata/".format(api_prefix),
+        "validators": "{}validators".format(api_prefix),
     }

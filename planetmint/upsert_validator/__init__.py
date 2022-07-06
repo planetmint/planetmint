@@ -4,4 +4,4 @@
 # Code is Apache-2.0 and docs are CC-BY-4.0
 
 
-from planetmint.upsert_validator.validator_election import ValidatorElection # noqa
+from planetmint.upsert_validator.validator_election import ValidatorElection  # noqa

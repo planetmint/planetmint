@@ -11,11 +11,12 @@ from logging.config import dictConfig as set_logging_config
 from planetmint.config import Config, DEFAULT_LOGGING_CONFIG
 import os
 
+
 def _normalize_log_level(level):
     try:
         return level.upper()
     except AttributeError as exc:
-        raise ConfigurationError('Log level must be a string!') from exc
+        raise ConfigurationError("Log level must be a string!") from exc
 
 
 def setup_logging():
@@ -32,47 +33,47 @@ def setup_logging():
     """
 
     logging_configs = DEFAULT_LOGGING_CONFIG
-    new_logging_configs = Config().get()['log']
+    new_logging_configs = Config().get()["log"]
 
-    if 'file' in new_logging_configs:
-        filename = new_logging_configs['file']
-        logging_configs['handlers']['file']['filename'] = filename
+    if "file" in new_logging_configs:
+        filename = new_logging_configs["file"]
+        logging_configs["handlers"]["file"]["filename"] = filename
 
-    if 'error_file' in new_logging_configs:
-        error_filename = new_logging_configs['error_file']
-        logging_configs['handlers']['errors']['filename'] = error_filename
+    if "error_file" in new_logging_configs:
+        error_filename = new_logging_configs["error_file"]
+        logging_configs["handlers"]["errors"]["filename"] = error_filename
 
-    if 'level_console' in new_logging_configs:
-        level = _normalize_log_level(new_logging_configs['level_console'])
-        logging_configs['handlers']['console']['level'] = level
+    if "level_console" in new_logging_configs:
+        level = _normalize_log_level(new_logging_configs["level_console"])
+        logging_configs["handlers"]["console"]["level"] = level
 
-    if 'level_logfile' in new_logging_configs:
-        level = _normalize_log_level(new_logging_configs['level_logfile'])
-        logging_configs['handlers']['file']['level'] = level
+    if "level_logfile" in new_logging_configs:
+        level = _normalize_log_level(new_logging_configs["level_logfile"])
+        logging_configs["handlers"]["file"]["level"] = level
 
-    if 'fmt_console' in new_logging_configs:
-        fmt = new_logging_configs['fmt_console']
-        logging_configs['formatters']['console']['format'] = fmt
+    if "fmt_console" in new_logging_configs:
+        fmt = new_logging_configs["fmt_console"]
+        logging_configs["formatters"]["console"]["format"] = fmt
 
-    if 'fmt_logfile' in new_logging_configs:
-        fmt = new_logging_configs['fmt_logfile']
-        logging_configs['formatters']['file']['format'] = fmt
+    if "fmt_logfile" in new_logging_configs:
+        fmt = new_logging_configs["fmt_logfile"]
+        logging_configs["formatters"]["file"]["format"] = fmt
 
-    if 'datefmt_console' in new_logging_configs:
-        fmt = new_logging_configs['datefmt_console']
-        logging_configs['formatters']['console']['datefmt'] = fmt
+    if "datefmt_console" in new_logging_configs:
+        fmt = new_logging_configs["datefmt_console"]
+        logging_configs["formatters"]["console"]["datefmt"] = fmt
 
-    if 'datefmt_logfile' in new_logging_configs:
-        fmt = new_logging_configs['datefmt_logfile']
-        logging_configs['formatters']['file']['datefmt'] = fmt
+    if "datefmt_logfile" in new_logging_configs:
+        fmt = new_logging_configs["datefmt_logfile"]
+        logging_configs["formatters"]["file"]["datefmt"] = fmt
 
-    log_levels = new_logging_configs.get('granular_levels', {})
+    log_levels = new_logging_configs.get("granular_levels", {})
 
     for logger_name, level in log_levels.items():
         level = _normalize_log_level(level)
         try:
-            logging_configs['loggers'][logger_name]['level'] = level
+            logging_configs["loggers"][logger_name]["level"] = level
         except KeyError:
-            logging_configs['loggers'][logger_name] = {'level': level}
+            logging_configs["loggers"][logger_name] = {"level": level}
 
     set_logging_config(logging_configs)

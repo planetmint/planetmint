@@ -14,7 +14,7 @@ import time
 
 def test_basic():
     # Setup up connection to Planetmint integration test nodes
-    hosts = Hosts('/shared/hostnames')
+    hosts = Hosts("/shared/hostnames")
     pm_alpha = hosts.get_connection()
 
     # genarate a keypair
@@ -22,62 +22,64 @@ def test_basic():
 
     # create a digital asset for Alice
     game_boy_token = {
-        'data': {
-            'hash': '0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF',
-            'storageID': '0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF',
+        "data": {
+            "hash": "0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF",
+            "storageID": "0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF",
         },
     }
 
     # prepare the transaction with the digital asset and issue 10 tokens to bob
     prepared_creation_tx = pm_alpha.transactions.prepare(
-        operation='CREATE',
+        operation="CREATE",
         metadata={
-            'hash': '0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF',
-            'storageID': '0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF', },
+            "hash": "0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF",
+            "storageID": "0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF",
+        },
         signers=alice.public_key,
         recipients=[([alice.public_key], 10)],
-        asset=game_boy_token)
+        asset=game_boy_token,
+    )
 
     # fulfill and send the transaction
-    fulfilled_creation_tx = pm_alpha.transactions.fulfill(
-        prepared_creation_tx,
-        private_keys=alice.private_key)
+    fulfilled_creation_tx = pm_alpha.transactions.fulfill(prepared_creation_tx, private_keys=alice.private_key)
     pm_alpha.transactions.send_commit(fulfilled_creation_tx)
     time.sleep(1)
 
-    creation_tx_id = fulfilled_creation_tx['id']
+    creation_tx_id = fulfilled_creation_tx["id"]
 
     # Assert that transaction is stored on all planetmint nodes
     hosts.assert_transaction(creation_tx_id)
 
     # Transfer
     # create the output and inout for the transaction
-    transfer_asset = {'id': creation_tx_id}
+    transfer_asset = {"id": creation_tx_id}
     output_index = 0
-    output = fulfilled_creation_tx['outputs'][output_index]
-    transfer_input = {'fulfillment': output['condition']['details'],
-                      'fulfills': {'output_index': output_index,
-                                   'transaction_id': transfer_asset['id']},
-                      'owners_before': output['public_keys']}
+    output = fulfilled_creation_tx["outputs"][output_index]
+    transfer_input = {
+        "fulfillment": output["condition"]["details"],
+        "fulfills": {"output_index": output_index, "transaction_id": transfer_asset["id"]},
+        "owners_before": output["public_keys"],
+    }
 
     # prepare the transaction and use 3 tokens
     prepared_transfer_tx = pm_alpha.transactions.prepare(
-        operation='TRANSFER',
+        operation="TRANSFER",
         asset=transfer_asset,
         inputs=transfer_input,
-        metadata={'hash': '0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF',
-                  'storageID': '0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF', },
-        recipients=[([alice.public_key], 10)])
+        metadata={
+            "hash": "0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF",
+            "storageID": "0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF",
+        },
+        recipients=[([alice.public_key], 10)],
+    )
 
     # fulfill and send the transaction
-    fulfilled_transfer_tx = pm_alpha.transactions.fulfill(
-        prepared_transfer_tx,
-        private_keys=alice.private_key)
+    fulfilled_transfer_tx = pm_alpha.transactions.fulfill(prepared_transfer_tx, private_keys=alice.private_key)
     sent_transfer_tx = pm_alpha.transactions.send_commit(fulfilled_transfer_tx)
 
     time.sleep(1)
 
-    transfer_tx_id = sent_transfer_tx['id']
+    transfer_tx_id = sent_transfer_tx["id"]
 
     # Assert that transaction is stored on both planetmint nodes
     hosts.assert_transaction(transfer_tx_id)

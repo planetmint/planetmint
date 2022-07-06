@@ -41,13 +41,16 @@ class TransactionDecompose:
             "outputs": [],
             "keys": [],
             "metadata": None,
-            "asset": None
+            "asset": None,
         }
 
     def get_map(self, dictionary: dict = None):
 
-        return _save_keys_order(dictionary=dictionary) if dictionary is not None else _save_keys_order(
-            dictionary=self._transaction)
+        return (
+            _save_keys_order(dictionary=dictionary)
+            if dictionary is not None
+            else _save_keys_order(dictionary=self._transaction)
+        )
 
     def __create_hash(self, n: int):
         return token_hex(n)
@@ -71,13 +74,17 @@ class TransactionDecompose:
         input_index = 0
         for _input in self._transaction["inputs"]:
 
-            _inputs.append((self._transaction["id"],
-                            _input["fulfillment"],
-                            _input["owners_before"],
-                            _input["fulfills"]["transaction_id"] if _input["fulfills"] is not None else "",
-                            str(_input["fulfills"]["output_index"]) if _input["fulfills"] is not None else "",
-                            self.__create_hash(7),
-                            input_index))
+            _inputs.append(
+                (
+                    self._transaction["id"],
+                    _input["fulfillment"],
+                    _input["owners_before"],
+                    _input["fulfills"]["transaction_id"] if _input["fulfills"] is not None else "",
+                    str(_input["fulfills"]["output_index"]) if _input["fulfills"] is not None else "",
+                    self.__create_hash(7),
+                    input_index,
+                )
+            )
             input_index = input_index + 1
         return _inputs
 
@@ -88,27 +95,29 @@ class TransactionDecompose:
         for _output in self._transaction["outputs"]:
             output_id = self.__create_hash(7)
             if _output["condition"]["details"].get("subconditions") is None:
-                tmp_output = (self._transaction["id"],
-                              _output["amount"],
-                              _output["condition"]["uri"],
-                              _output["condition"]["details"]["type"],
-                              _output["condition"]["details"]["public_key"],
-                              output_id,
-                              None,
-                              None,
-                              output_index
-                              )
+                tmp_output = (
+                    self._transaction["id"],
+                    _output["amount"],
+                    _output["condition"]["uri"],
+                    _output["condition"]["details"]["type"],
+                    _output["condition"]["details"]["public_key"],
+                    output_id,
+                    None,
+                    None,
+                    output_index,
+                )
             else:
-                tmp_output = (self._transaction["id"],
-                              _output["amount"],
-                              _output["condition"]["uri"],
-                              _output["condition"]["details"]["type"],
-                              None,
-                              output_id,
-                              _output["condition"]["details"]["threshold"],
-                              _output["condition"]["details"]["subconditions"],
-                              output_index
-                              )
+                tmp_output = (
+                    self._transaction["id"],
+                    _output["amount"],
+                    _output["condition"]["uri"],
+                    _output["condition"]["details"]["type"],
+                    None,
+                    output_id,
+                    _output["condition"]["details"]["threshold"],
+                    _output["condition"]["details"]["subconditions"],
+                    output_index,
+                )
 
             _outputs.append(tmp_output)
             output_index = output_index + 1
@@ -121,10 +130,7 @@ class TransactionDecompose:
 
     def __prepare_transaction(self):
         _map = self.get_map()
-        return (self._transaction["id"],
-                self._transaction["operation"],
-                self._transaction["version"],
-                _map)
+        return (self._transaction["id"], self._transaction["operation"], self._transaction["version"], _map)
 
     def convert_to_tuple(self):
         self._metadata_check()
@@ -138,7 +144,6 @@ class TransactionDecompose:
 
 
 class TransactionCompose:
-
     def __init__(self, db_results):
         self.db_results = db_results
         self._map = self.db_results["transaction"][3]

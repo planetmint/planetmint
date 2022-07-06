@@ -21,7 +21,7 @@ class LatestBlock(Resource):
             A JSON string containing the data about the block.
         """
 
-        pool = current_app.config['bigchain_pool']
+        pool = current_app.config["bigchain_pool"]
 
         with pool() as planet:
             block = planet.get_latest_block()
@@ -43,7 +43,7 @@ class BlockApi(Resource):
             A JSON string containing the data about the block.
         """
 
-        pool = current_app.config['bigchain_pool']
+        pool = current_app.config["bigchain_pool"]
 
         with pool() as planet:
             block = planet.get_block(block_id=block_id)
@@ -64,12 +64,12 @@ class BlockListApi(Resource):
             "valid", "invalid", "undecided".
         """
         parser = reqparse.RequestParser()
-        parser.add_argument('transaction_id', type=str, required=True)
+        parser.add_argument("transaction_id", type=str, required=True)
 
         args = parser.parse_args(strict=True)
-        tx_id = args['transaction_id']
+        tx_id = args["transaction_id"]
 
-        pool = current_app.config['bigchain_pool']
+        pool = current_app.config["bigchain_pool"]
 
         with pool() as planet:
             blocks = planet.get_block_containing_tx(tx_id)

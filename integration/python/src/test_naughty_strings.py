@@ -27,6 +27,40 @@ from planetmint_driver.exceptions import BadRequest
 from .helper.hosts import Hosts
 
 naughty_strings = blns.all()
+skipped_naughty_strings = [
+    "1.00",
+    "$1.00",
+    "-1.00",
+    "-$1.00",
+    "0.00",
+    "0..0",
+    ".",
+    "0.0.0",
+    "-.",
+    ",./;'[]\\-=",
+    "ثم نفس سقطت وبالتحديد،, جزيرتي باستخدام أن دنو. إذ هنا؟ الستار وتنصيب كان. أهّل ايطاليا، بريطانيا-فرنسا قد أخذ. سليمان، إتفاقية بين ما, يذكر الحدود أي بعد, معاملة بولندا، الإطلاق عل إيو.",
+    "test\x00",
+    "Ṱ̺̺̕o͞ ̷i̲̬͇̪͙n̝̗͕v̟̜̘̦͟o̶̙̰̠kè͚̮̺̪̹̱̤ ̖t̝͕̳̣̻̪͞h̼͓̲̦̳̘̲e͇̣̰̦̬͎ ̢̼̻̱̘h͚͎͙̜̣̲ͅi̦̲̣̰̤v̻͍e̺̭̳̪̰-m̢iͅn̖̺̞̲̯̰d̵̼̟͙̩̼̘̳ ̞̥̱̳̭r̛̗̘e͙p͠r̼̞̻̭̗e̺̠̣͟s̘͇̳͍̝͉e͉̥̯̞̲͚̬͜ǹ̬͎͎̟̖͇̤t͍̬̤͓̼̭͘ͅi̪̱n͠g̴͉ ͏͉ͅc̬̟h͡a̫̻̯͘o̫̟̖͍̙̝͉s̗̦̲.̨̹͈̣",
+    "̡͓̞ͅI̗̘̦͝n͇͇͙v̮̫ok̲̫̙͈i̖͙̭̹̠̞n̡̻̮̣̺g̲͈͙̭͙̬͎ ̰t͔̦h̞̲e̢̤ ͍̬̲͖f̴̘͕̣è͖ẹ̥̩l͖͔͚i͓͚̦͠n͖͍̗͓̳̮g͍ ̨o͚̪͡f̘̣̬ ̖̘͖̟͙̮c҉͔̫͖͓͇͖ͅh̵̤̣͚͔á̗̼͕ͅo̼̣̥s̱͈̺̖̦̻͢.̛̖̞̠̫̰",
+    "̗̺͖̹̯͓Ṯ̤͍̥͇͈h̲́e͏͓̼̗̙̼̣͔ ͇̜̱̠͓͍ͅN͕͠e̗̱z̘̝̜̺͙p̤̺̹͍̯͚e̠̻̠͜r̨̤͍̺̖͔̖̖d̠̟̭̬̝͟i̦͖̩͓͔̤a̠̗̬͉̙n͚͜ ̻̞̰͚ͅh̵͉i̳̞v̢͇ḙ͎͟-҉̭̩̼͔m̤̭̫i͕͇̝̦n̗͙ḍ̟ ̯̲͕͞ǫ̟̯̰̲͙̻̝f ̪̰̰̗̖̭̘͘c̦͍̲̞͍̩̙ḥ͚a̮͎̟̙͜ơ̩̹͎s̤.̝̝ ҉Z̡̖̜͖̰̣͉̜a͖̰͙̬͡l̲̫̳͍̩g̡̟̼̱͚̞̬ͅo̗͜.̟",
+    "̦H̬̤̗̤͝e͜ ̜̥̝̻͍̟́w̕h̖̯͓o̝͙̖͎̱̮ ҉̺̙̞̟͈W̷̼̭a̺̪͍į͈͕̭͙̯̜t̶̼̮s̘͙͖̕ ̠̫̠B̻͍͙͉̳ͅe̵h̵̬͇̫͙i̹͓̳̳̮͎̫̕n͟d̴̪̜̖ ̰͉̩͇͙̲͞ͅT͖̼͓̪͢h͏͓̮̻e̬̝̟ͅ ̤̹̝W͙̞̝͔͇͝ͅa͏͓͔̹̼̣l̴͔̰̤̟͔ḽ̫.͕",
+    '"><script>alert(document.title)</script>',
+    "'><script>alert(document.title)</script>",
+    "><script>alert(document.title)</script>",
+    "</script><script>alert(document.title)</script>",
+    "< / script >< script >alert(document.title)< / script >",
+    " onfocus=alert(document.title) autofocus ",
+    '" onfocus=alert(document.title) autofocus ',
+    "' onfocus=alert(document.title) autofocus ",
+    "＜script＞alert(document.title)＜/script＞",
+    "/dev/null; touch /tmp/blns.fail ; echo",
+    "../../../../../../../../../../../etc/passwd%00",
+    "../../../../../../../../../../../etc/hosts",
+    "() { 0; }; touch /tmp/blns.shellshock1.fail;",
+    "() { _; } >_[$($())] { touch /tmp/blns.shellshock2.fail; }",
+]
+
+naughty_strings = [naughty for naughty in naughty_strings if naughty not in skipped_naughty_strings]
 
 
 # This is our base test case, but we'll reuse it to send naughty strings as both keys and values.
@@ -34,7 +68,7 @@ def send_naughty_tx(asset, metadata):
     # ## Set up a connection to Planetmint
     # Check [test_basic.py](./test_basic.html) to get some more details
     # about the endpoint.
-    hosts = Hosts('/shared/hostnames')
+    hosts = Hosts("/shared/hostnames")
     pm = hosts.get_connection()
 
     # Here's Alice.
@@ -42,15 +76,11 @@ def send_naughty_tx(asset, metadata):
 
     # Alice is in a naughty mood today, so she creates a tx with some naughty strings
     prepared_transaction = pm.transactions.prepare(
-        operation='CREATE',
-        signers=alice.public_key,
-        asset=asset,
-        metadata=metadata)
+        operation="CREATE", signers=alice.public_key, asset=asset, metadata=metadata
+    )
 
     # She fulfills the transaction
-    fulfilled_transaction = pm.transactions.fulfill(
-        prepared_transaction,
-        private_keys=alice.private_key)
+    fulfilled_transaction = pm.transactions.fulfill(prepared_transaction, private_keys=alice.private_key)
 
     # The fulfilled tx gets sent to the pm network
     try:
@@ -59,23 +89,24 @@ def send_naughty_tx(asset, metadata):
         sent_transaction = e
 
     # If her key contained a '.', began with a '$', or contained a NUL character
-    regex = r'.*\..*|\$.*|.*\x00.*'
+    regex = r".*\..*|\$.*|.*\x00.*"
     key = next(iter(metadata))
     if re.match(regex, key):
         # Then she expects a nicely formatted error code
         status_code = sent_transaction.status_code
         error = sent_transaction.error
         regex = (
-            r'\{\s*\n*'
+            r"\{\s*\n*"
             r'\s*"message":\s*"Invalid transaction \(ValidationError\):\s*'
-            r'Invalid key name.*The key name cannot contain characters.*\n*'
+            r"Invalid key name.*The key name cannot contain characters.*\n*"
             r'\s*"status":\s*400\n*'
-            r'\s*\}\n*')
+            r"\s*\}\n*"
+        )
         assert status_code == 400
         assert re.fullmatch(regex, error), sent_transaction
     # Otherwise, she expects to see her transaction in the database
-    elif 'id' in sent_transaction.keys():
-        tx_id = sent_transaction['id']
+    elif "id" in sent_transaction.keys():
+        tx_id = sent_transaction["id"]
         assert pm.transactions.retrieve(tx_id)
     # If neither condition was true, then something weird happened...
     else:
@@ -85,8 +116,8 @@ def send_naughty_tx(asset, metadata):
 @pytest.mark.parametrize("naughty_string", naughty_strings, ids=naughty_strings)
 def test_naughty_keys(naughty_string):
 
-    asset = {'data': {naughty_string: 'nice_value'}}
-    metadata = {naughty_string: 'nice_value'}
+    asset = {"data": {naughty_string: "nice_value"}}
+    metadata = {naughty_string: "nice_value"}
 
     send_naughty_tx(asset, metadata)
 
@@ -94,7 +125,7 @@ def test_naughty_keys(naughty_string):
 @pytest.mark.parametrize("naughty_string", naughty_strings, ids=naughty_strings)
 def test_naughty_values(naughty_string):
 
-    asset = {'data': {'nice_key': naughty_string}}
-    metadata = {'nice_key': naughty_string}
+    asset = {"data": {"nice_key": naughty_string}}
+    metadata = {"nice_key": naughty_string}
 
     send_naughty_tx(asset, metadata)
