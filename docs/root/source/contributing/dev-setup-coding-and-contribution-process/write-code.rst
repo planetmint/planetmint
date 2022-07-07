@@ -12,7 +12,7 @@ Know What You Want to Write Code to Do
 
 Do you want to write code to resolve an open issue (bug)? Which one?
 
-Do you want to implement a Planetmint Enhancement Proposal (PEP)? Which one?
+Do you want to implement a Planetmint Refinement Proposal (PRP)? Which one?
 
 You should know why you want to write code before you go any farther.
 
@@ -21,7 +21,7 @@ Refresh Yourself about the C4 Process
 -------------------------------------
 
 C4 is the Collective Code Construction Contract. It's quite short:
-`re-reading it will only take a few minutes <https://github.com/planetmint/BEPs/tree/master/1>`_.
+`re-reading it will only take a few minutes <https://github.com/bigchaindb/BEPs/tree/master/1>`_.
 
 
 Set Up Your Local Machine. Here's How.
@@ -69,7 +69,7 @@ Set Up Your Local Machine. Here's How.
 Before You Start Writing Code
 -----------------------------
 
-Read `BEP-24 <https://github.com/planetmint/BEPs/tree/master/24>`_
+Read `BEP-24 <https://github.com/bigchaindb/BEPs/tree/master/24>`_
 so you know what to do to ensure that your changes (i.e. your future pull request) can be merged.
 It's easy and will save you some hassle later on.
 
