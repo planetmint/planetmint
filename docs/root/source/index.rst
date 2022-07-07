@@ -7,7 +7,7 @@
 Planetmint
 ==========
 
-Meet Planetmint. The blockchain database.
+Meet Planetmint. The metadata blockchain.
 
 It has some database characteristics and some blockchain `properties <properties.html>`_,
 including decentralization, immutability and native support for assets.
