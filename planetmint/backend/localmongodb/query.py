@@ -1,3 +1,4 @@
+from functools import singledispatch
 # Copyright © 2020 Interplanetary Database Association e.V.,
 # Planetmint and IPDB software contributors.
 # SPDX-License-Identifier: (Apache-2.0 AND CC-BY-4.0)
@@ -259,8 +260,8 @@ def store_pre_commit_state(conn, state):
 
 
 @register_query(LocalMongoDBConnection)
-def get_pre_commit_state(conn):
-    return conn.run(conn.collection('pre_commit').find_one())
+def get_pre_commit_state(connection):
+    return connection.run(connection.collection('pre_commit').find_one())
 
 
 @register_query(LocalMongoDBConnection)

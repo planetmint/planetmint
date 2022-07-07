@@ -195,7 +195,6 @@ class App(BaseApplication):
         self.abort_if_abci_chain_is_not_synced()
 
         chain_shift = 0 if self.chain is None else self.chain['height']
-
         height = request_end_block.height + chain_shift
         self.new_height = height
 
@@ -254,9 +253,14 @@ class App(BaseApplication):
 
 
 def rollback(b):
-    pre_commit = b.get_pre_commit_state()
+    pre_commit = None
 
-    if pre_commit is None:
+    try:
+        pre_commit = b.get_pre_commit_state()
+    except Exception as e:
+        logger.exception("Unexpected error occurred while executing get_pre_commit_state()", e)
+
+    if pre_commit is None or len(pre_commit) == 0:
         # the pre_commit record is first stored in the first `end_block`
         return
 

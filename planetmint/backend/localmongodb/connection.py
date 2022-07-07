@@ -5,19 +5,17 @@
 
 import logging
 from ssl import CERT_REQUIRED
-
 import pymongo
 
-from planetmint.backend.connection import Connection
+from planetmint.config import Config
 from planetmint.backend.exceptions import (DuplicateKeyError,
                                            OperationError,
                                            ConnectionError)
-from planetmint.backend.utils import get_planetmint_config_value
 from planetmint.transactions.common.exceptions import ConfigurationError
 from planetmint.utils import Lazy
+from planetmint.backend.connection import Connection
 
 logger = logging.getLogger(__name__)
-
 
 class LocalMongoDBConnection(Connection):
 
@@ -34,15 +32,19 @@ class LocalMongoDBConnection(Connection):
         """
 
         super().__init__(**kwargs)
-        self.replicaset = replicaset or get_planetmint_config_value('replicaset')
-        self.ssl = ssl if ssl is not None else get_planetmint_config_value('ssl', False)
-        self.login = login or get_planetmint_config_value('login')
-        self.password = password or get_planetmint_config_value('password')
-        self.ca_cert = ca_cert or get_planetmint_config_value('ca_cert')
-        self.certfile = certfile or get_planetmint_config_value('certfile')
-        self.keyfile = keyfile or get_planetmint_config_value('keyfile')
-        self.keyfile_passphrase = keyfile_passphrase or get_planetmint_config_value('keyfile_passphrase')
-        self.crlfile = crlfile or get_planetmint_config_value('crlfile')
+        self.replicaset = replicaset or Config().get()['database']['replicaset']
+        self.ssl = ssl if ssl is not None else Config().get()['database']['ssl']
+        self.login = login or Config().get()['database']['login']
+        self.password = password or Config().get()['database']['password']
+        self.ca_cert = ca_cert or Config().get()['database']['ca_cert']
+        self.certfile = certfile or Config().get()['database']['certfile']
+        self.keyfile = keyfile or Config().get()['database']['keyfile']
+        self.keyfile_passphrase = keyfile_passphrase or Config().get()['database']['keyfile_passphrase']
+        self.crlfile = crlfile or Config().get()['database']['crlfile']
+        if not self.ssl:
+            self.ssl = False
+        if not self.keyfile_passphrase:
+            self.keyfile_passphrase = None
 
     @property
     def db(self):

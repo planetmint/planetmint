@@ -8,7 +8,7 @@
 from functools import singledispatch
 import logging
 
-import planetmint
+from planetmint.config import Config
 from planetmint.backend.connection import connect
 from planetmint.transactions.common.exceptions import ValidationError
 from planetmint.transactions.common.utils import (
@@ -19,6 +19,10 @@ logger = logging.getLogger(__name__)
 # Tables/collections that every backend database must create
 TABLES = ('transactions', 'blocks', 'assets', 'metadata',
           'validators', 'elections', 'pre_commit', 'utxos', 'abci_chains')
+
+SPACE_NAMES = ("abci_chains", "assets", "blocks", "blocks_tx",
+               "elections", "meta_data", "pre_commits", "validators",
+               "transactions", "inputs", "outputs", "keys", "utxos")
 
 VALID_LANGUAGES = ('danish', 'dutch', 'english', 'finnish', 'french', 'german',
                    'hungarian', 'italian', 'norwegian', 'portuguese', 'romanian',
@@ -80,7 +84,7 @@ def init_database(connection=None, dbname=None):
     """
 
     connection = connection or connect()
-    dbname = dbname or planetmint.config['database']['name']
+    dbname = dbname or Config().get()['database']['name']
 
     create_database(connection, dbname)
     create_tables(connection, dbname)
@@ -98,7 +102,7 @@ def validate_language_key(obj, key):
         Raises:
             ValidationError: will raise exception in case language is not valid.
     """
-    backend = planetmint.config['database']['backend']
+    backend = Config().get()['database']['backend']
 
     if backend == 'localmongodb':
         data = obj.get(key, {})

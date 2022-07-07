@@ -13,7 +13,7 @@ from tendermint.abci import types_pb2 as types
 from tendermint.crypto import keys_pb2
 
 from planetmint import App
-from planetmint.backend.localmongodb import query
+from planetmint.backend import query
 from planetmint.transactions.common.crypto import generate_key_pair
 from planetmint.core import (OkCode,
                              CodeTypeError,
@@ -292,7 +292,6 @@ def test_deliver_tx__double_spend_fails(b, init_chain_request):
 
     app.end_block(types.RequestEndBlock(height=99))
     app.commit()
-
     assert b.get_transaction(tx.id).id == tx.id
     result = app.deliver_tx(encode_tx_to_bytes(tx))
     assert result.code == CodeTypeError

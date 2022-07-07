@@ -5,11 +5,11 @@ SPDX-License-Identifier: (Apache-2.0 AND CC-BY-4.0)
 Code is Apache-2.0 and docs are CC-BY-4.0
 --->
 
-# Set Up Planetmint, MongoDB and Tendermint
+# Set Up Planetmint, Tarantool and Tendermint
 
 We now install and configure software that must run
 in every Planetmint node: Planetmint Server,
-MongoDB and Tendermint.
+Tarantool and Tendermint.
 
 ## Install Planetmint Server
 
@@ -69,25 +69,21 @@ under `"wsserver"`:
 
 where `bnode.example.com` should be replaced by your node's actual subdomain.
 
-## Install (and Start) MongoDB
+## Install (and Start) Tarantool
 
-Install a recent version of MongoDB.
+Install a recent version of Tarantool.
 Planetmint Server requires version 3.4 or newer.
 
 ```
-sudo apt install mongodb
+curl -L https://tarantool.io/DDJLJzv/release/2.8/installer.sh | bash
+
+sudo apt-get -y install tarantool
 ```
 
-If you install MongoDB using the above command (which installs the `mongodb` package),
-it also configures MongoDB, starts MongoDB (in the background),
-and installs a MongoDB startup script
-(so that MongoDB will be started automatically when the machine is restarted).
+## Sharding with Tarantool
 
-Note: The `mongodb` package is _not_ the official MongoDB package
-from MongoDB the company. If you want to install the official MongoDB package,
-please see
-[the MongoDB documentation](https://docs.mongodb.com/manual/installation/).
-Note that installing the official package _doesn't_ also start MongoDB.
+If the load on a single node becomes to large Tarantool allows for sharding to scale horizontally.
+For more information on how to setup sharding with Tarantool please refer to the [official Tarantool documentation](https://www.tarantool.io/en/doc/latest/reference/reference_rock/vshard/vshard_index/).
 
 ## Install Tendermint
 

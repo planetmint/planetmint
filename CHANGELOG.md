@@ -25,6 +25,18 @@ For reference, the possible headings are:
 * **Known Issues**
 * **Notes**
 
+## [Unreleased]
+
+## [1.0.0]
+### Feature Update
+Tarantool integration
+
+## [0.9.8] - 2022-06-27
+
+### Feature Update
+Changed license to AGPLv3
+
+
 ## [0.9.7] - 2022-06-17
 
 ### Feature Update
