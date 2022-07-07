@@ -23,7 +23,6 @@ Planetmint is the blockchain database. This repository is for _Planetmint Server
 ## The Basics
 
 * [Try the Quickstart](https://docs.planetmint.io/en/latest/introduction/index.html#quickstart)
-* [Check out the _Hitchiker's Guide to BigchainDB_](https://www.bigchaindb.com/developers/guide/) <!-- No corresponding PM page -->
 
 ## Run and Test Planetmint Server from the `master` Branch
 
@@ -72,5 +71,3 @@ To view all commands available, run `make`.
 ## Legal
 
 * [Licenses](LICENSES.md) - open source & open content
-* [Imprint](https://www.planetmint.io/imprint/) <!-- Not working -->
-* [Contact Us](https://www.planetmint.io/contact/) <!-- Not working -->
