@@ -27,7 +27,10 @@ For reference, the possible headings are:
 
 ## [Unreleased]
 
-## [1.0.0]
+## [1.0.1] - 2022-07-07
+updated documentation
+
+## [1.0.0] - 2022-07-05
 ### Feature Update
 Tarantool integration
 
