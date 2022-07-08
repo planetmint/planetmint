@@ -59,7 +59,7 @@ def test_write_assets(db_conn):
 
     # check that 3 assets were written to the database
     documents = query.get_assets(assets_ids=[asset["id"] for asset in assets], connection=db_conn)
-    documents = sorted(documents, key=lambda k: k["id"], reverse=False)  # sorting to fit test-case
+
     assert len(documents) == 3
     assert list(documents)[0][0] == assets[:-1][0]
 
