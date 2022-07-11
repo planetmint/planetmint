@@ -13,7 +13,7 @@ Planetmint is a metadata blockchain. This introduction gives an overview about h
 
 
 ## The IPDB Testnet - sending transactions
-The IPDB foundation hosta a testnet server that is reset every night at 4am UTC.
+The IPDB foundation hosts a testnet server that is reset every night at 4am UTC.
 
 The following sequence shows a simple asset notarization / attestion on that testnet:
 Create a file named notarize.py
