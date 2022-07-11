@@ -80,7 +80,10 @@ curl -L https://tarantool.io/DDJLJzv/release/2.8/installer.sh | bash
 sudo apt-get -y install tarantool
 ```
 
+## Sharding with Tarantool
 
+If the load on a single node becomes to large Tarantool allows for sharding to scale horizontally.
+For more information on how to setup sharding with Tarantool please refer to the [official Tarantool documentation](https://www.tarantool.io/en/doc/latest/reference/reference_rock/vshard/vshard_index/).
 
 ## Install Tendermint
 
