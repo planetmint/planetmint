@@ -20,6 +20,13 @@ BACKENDS = {
 
 logger = logging.getLogger(__name__)
 
+class DBSingleton(type):
+    _instances = {}
+
+    def __call__(cls, *args, **kwargs):
+        if cls not in cls._instances:
+            cls._instances[cls] = super(DBSingleton, cls).__call__(*args, **kwargs)
+        return cls._instances[cls]
 
 def connect(host: str = None, port: int = None, login: str = None, password: str = None, backend: str = None,
                **kwargs):
@@ -81,7 +88,7 @@ def _kwargs_parser(key, kwargs):
         return kwargs[key]
     return None
 
-class Connection:
+class Connection(metaclass=DBSingleton):
     """Connection class interface.
     All backend implementations should provide a connection class that inherits
     from and implements this class.
