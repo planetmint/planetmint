@@ -1,5 +1,5 @@
 # DNS name of the planetmint node
-NODE_FQDN="test.planetmint.com"
+NODE_FQDN="test.planetmint.io"
 
 # NODE_FRONTEND_PORT is the port number on which this node's services
 # are available to external clients. Default is 443(https)
