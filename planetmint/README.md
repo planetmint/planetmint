@@ -17,7 +17,7 @@ The `Planetmint` class is defined here.  Most node-level operations and database
 
 ### [`models.py`](./models.py)
 
-`Block`, `Transaction`, and `Asset` classes are defined here.  The classes mirror the block and transaction structure from the [documentation](https://docs.planetmint.com/projects/server/en/latest/data-models/index.html), but also include methods for validation and signing.
+`Block`, `Transaction`, and `Asset` classes are defined here.  The classes mirror the block and transaction structure from the documentation, but also include methods for validation and signing.
 
 ### [`validation.py`](./validation.py)
 
@@ -35,7 +35,7 @@ Methods for managing the configuration, including loading configuration files, a
 
 ### [`commands`](./commands)
 
-Contains code for the [CLI](https://docs.planetmint.com/projects/server/en/latest/server-reference/planetmint-cli.html) for Planetmint.
+Contains code for the [CLI](https://docs.planetmint.io/en/latest/tools/index.html#command-line-interface-cli) for Planetmint.
 
 ### [`db`](./db)
 
