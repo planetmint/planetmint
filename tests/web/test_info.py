@@ -10,7 +10,7 @@ from unittest import mock
 @mock.patch('planetmint.version.__version__', 'tsttst')
 def test_api_root_endpoint(client, wsserver_base_url):
     res = client.get('/')
-    docs_url = ['https://docs.planetmint.com/projects/server/en/vtsttst',
+    docs_url = ['https://docs.planetmint.io/projects/server/en/vtsttst',
                 '/http-client-server-api.html']
     assert res.json == {
         'api': {
@@ -28,7 +28,7 @@ def test_api_root_endpoint(client, wsserver_base_url):
                 'validators': '/api/v1/validators',
             }
         },
-        'docs': 'https://docs.planetmint.com/projects/server/en/vtsttst/',
+        'docs': 'https://docs.planetmint.io/projects/server/en/vtsttst/',
         'version': 'tsttst',
         'software': 'Planetmint',
     }
@@ -37,7 +37,7 @@ def test_api_root_endpoint(client, wsserver_base_url):
 @mock.patch('planetmint.version.__short_version__', 'tst')
 @mock.patch('planetmint.version.__version__', 'tsttst')
 def test_api_v1_endpoint(client, wsserver_base_url):
-    docs_url = ['https://docs.planetmint.com/projects/server/en/vtsttst',
+    docs_url = ['https://docs.planetmint.io/projects/server/en/vtsttst',
                 '/http-client-server-api.html']
     api_v1_info = {
         'docs': ''.join(docs_url),

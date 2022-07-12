@@ -26,7 +26,7 @@ BANNER = """
 *                                                                          *
 *   You can send HTTP requests via the HTTP API documented in the          *
 *   Planetmint Server docs at:                                             *
-*    https://planetmint.com/http-api                                       *
+*    https://planetmint.io/http-api                                       *
 *                                                                          *
 *   Listening to client connections on: {:<15}                    *
 *                                                                          *
