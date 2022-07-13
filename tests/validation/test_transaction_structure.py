@@ -201,11 +201,11 @@ def test_low_amounts(b, user_sk, create_tx, signed_transfer_tx, alice):
 def test_high_amounts(b, create_tx, alice):
     # Should raise a SchemaValidationError - don't want to allow ridiculously
     # large numbers to get converted to int
-    create_tx.outputs[0].amount = 10 ** 21
+    create_tx.outputs[0].amount = 10**21
     create_tx.sign([alice.private_key])
     validate_raises(create_tx)
     # Should raise AmountError
-    create_tx.outputs[0].amount = 9 * 10 ** 18 + 1
+    create_tx.outputs[0].amount = 9 * 10**18 + 1
     create_tx._id = None
     create_tx.sign([alice.private_key])
     validate_raises(create_tx, AmountError)

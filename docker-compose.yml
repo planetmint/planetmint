@@ -119,12 +119,6 @@ services:
     volumes:
       - ./docs/root/build/html:/usr/share/nginx/html
 
-  # Lints/Formats project according to PEP8
-  black:
-    image: cytopia/black
-    volumes:
-      - $PWD:/data
-
   # Remove all build, test, coverage and Python artifacts
   clean:
     image: alpine

@@ -25,7 +25,7 @@ class Output(object):
                 owners before a Transaction was confirmed.
     """
 
-    MAX_AMOUNT = 9 * 10 ** 18
+    MAX_AMOUNT = 9 * 10**18
 
     def __init__(self, fulfillment, public_keys=None, amount=1):
         """Create an instance of a :class:`~.Output`.
