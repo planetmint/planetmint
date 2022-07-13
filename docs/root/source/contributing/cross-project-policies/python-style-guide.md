@@ -82,11 +82,11 @@ x = 'name: {}; score: {}'.format(name, n)
 we use the `format()` version. The [official Python documentation says](https://docs.python.org/2/library/stdtypes.html#str.format), "This method of string formatting is the new standard in Python 3, and should be preferred to the % formatting described in String Formatting Operations in new code."
 
 
-## Running the Flake8 Style Checker
+## Running the Black Style Checker
 
-We use [Flake8](http://flake8.pycqa.org/en/latest/index.html) to check our Python code style. Once you have it installed, you can run it using:
+We use [Black](https://black.readthedocs.io/en/stable/) to check our Python code style. Once you have it installed, you can run it using:
 ```text
-flake8 --max-line-length 119 planetmint/
+black --check -l 119 .
 ```
 
 

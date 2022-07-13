@@ -94,8 +94,7 @@ dev_require = ["ipdb", "ipython", "watchdog", "logging_tree", "pre-commit", "twi
 tests_require = [
     "coverage",
     "pep8",
-    "flake8",
-    "flake8-quotes==0.8.1",
+    "black",
     "hypothesis>=5.3.0",
     "pytest>=3.0.0",
     "pytest-cov==2.8.1",
