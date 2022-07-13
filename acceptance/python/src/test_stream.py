@@ -35,10 +35,10 @@ def test_stream():
     # ## Set up the test
     # We use the env variable `BICHAINDB_ENDPOINT` to know where to connect.
     # Check [test_basic.py](./test_basic.html) for more information.
-    BDB_ENDPOINT = os.environ.get('PLANETMINT_ENDPOINT')
+    BDB_ENDPOINT = os.environ.get("PLANETMINT_ENDPOINT")
 
     # *That's pretty bad, but let's do like this for now.*
-    WS_ENDPOINT = 'ws://{}:9985/api/v1/streams/valid_transactions'.format(BDB_ENDPOINT.rsplit(':')[0])
+    WS_ENDPOINT = "ws://{}:9985/api/v1/streams/valid_transactions".format(BDB_ENDPOINT.rsplit(":")[0])
 
     bdb = Planetmint(BDB_ENDPOINT)
 
@@ -90,11 +90,11 @@ def test_stream():
     # random `uuid`.
     for _ in range(10):
         tx = bdb.transactions.fulfill(
-                bdb.transactions.prepare(
-                    operation='CREATE',
-                    signers=alice.public_key,
-                    asset={'data': {'uuid': str(uuid4())}}),
-                private_keys=alice.private_key)
+            bdb.transactions.prepare(
+                operation="CREATE", signers=alice.public_key, asset={"data": {"uuid": str(uuid4())}}
+            ),
+            private_keys=alice.private_key,
+        )
         # We don't want to wait for each transaction to be in a block. By using
         # `async` mode, we make sure that the driver returns as soon as the
         # transaction is pushed to the Planetmint API. Remember: we expect all
@@ -104,7 +104,7 @@ def test_stream():
         bdb.transactions.send_async(tx)
 
         # The `id` of every sent transaction is then stored in a list.
-        sent.append(tx['id'])
+        sent.append(tx["id"])
 
     # ## Check the valid transactions coming from Planetmint
     # Now we are ready to check if Planetmint did its job. A simple way to
@@ -118,9 +118,9 @@ def test_stream():
         # the timeout, then game over ¯\\\_(ツ)\_/¯
         try:
             event = received.get(timeout=5)
-            txid = json.loads(event)['transaction_id']
+            txid = json.loads(event)["transaction_id"]
         except queue.Empty:
-            assert False, 'Did not receive all expected transactions'
+            assert False, "Did not receive all expected transactions"
 
         # Last thing is to try to remove the `txid` from the set of sent
         # transactions. If this test is running in parallel with others, we

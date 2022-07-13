@@ -29,8 +29,8 @@ from planetmint.web.websocket_dispatcher import Dispatcher
 
 
 logger = logging.getLogger(__name__)
-EVENTS_ENDPOINT = '/api/v1/streams/valid_transactions'
-EVENTS_ENDPOINT_BLOCKS = '/api/v1/streams/valid_blocks'
+EVENTS_ENDPOINT = "/api/v1/streams/valid_transactions"
+EVENTS_ENDPOINT_BLOCKS = "/api/v1/streams/valid_blocks"
 
 
 def _multiprocessing_to_asyncio(in_queue, out_queue1, out_queue2, loop):
@@ -51,60 +51,60 @@ def _multiprocessing_to_asyncio(in_queue, out_queue1, out_queue2, loop):
 async def websocket_tx_handler(request):
     """Handle a new socket connection."""
 
-    logger.debug('New TX websocket connection.')
+    logger.debug("New TX websocket connection.")
     websocket = aiohttp.web.WebSocketResponse()
     await websocket.prepare(request)
     uuid = uuid4()
-    request.app['tx_dispatcher'].subscribe(uuid, websocket)
+    request.app["tx_dispatcher"].subscribe(uuid, websocket)
 
     while True:
         # Consume input buffer
         try:
             msg = await websocket.receive()
         except RuntimeError as e:
-            logger.debug('Websocket exception: %s', str(e))
+            logger.debug("Websocket exception: %s", str(e))
             break
         except CancelledError:
-            logger.debug('Websocket closed')
+            logger.debug("Websocket closed")
             break
         if msg.type == aiohttp.WSMsgType.CLOSED:
-            logger.debug('Websocket closed')
+            logger.debug("Websocket closed")
             break
         elif msg.type == aiohttp.WSMsgType.ERROR:
-            logger.debug('Websocket exception: %s', websocket.exception())
+            logger.debug("Websocket exception: %s", websocket.exception())
             break
 
-    request.app['tx_dispatcher'].unsubscribe(uuid)
+    request.app["tx_dispatcher"].unsubscribe(uuid)
     return websocket
 
 
 async def websocket_blk_handler(request):
     """Handle a new socket connection."""
 
-    logger.debug('New BLK websocket connection.')
+    logger.debug("New BLK websocket connection.")
     websocket = aiohttp.web.WebSocketResponse()
     await websocket.prepare(request)
     uuid = uuid4()
-    request.app['blk_dispatcher'].subscribe(uuid, websocket)
+    request.app["blk_dispatcher"].subscribe(uuid, websocket)
 
     while True:
         # Consume input buffer
         try:
             msg = await websocket.receive()
         except RuntimeError as e:
-            logger.debug('Websocket exception: %s', str(e))
+            logger.debug("Websocket exception: %s", str(e))
             break
         except CancelledError:
-            logger.debug('Websocket closed')
+            logger.debug("Websocket closed")
             break
         if msg.type == aiohttp.WSMsgType.CLOSED:
-            logger.debug('Websocket closed')
+            logger.debug("Websocket closed")
             break
         elif msg.type == aiohttp.WSMsgType.ERROR:
-            logger.debug('Websocket exception: %s', websocket.exception())
+            logger.debug("Websocket exception: %s", websocket.exception())
             break
 
-    request.app['blk_dispatcher'].unsubscribe(uuid)
+    request.app["blk_dispatcher"].unsubscribe(uuid)
     return websocket
 
 
@@ -115,16 +115,16 @@ def init_app(tx_source, blk_source, *, loop=None):
         An aiohttp application.
     """
 
-    blk_dispatcher = Dispatcher(blk_source, 'blk')
-    tx_dispatcher = Dispatcher(tx_source, 'tx')
+    blk_dispatcher = Dispatcher(blk_source, "blk")
+    tx_dispatcher = Dispatcher(tx_source, "tx")
 
     # Schedule the dispatcher
-    loop.create_task(blk_dispatcher.publish(), name='blk')
-    loop.create_task(tx_dispatcher.publish(), name='tx')
+    loop.create_task(blk_dispatcher.publish(), name="blk")
+    loop.create_task(tx_dispatcher.publish(), name="tx")
 
     app = aiohttp.web.Application(loop=loop)
-    app['tx_dispatcher'] = tx_dispatcher
-    app['blk_dispatcher'] = blk_dispatcher
+    app["tx_dispatcher"] = tx_dispatcher
+    app["blk_dispatcher"] = blk_dispatcher
     app.router.add_get(EVENTS_ENDPOINT, websocket_tx_handler)
     app.router.add_get(EVENTS_ENDPOINT_BLOCKS, websocket_blk_handler)
     return app
@@ -139,13 +139,12 @@ def start(sync_event_source, loop=None):
     tx_source = asyncio.Queue(loop=loop)
     blk_source = asyncio.Queue(loop=loop)
 
-    bridge = threading.Thread(target=_multiprocessing_to_asyncio,
-                              args=(sync_event_source, tx_source, blk_source, loop),
-                              daemon=True)
+    bridge = threading.Thread(
+        target=_multiprocessing_to_asyncio, args=(sync_event_source, tx_source, blk_source, loop), daemon=True
+    )
     bridge.start()
 
     app = init_app(tx_source, blk_source, loop=loop)
-    aiohttp.web.run_app(app,
-                        host=Config().get()['wsserver']['host'],
-                        port=Config().get()['wsserver']['port'],
-                        loop=loop)
+    aiohttp.web.run_app(
+        app, host=Config().get()["wsserver"]["host"], port=Config().get()["wsserver"]["port"], loop=loop
+    )

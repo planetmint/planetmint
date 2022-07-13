@@ -32,5 +32,4 @@ class Hosts:
     def assert_transaction(self, tx_id) -> None:
         txs = self.get_transactions(tx_id)
         for tx in txs:
-            assert txs[0] == tx, \
-                'Cannot find transaction {}'.format(tx_id)
+            assert txs[0] == tx, "Cannot find transaction {}".format(tx_id)

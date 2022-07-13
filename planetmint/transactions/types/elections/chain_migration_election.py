@@ -6,14 +6,14 @@ from planetmint.transactions.types.elections.election import Election
 
 class ChainMigrationElection(Election):
 
-    OPERATION = 'CHAIN_MIGRATION_ELECTION'
+    OPERATION = "CHAIN_MIGRATION_ELECTION"
     CREATE = OPERATION
     ALLOWED_OPERATIONS = (OPERATION,)
     TX_SCHEMA_CUSTOM = TX_SCHEMA_CHAIN_MIGRATION_ELECTION
 
     def has_concluded(self, planetmint, *args, **kwargs):
         chain = planetmint.get_latest_abci_chain()
-        if chain is not None and not chain['is_synced']:
+        if chain is not None and not chain["is_synced"]:
             # do not conclude the migration election if
             # there is another migration in progress
             return False
@@ -26,7 +26,7 @@ class ChainMigrationElection(Election):
     def show_election(self, planet):
         output = super().show_election(planet)
         chain = planet.get_latest_abci_chain()
-        if chain is None or chain['is_synced']:
+        if chain is None or chain["is_synced"]:
             return output
 
         output += f'\nchain_id={chain["chain_id"]}'
@@ -34,14 +34,15 @@ class ChainMigrationElection(Election):
         output += f'\napp_hash={block["app_hash"]}'
         validators = [
             {
-                'pub_key': {
-                    'type': 'tendermint/PubKeyEd25519',
-                    'value': k,
+                "pub_key": {
+                    "type": "tendermint/PubKeyEd25519",
+                    "value": k,
                 },
-                'power': v,
-            } for k, v in self.get_validators(planet).items()
+                "power": v,
+            }
+            for k, v in self.get_validators(planet).items()
         ]
-        output += f'\nvalidators={json.dumps(validators, indent=4)}'
+        output += f"\nvalidators={json.dumps(validators, indent=4)}"
         return output
 
     def on_rollback(self, planet, new_height):

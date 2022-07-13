@@ -12,30 +12,33 @@ from planetmint.transactions.types.assets.create import Create
 from planetmint.transactions.types.assets.transfer import Transfer
 from planetmint.transactions.types.elections.vote import Vote
 from planetmint.transactions.common.exceptions import (
-    InvalidSignature, MultipleInputsError, InvalidProposer,
-    UnequalValidatorSet, DuplicateTransaction)
+    InvalidSignature,
+    MultipleInputsError,
+    InvalidProposer,
+    UnequalValidatorSet,
+    DuplicateTransaction,
+)
 from planetmint.tendermint_utils import key_from_base64, public_key_to_base64
-from planetmint.transactions.common.crypto import (public_key_from_ed25519_key)
+from planetmint.transactions.common.crypto import public_key_from_ed25519_key
 from planetmint.transactions.common.transaction import Transaction
-from planetmint.transactions.common.schema import (
-    _validate_schema, TX_SCHEMA_COMMON, TX_SCHEMA_CREATE)
+from planetmint.transactions.common.schema import _validate_schema, TX_SCHEMA_COMMON, TX_SCHEMA_CREATE
 
 
 class Election(Transaction):
     """Represents election transactions.
 
-       To implement a custom election, create a class deriving from this one
-       with OPERATION set to the election operation, ALLOWED_OPERATIONS
-       set to (OPERATION,), CREATE set to OPERATION.
+    To implement a custom election, create a class deriving from this one
+    with OPERATION set to the election operation, ALLOWED_OPERATIONS
+    set to (OPERATION,), CREATE set to OPERATION.
     """
 
     OPERATION = None
     # Custom validation schema
     TX_SCHEMA_CUSTOM = None
     # Election Statuses:
-    ONGOING = 'ongoing'
-    CONCLUDED = 'concluded'
-    INCONCLUSIVE = 'inconclusive'
+    ONGOING = "ongoing"
+    CONCLUDED = "concluded"
+    INCONCLUSIVE = "inconclusive"
     # Vote ratio to approve an election
     ELECTION_THRESHOLD = 2 / 3
 
@@ -51,18 +54,18 @@ class Election(Transaction):
         latest_block = planet.get_latest_block()
         if latest_block is None:
             return None
-        return planet.get_validator_change(latest_block['height'])
+        return planet.get_validator_change(latest_block["height"])
 
     @classmethod
     def get_validators(cls, planet, height=None):
         """Return a dictionary of validators with key as `public_key` and
-           value as the `voting_power`
+        value as the `voting_power`
         """
         validators = {}
         for validator in planet.get_validators(height):
             # NOTE: we assume that Tendermint encodes public key in base64
-            public_key = public_key_from_ed25519_key(key_from_base64(validator['public_key']['value']))
-            validators[public_key] = validator['voting_power']
+            public_key = public_key_from_ed25519_key(key_from_base64(validator["public_key"]["value"]))
+            validators[public_key] = validator["voting_power"]
 
         return validators
 
@@ -114,26 +117,25 @@ class Election(Transaction):
 
         duplicates = any(txn for txn in current_transactions if txn.id == self.id)
         if planet.is_committed(self.id) or duplicates:
-            raise DuplicateTransaction('transaction `{}` already exists'
-                                       .format(self.id))
+            raise DuplicateTransaction("transaction `{}` already exists".format(self.id))
 
         if not self.inputs_valid(input_conditions):
-            raise InvalidSignature('Transaction signature is invalid.')
+            raise InvalidSignature("Transaction signature is invalid.")
 
         current_validators = self.get_validators(planet)
 
         # NOTE: Proposer should be a single node
         if len(self.inputs) != 1 or len(self.inputs[0].owners_before) != 1:
-            raise MultipleInputsError('`tx_signers` must be a list instance of length one')
+            raise MultipleInputsError("`tx_signers` must be a list instance of length one")
 
         # NOTE: Check if the proposer is a validator.
         [election_initiator_node_pub_key] = self.inputs[0].owners_before
         if election_initiator_node_pub_key not in current_validators.keys():
-            raise InvalidProposer('Public key is not a part of the validator set')
+            raise InvalidProposer("Public key is not a part of the validator set")
 
         # NOTE: Check if all validators have been assigned votes equal to their voting power
         if not self.is_same_topology(current_validators, self.outputs):
-            raise UnequalValidatorSet('Validator set much be exactly same to the outputs of election')
+            raise UnequalValidatorSet("Validator set much be exactly same to the outputs of election")
 
         return self
 
@@ -141,10 +143,10 @@ class Election(Transaction):
     def generate(cls, initiator, voters, election_data, metadata=None):
         # Break symmetry in case we need to call an election with the same properties twice
         uuid = uuid4()
-        election_data['seed'] = str(uuid)
+        election_data["seed"] = str(uuid)
 
         (inputs, outputs) = Create.validate_create(initiator, voters, election_data, metadata)
-        election = cls(cls.OPERATION, {'data': election_data}, inputs, outputs, metadata)
+        election = cls(cls.OPERATION, {"data": election_data}, inputs, outputs, metadata)
         cls.validate_schema(election.to_dict())
         return election
 
@@ -174,21 +176,19 @@ class Election(Transaction):
     def count_votes(cls, election_pk, transactions, getter=getattr):
         votes = 0
         for txn in transactions:
-            if getter(txn, 'operation') == Vote.OPERATION:
-                for output in getter(txn, 'outputs'):
+            if getter(txn, "operation") == Vote.OPERATION:
+                for output in getter(txn, "outputs"):
                     # NOTE: We enforce that a valid vote to election id will have only
                     # election_pk in the output public keys, including any other public key
                     # along with election_pk will lead to vote being not considered valid.
-                    if len(getter(output, 'public_keys')) == 1 and [election_pk] == getter(output, 'public_keys'):
-                        votes = votes + int(getter(output, 'amount'))
+                    if len(getter(output, "public_keys")) == 1 and [election_pk] == getter(output, "public_keys"):
+                        votes = votes + int(getter(output, "amount"))
         return votes
 
     def get_commited_votes(self, planet, election_pk=None):
         if election_pk is None:
             election_pk = self.to_public_key(self.id)
-        txns = list(backend.query.get_asset_tokens_for_public_key(planet.connection,
-                                                                  self.id,
-                                                                  election_pk))
+        txns = list(backend.query.get_asset_tokens_for_public_key(planet.connection, self.id, election_pk))
         return self.count_votes(election_pk, txns, dict.get)
 
     def has_concluded(self, planet, current_votes=[]):
@@ -208,15 +208,14 @@ class Election(Transaction):
         votes_current = self.count_votes(election_pk, current_votes)
 
         total_votes = sum(output.amount for output in self.outputs)
-        if (votes_committed < (2 / 3) * total_votes) and \
-                (votes_committed + votes_current >= (2 / 3) * total_votes):
+        if (votes_committed < (2 / 3) * total_votes) and (votes_committed + votes_current >= (2 / 3) * total_votes):
             return True
 
         return False
 
     def get_status(self, planet):
         election = self.get_election(self.id, planet)
-        if election and election['is_concluded']:
+        if election and election["is_concluded"]:
             return self.CONCLUDED
 
         return self.INCONCLUSIVE if self.has_validator_set_changed(planet) else self.ONGOING
@@ -226,11 +225,11 @@ class Election(Transaction):
         if latest_change is None:
             return False
 
-        latest_change_height = latest_change['height']
+        latest_change_height = latest_change["height"]
 
         election = self.get_election(self.id, planet)
 
-        return latest_change_height > election['height']
+        return latest_change_height > election["height"]
 
     def get_election(self, election_id, planet):
         return planet.get_election(election_id)
@@ -239,14 +238,14 @@ class Election(Transaction):
         planet.store_election(self.id, height, is_concluded)
 
     def show_election(self, planet):
-        data = self.asset['data']
-        if 'public_key' in data.keys():
-            data['public_key'] = public_key_to_base64(data['public_key']['value'])
-        response = ''
+        data = self.asset["data"]
+        if "public_key" in data.keys():
+            data["public_key"] = public_key_to_base64(data["public_key"]["value"])
+        response = ""
         for k, v in data.items():
-            if k != 'seed':
-                response += f'{k}={v}\n'
-        response += f'status={self.get_status(planet)}'
+            if k != "seed":
+                response += f"{k}={v}\n"
+        response += f"status={self.get_status(planet)}"
 
         return response
 
@@ -257,8 +256,7 @@ class Election(Transaction):
             if not isinstance(tx, Election):
                 continue
 
-            elections.append({'election_id': tx.id, 'height': height,
-                              'is_concluded': False})
+            elections.append({"election_id": tx.id, "height": height, "is_concluded": False})
         return elections
 
     @classmethod
@@ -268,7 +266,7 @@ class Election(Transaction):
             if not isinstance(tx, Vote):
                 continue
 
-            election_id = tx.asset['id']
+            election_id = tx.asset["id"]
             if election_id not in elections:
                 elections[election_id] = []
             elections[election_id].append(tx)
@@ -277,26 +275,26 @@ class Election(Transaction):
     @classmethod
     def process_block(cls, planet, new_height, txns):
         """Looks for election and vote transactions inside the block, records
-           and processes elections.
+        and processes elections.
 
-           Every election is recorded in the database.
+        Every election is recorded in the database.
 
-           Every vote has a chance to conclude the corresponding election. When
-           an election is concluded, the corresponding database record is
-           marked as such.
+        Every vote has a chance to conclude the corresponding election. When
+        an election is concluded, the corresponding database record is
+        marked as such.
 
-           Elections and votes are processed in the order in which they
-           appear in the block. Elections are concluded in the order of
-           appearance of their first votes in the block.
+        Elections and votes are processed in the order in which they
+        appear in the block. Elections are concluded in the order of
+        appearance of their first votes in the block.
 
-           For every election concluded in the block, calls its `on_approval`
-           method. The returned value of the last `on_approval`, if any,
-           is a validator set update to be applied in one of the following blocks.
+        For every election concluded in the block, calls its `on_approval`
+        method. The returned value of the last `on_approval`, if any,
+        is a validator set update to be applied in one of the following blocks.
 
-           `on_approval` methods are implemented by elections of particular type.
-           The method may contain side effects but should be idempotent. To account
-           for other concluded elections, if it requires so, the method should
-           rely on the database state.
+        `on_approval` methods are implemented by elections of particular type.
+        The method may contain side effects but should be idempotent. To account
+        for other concluded elections, if it requires so, the method should
+        rely on the database state.
         """
         # elections initiated in this block
         initiated_elections = cls._get_initiated_elections(new_height, txns)
@@ -324,9 +322,9 @@ class Election(Transaction):
     @classmethod
     def rollback(cls, planet, new_height, txn_ids):
         """Looks for election and vote transactions inside the block and
-           cleans up the database artifacts possibly created in `process_blocks`.
+        cleans up the database artifacts possibly created in `process_blocks`.
 
-           Part of the `end_block`/`commit` crash recovery.
+        Part of the `end_block`/`commit` crash recovery.
         """
 
         # delete election records for elections initiated at this height and
@@ -342,13 +340,13 @@ class Election(Transaction):
 
     def on_approval(self, planet, new_height):
         """Override to update the database state according to the
-           election rules. Consider the current database state to account for
-           other concluded elections, if required.
+        election rules. Consider the current database state to account for
+        other concluded elections, if required.
         """
         raise NotImplementedError
 
     def on_rollback(self, planet, new_height):
         """Override to clean up the database artifacts possibly created
-           in `on_approval`. Part of the `end_block`/`commit` crash recovery.
+        in `on_approval`. Part of the `end_block`/`commit` crash recovery.
         """
         raise NotImplementedError

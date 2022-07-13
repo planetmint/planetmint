@@ -19,28 +19,26 @@ from planetmint.transactions.common.schema import (
     validate_transaction_schema,
 )
 
-SUPPORTED_CRYPTOCONDITION_TYPES = ('threshold-sha-256', 'ed25519-sha-256')
-UNSUPPORTED_CRYPTOCONDITION_TYPES = (
-    'preimage-sha-256', 'prefix-sha-256', 'rsa-sha-256')
+SUPPORTED_CRYPTOCONDITION_TYPES = ("threshold-sha-256", "ed25519-sha-256")
+UNSUPPORTED_CRYPTOCONDITION_TYPES = ("preimage-sha-256", "prefix-sha-256", "rsa-sha-256")
 
 
 ################################################################################
 # Test of schema utils
 
 
-def _test_additionalproperties(node, path=''):
+def _test_additionalproperties(node, path=""):
     """Validate that each object node has additionalProperties set, so that
     objects with junk keys do not pass as valid.
     """
     if isinstance(node, list):
         for i, nnode in enumerate(node):
-            _test_additionalproperties(nnode, path + str(i) + '.')
+            _test_additionalproperties(nnode, path + str(i) + ".")
     if isinstance(node, dict):
-        if node.get('type') == 'object':
-            assert 'additionalProperties' in node, \
-                ('additionalProperties not set at path:' + path)
+        if node.get("type") == "object":
+            assert "additionalProperties" in node, "additionalProperties not set at path:" + path
         for name, val in node.items():
-            _test_additionalproperties(val, path + name + '.')
+            _test_additionalproperties(val, path + name + ".")
 
 
 def test_transaction_schema_additionalproperties():
@@ -69,63 +67,76 @@ def test_validate_transaction_fails():
 
 
 def test_validate_failure_inconsistent():
-    with patch('jsonschema.validate'):
+    with patch("jsonschema.validate"):
         with raises(SchemaValidationError):
             validate_transaction_schema({})
 
 
-@given(condition_uri=regex(
-    r'^ni:\/\/\/sha-256;([a-zA-Z0-9_-]{{0,86}})\?fpt=({})'
-    r'&cost=[0-9]+(?![\n])$'.format('|'.join(
-        t for t in SUPPORTED_CRYPTOCONDITION_TYPES))))
+@given(
+    condition_uri=regex(
+        r"^ni:\/\/\/sha-256;([a-zA-Z0-9_-]{{0,86}})\?fpt=({})"
+        r"&cost=[0-9]+(?![\n])$".format("|".join(t for t in SUPPORTED_CRYPTOCONDITION_TYPES))
+    )
+)
 def test_condition_uri_with_supported_fpt(dummy_transaction, condition_uri):
-    dummy_transaction['outputs'][0]['condition']['uri'] = condition_uri
+    dummy_transaction["outputs"][0]["condition"]["uri"] = condition_uri
     validate_transaction_schema(dummy_transaction)
 
 
-@given(condition_uri=regex(r'^ni:\/\/\/sha-256;([a-zA-Z0-9_-]{{0,86}})\?fpt='
-                           r'({})&cost=[0-9]+(?![\n])$'.format(
-                               '|'.join(UNSUPPORTED_CRYPTOCONDITION_TYPES))))
+@given(
+    condition_uri=regex(
+        r"^ni:\/\/\/sha-256;([a-zA-Z0-9_-]{{0,86}})\?fpt="
+        r"({})&cost=[0-9]+(?![\n])$".format("|".join(UNSUPPORTED_CRYPTOCONDITION_TYPES))
+    )
+)
 def test_condition_uri_with_unsupported_fpt(dummy_transaction, condition_uri):
-    dummy_transaction['outputs'][0]['condition']['uri'] = condition_uri
+    dummy_transaction["outputs"][0]["condition"]["uri"] = condition_uri
     with raises(SchemaValidationError):
         validate_transaction_schema(dummy_transaction)
 
 
-@given(condition_uri=regex(
-    r'^ni:\/\/\/sha-256;([a-zA-Z0-9_-]{{0,86}})\?fpt=(?!{})'
-    r'&cost=[0-9]+(?![\n])$'.format('$|'.join(
-        t for t in SUPPORTED_CRYPTOCONDITION_TYPES))))
+@given(
+    condition_uri=regex(
+        r"^ni:\/\/\/sha-256;([a-zA-Z0-9_-]{{0,86}})\?fpt=(?!{})"
+        r"&cost=[0-9]+(?![\n])$".format("$|".join(t for t in SUPPORTED_CRYPTOCONDITION_TYPES))
+    )
+)
 def test_condition_uri_with_unknown_fpt(dummy_transaction, condition_uri):
-    dummy_transaction['outputs'][0]['condition']['uri'] = condition_uri
+    dummy_transaction["outputs"][0]["condition"]["uri"] = condition_uri
     with raises(SchemaValidationError):
         validate_transaction_schema(dummy_transaction)
 
 
-@given(condition_uri=regex(
-    r'^ni:\/\/\/sha-256;([a-zA-Z0-9_-]{0,86})\?fpt=threshold-sha-256'
-    r'&cost=[0-9]+&subtypes=ed25519-sha-256(?![\n])$'))
-def test_condition_uri_with_supported_subtype(dummy_transaction,
-                                              condition_uri):
-    dummy_transaction['outputs'][0]['condition']['uri'] = condition_uri
+@given(
+    condition_uri=regex(
+        r"^ni:\/\/\/sha-256;([a-zA-Z0-9_-]{0,86})\?fpt=threshold-sha-256"
+        r"&cost=[0-9]+&subtypes=ed25519-sha-256(?![\n])$"
+    )
+)
+def test_condition_uri_with_supported_subtype(dummy_transaction, condition_uri):
+    dummy_transaction["outputs"][0]["condition"]["uri"] = condition_uri
     validate_transaction_schema(dummy_transaction)
 
 
-@given(condition_uri=regex(
-    r'^ni:\/\/\/sha-256;([a-zA-Z0-9_-]{0,86})\?fpt=threshold-sha-256&cost='
-    r'[0-9]+&subtypes=(preimage-sha-256|prefix-sha-256|rsa-sha-256)(?![\n])$'))
-def test_condition_uri_with_unsupported_subtype(dummy_transaction,
-                                                condition_uri):
-    dummy_transaction['outputs'][0]['condition']['uri'] = condition_uri
+@given(
+    condition_uri=regex(
+        r"^ni:\/\/\/sha-256;([a-zA-Z0-9_-]{0,86})\?fpt=threshold-sha-256&cost="
+        r"[0-9]+&subtypes=(preimage-sha-256|prefix-sha-256|rsa-sha-256)(?![\n])$"
+    )
+)
+def test_condition_uri_with_unsupported_subtype(dummy_transaction, condition_uri):
+    dummy_transaction["outputs"][0]["condition"]["uri"] = condition_uri
     with raises(SchemaValidationError):
         validate_transaction_schema(dummy_transaction)
 
 
-@given(condition_uri=regex(
-    r'^ni:\/\/\/sha-256;([a-zA-Z0-9_-]{{0,86}})\?fpt=threshold-sha-256'
-    r'&cost=[0-9]+&subtypes=(?!{})(?![\n])$'.format('$|'.join(
-        t for t in SUPPORTED_CRYPTOCONDITION_TYPES))))
+@given(
+    condition_uri=regex(
+        r"^ni:\/\/\/sha-256;([a-zA-Z0-9_-]{{0,86}})\?fpt=threshold-sha-256"
+        r"&cost=[0-9]+&subtypes=(?!{})(?![\n])$".format("$|".join(t for t in SUPPORTED_CRYPTOCONDITION_TYPES))
+    )
+)
 def test_condition_uri_with_unknown_subtype(dummy_transaction, condition_uri):
-    dummy_transaction['outputs'][0]['condition']['uri'] = condition_uri
+    dummy_transaction["outputs"][0]["condition"]["uri"] = condition_uri
     with raises(SchemaValidationError):
         validate_transaction_schema(dummy_transaction)
