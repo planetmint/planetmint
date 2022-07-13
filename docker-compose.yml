@@ -119,15 +119,11 @@ services:
     volumes:
       - ./docs/root/build/html:/usr/share/nginx/html
 
-  # Lints project according to PEP8
-  lint:
-    image: alpine/flake8
-    command: --max-line-length 119 /planetmint /acceptance /integration /tests
+  # Lints/Formats project according to PEP8
+  black:
+    image: cytopia/black
     volumes:
-      - ./planetmint:/planetmint
-      - ./acceptance:/acceptance
-      - ./integration:/integration
-      - ./tests:/tests
+      - $PWD:/data
 
   # Remove all build, test, coverage and Python artifacts
   clean:

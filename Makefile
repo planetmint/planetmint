@@ -71,7 +71,10 @@ logs: check-deps ## Attach to the logs
 	@$(DC) logs -f planetmint
 
 lint: check-deps ## Lint the project
-	@$(DC) up lint
+	@$(DC) run --rm black --check -l 119 .
+
+format: check-deps ## Format the project
+	@$(DC) run --rm black -l 119 .
 
 test: check-deps test-unit test-acceptance ## Run unit and acceptance tests
 
