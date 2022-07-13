@@ -22,7 +22,6 @@ except ImportError:
 import requests
 
 import planetmint
-from copy import deepcopy
 from planetmint.config import Config
 from planetmint import backend, config_utils, fastquery
 from planetmint.models import Transaction

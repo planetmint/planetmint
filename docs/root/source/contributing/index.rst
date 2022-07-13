@@ -16,7 +16,7 @@ It includes several sub-projects.
 - `Planetmint Java Driver <https://github.com/planetmint/java-bigchaindb-driver>`_
 - `cryptoconditions <https://github.com/planetmint/cryptoconditions>`_ (a Python package by us)
 - `py-abci <https://github.com/davebryson/py-abci>`_ (a Python package we use)
-- `Planetmint Enhancement Proposals (PEPs) <https://github.com/planetmint/PEPs>`_
+- `Planetmint Refinement Proposals (PRPs) <https://github.com/planetmint/PRPs>`_
 
 Contents
 --------
