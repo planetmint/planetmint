@@ -15,9 +15,6 @@
 # We run a series of checks for each step, that is retrieving
 # the transaction from the remote system, and also checking the `amount`
 # of a given transaction.
-#
-# This integration test is a rip-off of our
-# [tutorial](https://docs.planetmint.com/projects/py-driver/en/latest/usage.html).
 
 # ## Imports
 # We need some utils from the `os` package, we will interact with

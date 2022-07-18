@@ -298,7 +298,7 @@ data:
   openresty-backend-port: "8080"
 
   # Planetmint configuration parameters
-  # Refer https://docs.planetmint.com/projects/server/en/latest/server-reference/configuration.html
+  # Refer https://docs.planetmint.io/en/latest/node-setup/configuration.html
 
   # planetmint-api-port is the port number on which Planetmint is listening
   # for HTTP requests.

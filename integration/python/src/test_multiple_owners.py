@@ -15,8 +15,6 @@
 # We run a series of checks for each step, that is retrieving
 # the transaction from the remote system, and also checking the public keys
 # of a given transaction.
-#
-# This integration test is a rip-off of our mutliple signature acceptance tests.
 
 # # Imports
 import time

@@ -5,7 +5,7 @@
 
 """This module provides the blueprint for some basic API endpoints.
 
-For more information please refer to the documentation: http://planetmint.com/http-api
+For more information please refer to the documentation: http://planetmint.io/http-api
 """
 import logging
 

@@ -13,7 +13,7 @@ Planetmint is a metadata blockchain. This introduction gives an overview about h
 
 
 ## The IPDB Testnet - sending transactions
-The IPDB foundation hosta a testnet server that is reset every night at 4am UTC.
+The IPDB foundation hosts a testnet server that is reset every night at 4am UTC.
 
 The following sequence shows a simple asset notarization / attestion on that testnet:
 Create a file named notarize.py
@@ -43,7 +43,7 @@ $ python notarize.py
 # Install Planetmint
 ## Local Node
 Planemtint is a Tendermint applicatoin with an attached database.
-A basic installation installs the database, Tenermint and therafter Planetmint.
+A basic installation installs the database, Tendermint and therafter Planetmint.
 
 Planetmint currently supports Tarantool and MongoDB database. The installation is as follows:
 ```

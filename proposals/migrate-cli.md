@@ -166,4 +166,4 @@ N/A
 
 
 ## Reference(s)
-* [Bigchaindb CLI](https://docs.planetmint.com/projects/server/en/latest/server-reference/planetmint-cli.html)
+* [Bigchaindb CLI](https://docs.planetmint.io/en/latest/tools/index.html#command-line-interface-cli)
