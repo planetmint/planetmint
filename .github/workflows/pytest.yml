@@ -6,7 +6,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        inlcude:
+        include:
           - db: "MongoDB with ABCI"
             host: "mongodb"
             port: 27017
