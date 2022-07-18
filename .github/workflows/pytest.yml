@@ -33,7 +33,6 @@ jobs:
           HOST: ${{ matrix.host }}
           PORT: ${{ matrix.port }}
           ABCI: ${{ matrix.abci }}
-        run: echo $HOST $PORT $ABCI
-        run: docker build . --file Dockerfile --tag planetmint:$(date +%s)
+        run: echo $HOST $PORT $ABCI && docker build . --file Dockerfile --tag planetmint:$(date +%s)
 
 
