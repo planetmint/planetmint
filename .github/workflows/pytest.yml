@@ -1,0 +1,39 @@
+name: PyTest
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        inlcude:
+          - db: "MongoDB with ABCI"
+            host: "mongodb"
+            port: 27017
+            abci: "enable"
+          - db: "MongoDB without ABCI"
+            host: "mongodb"
+            port: 27017
+            abci: "disable"
+          - db: "Tarantool with ABCI"
+            host: "tarantool"
+            port: 3303
+            abci: "enable"
+          - db: "Tarantool without ABCI"
+            host: "tarantool"
+            port: 3303
+            abci: "disable"
+
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3
+
+      - name: Build planetmint
+        env:
+          HOST: ${{ matrix.host }}
+          PORT: ${{ matrix.port }}
+          ABCI: ${{ matrix.abci }}
+        run: echo $HOST $PORT $ABCI
+        run: docker build . --file Dockerfile --tag planetmint:$(date +%s)
+
+
