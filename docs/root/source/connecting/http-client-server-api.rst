@@ -147,11 +147,11 @@ Transactions Endpoint
    If it's invalid, the node will return an HTTP 400 (error).
    Otherwise, the node will send the transaction to Tendermint (in the same node) using the
    `Tendermint broadcast API
-   <https://tendermint.io/docs/tendermint-core/using-tendermint.html#broadcast-api>`_.
+   <https://tendermint.com/docs/tendermint-core/using-tendermint.html#broadcast-api>`_.
 
    The meaning of the ``mode`` query parameter is inherited from the mode parameter in
    `Tendermint's broadcast API
-   <https://tendermint.io/docs/tendermint-core/using-tendermint.html#broadcast-api>`_.
+   <https://tendermint.com/docs/tendermint-core/using-tendermint.html#broadcast-api>`_.
    ``mode=async`` means the HTTP response will come back immediately,
    before Tendermint asks Planetmint Server to check the validity of the transaction (a second time).
    ``mode=sync`` means the HTTP response will come back

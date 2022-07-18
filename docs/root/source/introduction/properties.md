@@ -19,13 +19,13 @@ A consortium can increase its decentralization (and its resilience) by increasin
 
 There’s no node that has a long-term special position in the Planetmint network. All nodes run the same software and perform the same duties.
 
-If someone has (or gets) admin access to a node, they can mess with that node (e.g. change or delete data stored on that node), but those changes should remain isolated to that node. The Planetmint network can only be compromised if more than one third of the nodes get compromised. See the [Tendermint documentation](https://tendermint.io/docs/introduction/introduction.html) for more details.
+If someone has (or gets) admin access to a node, they can mess with that node (e.g. change or delete data stored on that node), but those changes should remain isolated to that node. The Planetmint network can only be compromised if more than one third of the nodes get compromised. See the [Tendermint documentation](https://tendermint.com/docs/introduction/introduction.html) for more details.
 
 It’s worth noting that not even the admin or superuser of a node can transfer assets. The only way to create a valid transfer transaction is to fulfill the current crypto-conditions on the asset, and the admin/superuser can’t do that because the admin user doesn’t have the necessary information (e.g. private keys).
 
 ## Byzantine Fault Tolerance
 
-[Tendermint](https://tendermint.io/) is used for consensus and transaction replication,
+[Tendermint](https://www.tendermint.com/) is used for consensus and transaction replication,
 and Tendermint is [Byzantine Fault Tolerant (BFT)](https://en.wikipedia.org/wiki/Byzantine_fault_tolerance).
 
 ## Node Diversity
