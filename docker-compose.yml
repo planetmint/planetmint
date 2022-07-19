@@ -60,7 +60,7 @@ services:
       test: ["CMD", "bash", "-c", "curl http://planetmint:9984 && curl http://tendermint:26657/abci_query"]
       interval: 3s
       timeout: 5s
-      retries: 3
+      retries: 5
     command: '.ci/entrypoint.sh'
     restart: always
   
