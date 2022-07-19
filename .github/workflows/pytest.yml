@@ -9,8 +9,8 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v3
 
-      # - name: Build planetmint
-      #   run: docker build . --file Dockerfile --tag planetmint:$(date +%s)
+      - name: Build planetmint
+        run: docker build . --file Dockerfile --tag planetmint:$(date +%s)
 
       # # - name: Store planetmint
       # - name: Build docker and start containers
@@ -41,7 +41,7 @@ jobs:
 
     steps:
       - name: Run tests
-        run: docker-compose --version
+        run: docker-compose exec planetmint pytest # docker-compose --version
         # run: |
         #   if [[ "${{ matrix.abci }}" == "enable" ]]; then
         #     docker-compose exec planetmint pytest -v -m abci
