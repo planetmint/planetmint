@@ -41,7 +41,7 @@ jobs:
 
     steps:
       - name: Run tests
-        run: docker-compose exec planetmint pytest # docker-compose --version
+        run: docker-compose -f docker-compose.yml exec planetmint pytest # docker-compose --version
         # run: |
         #   if [[ "${{ matrix.abci }}" == "enable" ]]; then
         #     docker-compose exec planetmint pytest -v -m abci
