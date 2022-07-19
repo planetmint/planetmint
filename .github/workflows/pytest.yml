@@ -13,7 +13,7 @@ jobs:
       #   run: docker build . --file Dockerfile --tag planetmint:$(date +%s)
 
       - name: Build docker and start containers
-        run: docker-compose -f ./planetmint/docker-compose.yml up -d bdb
+        run: docker-compose -f docker-compose.yml up -d bdb
 
 
   test:
