@@ -2,6 +2,21 @@ name: PyTest
 on: [push, pull_request]
 
 jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3
+
+      - name: Build planetmint
+        run: docker build . --file Dockerfile --tag planetmint:$(date +%s)
+
+      # # - name: Store planetmint
+      # - name: Build docker and start containers
+      #   run: docker-compose -f ./planetmint/docker-compose.yml
+
+
   test:
     runs-on: ubuntu-latest
     strategy:
@@ -25,14 +40,16 @@ jobs:
             abci: "disable"
 
     steps:
-      - name: Check out repository code
-        uses: actions/checkout@v3
+      - name: Run tests
+        run: |
+          if [[ "${{ matrix.abci }}" == "enable" ]]; then
+            docker-compose exec planetmint pytest -v -m abci
+          fi
+          if [[ "${{ matrix.abci }}" == "disable" ]]; then
+            docker-compose exec planetmint pytest -v --cov=planetmint --cov-report xml:htmlcov/coverage.xml
+          fi
 
-      - name: Build planetmint
-        env:
-          HOST: ${{ matrix.host }}
-          PORT: ${{ matrix.port }}
-          ABCI: ${{ matrix.abci }}
-        run: echo $HOST $PORT $ABCI && docker build . --file Dockerfile --tag planetmint:$(date +%s)
+
+      
 
 
