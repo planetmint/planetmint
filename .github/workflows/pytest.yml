@@ -4,13 +4,26 @@ on: [push, pull_request]
 jobs:
   build:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - abci_enabled: "ABCI enabled"
+            abci: "enabled"
+          - abci_disabled: "ABCI disabled"
+            abci: "disabled"
 
     steps:
       - name: Check out repository code
         uses: actions/checkout@v3
 
       - name: Build container
-        run: docker-compose -f docker-compose.yml build planetmint
+        run: |
+          if [[ "${{ matrix.abci }}" == "enabled" ]]; then
+            docker-compose -f docker-compose.yml build --no-cache --build-arg abci_status=enable planetmint
+          fi
+          if [[ ""${{ matrix.abci }}" == "disabled"" ]]; then
+            docker-compose -f docker-compose.yml build --no-cache planetmint
+          fi
 
       - name: Check images
         run: docker images
@@ -21,7 +34,7 @@ jobs:
       - name: Upload image
         uses: actions/upload-artifact@v3
         with:
-          name: planetmint
+          name: planetmint-${{matrix.abci}}
           path: planetmint.tar
           retention-days: 5
 
@@ -35,19 +48,19 @@ jobs:
           - db: "MongoDB with ABCI"
             host: "mongodb"
             port: 27017
-            abci: "enable"
+            abci: "enabled"
           - db: "MongoDB without ABCI"
             host: "mongodb"
             port: 27017
-            abci: "disable"
+            abci: "disabled"
           - db: "Tarantool with ABCI"
             host: "tarantool"
             port: 3303
-            abci: "enable"
+            abci: "enabled"
           - db: "Tarantool without ABCI"
             host: "tarantool"
             port: 3303
-            abci: "disable"
+            abci: "disabled"
 
     steps:
       - name: Check out repository code
@@ -56,7 +69,7 @@ jobs:
       - name: Download planetmint
         uses: actions/download-artifact@v3
         with:
-          name: planetmint
+          name: planetmint-${{ matrix.abci }}
 
       - name: Load planetmint
         run: docker load -i planetmint.tar
