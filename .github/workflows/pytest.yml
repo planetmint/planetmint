@@ -34,7 +34,7 @@ jobs:
       - name: Upload image
         uses: actions/upload-artifact@v3
         with:
-          name: planetmint-${{matrix.abci}}
+          name: planetmint-abci-${{matrix.abci}}
           path: planetmint.tar
           retention-days: 5
 
@@ -78,24 +78,22 @@ jobs:
         run: docker images
 
       - name: Start containers
-        run: docker-compose -f docker-compose.yml up -d planetmint
+        run: |
+          if [[ "${{ matrix.abci }}" == "enabled" ]]; then
+            docker-compose -f docker-compose.yml up -d planetmint
+          fi
+          if [[ ""${{ matrix.abci }}" == "disabled"" ]]; then
+            docker-compose -f docker-compose.yml up -d bdb
+          fi
 
       - name: Check running containers
         run: docker ps -a
 
       - name: Run tests
-        run: docker exec planetmint_planetmint_1 pytest
-      # - name: Run tests
-      #   run: docker-compose -f docker-compose.yml exec planetmint pytest # docker-compose --version
-        # run: |
-        #   if [[ "${{ matrix.abci }}" == "enable" ]]; then
-        #     docker-compose exec planetmint pytest -v -m abci
-        #   fi
-        #   if [[ "${{ matrix.abci }}" == "disable" ]]; then
-        #     docker-compose exec planetmint pytest -v --cov=planetmint --cov-report xml:htmlcov/coverage.xml
-        #   fi
-
-
-      
-
-
+        run: |
+          if [[ "${{ matrix.abci }}" == "enabled" ]]; then
+            docker exec planetmint_planetmint_1 pytest -v -m abci
+          fi
+          if [[ ""${{ matrix.abci }}" == "disabled"" ]]; then
+            docker exec planetmint_planetmint_1 pytest -v
+          fi
