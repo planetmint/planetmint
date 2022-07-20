@@ -6,8 +6,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-  #     - name: Check out repository code
-  #       uses: actions/checkout@v3
+      - name: Check out repository code
+        uses: actions/checkout@v3
 
   #     # - name: Build planetmint
   #     #   run: docker build . --file Dockerfile --tag planetmint:$(date +%s)
