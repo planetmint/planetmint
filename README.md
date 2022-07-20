@@ -58,7 +58,6 @@ To view all commands available, run `make`.
 ## Links for Developers
 
 * [All Planetmint Documentation](https://docs.planetmint.io/en/latest/)
-* [Planetmint Server Documentation](https://docs.planetmint.io/projects/server/en/latest/index.html)
 * [CONTRIBUTING.md](.github/CONTRIBUTING.md) - how to contribute
 * [Community guidelines](CODE_OF_CONDUCT.md)
 * [Open issues](https://github.com/planetmint/planetmint/issues)
