@@ -1,0 +1,17 @@
+name: Acceptance tests
+on: [push, pull_request]
+
+jobs:
+  test:
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3
+
+      - name: Start container
+        run: docker-compose up -d planetmint
+
+      - name: Run test
+        run: docker-compose -f docker-compose.yml run --rm python-acceptance pytest /src
+
+      - name: Cleanup
+        run: docker-compose -f docker-compose.yml down
