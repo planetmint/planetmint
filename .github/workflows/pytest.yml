@@ -69,7 +69,7 @@ jobs:
       - name: Download planetmint
         uses: actions/download-artifact@v3
         with:
-          name: planetmint-${{ matrix.abci }}
+          name: planetmint-abci-${{ matrix.abci }}
 
       - name: Load planetmint
         run: docker load -i planetmint.tar
