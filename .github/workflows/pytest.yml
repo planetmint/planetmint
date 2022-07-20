@@ -44,7 +44,7 @@ jobs:
           retention-days: 5
 
 
-  test:
+  test-with-abci:
     runs-on: ubuntu-latest
     needs: build
     strategy:
@@ -54,18 +54,10 @@ jobs:
             host: "mongodb"
             port: 27017
             abci: "enabled"
-          - db: "MongoDB without ABCI"
-            host: "mongodb"
-            port: 27017
-            abci: "disabled"
           - db: "Tarantool with ABCI"
             host: "tarantool"
             port: 3303
             abci: "enabled"
-          - db: "Tarantool without ABCI"
-            host: "tarantool"
-            port: 3303
-            abci: "disabled"
 
     steps:
       - name: Check out repository code
@@ -74,7 +66,7 @@ jobs:
       - name: Download planetmint
         uses: actions/download-artifact@v3
         with:
-          name: planetmint-abci-${{ matrix.abci }}
+          name: planetmint-abci-enabled
 
       - name: Load planetmint
         run: docker load -i planetmint.tar
@@ -83,24 +75,53 @@ jobs:
         run: docker images
 
       - name: Start containers
-        env:
-          PLANETMINT_CI_ABCI: ${{ matrix.abci }}
-        run: |
-          if [[ "${{ matrix.abci }}" == "enabled" ]]; then
-            docker-compose -f docker-compose.yml up -d planetmint
-          fi
-          if [[ ""${{ matrix.abci }}" == "disabled"" ]]; then
-            docker-compose -f docker-compose.yml up -d bdb
-          fi
+        run: docker-compose -f docker-compose.yml up -d planetmint
+          
+      - name: Check running containers
+        run: docker ps -a
+
+      - name: Run tests
+        run: docker exec planetmint_planetmint_1 pytest -v -m abci
+
+      - name: Cleanup
+        run: docker-compose -f docker-compose.yml down
+
+  test-without-abci:
+    runs-on: ubuntu-latest
+    needs: build
+    strategy:
+      matrix:
+        include:
+          - db: "MongoDB without ABCI"
+            host: "mongodb"
+            port: 27017
+          - db: "Tarantool without ABCI"
+            host: "tarantool"
+            port: 3303
+
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3
+
+      - name: Download planetmint
+        uses: actions/download-artifact@v3
+        with:
+          name: planetmint-abci-disabled
+
+      - name: Load planetmint
+        run: docker load -i planetmint.tar
+
+      - name: Check images
+        run: docker images
+
+      - name: Start containers
+        run: docker-compose -f docker-compose.yml up -d bdb
 
       - name: Check running containers
         run: docker ps -a
 
       - name: Run tests
-        run: |
-          if [[ "${{ matrix.abci }}" == "enabled" ]]; then
-            docker exec planetmint_planetmint_1 pytest -v -m abci
-          fi
-          if [[ ""${{ matrix.abci }}" == "disabled"" ]]; then
-            docker exec planetmint_planetmint_1 pytest -v
-          fi
+        run: docker exec planetmint_planetmint_1 pytest -v
+      
+      - name: Cleanup
+        run: docker-compose -f docker-compose.yml down
