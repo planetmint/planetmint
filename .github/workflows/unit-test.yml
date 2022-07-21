@@ -74,9 +74,6 @@ jobs:
       - name: Run tests
         run: docker exec planetmint_planetmint_1 pytest -v -m abci
 
-      - name: Cleanup
-        run: docker-compose -f docker-compose.yml down
-
   test-without-abci:
     runs-on: ubuntu-latest
     needs: build
@@ -110,6 +107,3 @@ jobs:
 
       - name: Upload Coverage to Codecov
         uses: codecov/codecov-action@v3
-
-      - name: Cleanup
-        run: docker-compose -f docker-compose.yml down
