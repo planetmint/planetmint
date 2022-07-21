@@ -26,6 +26,7 @@ def test_api_root_endpoint(client, wsserver_base_url):
             }
         },
         "docs": "https://docs.planetmint.io/projects/server/en/vtsttst/",
+
         "version": "tsttst",
         "software": "Planetmint",
     }
