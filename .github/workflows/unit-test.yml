@@ -30,9 +30,6 @@ jobs:
             docker-compose -f docker-compose.yml build --no-cache planetmint
           fi
 
-      - name: Check images
-        run: docker images
-
       - name: Save image
         run: docker save -o planetmint.tar planetmint_planetmint
 
@@ -71,14 +68,8 @@ jobs:
       - name: Load planetmint
         run: docker load -i planetmint.tar
 
-      - name: Check images
-        run: docker images
-
       - name: Start containers
         run: docker-compose -f docker-compose.yml up -d planetmint
-          
-      - name: Check running containers
-        run: docker ps -a
 
       - name: Run tests
         run: docker exec planetmint_planetmint_1 pytest -v -m abci
@@ -111,20 +102,11 @@ jobs:
       - name: Load planetmint
         run: docker load -i planetmint.tar
 
-      - name: Check images
-        run: docker images
-
       - name: Start containers
         run: docker-compose -f docker-compose.yml up -d bdb
 
-      - name: Check running containers
-        run: docker ps -a
-
       - name: Run tests
         run: docker exec planetmint_planetmint_1 pytest -v --cov=planetmint --cov-report xml:htmlcov/coverage.xml
-
-      - name: Show files
-        run: ls -la
 
       - name: Upload Coverage to Codecov
         uses: codecov/codecov-action@v3
