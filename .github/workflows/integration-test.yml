@@ -16,6 +16,3 @@ jobs:
 
       - name: Start test run
         run: docker-compose -f docker-compose.integration.yml up test
-
-      - name: Cleanup
-        run: docker-compose -f docker-compose.integration.yml down

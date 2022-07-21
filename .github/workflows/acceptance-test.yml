@@ -19,6 +19,3 @@ jobs:
 
       - name: Run test
         run: docker-compose -f docker-compose.yml run --rm python-acceptance pytest /src
-
-      - name: Cleanup
-        run: docker-compose -f docker-compose.yml down
