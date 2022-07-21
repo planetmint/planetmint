@@ -21,7 +21,8 @@ jobs:
 
       - name: Generate Report
         run: |
-          pip install coverage pytest
+          pip install coverage
+          pip install .'[dev]'
           coverage run -m pytest
 
       - name: Upload Coverage to Codecov
