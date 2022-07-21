@@ -123,6 +123,9 @@ jobs:
       - name: Run tests
         run: docker exec planetmint_planetmint_1 pytest -v --cov=planetmint --cov-report xml:coverage.xml
 
+      - name: Show files
+        run: ls -la
+
       - name: Upload Coverage to Codecov
         uses: codecov/codecov-action@v3
         with:
