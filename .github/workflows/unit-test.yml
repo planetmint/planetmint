@@ -121,7 +121,12 @@ jobs:
         run: docker ps -a
 
       - name: Run tests
-        run: docker exec planetmint_planetmint_1 pytest -v
+        run: docker exec planetmint_planetmint_1 pytest -v --cov=planetmint --cov-report xml:coverage.xml
+
+      - name: Upload Coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          files: coverage.xml
 
       - name: Cleanup
         run: docker-compose -f docker-compose.yml down
