@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: (Apache-2.0 AND CC-BY-4.0)
 # Code is Apache-2.0 and docs are CC-BY-4.0
 
-name: coverage
+name: Coverage
 on: [push, pull_request]
 
 jobs:
@@ -21,7 +21,7 @@ jobs:
 
       - name: Generate Report
         run: |
-          pip install coverage
+          pip install coverage pytest
           coverage run -m pytest
 
       - name: Upload Coverage to Codecov
