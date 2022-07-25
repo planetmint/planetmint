@@ -8,8 +8,8 @@
 
 ## Tendermint Tips
 
-* [Configure Tendermint to create no empty blocks](https://tendermint.io/docs/tendermint-core/using-tendermint.html#no-empty-blocks).
-* Store the Tendermint data on a fast drive. You can do that by changing [the location of TMHOME](https://tendermint.io/docs/tendermint-core/using-tendermint.html#directory-root) to be on the fast drive.
+* [Configure Tendermint to create no empty blocks](https://tendermint.com/docs/tendermint-core/using-tendermint.html#no-empty-blocks).
+* Store the Tendermint data on a fast drive. You can do that by changing [the location of TMHOME](https://tendermint.com/docs/tendermint-core/using-tendermint.html#directory-root) to be on the fast drive.
 
 See the [Tendermint tips in the vrde/notes repository](https://github.com/vrde/notes/tree/master/tendermint).
 

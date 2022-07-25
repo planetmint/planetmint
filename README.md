@@ -54,14 +54,10 @@ To view all commands available, run `make`.
 ## Links for Everyone
 
 * [Planetmint.io](https://www.planetmint.io/) - the main Planetmint website, including newsletter signup
-* [Roadmap](https://github.com/planetmint/org/blob/master/ROADMAP.md)
-* [Blog](https://medium.com/the-planetmint-blog)
-* [Twitter](https://twitter.com/Planetmint)
 
 ## Links for Developers
 
-* [All Planetmint Documentation](https://docs.planetmint.com/en/latest/)
-* [Planetmint Server Documentation](https://docs.planetmint.com/projects/server/en/latest/index.html)
+* [All Planetmint Documentation](https://docs.planetmint.io/en/latest/)
 * [CONTRIBUTING.md](.github/CONTRIBUTING.md) - how to contribute
 * [Community guidelines](CODE_OF_CONDUCT.md)
 * [Open issues](https://github.com/planetmint/planetmint/issues)

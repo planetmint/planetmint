@@ -15,7 +15,7 @@ from planetmint.web.websocket_server import EVENTS_ENDPOINT, EVENTS_ENDPOINT_BLO
 
 class RootIndex(Resource):
     def get(self):
-        docs_url = ["https://docs.planetmint.com/projects/server/en/v", version.__version__ + "/"]
+        docs_url = ["https://docs.planetmint.io/projects/server/en/v", version.__version__ + "/"]
         return flask.jsonify(
             {
                 "api": {"v1": get_api_v1_info("/api/v1/")},
@@ -38,7 +38,7 @@ def get_api_v1_info(api_prefix):
     websocket_root_tx = base_ws_uri() + EVENTS_ENDPOINT
     websocket_root_block = base_ws_uri() + EVENTS_ENDPOINT_BLOCKS
     docs_url = [
-        "https://docs.planetmint.com/projects/server/en/v",
+        "https://docs.planetmint.io/projects/server/en/v",
         version.__version__,
         "/http-client-server-api.html",
     ]
