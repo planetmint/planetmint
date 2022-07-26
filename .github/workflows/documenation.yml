@@ -23,7 +23,7 @@ jobs:
         run: python -m pip install tox-gh
 
       - name: Install dependencies
-        run: pip install .'[dev]'
+        run: pip install .'[docs]' python-rapidjson
 
       - name: Run tox
         run: tox -e docsroot
