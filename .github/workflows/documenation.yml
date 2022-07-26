@@ -22,6 +22,9 @@ jobs:
       - name: Install tox
         run: python -m pip install tox-gh
 
+      - name: Install dependencies
+        run: pip install .'[docs]'
+
       - name: Run tox
         run: tox -e docsroot
 
