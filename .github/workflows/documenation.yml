@@ -20,13 +20,13 @@ jobs:
           python-version: 3.9
 
       - name: Install tox
-        run: python -m pip install tox-gh
+        run: python -m pip install --upgrade tox tox-gh
 
       - name: Install dependencies
         run: pip install .'[docs]'
 
       - name: Run tox
-        run: tox -e docsroot
+        run: tox
 
         
 
