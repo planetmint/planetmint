@@ -9,27 +9,27 @@ import tarantool
 from planetmint.config import Config
 from planetmint.transactions.common.exceptions import ConfigurationError
 from planetmint.utils import Lazy
-from planetmint.backend.connection import Connection
+from planetmint.backend.connection import DBConnection
 
 logger = logging.getLogger(__name__)
 
 
-class TarantoolDBConnection(Connection):
+class TarantoolDBConnection(DBConnection):
     def __init__(
         self,
         host: str = "localhost",
         port: int = 3303,
-        user: str = None,
+        login: str = None,
         password: str = None,
         **kwargs,
     ):
         try:
-            super().__init__(**kwargs)
-            self.host = host
-            self.port = port
-            # TODO add user support later on
-            self.init_path = Config().get()["database"]["init_config"]["absolute_path"]
-            self.drop_path = Config().get()["database"]["drop_config"]["absolute_path"]
+            super().__init__(host=host, port=port, login=login, password=password, **kwargs)
+
+            dbconf = Config().get()["database"]
+            self.init_path = dbconf["init_config"]["absolute_path"]
+            self.drop_path = dbconf["drop_config"]["absolute_path"]
+            self.conn = self.connect()
             self.SPACE_NAMES = [
                 "abci_chains",
                 "assets",
@@ -60,8 +60,16 @@ class TarantoolDBConnection(Connection):
             f.close()
         return "".join(execute).encode()
 
-    def _connect(self):
+    def connect(self):
         return tarantool.connect(host=self.host, port=self.port)
+
+    def close(self):
+        try:
+            self.conn.close()
+            self.conn = None
+        except Exception as exc:
+            logger.info('Exception in planetmint.backend.tarantool.close(): {}'.format(exc))
+            raise ConnectionError(str(exc)) from exc
 
     def get_space(self, space_name: str):
         return self.conn.space(space_name)
