@@ -3,17 +3,15 @@
 # SPDX-License-Identifier: (Apache-2.0 AND CC-BY-4.0)
 # Code is Apache-2.0 and docs are CC-BY-4.0
 
-name: Audit
-on:
-  schedule:
-    - cron: '0 2 * * *'
+name: Documentation
+on: [push, pull_request]
 
 jobs:
-  audit:
+  documentation:
     runs-on: ubuntu-latest
-    
+
     steps:
-      - name: Checkout repository
+      - name: Check out repository code
         uses: actions/checkout@v3
 
       - name: Setup python
@@ -21,16 +19,17 @@ jobs:
         with:
           python-version: 3.9
 
-      - name: Install pip-audit
-        run: pip install --upgrade pip pip-audit
+      - name: Install tox
+        run: python -m pip install --upgrade tox tox-gh-actions
 
       - name: Install dependencies
-        run: pip install .
+        run: pip install .'[dev]'
 
-      - name: Create requirements.txt
-        run: pip freeze > requirements.txt
+      - name: Run tox
+        run: tox -e docsroot
 
-      - name: Audit dependencies
-        run: pip-audit
+        
 
       
+
+       

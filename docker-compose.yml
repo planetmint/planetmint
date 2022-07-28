@@ -61,7 +61,7 @@ services:
       interval: 3s
       timeout: 5s
       retries: 5
-    command: '.ci/entrypoint.sh'
+    command: 'scripts/entrypoint.sh'
     restart: always
   
   tendermint:
