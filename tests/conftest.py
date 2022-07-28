@@ -18,7 +18,7 @@ import codecs
 from collections import namedtuple
 from logging import getLogger
 from logging.config import dictConfig
-from planetmint.backend.connection import connect
+from planetmint.backend.connection import Connection
 from planetmint.backend.tarantool.connection import TarantoolDBConnection
 
 import pytest
@@ -127,7 +127,7 @@ def _setup_database(_configure_planetmint):  # TODO Here is located setup databa
 
     print('Initializing test db')
     dbname = Config().get()['database']['name']
-    conn = connect()
+    conn = Connection().conn
 
     _drop_db(conn, dbname)
     schema.init_database(conn, dbname)
@@ -136,7 +136,7 @@ def _setup_database(_configure_planetmint):  # TODO Here is located setup databa
     yield
 
     print('Deleting `{}` database'.format(dbname))
-    conn = connect()
+    conn = Connection().conn
     _drop_db(conn, dbname)
 
     print('Finished deleting `{}`'.format(dbname))
@@ -148,7 +148,7 @@ def _bdb(_setup_database, _configure_planetmint):
     from planetmint.models import Transaction
     from .utils import flush_db
     from planetmint.config import Config
-    conn = connect()
+    conn = Connection().conn
     yield
     dbname = Config().get()['database']['name']
     flush_db(conn, dbname)
@@ -389,7 +389,7 @@ def db_name(db_config):
 
 @pytest.fixture
 def db_conn():
-    return connect()
+    return Connection().conn
 
 
 @pytest.fixture

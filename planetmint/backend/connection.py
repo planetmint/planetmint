@@ -94,9 +94,8 @@ class Connection(metaclass=DBSingleton):
     from and implements this class.
     """
 
-    def __init__(self, host=None, port=None, dbname=None,
-                 connection_timeout=None, max_tries=None,
-                 **kwargs):
+    def __init__(self, host: str =None, port: int = None, login: str = None, password: str = None, backend: str = None,
+                 connection_timeout: int = None, max_tries: int = None, **kwargs):
         """Create a new :class:`~.Connection` instance.
         Args:
             host (str): the host to connect to.
@@ -110,23 +109,102 @@ class Connection(metaclass=DBSingleton):
             **kwargs: arbitrary keyword arguments provided by the
                 configuration's ``database`` settings
         """
-
         dbconf = Config().get()['database']
 
-        self.host = host or dbconf['host']
-        self.port = port or dbconf['port']
-        self.dbname = dbname or dbconf['name']
-        self.connection_timeout = connection_timeout if connection_timeout is not None \
-            else dbconf['connection_timeout']
+        self.connection_timeout = connection_timeout if connection_timeout is not None else Config().get()["database"]
         self.max_tries = max_tries if max_tries is not None else dbconf['max_tries']
         self.max_tries_counter = range(self.max_tries) if self.max_tries != 0 else repeat(0)
-        self._conn = None
+        self.conn = None
 
-    @property
-    def conn(self):
-        if self._conn is None:
-            self.connect()
-        return self._conn
+        try:
+            backend = backend
+            if not backend and kwargs and kwargs.get("backend"):
+                backend = kwargs["backend"]
+
+            if backend and backend != Config().get()["database"]["backend"]:
+                Config().init_config(backend)
+            else:
+                backend = Config().get()["database"]["backend"]
+        except KeyError:
+            logger.info("Backend {} not supported".format(backend))
+            raise ConfigurationError
+
+        if(self.conn is None):
+            try:
+                self.connect(host=host, port=port, login=login, password=password, backend=backend, kwargs=kwargs)
+            except tarantool.error.NetworkError as network_err:
+                print(f"Host {host}:{port} can't be reached.\n{network_err}")
+                raise network_err
+
+    def connect(self, host: str = None, port: int = None, login: str = None, password: str = None, backend: str = None, **kwargs):
+        """Try to connect to the database.
+        Raises:
+            :exc:`~ConnectionError`: If the connection to the database
+                fails.
+        """
+        for attempt in self.max_tries_counter:
+            if (self.conn is None):                    
+                try:
+                    modulepath, _, class_name = BACKENDS[backend].rpartition('.')
+                    Class = getattr(import_module(modulepath), class_name)
+                    self.conn = Class(host=host, port=port, login=login, password=password, kwargs=kwargs)
+                    break
+                except ConnectionError as exc:
+                    logger.warning('Attempt %s/%s. Connection to %s:%s failed after %sms.',
+                                attempt, self.max_tries if self.max_tries != 0 else '∞',
+                                host, port, self.connection_timeout)
+                    if attempt == self.max_tries:
+                        logger.critical('Cannot connect to the Database. Giving up.')
+                        raise ConnectionError() from exc
+                    else:
+                        break
+        return self.conn
+
+    def close(self):
+        """Try to close connection to database.
+        Raises:
+            :exc:`~ConnectionError`: If the closing connection to the database
+                fails.
+        """
+        for attempt in self.max_tries_counter:
+            if (self.conn is not None):                    
+                try:
+                    self.conn.close()
+                    self.conn = None
+                    break
+                except ConnectionError as exc:
+                    logger.warning('Attempt %s/%s. Close Connection to %s:%s failed after %sms.',
+                                attempt, self.max_tries if self.max_tries != 0 else '∞',
+                                self.conn.host, self.conn.port, self.connection_timeout)
+                    if attempt == self.max_tries:
+                        logger.critical('Cannot close connection to the Database. Giving up.')
+                        raise ConnectionError() from exc
+                    else:
+                        break
+
+
+class DBConnection():
+
+    def __init__(self, host: str = None, port: int = None, login: str = None, password: str = None, **kwargs):
+        """Create a new :class:`~.DBConnection` instance.
+        Args:
+            host (str): the host to connect to.
+            port (int): the port to connect to.
+            dbname (str): the name of the database to use.
+            connection_timeout (int, optional): the milliseconds to wait
+                until timing out the database connection attempt.
+                Defaults to 5000ms.
+            max_tries (int, optional): how many tries before giving up,
+                if 0 then try forever. Defaults to 3.
+            **kwargs: arbitrary keyword arguments provided by the
+                configuration's ``database`` settings
+        """
+        dbconf = Config().get()['database']
+
+        self.host = host or dbconf["host"] if not kwargs.get("host") else kwargs["host"]
+        self.port = port or dbconf['port'] if not kwargs.get("port") else kwargs["port"]
+        self.login = login or dbconf['login'] if not kwargs.get("login") else kwargs["login"]
+        self.password = password or dbconf['password'] if not kwargs.get("password") else kwargs["password"]
 
     def run(self, query):
         """Run a query.
@@ -149,18 +227,12 @@ class Connection(metaclass=DBSingleton):
             :exc:`~ConnectionError`: If the connection to the database
                 fails.
         """
+        raise NotImplementedError()
 
-        attempt = 0
-        for i in self.max_tries_counter:
-            attempt += 1
-            try:
-                self._conn = self._connect()
-            except ConnectionError as exc:
-                logger.warning('Attempt %s/%s. Connection to %s:%s failed after %sms.',
-                               attempt, self.max_tries if self.max_tries != 0 else '∞',
-                               self.host, self.port, self.connection_timeout)
-                if attempt == self.max_tries:
-                    logger.critical('Cannot connect to the Database. Giving up.')
-                    raise ConnectionError() from exc
-            else:
-                break
+    def close(self):
+        """Try to close connection to the database.
+        Raises:
+            :exc:`~ConnectionError`: If the connection to the database
+                fails.
+        """
+        raise NotImplementedError()

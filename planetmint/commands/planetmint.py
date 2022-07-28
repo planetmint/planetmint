@@ -264,8 +264,8 @@ def run_drop(args):
         if response != 'y':
             return
 
-    from planetmint.backend.connection import connect
-    conn = connect()
+    from planetmint.backend.connection import Connection
+    conn = Connection().conn
     try:
         schema.drop_database(conn)
     except DatabaseDoesNotExist:
