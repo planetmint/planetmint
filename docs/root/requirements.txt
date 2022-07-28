@@ -40,3 +40,4 @@ nest-asyncio==1.5.5
 sphinx-press-theme==0.8.0
 sphinx-documatt-theme
 python-rapidjson==1.0
+base58==2.1
