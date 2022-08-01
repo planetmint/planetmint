@@ -142,6 +142,19 @@ class Connection(metaclass=DBSingleton):
             :exc:`~ConnectionError`: If the connection to the database
                 fails.
         """
+        try:
+            backend = backend
+            if not backend and kwargs and kwargs.get("backend"):
+                backend = kwargs["backend"]
+
+            if backend and backend != Config().get()["database"]["backend"]:
+                Config().init_config(backend)
+            else:
+                backend = Config().get()["database"]["backend"]
+        except KeyError:
+            logger.info("Backend {} not supported".format(backend))
+            raise ConfigurationError
+
         for attempt in self.max_tries_counter:
             if (self.conn is None):                    
                 try:
