@@ -20,75 +20,36 @@ BACKENDS = {
 
 logger = logging.getLogger(__name__)
 
-class DBSingleton(type):
-    _instances = {}
-
-    def __call__(cls, *args, **kwargs):
-        if cls not in cls._instances:
-            cls._instances[cls] = super(DBSingleton, cls).__call__(*args, **kwargs)
-        return cls._instances[cls]
-
-def connect(host: str = None, port: int = None, login: str = None, password: str = None, backend: str = None,
-               **kwargs):
-    try:
-        backend = backend
-        if not backend and kwargs and kwargs.get("backend"):
-            backend = kwargs["backend"]
-
-        if backend and backend != Config().get()["database"]["backend"]:
-            Config().init_config(backend)
-        else:
-            backend = Config().get()["database"]["backend"]
-    except KeyError:
-        logger.info("Backend {} not supported".format(backend))
-        raise ConfigurationError
-
-    host = host or Config().get()["database"]["host"] if not kwargs.get("host") else kwargs["host"]
-    port = port or Config().get()['database']['port'] if not kwargs.get("port") else kwargs["port"]
-    login = login or Config().get()["database"]["login"] if not kwargs.get("login") else kwargs["login"]
-    password = password or Config().get()["database"]["password"]
-    try:
-        if backend == "tarantool_db":
-            modulepath, _, class_name = BACKENDS[backend].rpartition('.')
-            Class = getattr(import_module(modulepath), class_name)
-            return Class(host=host, port=port, user=login, password=password, kwargs=kwargs)
-        elif backend == "localmongodb":
-            modulepath, _, class_name = BACKENDS[backend].rpartition('.')
-            Class = getattr(import_module(modulepath), class_name)
-            dbname = _kwargs_parser(key="name", kwargs=kwargs) or Config().get()['database']['name']
-            replicaset = _kwargs_parser(key="replicaset", kwargs=kwargs) or Config().get()['database']['replicaset']
-            ssl = _kwargs_parser(key="ssl", kwargs=kwargs) or Config().get()['database']['ssl']
-            login = login or Config().get()['database']['login'] if _kwargs_parser(key="login",
-                                                                                   kwargs=kwargs) is None else _kwargs_parser(  # noqa: E501
-                key="login", kwargs=kwargs)
-            password = password or Config().get()['database']['password'] if _kwargs_parser(key="password",
-                                                                                            kwargs=kwargs) is None else _kwargs_parser(  # noqa: E501
-                key="password", kwargs=kwargs)
-            ca_cert = _kwargs_parser(key="ca_cert", kwargs=kwargs) or Config().get()['database']['ca_cert']
-            certfile = _kwargs_parser(key="certfile", kwargs=kwargs) or Config().get()['database']['certfile']
-            keyfile = _kwargs_parser(key="keyfile", kwargs=kwargs) or Config().get()['database']['keyfile']
-            keyfile_passphrase = _kwargs_parser(key="keyfile_passphrase", kwargs=kwargs) or Config().get()['database'][
-                'keyfile_passphrase']
-            crlfile = _kwargs_parser(key="crlfile", kwargs=kwargs) or Config().get()['database']['crlfile']
-            max_tries = _kwargs_parser(key="max_tries", kwargs=kwargs)
-            connection_timeout = _kwargs_parser(key="connection_timeout", kwargs=kwargs)
-
-            return Class(host=host, port=port, dbname=dbname,
-                         max_tries=max_tries, connection_timeout=connection_timeout,
-                         replicaset=replicaset, ssl=ssl, login=login, password=password,
-                         ca_cert=ca_cert, certfile=certfile, keyfile=keyfile,
-                         keyfile_passphrase=keyfile_passphrase, crlfile=crlfile)
-    except tarantool.error.NetworkError as network_err:
-        print(f"Host {host}:{port} can't be reached.\n{network_err}")
-        raise network_err
-
-
 def _kwargs_parser(key, kwargs):
     if kwargs.get(key):
         return kwargs[key]
     return None
 
+class DBSingleton(type):
+    _instances = {}
+
+    def __call__(cls, *args, **kwargs):
+        if cls not in cls._instances:
+            try:
+                backend = _kwargs_parser(key="backend", kwargs=kwargs)
+                if backend and backend != Config().get()["database"]["backend"]:
+                    Config().init_config(backend)
+                else:
+                    backend = Config().get()["database"]["backend"]
+            except KeyError:
+                logger.info("Backend {} not supported".format(backend))
+                raise ConfigurationError
+            modulepath, _, class_name = BACKENDS[backend].rpartition('.')
+            Class = getattr(import_module(modulepath), class_name)
+            cls._instances[cls] = super(DBSingleton, Class).__call__(*args, **kwargs)
+        return cls._instances[cls]
+
 class Connection(metaclass=DBSingleton):
+
+    def __init__(self) -> None:
+        pass
+
+class DBConnection(metaclass=DBSingleton):
     """Connection class interface.
     All backend implementations should provide a connection class that inherits
     from and implements this class.
@@ -111,113 +72,14 @@ class Connection(metaclass=DBSingleton):
         """
         dbconf = Config().get()['database']
 
-        self.connection_timeout = connection_timeout if connection_timeout is not None else Config().get()["database"]
-        self.max_tries = max_tries if max_tries is not None else dbconf['max_tries']
-        self.max_tries_counter = range(self.max_tries) if self.max_tries != 0 else repeat(0)
-        self.conn = None
-
-        try:
-            backend = backend
-            if not backend and kwargs and kwargs.get("backend"):
-                backend = kwargs["backend"]
-
-            if backend and backend != Config().get()["database"]["backend"]:
-                Config().init_config(backend)
-            else:
-                backend = Config().get()["database"]["backend"]
-        except KeyError:
-            logger.info("Backend {} not supported".format(backend))
-            raise ConfigurationError
-
-        if(self.conn is None):
-            try:
-                self.connect(host=host, port=port, login=login, password=password, backend=backend, kwargs=kwargs)
-            except tarantool.error.NetworkError as network_err:
-                print(f"Host {host}:{port} can't be reached.\n{network_err}")
-                raise network_err
-
-    def connect(self, host: str = None, port: int = None, login: str = None, password: str = None, backend: str = None, **kwargs):
-        """Try to connect to the database.
-        Raises:
-            :exc:`~ConnectionError`: If the connection to the database
-                fails.
-        """
-        try:
-            backend = backend
-            if not backend and kwargs and kwargs.get("backend"):
-                backend = kwargs["backend"]
-
-            if backend and backend != Config().get()["database"]["backend"]:
-                Config().init_config(backend)
-            else:
-                backend = Config().get()["database"]["backend"]
-        except KeyError:
-            logger.info("Backend {} not supported".format(backend))
-            raise ConfigurationError
-
-        for attempt in self.max_tries_counter:
-            if (self.conn is None):                    
-                try:
-                    modulepath, _, class_name = BACKENDS[backend].rpartition('.')
-                    Class = getattr(import_module(modulepath), class_name)
-                    self.conn = Class(host=host, port=port, login=login, password=password, kwargs=kwargs)
-                    break
-                except ConnectionError as exc:
-                    logger.warning('Attempt %s/%s. Connection to %s:%s failed after %sms.',
-                                attempt, self.max_tries if self.max_tries != 0 else '∞',
-                                host, port, self.connection_timeout)
-                    if attempt == self.max_tries:
-                        logger.critical('Cannot connect to the Database. Giving up.')
-                        raise ConnectionError() from exc
-                    else:
-                        break
-        return self.conn
-
-    def close(self):
-        """Try to close connection to database.
-        Raises:
-            :exc:`~ConnectionError`: If the closing connection to the database
-                fails.
-        """
-        for attempt in self.max_tries_counter:
-            if (self.conn is not None):                    
-                try:
-                    self.conn.close()
-                    self.conn = None
-                    break
-                except ConnectionError as exc:
-                    logger.warning('Attempt %s/%s. Close Connection to %s:%s failed after %sms.',
-                                attempt, self.max_tries if self.max_tries != 0 else '∞',
-                                self.conn.host, self.conn.port, self.connection_timeout)
-                    if attempt == self.max_tries:
-                        logger.critical('Cannot close connection to the Database. Giving up.')
-                        raise ConnectionError() from exc
-                    else:
-                        break
-
-
-class DBConnection():
-
-    def __init__(self, host: str = None, port: int = None, login: str = None, password: str = None, **kwargs):
-        """Create a new :class:`~.DBConnection` instance.
-        Args:
-            host (str): the host to connect to.
-            port (int): the port to connect to.
-            dbname (str): the name of the database to use.
-            connection_timeout (int, optional): the milliseconds to wait
-                until timing out the database connection attempt.
-                Defaults to 5000ms.
-            max_tries (int, optional): how many tries before giving up,
-                if 0 then try forever. Defaults to 3.
-            **kwargs: arbitrary keyword arguments provided by the
-                configuration's ``database`` settings
-        """
-        dbconf = Config().get()['database']
-
         self.host = host or dbconf["host"] if not kwargs.get("host") else kwargs["host"]
         self.port = port or dbconf['port'] if not kwargs.get("port") else kwargs["port"]
         self.login = login or dbconf['login'] if not kwargs.get("login") else kwargs["login"]
         self.password = password or dbconf['password'] if not kwargs.get("password") else kwargs["password"]
+
+        self.connection_timeout = connection_timeout if connection_timeout is not None else Config().get()["database"]
+        self.max_tries = max_tries if max_tries is not None else dbconf['max_tries']
+        self.max_tries_counter = range(self.max_tries) if self.max_tries != 0 else repeat(0)
 
     def run(self, query):
         """Run a query.

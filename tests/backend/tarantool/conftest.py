@@ -27,5 +27,5 @@ from planetmint.backend.connection import Connection
 
 @pytest.fixture
 def db_conn():
-    conn = Connection().conn
+    conn = Connection()
     return conn

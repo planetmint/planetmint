@@ -127,7 +127,7 @@ def _setup_database(_configure_planetmint):  # TODO Here is located setup databa
 
     print('Initializing test db')
     dbname = Config().get()['database']['name']
-    conn = Connection().conn
+    conn = Connection()
 
     _drop_db(conn, dbname)
     schema.init_database(conn, dbname)
@@ -136,7 +136,7 @@ def _setup_database(_configure_planetmint):  # TODO Here is located setup databa
     yield
 
     print('Deleting `{}` database'.format(dbname))
-    conn = Connection().conn
+    conn = Connection()
     _drop_db(conn, dbname)
 
     print('Finished deleting `{}`'.format(dbname))
@@ -148,7 +148,7 @@ def _bdb(_setup_database, _configure_planetmint):
     from planetmint.models import Transaction
     from .utils import flush_db
     from planetmint.config import Config
-    conn = Connection().conn
+    conn = Connection()
     yield
     dbname = Config().get()['database']['name']
     flush_db(conn, dbname)
@@ -389,7 +389,7 @@ def db_name(db_config):
 
 @pytest.fixture
 def db_conn():
-    return Connection().conn
+    return Connection()
 
 
 @pytest.fixture

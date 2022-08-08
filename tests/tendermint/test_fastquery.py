@@ -119,7 +119,7 @@ def test_outputs_query_key_order(b, user_pk, user_sk, user2_pk, user2_sk):
 
     # clean the transaction, metdata and asset collection
     # conn = connect()
-    connection = Connection().conn
+    connection = Connection()
     # conn.run(conn.collection('transactions').delete_many({}))
     # conn.run(conn.collection('metadata').delete_many({}))
     # conn.run(conn.collection('assets').delete_many({}))

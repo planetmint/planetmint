@@ -94,7 +94,7 @@ def test__run_init(mocker):
     init_db_mock = mocker.patch(
         'planetmint.backend.tarantool.connection.TarantoolDBConnection.init_database')
 
-    conn = Connection().conn
+    conn = Connection()
     conn.init_database()
 
     init_db_mock.assert_called_once_with()

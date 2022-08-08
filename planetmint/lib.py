@@ -75,7 +75,7 @@ class Planetmint(object):
             self.validation = config_utils.load_validation_plugin(validationPlugin)
         else:
             self.validation = BaseValidationRules
-        self.connection = connection if connection is not None else Connection().conn
+        self.connection = connection if connection is not None else Connection()
 
     def post_transaction(self, transaction, mode):
         """Submit a valid transaction to the mempool."""
