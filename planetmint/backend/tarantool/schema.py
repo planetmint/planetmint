@@ -161,24 +161,24 @@ def drop_database(connection, not_used=None):
 
 @register_schema(TarantoolDBConnection)
 def create_database(connection, dbname):
-    '''
+    """
 
     For tarantool implementation, this function runs
     create_tables, to initiate spaces, schema and indexes.
 
-    '''
-    logger.info('Create database `%s`.', dbname)
-    create_tables(connection, dbname)
+    """
+    logger.info("Create database `%s`.", dbname)
 
 
 def run_command_with_output(command):
     from subprocess import run
     host_port = "%s:%s" % (Config().get()["database"]["host"], Config().get()["database"]["port"])
-    output = run(["tarantoolctl", "connect", host_port],
-                 input=command,
-                 capture_output=True).stderr
-    output = output.decode()
-    return output
+    output = run(["tarantoolctl", "connect", host_port], input=command, capture_output=True)
+    if output.returncode != 0:
+        raise Exception(
+            f"Error while trying to execute cmd {command} on host:port {host_port}: {output.stderr}"
+        )
+    return output.stdout
 
 
 @register_schema(TarantoolDBConnection)
@@ -188,8 +188,8 @@ def create_tables(connection, dbname):
             cmd = SPACE_COMMANDS[_space].encode()
             run_command_with_output(command=cmd)
             print(f"Space '{_space}' created.")
-        except Exception:
-            print(f"Unexpected error while trying to create '{_space}'")
+        except Exception as err:
+            print(f"Unexpected error while trying to create '{_space}': {err}")
         create_schema(space_name=_space)
         create_indexes(space_name=_space)
 
@@ -200,8 +200,8 @@ def create_indexes(space_name):
         try:
             run_command_with_output(command=index_cmd.encode())
             print(f"Index '{index_name}' created succesfully.")
-        except Exception:
-            print(f"Unexpected error while trying to create index '{index_name}'")
+        except Exception as err:
+            print(f"Unexpected error while trying to create index '{index_name}': '{err}'")
 
 
 def create_schema(space_name):
