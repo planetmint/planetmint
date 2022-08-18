@@ -44,13 +44,14 @@ class StandaloneApplication(gunicorn.app.base.BaseApplication):
     def load_config(self):
         # find a better way to pass this such that
         # the custom logger class can access it.
-        custom_log_config = self.options.get('custom_log_config')
-        self.cfg.env_orig['custom_log_config'] = custom_log_config
+        custom_log_config = self.options.get("custom_log_config")
+        self.cfg.env_orig["custom_log_config"] = custom_log_config
 
-        config = dict((key, value) for key, value in self.options.items()
-                      if key in self.cfg.settings and value is not None)
+        config = dict(
+            (key, value) for key, value in self.options.items() if key in self.cfg.settings and value is not None
+        )
 
-        config['default_proc_name'] = 'planetmint_gunicorn'
+        config["default_proc_name"] = "planetmint_gunicorn"
         for key, value in config.items():
             # not sure if we need the `key.lower` here, will just keep
             # keep it for now.
@@ -81,7 +82,7 @@ def create_app(*, debug=False, threads=1, planetmint_factory=None):
 
     app.debug = debug
 
-    app.config['bigchain_pool'] = utils.pool(planetmint_factory, size=threads)
+    app.config["bigchain_pool"] = utils.pool(planetmint_factory, size=threads)
 
     add_routes(app)
 
@@ -101,18 +102,18 @@ def create_server(settings, log_config=None, planetmint_factory=None):
 
     settings = copy.deepcopy(settings)
 
-    if not settings.get('workers'):
-        settings['workers'] = (multiprocessing.cpu_count() * 2) + 1
+    if not settings.get("workers"):
+        settings["workers"] = (multiprocessing.cpu_count() * 2) + 1
 
-    if not settings.get('threads'):
+    if not settings.get("threads"):
         # Note: Threading is not recommended currently, as the frontend workload
         # is largely CPU bound and parallisation across Python threads makes it
         # slower.
-        settings['threads'] = 1
+        settings["threads"] = 1
 
-    settings['custom_log_config'] = log_config
-    app = create_app(debug=settings.get('debug', False),
-                     threads=settings['threads'],
-                     planetmint_factory=planetmint_factory)
+    settings["custom_log_config"] = log_config
+    app = create_app(
+        debug=settings.get("debug", False), threads=settings["threads"], planetmint_factory=planetmint_factory
+    )
     standalone = StandaloneApplication(app, options=settings)
     return standalone

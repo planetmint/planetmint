@@ -75,7 +75,7 @@ def validate_txn_obj(obj_name, obj, key, validation_fun):
     Raises:
         ValidationError: `validation_fun` will raise exception on failure
     """
-    backend = Config().get()['database']['backend']
+    backend = Config().get()["database"]["backend"]
 
     if backend == "localmongodb":
         data = obj.get(key, {})
@@ -184,9 +184,7 @@ def _fulfillment_to_details(fulfillment):
         }
 
     if fulfillment.type_name == "threshold-sha-256":
-        subconditions = [
-            _fulfillment_to_details(cond["body"]) for cond in fulfillment.subconditions
-        ]
+        subconditions = [_fulfillment_to_details(cond["body"]) for cond in fulfillment.subconditions]
         return {
             "type": "threshold-sha-256",
             "threshold": fulfillment.threshold,

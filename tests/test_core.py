@@ -13,9 +13,7 @@ from tendermint.crypto import keys_pb2
 from planetmint import App
 from planetmint.backend import query
 from planetmint.transactions.common.crypto import generate_key_pair
-from planetmint.core import (OkCode,
-                             CodeTypeError,
-                             rollback)
+from planetmint.core import OkCode, CodeTypeError, rollback
 from planetmint.transactions.types.elections.election import Election
 from planetmint.lib import Block
 from planetmint.transactions.types.elections.chain_migration_election import ChainMigrationElection
@@ -31,38 +29,39 @@ from tests.utils import generate_election, generate_validators
 
 @pytest.fixture
 def config(request, monkeypatch):
-    backend = request.config.getoption('--database-backend')
-    if backend == 'mongodb-ssl':
-        backend = 'mongodb'
+    backend = request.config.getoption("--database-backend")
+    if backend == "mongodb-ssl":
+        backend = "mongodb"
 
     config = {
-        'database': {
-            'backend': backend,
-            'host': 'tarantool',
-            'port': 3303,
-            'name': 'bigchain',
-            'replicaset': 'bigchain-rs',
-            'connection_timeout': 5000,
-            'max_tries': 3,
-            'name': 'bigchain'
+        "database": {
+            "backend": backend,
+            "host": "tarantool",
+            "port": 3303,
+            "name": "bigchain",
+            "replicaset": "bigchain-rs",
+            "connection_timeout": 5000,
+            "max_tries": 3,
+            "name": "bigchain",
         },
-        'tendermint': {
-            'host': 'localhost',
-            'port': 26657,
+        "tendermint": {
+            "host": "localhost",
+            "port": 26657,
         },
-        'CONFIGURED': True,
+        "CONFIGURED": True,
     }
 
-    monkeypatch.setattr('planetmint.config', config)
+    monkeypatch.setattr("planetmint.config", config)
     return config
 
 
 def test_bigchain_class_default_initialization(config):
     from planetmint import Planetmint
     from planetmint.validation import BaseValidationRules
+
     planet = Planetmint()
-    assert planet.connection.host == config['database']['host']
-    assert planet.connection.port == config['database']['port']
+    assert planet.connection.host == config["database"]["host"]
+    assert planet.connection.port == config["database"]["port"]
     assert planet.validation == BaseValidationRules
 
 
@@ -70,17 +69,18 @@ def test_bigchain_class_initialization_with_parameters():
     from planetmint import Planetmint
     from planetmint.backend import connect
     from planetmint.validation import BaseValidationRules
+
     init_db_kwargs = {
-        'backend': 'localmongodb',
-        'host': 'this_is_the_db_host',
-        'port': 12345,
-        'name': 'this_is_the_db_name',
+        "backend": "localmongodb",
+        "host": "this_is_the_db_host",
+        "port": 12345,
+        "name": "this_is_the_db_name",
     }
     connection = connect(**init_db_kwargs)
     planet = Planetmint(connection=connection)
     assert planet.connection == connection
-    assert planet.connection.host == init_db_kwargs['host']
-    assert planet.connection.port == init_db_kwargs['port']
+    assert planet.connection.host == init_db_kwargs["host"]
+    assert planet.connection.port == init_db_kwargs["port"]
     # assert planet.connection.name == init_db_kwargs['name']
     assert planet.validation == BaseValidationRules
 
@@ -96,9 +96,7 @@ def test_get_spent_issue_1271(b, alice, bob, carol):
 
     tx_2 = Transfer.generate(
         tx_1.to_inputs(),
-        [([bob.public_key], 2),
-         ([alice.public_key], 2),
-         ([carol.public_key], 4)],
+        [([bob.public_key], 2), ([alice.public_key], 2), ([carol.public_key], 4)],
         asset_id=tx_1.id,
     ).sign([carol.private_key])
     assert tx_2.validate(b)
@@ -106,8 +104,7 @@ def test_get_spent_issue_1271(b, alice, bob, carol):
 
     tx_3 = Transfer.generate(
         tx_2.to_inputs()[2:3],
-        [([alice.public_key], 1),
-         ([carol.public_key], 3)],
+        [([alice.public_key], 1), ([carol.public_key], 3)],
         asset_id=tx_1.id,
     ).sign([carol.private_key])
     assert tx_3.validate(b)

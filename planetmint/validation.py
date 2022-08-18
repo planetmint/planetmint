@@ -4,7 +4,7 @@
 # Code is Apache-2.0 and docs are CC-BY-4.0
 
 
-class BaseValidationRules():
+class BaseValidationRules:
     """Base validation rules for Planetmint.
 
     A validation plugin must expose a class inheriting from this one via an entry_point.

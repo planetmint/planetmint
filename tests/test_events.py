@@ -10,15 +10,14 @@ def test_event_handler():
     from planetmint.events import EventTypes, Event, Exchange
 
     # create and event
-    event_data = {'msg': 'some data'}
+    event_data = {"msg": "some data"}
     event = Event(EventTypes.BLOCK_VALID, event_data)
 
     # create the events pub sub
     exchange = Exchange()
 
     sub0 = exchange.get_subscriber_queue(EventTypes.BLOCK_VALID)
-    sub1 = exchange.get_subscriber_queue(EventTypes.BLOCK_VALID |
-                                         EventTypes.BLOCK_INVALID)
+    sub1 = exchange.get_subscriber_queue(EventTypes.BLOCK_VALID | EventTypes.BLOCK_INVALID)
     # Subscribe to all events
     sub2 = exchange.get_subscriber_queue()
     sub3 = exchange.get_subscriber_queue(EventTypes.BLOCK_INVALID)
@@ -59,7 +58,7 @@ def test_exchange_stops_with_poison_pill():
     from planetmint.events import EventTypes, Event, Exchange, POISON_PILL
 
     # create and event
-    event_data = {'msg': 'some data'}
+    event_data = {"msg": "some data"}
     event = Event(EventTypes.BLOCK_VALID, event_data)
 
     # create the events pub sub

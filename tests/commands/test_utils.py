@@ -14,40 +14,41 @@ from unittest.mock import patch
 
 @pytest.fixture
 def reset_planetmint_config(monkeypatch):
-    monkeypatch.setattr('planetmint.config', Config().init_config('tarantool_db'))
+    monkeypatch.setattr("planetmint.config", Config().init_config("tarantool_db"))
 
 
 def test_input_on_stderr():
     from planetmint.commands.utils import input_on_stderr, _convert
 
-    with patch('builtins.input', return_value='I love cats'):
-        assert input_on_stderr() == 'I love cats'
+    with patch("builtins.input", return_value="I love cats"):
+        assert input_on_stderr() == "I love cats"
 
     # input_on_stderr uses `_convert` internally, from now on we will
     # just use that function
 
-    assert _convert('hack the planet') == 'hack the planet'
-    assert _convert('42') == '42'
-    assert _convert('42', default=10) == 42
-    assert _convert('', default=10) == 10
-    assert _convert('42', convert=int) == 42
-    assert _convert('True', convert=bool) is True
-    assert _convert('False', convert=bool) is False
-    assert _convert('t', convert=bool) is True
-    assert _convert('3.14', default=1.0) == 3.14
-    assert _convert('TrUe', default=False) is True
+    assert _convert("hack the planet") == "hack the planet"
+    assert _convert("42") == "42"
+    assert _convert("42", default=10) == 42
+    assert _convert("", default=10) == 10
+    assert _convert("42", convert=int) == 42
+    assert _convert("True", convert=bool) is True
+    assert _convert("False", convert=bool) is False
+    assert _convert("t", convert=bool) is True
+    assert _convert("3.14", default=1.0) == 3.14
+    assert _convert("TrUe", default=False) is True
 
     with pytest.raises(ValueError):
-        assert _convert('TRVE', default=False)
+        assert _convert("TRVE", default=False)
 
     with pytest.raises(ValueError):
-        assert _convert('ಠ_ಠ', convert=int)
+        assert _convert("ಠ_ಠ", convert=int)
 
 
-@pytest.mark.usefixtures('ignore_local_config_file', 'reset_planetmint_config')
+@pytest.mark.usefixtures("ignore_local_config_file", "reset_planetmint_config")
 def test_configure_planetmint_configures_planetmint():
     from planetmint.commands.utils import configure_planetmint
     from planetmint.config_utils import is_configured
+
     assert not is_configured()
 
     @configure_planetmint
@@ -58,17 +59,11 @@ def test_configure_planetmint_configures_planetmint():
     test_configure(args)
 
 
-@pytest.mark.usefixtures('ignore_local_config_file',
-                         'reset_planetmint_config',
-                         'reset_logging_config')
-@pytest.mark.parametrize('log_level', tuple(map(
-    logging.getLevelName,
-    (logging.DEBUG,
-     logging.INFO,
-     logging.WARNING,
-     logging.ERROR,
-     logging.CRITICAL)
-)))
+@pytest.mark.usefixtures("ignore_local_config_file", "reset_planetmint_config", "reset_logging_config")
+@pytest.mark.parametrize(
+    "log_level",
+    tuple(map(logging.getLevelName, (logging.DEBUG, logging.INFO, logging.WARNING, logging.ERROR, logging.CRITICAL))),
+)
 def test_configure_planetmint_logging(log_level):
     # TODO: See following comment:
     # This is a dirty test. If a test *preceding* this test makes use of the logger, and then another test *after* this
@@ -84,8 +79,8 @@ def test_configure_planetmint_logging(log_level):
 
     args = Namespace(config=None, log_level=log_level)
     test_configure_logger(args)
-    assert Config().get()['log']['level_console'] == log_level
-    assert Config().get()['log']['level_logfile'] == log_level
+    assert Config().get()["log"]["level_console"] == log_level
+    assert Config().get()["log"]["level_logfile"] == log_level
 
 
 def test_start_raises_if_command_not_implemented():
@@ -97,7 +92,7 @@ def test_start_raises_if_command_not_implemented():
     with pytest.raises(NotImplementedError):
         # Will raise because `scope`, the third parameter,
         # doesn't contain the function `run_start`
-        utils.start(parser, ['start'], {})
+        utils.start(parser, ["start"], {})
 
 
 def test_start_raises_if_no_arguments_given():
@@ -110,7 +105,7 @@ def test_start_raises_if_no_arguments_given():
         utils.start(parser, [], {})
 
 
-@patch('multiprocessing.cpu_count', return_value=42)
+@patch("multiprocessing.cpu_count", return_value=42)
 def test_start_sets_multiprocess_var_based_on_cli_args(mock_cpu_count):
     from planetmint.commands import utils
 
@@ -118,14 +113,10 @@ def test_start_sets_multiprocess_var_based_on_cli_args(mock_cpu_count):
         return args
 
     parser = argparse.ArgumentParser()
-    subparser = parser.add_subparsers(title='Commands',
-                                      dest='command')
-    mp_arg_test_parser = subparser.add_parser('mp_arg_test')
-    mp_arg_test_parser.add_argument('-m', '--multiprocess',
-                                    nargs='?',
-                                    type=int,
-                                    default=False)
+    subparser = parser.add_subparsers(title="Commands", dest="command")
+    mp_arg_test_parser = subparser.add_parser("mp_arg_test")
+    mp_arg_test_parser.add_argument("-m", "--multiprocess", nargs="?", type=int, default=False)
 
-    scope = {'run_mp_arg_test': run_mp_arg_test}
-    assert utils.start(parser, ['mp_arg_test'], scope).multiprocess == 1
-    assert utils.start(parser, ['mp_arg_test', '--multiprocess'], scope).multiprocess == 42
+    scope = {"run_mp_arg_test": run_mp_arg_test}
+    assert utils.start(parser, ["mp_arg_test"], scope).multiprocess == 1
+    assert utils.start(parser, ["mp_arg_test", "--multiprocess"], scope).multiprocess == 42

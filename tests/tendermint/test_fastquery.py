@@ -14,19 +14,17 @@ pytestmark = pytest.mark.bdb
 
 @pytest.fixture
 def txns(b, user_pk, user_sk, user2_pk, user2_sk):
-    txs = [Create.generate([user_pk], [([user2_pk], 1)]).sign([user_sk]),
-           Create.generate([user2_pk], [([user_pk], 1)]).sign([user2_sk]),
-           Create.generate([user_pk], [([user_pk], 1), ([user2_pk], 1)])
-           .sign([user_sk])]
+    txs = [
+        Create.generate([user_pk], [([user2_pk], 1)]).sign([user_sk]),
+        Create.generate([user2_pk], [([user_pk], 1)]).sign([user2_sk]),
+        Create.generate([user_pk], [([user_pk], 1), ([user2_pk], 1)]).sign([user_sk]),
+    ]
     b.store_bulk_transactions(txs)
     return txs
 
 
 def test_get_outputs_by_public_key(b, user_pk, user2_pk, txns):
-    expected = [
-        TransactionLink(txns[1].id, 0),
-        TransactionLink(txns[2].id, 0)
-    ]
+    expected = [TransactionLink(txns[1].id, 0), TransactionLink(txns[2].id, 0)]
     actual = b.fastquery.get_outputs_by_public_key(user_pk)
 
     _all_txs = set([tx.txid for tx in expected + actual])
@@ -37,8 +35,8 @@ def test_get_outputs_by_public_key(b, user_pk, user2_pk, txns):
     # ]
     actual_1 = b.fastquery.get_outputs_by_public_key(user2_pk)
     expected_1 = [
-         TransactionLink(txns[0].id, 0),
-         TransactionLink(txns[2].id, 1),
+        TransactionLink(txns[0].id, 0),
+        TransactionLink(txns[2].id, 1),
     ]
     _all_tx_1 = set([tx.txid for tx in actual_1 + expected_1])
     assert len(_all_tx_1) == 2
@@ -96,9 +94,7 @@ def test_outputs_query_key_order(b, user_pk, user_sk, user2_pk, user2_sk):
     from planetmint.backend.connection import connect
     from planetmint.backend import query
 
-    tx1 = Create.generate([user_pk],
-                             [([user_pk], 3), ([user_pk], 2), ([user_pk], 1)])\
-                     .sign([user_sk])
+    tx1 = Create.generate([user_pk], [([user_pk], 3), ([user_pk], 2), ([user_pk], 1)]).sign([user_sk])
     b.store_bulk_transactions([tx1])
 
     inputs = tx1.to_inputs()
@@ -106,9 +102,11 @@ def test_outputs_query_key_order(b, user_pk, user_sk, user2_pk, user2_sk):
     assert tx2.validate(b)
 
     tx2_dict = tx2.to_dict()
-    fulfills = tx2_dict['inputs'][0]['fulfills']
-    tx2_dict['inputs'][0]['fulfills'] = {'transaction_id': fulfills['transaction_id'],
-                                         'output_index': fulfills['output_index']}
+    fulfills = tx2_dict["inputs"][0]["fulfills"]
+    tx2_dict["inputs"][0]["fulfills"] = {
+        "transaction_id": fulfills["transaction_id"],
+        "output_index": fulfills["output_index"],
+    }
     backend.query.store_transactions(b.connection, [tx2_dict])
 
     outputs = b.get_outputs_filtered(user_pk, spent=False)
@@ -123,8 +121,10 @@ def test_outputs_query_key_order(b, user_pk, user_sk, user2_pk, user2_sk):
 
     b.store_bulk_transactions([tx1])
     tx2_dict = tx2.to_dict()
-    tx2_dict['inputs'][0]['fulfills'] = {'output_index': fulfills['output_index'],
-                                         'transaction_id': fulfills['transaction_id']}
+    tx2_dict["inputs"][0]["fulfills"] = {
+        "output_index": fulfills["output_index"],
+        "transaction_id": fulfills["transaction_id"],
+    }
 
     backend.query.store_transactions(b.connection, [tx2_dict])
     outputs = b.get_outputs_filtered(user_pk, spent=False)

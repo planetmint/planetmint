@@ -11,7 +11,7 @@ def app(request):
     from planetmint.web import server
     from planetmint.lib import Planetmint
 
-    if request.config.getoption('--database-backend') == 'localmongodb':
+    if request.config.getoption("--database-backend") == "localmongodb":
         app = server.create_app(debug=True, planetmint_factory=Planetmint)
     else:
         app = server.create_app(debug=True)

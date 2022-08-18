@@ -30,22 +30,22 @@ def configure_planetmint(command):
         The command wrapper function.
 
     """
+
     @functools.wraps(command)
     def configure(args):
         config_from_cmdline = None
         try:
             if args.log_level is not None:
                 config_from_cmdline = {
-                    'log': {
-                        'level_console': args.log_level,
-                        'level_logfile': args.log_level,
+                    "log": {
+                        "level_console": args.log_level,
+                        "level_logfile": args.log_level,
                     },
-                    'server': {'loglevel': args.log_level},
+                    "server": {"loglevel": args.log_level},
                 }
         except AttributeError:
             pass
-        planetmint.config_utils.autoconfigure(
-            filename=args.config, config=config_from_cmdline, force=True)
+        planetmint.config_utils.autoconfigure(filename=args.config, config=config_from_cmdline, force=True)
         command(args)
 
     return configure
@@ -53,13 +53,13 @@ def configure_planetmint(command):
 
 def _convert(value, default=None, convert=None):
     def convert_bool(value):
-        if value.lower() in ('true', 't', 'yes', 'y'):
+        if value.lower() in ("true", "t", "yes", "y"):
             return True
-        if value.lower() in ('false', 'f', 'no', 'n'):
+        if value.lower() in ("false", "f", "no", "n"):
             return False
-        raise ValueError('{} cannot be converted to bool'.format(value))
+        raise ValueError("{} cannot be converted to bool".format(value))
 
-    if value == '':
+    if value == "":
         value = None
 
     if convert is None:
@@ -80,7 +80,7 @@ def _convert(value, default=None, convert=None):
 # We need this because `input` always prints on stdout, while it should print
 # to stderr. It's a very old bug, check it out here:
 # - https://bugs.python.org/issue1927
-def input_on_stderr(prompt='', default=None, convert=None):
+def input_on_stderr(prompt="", default=None, convert=None):
     """Output a string to stderr and wait for input.
 
     Args:
@@ -92,7 +92,7 @@ def input_on_stderr(prompt='', default=None, convert=None):
             ``default`` will be used.
     """
 
-    print(prompt, end='', file=sys.stderr)
+    print(prompt, end="", file=sys.stderr)
     value = builtins.input()
     return _convert(value, default, convert)
 
@@ -121,14 +121,13 @@ def start(parser, argv, scope):
 
     # look up in the current scope for a function called 'run_<command>'
     # replacing all the dashes '-' with the lowercase character '_'
-    func = scope.get('run_' + args.command.replace('-', '_'))
+    func = scope.get("run_" + args.command.replace("-", "_"))
 
     # if no command has been found, raise a `NotImplementedError`
     if not func:
-        raise NotImplementedError('Command `{}` not yet implemented'.
-                                  format(args.command))
+        raise NotImplementedError("Command `{}` not yet implemented".format(args.command))
 
-    args.multiprocess = getattr(args, 'multiprocess', False)
+    args.multiprocess = getattr(args, "multiprocess", False)
 
     if args.multiprocess is False:
         args.multiprocess = 1
@@ -138,24 +137,28 @@ def start(parser, argv, scope):
     return func(args)
 
 
-base_parser = argparse.ArgumentParser(add_help=False, prog='planetmint')
+base_parser = argparse.ArgumentParser(add_help=False, prog="planetmint")
 
-base_parser.add_argument('-c', '--config',
-                         help='Specify the location of the configuration file '
-                              '(use "-" for stdout)')
+base_parser.add_argument(
+    "-c", "--config", help="Specify the location of the configuration file " '(use "-" for stdout)'
+)
 
 # NOTE: this flag should not have any default value because that will override
 # the environment variables provided to configure the logger.
-base_parser.add_argument('-l', '--log-level',
-                         type=str.upper,  # convert to uppercase for comparison to choices
-                         choices=['DEBUG', 'BENCHMARK', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'],
-                         help='Log level')
+base_parser.add_argument(
+    "-l",
+    "--log-level",
+    type=str.upper,  # convert to uppercase for comparison to choices
+    choices=["DEBUG", "BENCHMARK", "INFO", "WARNING", "ERROR", "CRITICAL"],
+    help="Log level",
+)
 
-base_parser.add_argument('-y', '--yes', '--yes-please',
-                         action='store_true',
-                         help='Assume "yes" as answer to all prompts and run '
-                              'non-interactively')
+base_parser.add_argument(
+    "-y",
+    "--yes",
+    "--yes-please",
+    action="store_true",
+    help='Assume "yes" as answer to all prompts and run ' "non-interactively",
+)
 
-base_parser.add_argument('-v', '--version',
-                         action='version',
-                         version='%(prog)s {}'.format(__version__))
+base_parser.add_argument("-v", "--version", action="version", version="%(prog)s {}".format(__version__))
