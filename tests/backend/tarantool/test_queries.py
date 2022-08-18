@@ -44,11 +44,11 @@ def test_write_assets(db_conn):
     from planetmint.backend.tarantool import query
 
     assets = [
-        {'id': '1', 'data': '1'},
-        {'id': '2', 'data': '2'},
-        {'id': '3', 'data': '3'},
+        {"id": "1", "data": "1"},
+        {"id": "2", "data": "2"},
+        {"id": "3", "data": "3"},
         # Duplicated id. Should not be written to the database
-        {'id': '1', 'data': '1'},
+        {"id": "1", "data": "1"},
     ]
 
     # write the assets
@@ -66,9 +66,9 @@ def test_get_assets(db_conn):
     from planetmint.backend.tarantool import query
 
     assets = [
-        ("1", '1', '1'),
-        ("2", '2', '2'),
-        ("3", '3', '3'),
+        ("1", "1", "1"),
+        ("2", "2", "2"),
+        ("3", "3", "3"),
     ]
 
     query.store_assets(assets=assets, connection=db_conn)
@@ -77,7 +77,7 @@ def test_get_assets(db_conn):
         assert query.get_asset(asset_id=asset[2], connection=db_conn)
 
 
-@pytest.mark.parametrize('table', ['assets', 'metadata'])
+@pytest.mark.parametrize("table", ["assets", "metadata"])
 def test_text_search(table):
     assert "PASS FOR NOW"
 
@@ -164,11 +164,7 @@ def test_text_search(table):
 def test_write_metadata(db_conn):
     from planetmint.backend.tarantool import query
 
-    metadata = [
-        {'id': "1", 'data': '1'},
-        {'id': "2", 'data': '2'},
-        {'id': "3", 'data': '3'}
-    ]
+    metadata = [{"id": "1", "data": "1"}, {"id": "2", "data": "2"}, {"id": "3", "data": "3"}]
     # write the assets
     query.store_metadatas(connection=db_conn, metadata=metadata)
 
@@ -188,8 +184,8 @@ def test_get_metadata(db_conn):
     from planetmint.backend.tarantool import query
 
     metadata = [
-        {'id': "dd86682db39e4b424df0eec1413cfad65488fd48712097c5d865ca8e8e059b64", 'metadata': None},
-        {'id': "55a2303e3bcd653e4b5bd7118d39c0e2d48ee2f18e22fbcf64e906439bdeb45d", 'metadata': {'key': 'value'}},
+        {"id": "dd86682db39e4b424df0eec1413cfad65488fd48712097c5d865ca8e8e059b64", "metadata": None},
+        {"id": "55a2303e3bcd653e4b5bd7118d39c0e2d48ee2f18e22fbcf64e906439bdeb45d", "metadata": {"key": "value"}},
     ]
 
     # conn.db.metadata.insert_many(deepcopy(metadata), ordered=False)
@@ -243,42 +239,35 @@ def test_get_spending_transactions_multiple_inputs(db_conn):
     tx1 = Create.generate([alice_pk], out).sign([alice_sk])
 
     inputs1 = tx1.to_inputs()
-    tx2 = Transfer.generate([inputs1[0]],
-                            [([alice_pk], 6), ([bob_pk], 3)],
-                            tx1.id).sign([alice_sk])
+    tx2 = Transfer.generate([inputs1[0]], [([alice_pk], 6), ([bob_pk], 3)], tx1.id).sign([alice_sk])
 
     inputs2 = tx2.to_inputs()
-    tx3 = Transfer.generate([inputs2[0]],
-                            [([bob_pk], 3), ([carol_pk], 3)],
-                            tx1.id).sign([alice_sk])
+    tx3 = Transfer.generate([inputs2[0]], [([bob_pk], 3), ([carol_pk], 3)], tx1.id).sign([alice_sk])
 
     inputs3 = tx3.to_inputs()
-    tx4 = Transfer.generate([inputs2[1], inputs3[0]],
-                            [([carol_pk], 6)],
-                            tx1.id).sign([bob_sk])
+    tx4 = Transfer.generate([inputs2[1], inputs3[0]], [([carol_pk], 6)], tx1.id).sign([bob_sk])
 
     txns = [deepcopy(tx.to_dict()) for tx in [tx1, tx2, tx3, tx4]]
     query.store_transactions(signed_transactions=txns, connection=db_conn)
 
     links = [
-        ({'transaction_id': tx2.id, 'output_index': 0}, 1, [tx3.id]),
-        ({'transaction_id': tx2.id, 'output_index': 1}, 1, [tx4.id]),
-        ({'transaction_id': tx3.id, 'output_index': 0}, 1, [tx4.id]),
-        ({'transaction_id': tx3.id, 'output_index': 1}, 0, None),
+        ({"transaction_id": tx2.id, "output_index": 0}, 1, [tx3.id]),
+        ({"transaction_id": tx2.id, "output_index": 1}, 1, [tx4.id]),
+        ({"transaction_id": tx3.id, "output_index": 0}, 1, [tx4.id]),
+        ({"transaction_id": tx3.id, "output_index": 1}, 0, None),
     ]
     for li, num, match in links:
         txns = list(query.get_spending_transactions(connection=db_conn, inputs=[li]))
         assert len(txns) == num
         if len(txns):
-            assert [tx['id'] for tx in txns] == match
+            assert [tx["id"] for tx in txns] == match
 
 
 def test_store_block(db_conn):
     from planetmint.lib import Block
     from planetmint.backend.tarantool import query
-    block = Block(app_hash='random_utxo',
-                  height=3,
-                  transactions=[])
+
+    block = Block(app_hash="random_utxo", height=3, transactions=[])
     query.store_block(connection=db_conn, block=block._asdict())
     # block = query.get_block(connection=db_conn)
     blocks = db_conn.run(db_conn.space("blocks").select([]))
@@ -289,14 +278,12 @@ def test_get_block(db_conn):
     from planetmint.lib import Block
     from planetmint.backend.tarantool import query
 
-    block = Block(app_hash='random_utxo',
-                  height=3,
-                  transactions=[])
+    block = Block(app_hash="random_utxo", height=3, transactions=[])
 
     query.store_block(connection=db_conn, block=block._asdict())
 
     block = dict(query.get_block(connection=db_conn, block_id=3))
-    assert block['height'] == 3
+    assert block["height"] == 3
 
 
 # def test_delete_zero_unspent_outputs(db_context, utxoset):
@@ -428,7 +415,7 @@ def test_validator_update(db_conn):
     from planetmint.backend.tarantool import query
 
     def gen_validator_update(height):
-        return {'validators': [], 'height': height, 'election_id': f'election_id_at_height_{height}'}
+        return {"validators": [], "height": height, "election_id": f"election_id_at_height_{height}"}
         # return {'data': 'somedata', 'height': height, 'election_id': f'election_id_at_height_{height}'}
 
     for i in range(1, 100, 10):
@@ -436,53 +423,56 @@ def test_validator_update(db_conn):
         query.store_validator_set(conn=db_conn, validators_update=value)
 
     v1 = query.get_validator_set(connection=db_conn, height=8)
-    assert v1['height'] == 1
+    assert v1["height"] == 1
 
     v41 = query.get_validator_set(connection=db_conn, height=50)
-    assert v41['height'] == 41
+    assert v41["height"] == 41
 
     v91 = query.get_validator_set(connection=db_conn)
-    assert v91['height'] == 91
+    assert v91["height"] == 91
 
 
-@pytest.mark.parametrize('description,stores,expected', [
-    (
-            'Query empty database.',
+@pytest.mark.parametrize(
+    "description,stores,expected",
+    [
+        (
+            "Query empty database.",
             [],
             None,
-    ),
-    (
-            'Store one chain with the default value for `is_synced`.',
+        ),
+        (
+            "Store one chain with the default value for `is_synced`.",
             [
-                {'height': 0, 'chain_id': 'some-id'},
+                {"height": 0, "chain_id": "some-id"},
             ],
-            {'height': 0, 'chain_id': 'some-id', 'is_synced': True},
-    ),
-    (
-            'Store one chain with a custom value for `is_synced`.',
+            {"height": 0, "chain_id": "some-id", "is_synced": True},
+        ),
+        (
+            "Store one chain with a custom value for `is_synced`.",
             [
-                {'height': 0, 'chain_id': 'some-id', 'is_synced': False},
+                {"height": 0, "chain_id": "some-id", "is_synced": False},
             ],
-            {'height': 0, 'chain_id': 'some-id', 'is_synced': False},
-    ),
-    (
-            'Store one chain, then update it.',
+            {"height": 0, "chain_id": "some-id", "is_synced": False},
+        ),
+        (
+            "Store one chain, then update it.",
             [
-                {'height': 0, 'chain_id': 'some-id', 'is_synced': True},
-                {'height': 0, 'chain_id': 'new-id', 'is_synced': False},
+                {"height": 0, "chain_id": "some-id", "is_synced": True},
+                {"height": 0, "chain_id": "new-id", "is_synced": False},
             ],
-            {'height': 0, 'chain_id': 'new-id', 'is_synced': False},
-    ),
-    (
-            'Store a chain, update it, store another chain.',
+            {"height": 0, "chain_id": "new-id", "is_synced": False},
+        ),
+        (
+            "Store a chain, update it, store another chain.",
             [
-                {'height': 0, 'chain_id': 'some-id', 'is_synced': True},
-                {'height': 0, 'chain_id': 'some-id', 'is_synced': False},
-                {'height': 10, 'chain_id': 'another-id', 'is_synced': True},
+                {"height": 0, "chain_id": "some-id", "is_synced": True},
+                {"height": 0, "chain_id": "some-id", "is_synced": False},
+                {"height": 10, "chain_id": "another-id", "is_synced": True},
             ],
-            {'height': 10, 'chain_id': 'another-id', 'is_synced': True},
-    ),
-])
+            {"height": 10, "chain_id": "another-id", "is_synced": True},
+        ),
+    ],
+)
 def test_store_abci_chain(description, stores, expected, db_conn):
     from planetmint.backend.tarantool import query
 

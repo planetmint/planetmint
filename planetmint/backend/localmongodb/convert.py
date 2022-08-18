@@ -15,11 +15,10 @@ register_query = module_dispatch_registrar(convert)
 @register_query(LocalMongoDBConnection)
 def prepare_asset(connection, transaction_type, transaction_id, filter_operation, asset):
     if transaction_type == filter_operation:
-        asset['id'] = transaction_id
+        asset["id"] = transaction_id
     return asset
 
 
 @register_query(LocalMongoDBConnection)
 def prepare_metadata(connection, transaction_id, metadata):
-    return {'id': transaction_id,
-            'metadata': metadata}
+    return {"id": transaction_id, "metadata": metadata}

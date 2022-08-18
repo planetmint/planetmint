@@ -8,7 +8,7 @@ from collections import defaultdict
 from multiprocessing import Queue
 
 
-POISON_PILL = 'POISON_PILL'
+POISON_PILL = "POISON_PILL"
 
 
 class EventTypes:
@@ -73,7 +73,7 @@ class Exchange:
 
         try:
             self.started_queue.get(timeout=1)
-            raise RuntimeError('Cannot create a new subscriber queue while Exchange is running.')
+            raise RuntimeError("Cannot create a new subscriber queue while Exchange is running.")
         except Empty:
             pass
 
@@ -99,7 +99,7 @@ class Exchange:
 
     def run(self):
         """Start the exchange"""
-        self.started_queue.put('STARTED')
+        self.started_queue.put("STARTED")
 
         while True:
             event = self.publisher_queue.get()

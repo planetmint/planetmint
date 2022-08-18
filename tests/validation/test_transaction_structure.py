@@ -10,14 +10,14 @@ structural / schematic issues are caught when reading a transaction
 import json
 
 import pytest
+
 try:
     import hashlib as sha3
 except ImportError:
     import sha3
 from unittest.mock import MagicMock
 
-from planetmint.transactions.common.exceptions import (
-    AmountError, SchemaValidationError, ThresholdTooDeep)
+from planetmint.transactions.common.exceptions import AmountError, SchemaValidationError, ThresholdTooDeep
 from planetmint.models import Transaction
 from planetmint.transactions.common.utils import _fulfillment_to_details, _fulfillment_from_details
 
@@ -47,25 +47,26 @@ def test_validation_passes(signed_create_tx):
 
 def test_tx_serialization_hash_function(signed_create_tx):
     tx = signed_create_tx.to_dict()
-    tx['id'] = None
-    payload = json.dumps(tx, skipkeys=False, sort_keys=True,
-                         separators=(',', ':'))
+    tx["id"] = None
+    payload = json.dumps(tx, skipkeys=False, sort_keys=True, separators=(",", ":"))
     assert sha3.sha3_256(payload.encode()).hexdigest() == signed_create_tx.id
 
 
 def test_tx_serialization_with_incorrect_hash(signed_create_tx):
     from planetmint.transactions.common.transaction import Transaction
     from planetmint.transactions.common.exceptions import InvalidHash
+
     tx = signed_create_tx.to_dict()
-    tx['id'] = 'a' * 64
+    tx["id"] = "a" * 64
     with pytest.raises(InvalidHash):
         Transaction.validate_id(tx)
 
 
 def test_tx_serialization_with_no_hash(signed_create_tx):
     from planetmint.transactions.common.exceptions import InvalidHash
+
     tx = signed_create_tx.to_dict()
-    del tx['id']
+    del tx["id"]
     with pytest.raises(InvalidHash):
         Transaction.from_dict(tx)
 
@@ -73,8 +74,9 @@ def test_tx_serialization_with_no_hash(signed_create_tx):
 ################################################################################
 # Operation
 
+
 def test_validate_invalid_operation(b, create_tx, alice):
-    create_tx.operation = 'something invalid'
+    create_tx.operation = "something invalid"
     signed_tx = create_tx.sign([alice.private_key])
     validate_raises(signed_tx)
 
@@ -82,8 +84,9 @@ def test_validate_invalid_operation(b, create_tx, alice):
 ################################################################################
 # Metadata
 
+
 def test_validate_fails_metadata_empty_dict(b, create_tx, alice):
-    create_tx.metadata = {'a': 1}
+    create_tx.metadata = {"a": 1}
     signed_tx = create_tx.sign([alice.private_key])
     validate(signed_tx)
 
@@ -103,44 +106,46 @@ def test_validate_fails_metadata_empty_dict(b, create_tx, alice):
 ################################################################################
 # Asset
 
+
 def test_transfer_asset_schema(user_sk, signed_transfer_tx):
     from planetmint.transactions.common.transaction import Transaction
+
     tx = signed_transfer_tx.to_dict()
     validate(tx)
-    tx['id'] = None
-    tx['asset']['data'] = {}
+    tx["id"] = None
+    tx["asset"]["data"] = {}
     tx = Transaction.from_dict(tx).sign([user_sk]).to_dict()
     validate_raises(tx)
-    tx['id'] = None
-    del tx['asset']['data']
-    tx['asset']['id'] = 'b' * 63
+    tx["id"] = None
+    del tx["asset"]["data"]
+    tx["asset"]["id"] = "b" * 63
     tx = Transaction.from_dict(tx).sign([user_sk]).to_dict()
     validate_raises(tx)
 
 
 def test_create_tx_no_asset_id(b, create_tx, alice):
-    create_tx.asset['id'] = 'b' * 64
+    create_tx.asset["id"] = "b" * 64
     signed_tx = create_tx.sign([alice.private_key])
     validate_raises(signed_tx)
 
 
 def test_create_tx_asset_type(b, create_tx, alice):
-    create_tx.asset['data'] = 'a'
+    create_tx.asset["data"] = "a"
     signed_tx = create_tx.sign([alice.private_key])
     validate_raises(signed_tx)
 
 
 def test_create_tx_no_asset_data(b, create_tx, alice):
     tx_body = create_tx.to_dict()
-    del tx_body['asset']['data']
-    tx_serialized = json.dumps(
-        tx_body, skipkeys=False, sort_keys=True, separators=(',', ':'))
-    tx_body['id'] = sha3.sha3_256(tx_serialized.encode()).hexdigest()
+    del tx_body["asset"]["data"]
+    tx_serialized = json.dumps(tx_body, skipkeys=False, sort_keys=True, separators=(",", ":"))
+    tx_body["id"] = sha3.sha3_256(tx_serialized.encode()).hexdigest()
     validate_raises(tx_body)
 
 
 ################################################################################
 # Inputs
+
 
 def test_no_inputs(b, create_tx, alice):
     create_tx.inputs = []
@@ -150,21 +155,22 @@ def test_no_inputs(b, create_tx, alice):
 
 def test_create_single_input(b, create_tx, alice):
     from planetmint.transactions.common.transaction import Transaction
+
     tx = create_tx.to_dict()
-    tx['inputs'] += tx['inputs']
+    tx["inputs"] += tx["inputs"]
     tx = Transaction.from_dict(tx).sign([alice.private_key]).to_dict()
     validate_raises(tx)
-    tx['id'] = None
-    tx['inputs'] = []
+    tx["id"] = None
+    tx["inputs"] = []
     tx = Transaction.from_dict(tx).sign([alice.private_key]).to_dict()
     validate_raises(tx)
 
 
 def test_create_tx_no_fulfills(b, create_tx, alice):
     from planetmint.transactions.common.transaction import Transaction
+
     tx = create_tx.to_dict()
-    tx['inputs'][0]['fulfills'] = {'transaction_id': 'a' * 64,
-                                   'output_index': 0}
+    tx["inputs"][0]["fulfills"] = {"transaction_id": "a" * 64, "output_index": 0}
     tx = Transaction.from_dict(tx).sign([alice.private_key]).to_dict()
     validate_raises(tx)
 
@@ -178,6 +184,7 @@ def test_transfer_has_inputs(user_sk, signed_transfer_tx, alice):
 
 ################################################################################
 # Outputs
+
 
 def test_low_amounts(b, user_sk, create_tx, signed_transfer_tx, alice):
     for sk, tx in [(alice.private_key, create_tx), (user_sk, signed_transfer_tx)]:
@@ -194,11 +201,11 @@ def test_low_amounts(b, user_sk, create_tx, signed_transfer_tx, alice):
 def test_high_amounts(b, create_tx, alice):
     # Should raise a SchemaValidationError - don't want to allow ridiculously
     # large numbers to get converted to int
-    create_tx.outputs[0].amount = 10 ** 21
+    create_tx.outputs[0].amount = 10**21
     create_tx.sign([alice.private_key])
     validate_raises(create_tx)
     # Should raise AmountError
-    create_tx.outputs[0].amount = 9 * 10 ** 18 + 1
+    create_tx.outputs[0].amount = 9 * 10**18 + 1
     create_tx._id = None
     create_tx.sign([alice.private_key])
     validate_raises(create_tx, AmountError)
@@ -212,16 +219,17 @@ def test_high_amounts(b, create_tx, alice):
 ################################################################################
 # Conditions
 
+
 def test_handle_threshold_overflow():
     cond = {
-        'type': 'ed25519-sha-256',
-        'public_key': 'a' * 43,
+        "type": "ed25519-sha-256",
+        "public_key": "a" * 43,
     }
     for i in range(1000):
         cond = {
-            'type': 'threshold-sha-256',
-            'threshold': 1,
-            'subconditions': [cond],
+            "type": "threshold-sha-256",
+            "threshold": 1,
+            "subconditions": [cond],
         }
     with pytest.raises(ThresholdTooDeep):
         _fulfillment_from_details(cond)
@@ -231,26 +239,27 @@ def test_unsupported_condition_type():
     from cryptoconditions.exceptions import UnsupportedTypeError
 
     with pytest.raises(UnsupportedTypeError):
-        _fulfillment_from_details({'type': 'a'})
+        _fulfillment_from_details({"type": "a"})
 
     with pytest.raises(UnsupportedTypeError):
-        _fulfillment_to_details(MagicMock(type_name='a'))
+        _fulfillment_to_details(MagicMock(type_name="a"))
 
 
 ################################################################################
 # Version
 
+
 def test_validate_version(b, create_tx, alice):
-    create_tx.version = '2.0'
+    create_tx.version = "2.0"
     create_tx.sign([alice.private_key])
     validate(create_tx)
 
-    create_tx.version = '0.10'
+    create_tx.version = "0.10"
     create_tx._id = None
     create_tx.sign([alice.private_key])
     validate_raises(create_tx)
 
-    create_tx.version = '110'
+    create_tx.version = "110"
     create_tx._id = None
     create_tx.sign([alice.private_key])
     validate_raises(create_tx)

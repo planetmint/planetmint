@@ -63,22 +63,10 @@ def test_zenroom_signing():
     alice = json.loads(zencode_exec(GENERATE_KEYPAIR).output)["keyring"]
     bob = json.loads(zencode_exec(GENERATE_KEYPAIR).output)["keyring"]
 
-    zen_public_keys = json.loads(
-        zencode_exec(
-            SK_TO_PK.format("Alice"), keys=json.dumps({"keyring": alice})
-        ).output
-    )
-    zen_public_keys.update(
-        json.loads(
-            zencode_exec(
-                SK_TO_PK.format("Bob"), keys=json.dumps({"keyring": bob})
-            ).output
-        )
-    )
+    zen_public_keys = json.loads(zencode_exec(SK_TO_PK.format("Alice"), keys=json.dumps({"keyring": alice})).output)
+    zen_public_keys.update(json.loads(zencode_exec(SK_TO_PK.format("Bob"), keys=json.dumps({"keyring": bob})).output))
 
-    zenroomscpt = ZenroomSha256(
-        script=FULFILL_SCRIPT, data=ZENROOM_DATA, keys=zen_public_keys
-    )
+    zenroomscpt = ZenroomSha256(script=FULFILL_SCRIPT, data=ZENROOM_DATA, keys=zen_public_keys)
     print(f"zenroom is: {zenroomscpt.script}")
 
     # CRYPTO-CONDITIONS: generate the condition uri
@@ -107,11 +95,7 @@ def test_zenroom_signing():
             biolabs.public_key,
         ],
     }
-    metadata = {
-        "result": {
-            "output": ["ok"]
-        }
-    }
+    metadata = {"result": {"output": ["ok"]}}
     token_creation_tx = {
         "operation": "CREATE",
         "asset": HOUSE_ASSETS,

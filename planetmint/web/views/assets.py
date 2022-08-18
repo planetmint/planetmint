@@ -30,17 +30,17 @@ class AssetListApi(Resource):
             A list of assets that match the query.
         """
         parser = reqparse.RequestParser()
-        parser.add_argument('search', type=str, required=True)
-        parser.add_argument('limit', type=int)
+        parser.add_argument("search", type=str, required=True)
+        parser.add_argument("limit", type=int)
         args = parser.parse_args()
 
-        if not args['search']:
-            return make_error(400, 'text_search cannot be empty')
-        if not args['limit']:
+        if not args["search"]:
+            return make_error(400, "text_search cannot be empty")
+        if not args["limit"]:
             # if the limit is not specified do not pass None to `text_search`
-            del args['limit']
+            del args["limit"]
 
-        pool = current_app.config['bigchain_pool']
+        pool = current_app.config["bigchain_pool"]
 
         with pool() as planet:
             assets = planet.text_search(**args)
@@ -49,7 +49,4 @@ class AssetListApi(Resource):
             # This only works with MongoDB as the backend
             return list(assets)
         except OperationError as e:
-            return make_error(
-                400,
-                '({}): {}'.format(type(e).__name__, e)
-            )
+            return make_error(400, "({}): {}".format(type(e).__name__, e))

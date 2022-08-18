@@ -22,7 +22,7 @@ generic backend interfaces to the implementations in this module.
 """
 
 # Register the single dispatched modules on import.
-from planetmint.backend.localmongodb import schema, query, convert # noqa
+from planetmint.backend.localmongodb import schema, query, convert  # noqa
 
 # MongoDBConnection should always be accessed via
 # ``planetmint.backend.connect()``.
