@@ -40,13 +40,12 @@ def start(args):
     exchange = Exchange()
     # start the web api
     app_server = server.create_server(
-        settings=Config().get()['server'],
-        log_config=Config().get()['log'],
-        planetmint_factory=Planetmint)
-    p_webapi = Process(name='planetmint_webapi', target=app_server.run, daemon=True)
+        settings=Config().get()["server"], log_config=Config().get()["log"], planetmint_factory=Planetmint
+    )
+    p_webapi = Process(name="planetmint_webapi", target=app_server.run, daemon=True)
     p_webapi.start()
 
-    logger.info(BANNER.format(Config().get()['server']['bind']))
+    logger.info(BANNER.format(Config().get()["server"]["bind"]))
 
     # start websocket server
     p_websocket_server = Process(

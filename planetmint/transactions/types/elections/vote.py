@@ -6,12 +6,16 @@
 from planetmint.transactions.types.assets.create import Create
 from planetmint.transactions.types.assets.transfer import Transfer
 from planetmint.transactions.common.schema import (
-    _validate_schema, TX_SCHEMA_COMMON, TX_SCHEMA_TRANSFER, TX_SCHEMA_VOTE)
+    _validate_schema,
+    TX_SCHEMA_COMMON,
+    TX_SCHEMA_TRANSFER,
+    TX_SCHEMA_VOTE,
+)
 
 
 class Vote(Transfer):
 
-    OPERATION = 'VOTE'
+    OPERATION = "VOTE"
     # NOTE: This class inherits TRANSFER txn type. The `TRANSFER` property is
     # overriden to re-use methods from parent class
     TRANSFER = OPERATION
@@ -41,14 +45,14 @@ class Vote(Transfer):
     @classmethod
     def generate(cls, inputs, recipients, election_id, metadata=None):
         (inputs, outputs) = cls.validate_transfer(inputs, recipients, election_id, metadata)
-        election_vote = cls(cls.OPERATION, {'id': election_id}, inputs, outputs, metadata)
+        election_vote = cls(cls.OPERATION, {"id": election_id}, inputs, outputs, metadata)
         cls.validate_schema(election_vote.to_dict())
         return election_vote
 
     @classmethod
     def validate_schema(cls, tx):
         """Validate the validator election vote transaction. Since `VOTE` extends `TRANSFER`
-           transaction, all the validations for `CREATE` transaction should be inherited
+        transaction, all the validations for `CREATE` transaction should be inherited
         """
         _validate_schema(TX_SCHEMA_COMMON, tx)
         _validate_schema(TX_SCHEMA_TRANSFER, tx)

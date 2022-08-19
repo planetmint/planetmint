@@ -18,18 +18,15 @@ from planetmint.backend.tarantool.connection import TarantoolDBConnection
 from planetmint.core import rollback
 from planetmint.utils import load_node_key
 from planetmint.transactions.common.transaction_mode_types import BROADCAST_TX_COMMIT
-from planetmint.transactions.common.exceptions import (
-    DatabaseDoesNotExist, ValidationError)
+from planetmint.transactions.common.exceptions import DatabaseDoesNotExist, ValidationError
 from planetmint.transactions.types.elections.vote import Vote
 from planetmint.transactions.types.elections.chain_migration_election import ChainMigrationElection
 import planetmint
-from planetmint import (backend, ValidatorElection,
-                        Planetmint)
+from planetmint import backend, ValidatorElection, Planetmint
 from planetmint.backend import schema
 from planetmint.backend import tarantool
 from planetmint.commands import utils
-from planetmint.commands.utils import (configure_planetmint,
-                                       input_on_stderr)
+from planetmint.commands.utils import configure_planetmint, input_on_stderr
 from planetmint.log import setup_logging
 from planetmint.tendermint_utils import public_key_from_base64
 from planetmint.commands.election_types import elections
@@ -53,7 +50,7 @@ def run_show_config(args):
     # the system needs to be configured, then display information on how to
     # configure the system.
     _config = Config().get()
-    del _config['CONFIGURED']
+    del _config["CONFIGURED"]
     print(json.dumps(_config, indent=4, sort_keys=True))
 
 
@@ -64,47 +61,47 @@ def run_configure(args):
 
     config_file_exists = False
     # if the config path is `-` then it's stdout
-    if config_path != '-':
+    if config_path != "-":
         config_file_exists = os.path.exists(config_path)
 
     if config_file_exists and not args.yes:
-        want = input_on_stderr('Config file `{}` exists, do you want to '
-                               'override it? (cannot be undone) [y/N]: '.format(config_path))
-        if want != 'y':
+        want = input_on_stderr(
+            "Config file `{}` exists, do you want to " "override it? (cannot be undone) [y/N]: ".format(config_path)
+        )
+        if want != "y":
             return
 
     Config().init_config(args.backend)
     conf = Config().get()
     # select the correct config defaults based on the backend
-    print('Generating default configuration for backend {}'
-          .format(args.backend), file=sys.stderr)
+    print("Generating default configuration for backend {}".format(args.backend), file=sys.stderr)
 
     database_keys = Config().get_db_key_map(args.backend)
     if not args.yes:
-        for key in ('bind',):
-            val = conf['server'][key]
-            conf['server'][key] = input_on_stderr('API Server {}? (default `{}`): '.format(key, val), val)
+        for key in ("bind",):
+            val = conf["server"][key]
+            conf["server"][key] = input_on_stderr("API Server {}? (default `{}`): ".format(key, val), val)
 
-        for key in ('scheme', 'host', 'port'):
-            val = conf['wsserver'][key]
-            conf['wsserver'][key] = input_on_stderr('WebSocket Server {}? (default `{}`): '.format(key, val), val)
+        for key in ("scheme", "host", "port"):
+            val = conf["wsserver"][key]
+            conf["wsserver"][key] = input_on_stderr("WebSocket Server {}? (default `{}`): ".format(key, val), val)
 
         for key in database_keys:
-            val = conf['database'][key]
-            conf['database'][key] = input_on_stderr('Database {}? (default `{}`): '.format(key, val), val)
+            val = conf["database"][key]
+            conf["database"][key] = input_on_stderr("Database {}? (default `{}`): ".format(key, val), val)
 
-        for key in ('host', 'port'):
-            val = conf['tendermint'][key]
-            conf['tendermint'][key] = input_on_stderr('Tendermint {}? (default `{}`)'.format(key, val), val)
+        for key in ("host", "port"):
+            val = conf["tendermint"][key]
+            conf["tendermint"][key] = input_on_stderr("Tendermint {}? (default `{}`)".format(key, val), val)
 
-    if config_path != '-':
+    if config_path != "-":
         planetmint.config_utils.write_config(conf, config_path)
     else:
         print(json.dumps(conf, indent=4, sort_keys=True))
 
     Config().set(conf)
-    print('Configuration written to {}'.format(config_path), file=sys.stderr)
-    print('Ready to go!', file=sys.stderr)
+    print("Configuration written to {}".format(config_path), file=sys.stderr)
+    print("Ready to go!", file=sys.stderr)
 
 
 @configure_planetmint
@@ -114,21 +111,19 @@ def run_election(args):
     b = Planetmint()
 
     # Call the function specified by args.action, as defined above
-    globals()[f'run_election_{args.action}'](args, b)
+    globals()[f"run_election_{args.action}"](args, b)
 
 
 def run_election_new(args, planet):
-    election_type = args.election_type.replace('-', '_')
-    globals()[f'run_election_new_{election_type}'](args, planet)
+    election_type = args.election_type.replace("-", "_")
+    globals()[f"run_election_new_{election_type}"](args, planet)
 
 
 def create_new_election(sk, planet, election_class, data):
     try:
         key = load_node_key(sk)
         voters = election_class.recipients(planet)
-        election = election_class.generate([key.public_key],
-                                           voters,
-                                           data, None).sign([key.private_key])
+        election = election_class.generate([key.public_key], voters, data, None).sign([key.private_key])
         election.validate(planet)
     except ValidationError as e:
         logger.error(e)
@@ -138,11 +133,11 @@ def create_new_election(sk, planet, election_class, data):
         return False
 
     resp = planet.write_transaction(election, BROADCAST_TX_COMMIT)
-    if resp == (202, ''):
-        logger.info('[SUCCESS] Submitted proposal with id: {}'.format(election.id))
+    if resp == (202, ""):
+        logger.info("[SUCCESS] Submitted proposal with id: {}".format(election.id))
         return election.id
     else:
-        logger.error('Failed to commit election proposal')
+        logger.error("Failed to commit election proposal")
         return False
 
 
@@ -161,10 +156,9 @@ def run_election_new_upsert_validator(args, planet):
     """
 
     new_validator = {
-        'public_key': {'value': public_key_from_base64(args.public_key),
-                       'type': 'ed25519-base16'},
-        'power': args.power,
-        'node_id': args.node_id
+        "public_key": {"value": public_key_from_base64(args.public_key), "type": "ed25519-base16"},
+        "power": args.power,
+        "node_id": args.node_id,
     }
 
     return create_new_election(args.sk, planet, ValidatorElection, new_validator)
@@ -202,23 +196,21 @@ def run_election_approve(args, planet):
     if len(voting_powers) > 0:
         voting_power = voting_powers[0]
     else:
-        logger.error('The key you provided does not match any of the eligible voters in this election.')
+        logger.error("The key you provided does not match any of the eligible voters in this election.")
         return False
 
     inputs = [i for i in tx.to_inputs() if key.public_key in i.owners_before]
     election_pub_key = ValidatorElection.to_public_key(tx.id)
-    approval = Vote.generate(inputs,
-                             [([election_pub_key], voting_power)],
-                             tx.id).sign([key.private_key])
+    approval = Vote.generate(inputs, [([election_pub_key], voting_power)], tx.id).sign([key.private_key])
     approval.validate(planet)
 
     resp = planet.write_transaction(approval, BROADCAST_TX_COMMIT)
 
-    if resp == (202, ''):
-        logger.info('[SUCCESS] Your vote has been submitted')
+    if resp == (202, ""):
+        logger.info("[SUCCESS] Your vote has been submitted")
         return approval.id
     else:
-        logger.error('Failed to commit vote')
+        logger.error("Failed to commit vote")
         return False
 
 
@@ -234,7 +226,7 @@ def run_election_show(args, planet):
 
     election = planet.get_transaction(args.election_id)
     if not election:
-        logger.error(f'No election found with election_id {args.election_id}')
+        logger.error(f"No election found with election_id {args.election_id}")
         return
 
     response = election.show_election(planet)
@@ -260,11 +252,12 @@ def run_drop(args):
     """Drop the database"""
 
     if not args.yes:
-        response = input_on_stderr('Do you want to drop `{}` database? [y/n]: ')
-        if response != 'y':
+        response = input_on_stderr("Do you want to drop `{}` database? [y/n]: ")
+        if response != "y":
             return
 
     from planetmint.backend.connection import connect
+
     conn = connect()
     try:
         schema.drop_database(conn)
@@ -284,115 +277,103 @@ def run_start(args):
     setup_logging()
 
     if not args.skip_initialize_database:
-        logger.info('Initializing database')
+        logger.info("Initializing database")
         _run_init()
 
-    logger.info('Planetmint Version %s', planetmint.version.__version__)
+    logger.info("Planetmint Version %s", planetmint.version.__version__)
     run_recover(planetmint.lib.Planetmint())
 
-    logger.info('Starting Planetmint main process.')
+    logger.info("Starting Planetmint main process.")
     from planetmint.start import start
+
     start(args)
 
 
 def run_tendermint_version(args):
     """Show the supported Tendermint version(s)"""
     supported_tm_ver = {
-        'description': 'Planetmint supports the following Tendermint version(s)',
-        'tendermint': __tm_supported_versions__,
+        "description": "Planetmint supports the following Tendermint version(s)",
+        "tendermint": __tm_supported_versions__,
     }
     print(json.dumps(supported_tm_ver, indent=4, sort_keys=True))
 
 
 def create_parser():
-    parser = argparse.ArgumentParser(
-        description='Control your Planetmint node.',
-        parents=[utils.base_parser])
+    parser = argparse.ArgumentParser(description="Control your Planetmint node.", parents=[utils.base_parser])
 
     # all the commands are contained in the subparsers object,
     # the command selected by the user will be stored in `args.command`
     # that is used by the `main` function to select which other
     # function to call.
-    subparsers = parser.add_subparsers(title='Commands',
-                                       dest='command')
+    subparsers = parser.add_subparsers(title="Commands", dest="command")
 
     # parser for writing a config file
-    config_parser = subparsers.add_parser('configure',
-                                          help='Prepare the config file.')
+    config_parser = subparsers.add_parser("configure", help="Prepare the config file.")
 
-    config_parser.add_argument('backend',
-                               choices=['tarantool_db', 'localmongodb'],
-                               default='tarantool_db',
-                               const='tarantool_db',
-                               nargs='?',
-                               help='The backend to use. It can only be '
-                                    '"tarantool_db", currently.')
+    config_parser.add_argument(
+        "backend",
+        choices=["tarantool_db", "localmongodb"],
+        default="tarantool_db",
+        const="tarantool_db",
+        nargs="?",
+        help="The backend to use. It can only be " '"tarantool_db", currently.',
+    )
 
     # parser for managing elections
-    election_parser = subparsers.add_parser('election',
-                                            help='Manage elections.')
+    election_parser = subparsers.add_parser("election", help="Manage elections.")
 
-    election_subparser = election_parser.add_subparsers(title='Action',
-                                                        dest='action')
+    election_subparser = election_parser.add_subparsers(title="Action", dest="action")
 
-    new_election_parser = election_subparser.add_parser('new',
-                                                        help='Calls a new election.')
+    new_election_parser = election_subparser.add_parser("new", help="Calls a new election.")
 
-    new_election_subparser = new_election_parser.add_subparsers(title='Election_Type',
-                                                                dest='election_type')
+    new_election_subparser = new_election_parser.add_subparsers(title="Election_Type", dest="election_type")
 
     # Parser factory for each type of new election, so we get a bunch of commands that look like this:
     # election new <some_election_type> <args>...
     for name, data in elections.items():
-        args = data['args']
-        generic_parser = new_election_subparser.add_parser(name, help=data['help'])
+        args = data["args"]
+        generic_parser = new_election_subparser.add_parser(name, help=data["help"])
         for arg, kwargs in args.items():
             generic_parser.add_argument(arg, **kwargs)
 
-    approve_election_parser = election_subparser.add_parser('approve',
-                                                            help='Approve the election.')
-    approve_election_parser.add_argument('election_id',
-                                         help='The election_id of the election.')
-    approve_election_parser.add_argument('--private-key',
-                                         dest='sk',
-                                         required=True,
-                                         help='Path to the private key of the election initiator.')
+    approve_election_parser = election_subparser.add_parser("approve", help="Approve the election.")
+    approve_election_parser.add_argument("election_id", help="The election_id of the election.")
+    approve_election_parser.add_argument(
+        "--private-key", dest="sk", required=True, help="Path to the private key of the election initiator."
+    )
 
-    show_election_parser = election_subparser.add_parser('show',
-                                                         help='Provides information about an election.')
+    show_election_parser = election_subparser.add_parser("show", help="Provides information about an election.")
 
-    show_election_parser.add_argument('election_id',
-                                      help='The transaction id of the election you wish to query.')
+    show_election_parser.add_argument("election_id", help="The transaction id of the election you wish to query.")
 
     # parsers for showing/exporting config values
-    subparsers.add_parser('show-config',
-                          help='Show the current configuration')
+    subparsers.add_parser("show-config", help="Show the current configuration")
 
     # parser for database-level commands
-    subparsers.add_parser('init',
-                          help='Init the database')
+    subparsers.add_parser("init", help="Init the database")
 
-    subparsers.add_parser('drop',
-                          help='Drop the database')
+    subparsers.add_parser("drop", help="Drop the database")
 
     # parser for starting Planetmint
-    start_parser = subparsers.add_parser('start',
-                                         help='Start Planetmint')
+    start_parser = subparsers.add_parser("start", help="Start Planetmint")
 
-    start_parser.add_argument('--no-init',
-                              dest='skip_initialize_database',
-                              default=False,
-                              action='store_true',
-                              help='Skip database initialization')
+    start_parser.add_argument(
+        "--no-init",
+        dest="skip_initialize_database",
+        default=False,
+        action="store_true",
+        help="Skip database initialization",
+    )
 
-    subparsers.add_parser('tendermint-version',
-                          help='Show the Tendermint supported versions')
+    subparsers.add_parser("tendermint-version", help="Show the Tendermint supported versions")
 
-    start_parser.add_argument('--experimental-parallel-validation',
-                              dest='experimental_parallel_validation',
-                              default=False,
-                              action='store_true',
-                              help='💀 EXPERIMENTAL: parallelize validation for better throughput 💀')
+    start_parser.add_argument(
+        "--experimental-parallel-validation",
+        dest="experimental_parallel_validation",
+        default=False,
+        action="store_true",
+        help="💀 EXPERIMENTAL: parallelize validation for better throughput 💀",
+    )
 
     return parser
 

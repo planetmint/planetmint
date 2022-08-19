@@ -38,9 +38,7 @@ def test_zenroom_signing(
         )
     )
 
-    zenroomscpt = ZenroomSha256(
-        script=fulfill_script_zencode, data=zenroom_data, keys=zen_public_keys
-    )
+    zenroomscpt = ZenroomSha256(script=fulfill_script_zencode, data=zenroom_data, keys=zen_public_keys)
     print(f"zenroom is: {zenroomscpt.script}")
 
     # CRYPTO-CONDITIONS: generate the condition uri

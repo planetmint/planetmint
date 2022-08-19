@@ -9,13 +9,14 @@ import pytest
 def test_get_connection_raises_a_configuration_error(monkeypatch):
     from planetmint.transactions.common.exceptions import ConfigurationError
     from planetmint.backend.connection import connect
+
     with pytest.raises(ConfigurationError):
-        connect('localhost', '1337', 'mydb', 'password', 'msaccess')
+        connect("localhost", "1337", "mydb", "password", "msaccess")
 
     with pytest.raises(ConfigurationError):
         # We need to force a misconfiguration here
-        monkeypatch.setattr('planetmint.backend.connection.BACKENDS',
-                            {'catsandra':
-                             'planetmint.backend.meowmeow.Catsandra'})
+        monkeypatch.setattr(
+            "planetmint.backend.connection.BACKENDS", {"catsandra": "planetmint.backend.meowmeow.Catsandra"}
+        )
 
-        connect('localhost', '1337', 'mydb', 'password', 'catsandra')
+        connect("localhost", "1337", "mydb", "password", "catsandra")

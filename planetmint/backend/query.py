@@ -27,12 +27,12 @@ def store_asset(asset: dict, connection):
 @singledispatch
 def store_assets(assets: list, connection):
     """Write a list of assets to the assets table.
-backend
-    Args:
-        assets (list): a list of assets to write.
+    backend
+        Args:
+            assets (list): a list of assets to write.
 
-    Returns:
-        The database response.
+        Returns:
+            The database response.
     """
 
     raise NotImplementedError
@@ -215,8 +215,17 @@ def get_txids_filtered(connection, asset_id, operation=None):
 
 
 @singledispatch
-def text_search(conn, search, *, language='english', case_sensitive=False,
-                diacritic_sensitive=False, text_score=False, limit=0, table=None):
+def text_search(
+    conn,
+    search,
+    *,
+    language="english",
+    case_sensitive=False,
+    diacritic_sensitive=False,
+    text_score=False,
+    limit=0,
+    table=None
+):
     """Return all the assets that match the text search.
 
     The results are sorted by text score.
@@ -243,8 +252,7 @@ def text_search(conn, search, *, language='english', case_sensitive=False,
         OperationError: If the backend does not support text search
     """
 
-    raise OperationError('This query is only supported when running '
-                         'Planetmint with MongoDB as the backend.')
+    raise OperationError("This query is only supported when running " "Planetmint with MongoDB as the backend.")
 
 
 @singledispatch
@@ -384,8 +392,7 @@ def get_validator_set(conn, height):
 
 @singledispatch
 def get_election(conn, election_id):
-    """Return the election record
-    """
+    """Return the election record"""
 
     raise NotImplementedError
 
@@ -432,6 +439,5 @@ def get_latest_abci_chain(conn):
 
 @singledispatch
 def _group_transaction_by_ids(txids: list, connection):
-    """Returns the transactions object (JSON TYPE), from list of ids.
-    """
+    """Returns the transactions object (JSON TYPE), from list of ids."""
     raise NotImplementedError

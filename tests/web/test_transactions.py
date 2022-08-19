@@ -97,9 +97,7 @@ def test_post_create_transaction_endpoint(b, client):
     ],
 )
 @pytest.mark.language
-def test_post_create_transaction_with_language(
-    b, client, nested, language, expected_status_code
-):
+def test_post_create_transaction_with_language(b, client, nested, language, expected_status_code):
     from planetmint.backend.localmongodb.connection import LocalMongoDBConnection
 
     if isinstance(b.connection, LocalMongoDBConnection):
@@ -138,9 +136,7 @@ def test_post_create_transaction_with_language(
         ({"good_key": "v"}, "good_key", 202),
     ],
 )
-def test_post_create_transaction_with_invalid_key(
-    b, client, field, value, err_key, expected_status_code
-):
+def test_post_create_transaction_with_invalid_key(b, client, field, value, err_key, expected_status_code):
     from planetmint.backend.localmongodb.connection import LocalMongoDBConnection
 
     user_priv, user_pub = crypto.generate_key_pair()
@@ -184,10 +180,7 @@ def test_post_create_transaction_with_invalid_id(mock_logger, b, client):
     assert res.status_code == expected_status_code
     assert res.json["message"] == expected_error_message
     assert mock_logger.error.called
-    assert (
-        "HTTP API error: %(status)s - %(method)s:%(path)s - %(message)s"
-        in mock_logger.error.call_args[0]
-    )
+    assert "HTTP API error: %(status)s - %(method)s:%(path)s - %(message)s" in mock_logger.error.call_args[0]
     assert {
         "message": expected_error_message,
         "status": expected_status_code,
@@ -219,16 +212,13 @@ def test_post_create_transaction_with_invalid_signature(mock_logger, b, client):
 
     res = client.post(TX_ENDPOINT, data=json.dumps(tx))
     expected_status_code = 400
-    expected_error_message = (
-        "Invalid transaction ({}): Fulfillment URI " "couldn't been parsed"
-    ).format(InvalidSignature.__name__)
+    expected_error_message = ("Invalid transaction ({}): Fulfillment URI " "couldn't been parsed").format(
+        InvalidSignature.__name__
+    )
     assert res.status_code == expected_status_code
     assert res.json["message"] == expected_error_message
     assert mock_logger.error.called
-    assert (
-        "HTTP API error: %(status)s - %(method)s:%(path)s - %(message)s"
-        in mock_logger.error.call_args[0]
-    )
+    assert "HTTP API error: %(status)s - %(method)s:%(path)s - %(message)s" in mock_logger.error.call_args[0]
     assert {
         "message": expected_error_message,
         "status": expected_status_code,
@@ -278,10 +268,7 @@ def test_post_create_transaction_with_invalid_schema(mock_logger, client):
     assert res.status_code == expected_status_code
     assert res.json["message"] == expected_error_message
     assert mock_logger.error.called
-    assert (
-        "HTTP API error: %(status)s - %(method)s:%(path)s - %(message)s"
-        in mock_logger.error.call_args[0]
-    )
+    assert "HTTP API error: %(status)s - %(method)s:%(path)s - %(message)s" in mock_logger.error.call_args[0]
     assert {
         "message": expected_error_message,
         "status": expected_status_code,
@@ -324,19 +311,14 @@ def test_post_invalid_transaction(
 
     TransactionMock = Mock(validate=mock_validation)
 
-    monkeypatch.setattr(
-        "planetmint.models.Transaction.from_dict", lambda tx: TransactionMock
-    )
+    monkeypatch.setattr("planetmint.models.Transaction.from_dict", lambda tx: TransactionMock)
     res = client.post(TX_ENDPOINT, data=json.dumps({}))
     expected_status_code = 400
     expected_error_message = "Invalid transaction ({}): {}".format(exc, msg)
     assert res.status_code == expected_status_code
     assert res.json["message"] == "Invalid transaction ({}): {}".format(exc, msg)
     assert mock_logger.error.called
-    assert (
-        "HTTP API error: %(status)s - %(method)s:%(path)s - %(message)s"
-        in mock_logger.error.call_args[0]
-    )
+    assert "HTTP API error: %(status)s - %(method)s:%(path)s - %(message)s" in mock_logger.error.call_args[0]
     assert {
         "message": expected_error_message,
         "status": expected_status_code,
@@ -351,9 +333,7 @@ def test_post_invalid_transaction(
 @pytest.mark.abci
 def test_post_transfer_transaction_endpoint(client, user_pk, user_sk, posted_create_tx):
 
-    transfer_tx = Transfer.generate(
-        posted_create_tx.to_inputs(), [([user_pk], 1)], asset_id=posted_create_tx.id
-    )
+    transfer_tx = Transfer.generate(posted_create_tx.to_inputs(), [([user_pk], 1)], asset_id=posted_create_tx.id)
     transfer_tx = transfer_tx.sign([user_sk])
 
     res = client.post(TX_ENDPOINT, data=json.dumps(transfer_tx.to_dict()))
@@ -365,14 +345,10 @@ def test_post_transfer_transaction_endpoint(client, user_pk, user_sk, posted_cre
 
 
 @pytest.mark.abci
-def test_post_invalid_transfer_transaction_returns_400(
-    client, user_pk, posted_create_tx
-):
+def test_post_invalid_transfer_transaction_returns_400(client, user_pk, posted_create_tx):
     from planetmint.transactions.common.exceptions import InvalidSignature
 
-    transfer_tx = Transfer.generate(
-        posted_create_tx.to_inputs(), [([user_pk], 1)], asset_id=posted_create_tx.id
-    )
+    transfer_tx = Transfer.generate(posted_create_tx.to_inputs(), [([user_pk], 1)], asset_id=posted_create_tx.id)
     transfer_tx._hash()
 
     res = client.post(TX_ENDPOINT, data=json.dumps(transfer_tx.to_dict()))
@@ -390,20 +366,14 @@ def test_post_wrong_asset_division_transfer_returns_400(b, client, user_pk):
 
     priv_key, pub_key = crypto.generate_key_pair()
 
-    create_tx = Create.generate(
-        [pub_key], [([pub_key], 10)], asset={"test": "asset"}
-    ).sign([priv_key])
-    res = client.post(
-        TX_ENDPOINT + "?mode=commit", data=json.dumps(create_tx.to_dict())
-    )
+    create_tx = Create.generate([pub_key], [([pub_key], 10)], asset={"test": "asset"}).sign([priv_key])
+    res = client.post(TX_ENDPOINT + "?mode=commit", data=json.dumps(create_tx.to_dict()))
     assert res.status_code == 202
 
-    transfer_tx = Transfer.generate(
-        create_tx.to_inputs(), [([pub_key], 20)], asset_id=create_tx.id  # 20 > 10
-    ).sign([priv_key])
-    res = client.post(
-        TX_ENDPOINT + "?mode=commit", data=json.dumps(transfer_tx.to_dict())
+    transfer_tx = Transfer.generate(create_tx.to_inputs(), [([pub_key], 20)], asset_id=create_tx.id).sign(  # 20 > 10
+        [priv_key]
     )
+    res = client.post(TX_ENDPOINT + "?mode=commit", data=json.dumps(transfer_tx.to_dict()))
     expected_error_message = (
         f"Invalid transaction ({AmountError.__name__}): "
         + "The amount used in the inputs `10` needs to be same as the amount used in the outputs `20`"
@@ -421,10 +391,7 @@ def test_transactions_get_list_good(client):
         of transactions it returns an array of shims with a to_dict() method
         that reports one of the arguments passed to `get_transactions_filtered`.
         """
-        return [
-            type("", (), {"to_dict": partial(lambda a: a, arg)})
-            for arg in sorted(args.items())
-        ]
+        return [type("", (), {"to_dict": partial(lambda a: a, arg)}) for arg in sorted(args.items())]
 
     asset_id = "1" * 64
 
@@ -487,9 +454,7 @@ def test_post_transaction_valid_modes(mock_post, client, mode):
     mock_post.side_effect = _mock_post
 
     alice = generate_key_pair()
-    tx = Create.generate(
-        [alice.public_key], [([alice.public_key], 1)], asset=None
-    ).sign([alice.private_key])
+    tx = Create.generate([alice.public_key], [([alice.public_key], 1)], asset=None).sign([alice.private_key])
     mode_endpoint = TX_ENDPOINT + mode[0]
     client.post(mode_endpoint, data=json.dumps(tx.to_dict()))
     args, kwargs = mock_post.call_args
@@ -501,13 +466,8 @@ def test_post_transaction_invalid_mode(client):
     from planetmint.transactions.common.crypto import generate_key_pair
 
     alice = generate_key_pair()
-    tx = Create.generate(
-        [alice.public_key], [([alice.public_key], 1)], asset=None
-    ).sign([alice.private_key])
+    tx = Create.generate([alice.public_key], [([alice.public_key], 1)], asset=None).sign([alice.private_key])
     mode_endpoint = TX_ENDPOINT + "?mode=nope"
     response = client.post(mode_endpoint, data=json.dumps(tx.to_dict()))
     assert "400 BAD REQUEST" in response.status
-    assert (
-        'Mode must be "async", "sync" or "commit"'
-        == json.loads(response.data.decode("utf8"))["message"]["mode"]
-    )
+    assert 'Mode must be "async", "sync" or "commit"' == json.loads(response.data.decode("utf8"))["message"]["mode"]
