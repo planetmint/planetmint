@@ -163,15 +163,14 @@ def run_command_with_output(command):
     from subprocess import run
 
     host_port = "%s:%s" % (
-        Config().get()["database"]["host"], 
+        Config().get()["database"]["host"],
         Config().get()["database"]["port"],
     )
     output = run(["tarantoolctl", "connect", host_port], input=command, capture_output=True)
     if output.returncode != 0:
-        raise Exception(
-            f"Error while trying to execute cmd {command} on host:port {host_port}: {output.stderr}"
-        )
+        raise Exception(f"Error while trying to execute cmd {command} on host:port {host_port}: {output.stderr}")
     return output.stdout
+
 
 @register_schema(TarantoolDBConnection)
 def create_tables(connection, dbname):
