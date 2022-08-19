@@ -43,62 +43,62 @@ SPACE_COMMANDS = {
 
 INDEX_COMMANDS = {
     "abci_chains": {
-        "id_search": "abci_chains:create_index('id_search' ,{type='hash', parts={'id'}})",
+        "id_search": "abci_chains:create_index('id_search' ,{type='tree', parts={'id'}})",
         "height_search": "abci_chains:create_index('height_search' ,{type='tree', unique=false, parts={'height'}})",
     },
     "assets": {
-        "txid_search": "assets:create_index('txid_search', {type='hash', parts={'tx_id'}})",
+        "txid_search": "assets:create_index('txid_search', {type='tree', parts={'tx_id'}})",
         "assetid_search": "assets:create_index('assetid_search', {type='tree',unique=false, parts={'asset_id', 'tx_id'}})",  # noqa: E501
         "only_asset_search": "assets:create_index('only_asset_search', {type='tree', unique=false, parts={'asset_id'}})",  # noqa: E501
         "text_search": "assets:create_index('secondary', {unique=false,parts={1,'string'}})",
     },
     "blocks": {
-        "id_search": "blocks:create_index('id_search' , {type='hash' , parts={'block_id'}})",
+        "id_search": "blocks:create_index('id_search' , {type='tree' , parts={'block_id'}})",
         "block_search": "blocks:create_index('block_search' , {type='tree', unique = false, parts={'height'}})",
         "block_id_search": "blocks:create_index('block_id_search', {type = 'hash', parts ={'block_id'}})",
     },
     "blocks_tx": {
-        "id_search": "blocks_tx:create_index('id_search',{ type = 'hash', parts={'transaction_id'}})",
+        "id_search": "blocks_tx:create_index('id_search',{ type = 'tree', parts={'transaction_id'}})",
         "block_search": "blocks_tx:create_index('block_search', {type = 'tree',unique=false, parts={'block_id'}})",
     },
     "elections": {
-        "id_search": "elections:create_index('id_search' , {type='hash', parts={'election_id'}})",
+        "id_search": "elections:create_index('id_search' , {type='tree', parts={'election_id'}})",
         "height_search": "elections:create_index('height_search' , {type='tree',unique=false, parts={'height'}})",
         "update_search": "elections:create_index('update_search', {type='tree', unique=false, parts={'election_id', 'height'}})",  # noqa: E501
     },
     "meta_data": {
-        "id_search": "meta_datas:create_index('id_search', { type='hash' , parts={'transaction_id'}})",
+        "id_search": "meta_datas:create_index('id_search', { type='tree' , parts={'transaction_id'}})",
         "text_search": "meta_datas:create_index('secondary', {unique=false,parts={2,'string'}})",
     },
     "pre_commits": {
-        "id_search": "pre_commits:create_index('id_search', {type ='hash' , parts={'commit_id'}})",
+        "id_search": "pre_commits:create_index('id_search', {type ='tree' , parts={'commit_id'}})",
         "height_search": "pre_commits:create_index('height_search', {type ='tree',unique=true, parts={'height'}})",
     },
     "validators": {
-        "id_search": "validators:create_index('id_search' , {type='hash' , parts={'validator_id'}})",
+        "id_search": "validators:create_index('id_search' , {type='tree' , parts={'validator_id'}})",
         "height_search": "validators:create_index('height_search' , {type='tree', unique=true, parts={'height'}})",
     },
     "transactions": {
-        "id_search": "transactions:create_index('id_search' , {type = 'hash' , parts={'transaction_id'}})",
+        "id_search": "transactions:create_index('id_search' , {type = 'tree' , parts={'transaction_id'}})",
         "transaction_search": "transactions:create_index('transaction_search' , {type = 'tree',unique=false, parts={'operation', 'transaction_id'}})",  # noqa: E501
     },
     "inputs": {
-        "delete_search": "inputs:create_index('delete_search' , {type = 'hash', parts={'input_id'}})",
+        "delete_search": "inputs:create_index('delete_search' , {type = 'tree', parts={'input_id'}})",
         "spent_search": "inputs:create_index('spent_search' , {type = 'tree', unique=false, parts={'fulfills_transaction_id', 'fulfills_output_index'}})",  # noqa: E501
         "id_search": "inputs:create_index('id_search', {type = 'tree', unique=false, parts = {'transaction_id'}})",
     },
     "outputs": {
-        "unique_search": "outputs:create_index('unique_search' ,{type='hash', parts={'output_id'}})",
+        "unique_search": "outputs:create_index('unique_search' ,{type='tree', parts={'output_id'}})",
         "id_search": "outputs:create_index('id_search' ,{type='tree', unique=false, parts={'transaction_id'}})",
     },
     "keys": {
-        "id_search": "keys:create_index('id_search', {type = 'hash', parts={'id'}})",
+        "id_search": "keys:create_index('id_search', {type = 'tree', parts={'id'}})",
         "keys_search": "keys:create_index('keys_search', {type = 'tree', unique=false, parts={'public_key'}})",
         "txid_search": "keys:create_index('txid_search', {type = 'tree', unique=false, parts={'transaction_id'}})",
         "output_search": "keys:create_index('output_search', {type = 'tree', unique=false, parts={'output_id'}})",
     },
     "utxos": {
-        "id_search": "utxos:create_index('id_search', {type='hash' , parts={'transaction_id', 'output_index'}})",
+        "id_search": "utxos:create_index('id_search', {type='tree' , parts={'transaction_id', 'output_index'}})",
         "transaction_search": "utxos:create_index('transaction_search', {type='tree', unique=false, parts={'transaction_id'}})",  # noqa: E501
         "index_Search": "utxos:create_index('index_search', {type='tree', unique=false, parts={'output_index'}})",
     },
@@ -163,7 +163,10 @@ def create_database(connection, dbname):
 def run_command_with_output(command):
     from subprocess import run
 
-    host_port = "%s:%s" % (Config().get()["database"]["host"], Config().get()["database"]["port"])
+    host_port = "%s:%s" % (
+        Config().get()["database"]["host"],
+        Config().get()["database"]["port"],
+    )
     output = run(["tarantoolctl", "connect", host_port], input=command, capture_output=True).stderr
     output = output.decode()
     return output
