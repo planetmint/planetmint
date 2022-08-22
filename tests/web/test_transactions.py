@@ -25,6 +25,7 @@ from planetmint.transactions.common.transaction_mode_types import (
 )
 
 TX_ENDPOINT = "/api/v1/transactions/"
+TX_ENDPOINT2 = "/api/v1/transactions"
 
 
 @pytest.mark.abci
@@ -333,15 +334,47 @@ def test_post_invalid_transaction(
 @pytest.mark.abci
 def test_post_transfer_transaction_endpoint(client, user_pk, user_sk, posted_create_tx):
 
+    print(f"input : {posted_create_tx.to_inputs()}")
     transfer_tx = Transfer.generate(posted_create_tx.to_inputs(), [([user_pk], 1)], asset_id=posted_create_tx.id)
     transfer_tx = transfer_tx.sign([user_sk])
 
     res = client.post(TX_ENDPOINT, data=json.dumps(transfer_tx.to_dict()))
+    print(f" tx : {transfer_tx}")
+    assert res.status_code == 202
+
+    assert res.json["inputs"][0]["owners_before"][0] == user_pk
+    assert res.json["outputs"][0]["public_keys"][0] == user_pk
+    import time
+
+    time.sleep(2)
+
+    print(f"ID : {transfer_tx.id}")
+    print(f"input : {transfer_tx.to_inputs()}")
+    transfer_tx2 = Transfer.generate(transfer_tx.to_inputs(), [([user_pk], 1)], asset_id=posted_create_tx.id)
+    print(f" tx2 : {transfer_tx2}")
+    transfer_tx2 = transfer_tx2.sign([user_sk])
+    print(f" tx2 signed : {transfer_tx2}")
+    res = client.post(TX_ENDPOINT, data=json.dumps(transfer_tx2.to_dict()))
 
     assert res.status_code == 202
 
     assert res.json["inputs"][0]["owners_before"][0] == user_pk
     assert res.json["outputs"][0]["public_keys"][0] == user_pk
+
+    time.sleep(2)
+
+    asset_id = posted_create_tx.id
+    url = TX_ENDPOINT + "?asset_id=" + asset_id
+    tmp_json = client.get(url).json
+    assert len(tmp_json) == 3
+
+    url = TX_ENDPOINT + "?asset_id=" + asset_id + "&operation=CREATE"
+    tmp_json = client.get(url).json
+    assert len(tmp_json) == 1
+
+    url = TX_ENDPOINT + "?asset_id=" + asset_id + "&operation=TRANSFER"
+    tmp_json = client.get(url).json
+    assert len(tmp_json) == 2
 
 
 @pytest.mark.abci
