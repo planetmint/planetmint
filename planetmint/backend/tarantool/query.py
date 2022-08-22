@@ -186,6 +186,7 @@ def store_block(connection, block: dict):
     for txid in block["transactions"]:
         connection.run(connection.space("blocks_tx").insert((txid, block_unique_id)), only_data=False)
 
+
 @register_query(TarantoolDBConnection)
 def get_txids_filtered(
     connection, asset_id: str, operation: str = None, last_tx: any = None
@@ -211,7 +212,7 @@ def get_txids_filtered(
                 connection.space("transactions").select([operation, _txid], index=actions["index"])
             )
             if len(_tmp_transactions) != 0:
-                _transactions.extend( _tmp_transactions)
+                _transactions.extend(_tmp_transactions)
     else:
         _tx_ids = connection.run(connection.space("transactions").select([asset_id], index="id_search"))
         _assets_ids = connection.run(connection.space("assets").select([asset_id], index="only_asset_search"))

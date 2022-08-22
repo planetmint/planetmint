@@ -113,10 +113,6 @@ def test_get_tests():
     bob_tx_id = bdb.outputs.get(bob.public_key, spent=False)[0]["transaction_id"]
     assert bdb.transactions.retrieve(bob_tx_id) == sent_transfer_tx
 
-
-
-
-
     transfer_asset = {"id": bike_id}
 
     # Alice wants to spend the one and only output available, the one with index `0`.
@@ -147,30 +143,31 @@ def test_get_tests():
     sent_transfer_tx = bdb.transactions.send_commit(fulfilled_transfer_tx)
 
     assert bdb.transactions.retrieve(fulfilled_transfer_tx["id"]) == sent_transfer_tx
-    
-    #from urllib3 import request
+
+    # from urllib3 import request
     import urllib3
     import json
+
     http = urllib3.PoolManager()
 
-    # verify that 3 transactions contain the asset_id    
+    # verify that 3 transactions contain the asset_id
     asset_id = bike_id
     url = "http://planetmint:9984/api/v1/transactions?asset_id=" + asset_id
-    r = http.request('GET', url)
-    tmp_json = http.request('GET', url)
-    tmp_json = json.loads(tmp_json.data.decode('utf-8'))    
+    r = http.request("GET", url)
+    tmp_json = http.request("GET", url)
+    tmp_json = json.loads(tmp_json.data.decode("utf-8"))
     assert len(tmp_json) == 3
 
     # verify that one transaction is the create TX
     url = "http://planetmint:9984/api/v1/transactions?asset_id=" + asset_id + "&operation=CREATE"
-    r = http.request('GET', url)
-    tmp_json = http.request('GET', url)
-    tmp_json = json.loads(tmp_json.data.decode('utf-8'))
+    r = http.request("GET", url)
+    tmp_json = http.request("GET", url)
+    tmp_json = json.loads(tmp_json.data.decode("utf-8"))
     assert len(tmp_json) == 1
 
     # verify that 2 transactoins are of type transfer
     url = "http://planetmint:9984/api/v1/transactions?asset_id=" + asset_id + "&operation=transfer"
-    r = http.request('GET', url)
-    tmp_json = http.request('GET', url)
-    tmp_json = json.loads(tmp_json.data.decode('utf-8'))
+    r = http.request("GET", url)
+    tmp_json = http.request("GET", url)
+    tmp_json = json.loads(tmp_json.data.decode("utf-8"))
     assert len(tmp_json) == 2

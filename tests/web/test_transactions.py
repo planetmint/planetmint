@@ -343,7 +343,6 @@ def test_post_transfer_transaction_endpoint(client, user_pk, user_sk, posted_cre
     assert res.json["outputs"][0]["public_keys"][0] == user_pk
 
 
-
 @pytest.mark.abci
 def test_post_invalid_transfer_transaction_returns_400(client, user_pk, posted_create_tx):
     from planetmint.transactions.common.exceptions import InvalidSignature
