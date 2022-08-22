@@ -186,7 +186,6 @@ def store_block(connection, block: dict):
     for txid in block["transactions"]:
         connection.run(connection.space("blocks_tx").insert((txid, block_unique_id)), only_data=False)
 
-import logging
 @register_query(TarantoolDBConnection)
 def get_txids_filtered(
     connection, asset_id: str, operation: str = None, last_tx: any = None
@@ -205,12 +204,7 @@ def get_txids_filtered(
         )
     elif actions["sets"][0] == "TRANSFER":  # +
         _assets = connection.run(connection.space("assets").select([asset_id], index="only_asset_search"))
-        logger = logging.getLogger(__name__)
-        logger.debug( "ASSETS : `{}`".format(len(_assets)))
-        logger.debug( "ASSETS : `{}`".format(_assets))
 
-        print(f"ASSETS : {len(_assets)}")
-        print(f"ASSETS : {_assets}")
         for asset in _assets:
             _txid = asset[1]
             _tmp_transactions = connection.run(
