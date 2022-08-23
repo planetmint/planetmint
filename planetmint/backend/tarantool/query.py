@@ -205,13 +205,14 @@ def get_txids_filtered(
         )
     elif actions["sets"][0] == "TRANSFER":  # +
         _assets = connection.run(connection.space("assets").select([asset_id], index="only_asset_search"))
+
         for asset in _assets:
             _txid = asset[1]
-            _transactions = connection.run(
+            _tmp_transactions = connection.run(
                 connection.space("transactions").select([operation, _txid], index=actions["index"])
             )
-            if len(_transactions) != 0:
-                break
+            if len(_tmp_transactions) != 0:
+                _transactions.extend(_tmp_transactions)
     else:
         _tx_ids = connection.run(connection.space("transactions").select([asset_id], index="id_search"))
         _assets_ids = connection.run(connection.space("assets").select([asset_id], index="only_asset_search"))

@@ -337,7 +337,6 @@ def test_post_transfer_transaction_endpoint(client, user_pk, user_sk, posted_cre
     transfer_tx = transfer_tx.sign([user_sk])
 
     res = client.post(TX_ENDPOINT, data=json.dumps(transfer_tx.to_dict()))
-
     assert res.status_code == 202
 
     assert res.json["inputs"][0]["owners_before"][0] == user_pk
