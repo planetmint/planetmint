@@ -40,7 +40,9 @@ properties:
     "$ref": "#/definitions/metadata"
   version:
     type: string
-    pattern: "^2\\.0$"
+    pattern: "^3\\.0$"
+  script:
+    "$ref": "#/definitions/script"
 definitions:
   offset:
     type: integer
@@ -172,3 +174,53 @@ definitions:
           type: array
           items:
             "$ref": "#/definitions/condition_details"
+  script:
+    type: object
+    additionalProperties: false
+    required:
+      - code
+      - state
+      - input
+      - output
+    properties:
+      code:
+        anyOf:
+          - type: object
+            additionalProperties: false
+            required:
+              - type
+              - raw
+              - parameters
+            properties:
+              type:
+                type: string
+                enum:
+                  - zenroom
+              raw:
+                type: string
+              parameters:
+                type: array
+                items:
+                  type: object
+          - type: object
+            additionalProperties: false
+            required:
+              - transaction_id
+            properties:
+              transaction_id:
+                "$ref": "#/definitions/sha3_hexdigest"
+      state:
+        anyOf:
+          - type: object
+            "$ref": "#/definitions/sha3_hexdigest"
+      input:
+        type: object
+      output:
+        type: object
+      policies:
+        type: object
+        properties:
+          raw:
+            type: object
+          txids:
+            type: object
