@@ -209,14 +209,14 @@ definitions:
         anyOf:
           - type: object
             "$ref": "#/definitions/sha3_hexdigest"
-      # input:
-      #   type: object
-      # output:
-      #   type: object
-      # policies:
-      #   - type: object
-      #     properties:
-      #       raw:
-      #         type: object
-      #       txids:
-      #         type: object
+      input:
+        type: object
+      output:
+        type: object
+      policies:
+        type: object
+        properties:
+          raw:
+            type: object
+          txids:
+            type: object
