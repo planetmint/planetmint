@@ -205,11 +205,10 @@ definitions:
             properties:
               transaction_id:
                 "$ref": "#/definitions/sha3_hexdigest"
-      # state:
-      #   anyOf:
-      #     - type: object
-      #     - type:
-      #         "$ref": "#/definitions/sha3_hexdigest"
+      state:
+        anyOf:
+          - type: object
+            "$ref": "#/definitions/sha3_hexdigest"
       # input:
       #   type: object
       # output:
