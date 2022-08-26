@@ -31,8 +31,8 @@ class DBSingleton(type):
     def __call__(cls, *args, **kwargs):
         if cls not in cls._instances:
             try:
-                backend = _kwargs_parser(key="backend", kwargs=kwargs)
-                if backend and backend != Config().get()["database"]["backend"]:
+                backend = kwargs.get("backend") if kwargs and kwargs.get("backend") else None
+                if backend is not None and backend != Config().get()["database"]["backend"]:
                     Config().init_config(backend)
                 else:
                     backend = Config().get()["database"]["backend"]
