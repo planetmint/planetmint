@@ -128,6 +128,7 @@ install_requires = [
     "werkzeug==2.0.3",
     "nest-asyncio==1.5.5",
     "protobuf==3.20.1",
+    "py-cid==0.3.0"
 ]
 
 setup(

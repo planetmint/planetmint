@@ -136,8 +136,9 @@ class Transaction(object):
         if inputs and not isinstance(inputs, list):
             raise TypeError("`inputs` must be a list instance or None")
 
-        if metadata is not None and not isinstance(metadata, dict):
-            raise TypeError("`metadata` must be a dict or None")
+        if metadata is not None and not isinstance(metadata, str):
+            # Add CID validation
+            raise TypeError("`metadata` must be a CID string or None")
 
         self.version = version if version is not None else self.VERSION
         self.operation = operation

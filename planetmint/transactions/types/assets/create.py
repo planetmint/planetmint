@@ -23,10 +23,12 @@ class Create(Transaction):
             raise ValueError("`tx_signers` list cannot be empty")
         if len(recipients) == 0:
             raise ValueError("`recipients` list cannot be empty")
-        if not (asset is None or isinstance(asset, dict)):
-            raise TypeError("`asset` must be a dict or None")
-        if not (metadata is None or isinstance(metadata, dict)):
-            raise TypeError("`metadata` must be a dict or None")
+        if not (asset is None or isinstance(asset, str)):
+            # Add py-cid validation here
+            raise TypeError("`asset` must be a CID string or None")
+        if not (metadata is None or isinstance(metadata, str)):
+            # Add py-cid validation here
+            raise TypeError("`metadata` must be a CID string or None")
 
         inputs = []
         outputs = []

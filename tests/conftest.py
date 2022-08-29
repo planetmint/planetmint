@@ -15,6 +15,8 @@ import copy
 import random
 import tempfile
 import codecs
+import base58
+from cid import CIDv0
 from collections import namedtuple
 from logging import getLogger
 from logging.config import dictConfig
@@ -287,7 +289,8 @@ def create_tx(alice, user_pk):
     from planetmint.transactions.types.assets.create import Create
 
     name = f"I am created by the create_tx fixture. My random identifier is {random.random()}."
-    return Create.generate([alice.public_key], [([user_pk], 1)], asset={"name": name})
+    # return Create.generate([alice.public_key], [([user_pk], 1)], asset={"name": name})
+    return Create.generate([alice.public_key], [([user_pk], 1)], asset="QmaozNR7DZHQK1ZcU9p7QdrshMvXqWK6gpu5rmrkPdT3L4")
 
 
 @pytest.fixture
@@ -331,11 +334,14 @@ def inputs(user_pk, b, alice):
 
     # create blocks with transactions for `USER` to spend
     for height in range(1, 4):
+        rand_cid = CIDv0(
+            base58.b58encode(f"{random.random()}")
+        ).encode()
         transactions = [
             Create.generate(
                 [alice.public_key],
                 [([user_pk], 1)],
-                metadata={"msg": random.random()},
+                metadata=rand_cid, # needs to create random cid
             ).sign([alice.private_key])
             for _ in range(10)
         ]

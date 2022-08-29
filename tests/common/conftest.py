@@ -22,9 +22,9 @@ CC_FULFILLMENT_URI = (
 )
 CC_CONDITION_URI = "ni:///sha-256;" "eZI5q6j8T_fqv7xMROaei9_tmTMk4S7WR5Kr4onPHV8" "?fpt=ed25519-sha-256&cost=131072"
 
-ASSET_DEFINITION = {"data": {"definition": "Asset definition"}}
+ASSET_DEFINITION = {"data": "QmaozNR7DZHQK1ZcU9p7QdrshMvXqWK6gpu5rmrkPdT3L4"}
 
-DATA = {"msg": "Hello Planetmint!"}
+DATA = "QmaozNR7DZHQK1ZcU9p7QdrshMvXqWK6gpu5rmrkPdT3L4"
 
 
 @pytest.fixture
@@ -195,9 +195,7 @@ def dummy_transaction():
 def unfulfilled_transaction():
     return {
         "asset": {
-            "data": {
-                "msg": "Hello Planetmint!",
-            }
+            "data": "QmaozNR7DZHQK1ZcU9p7QdrshMvXqWK6gpu5rmrkPdT3L4"
         },
         "id": None,
         "inputs": [
@@ -235,9 +233,7 @@ def unfulfilled_transaction():
 def fulfilled_transaction():
     return {
         "asset": {
-            "data": {
-                "msg": "Hello Planetmint!",
-            }
+            "data": "QmaozNR7DZHQK1ZcU9p7QdrshMvXqWK6gpu5rmrkPdT3L4"
         },
         "id": None,
         "inputs": [
@@ -298,9 +294,7 @@ def fulfilled_transaction():
 def tri_state_transaction(request):
     tx = {
         "asset": {
-            "data": {
-                "msg": "Hello Planetmint!",
-            }
+            "data": "QmaozNR7DZHQK1ZcU9p7QdrshMvXqWK6gpu5rmrkPdT3L4"
         },
         "id": None,
         "inputs": [
