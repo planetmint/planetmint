@@ -76,8 +76,7 @@ definitions:
         "$ref": "#/definitions/sha3_hexdigest"
       data:
         anyOf:
-          - type: object
-            additionalProperties: true
+          - type: string
           - type: 'null'
   output:
     type: object
@@ -135,9 +134,7 @@ definitions:
           - type: 'null'
   metadata:
     anyOf:
-      - type: object
-        additionalProperties: true
-        minProperties: 1
+      - type: string
       - type: 'null'
   condition_details:
     anyOf:
