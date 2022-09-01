@@ -51,7 +51,7 @@ docs_require = [
     "charset-normalizer==2.0.12",
     "commonmark==0.9.1",
     "docutils==0.17.1",
-    "idna",
+    "idna==2.10", # version conflict with requests lib (required version <3)
     "imagesize==1.3.0",
     "importlib-metadata==4.11.3",
     "Jinja2==3.0.0",
@@ -110,7 +110,8 @@ install_requires = [
     "chardet==3.0.4",
     "aiohttp==3.8.1",
     "abci==0.8.3",
-    "planetmint-cryptoconditions>=0.9.9",
+    # "planetmint-cryptoconditions>=0.9.9", # replace with new release
+    'planetmint-cryptoconditions@git+https://github.com/planetmint/cryptoconditions.git#egg=planetmint-cryptoconditions',
     "flask-cors==3.0.10",
     "flask-restful==0.3.9",
     "flask==2.1.2",
@@ -128,7 +129,7 @@ install_requires = [
     "werkzeug==2.0.3",
     "nest-asyncio==1.5.5",
     "protobuf==3.20.1",
-    "py-cid==0.3.0"
+    "ipld@git+https://github.com/planetmint/py-ipld.git@update-dependencies#egg=ipld" # replace with new release
 ]
 
 setup(

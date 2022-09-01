@@ -34,4 +34,6 @@ RUN mkdir -p /usr/src/app
 COPY . /usr/src/app/
 WORKDIR /usr/src/app
 RUN pip install -e .[dev]
+# added because cryptoconditions are not installed with subdependencies..
+RUN pip install pynacl pyasn1 zenroom
 RUN planetmint -y configure

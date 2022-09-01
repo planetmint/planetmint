@@ -24,10 +24,10 @@ class Create(Transaction):
         if len(recipients) == 0:
             raise ValueError("`recipients` list cannot be empty")
         if not (asset is None or isinstance(asset, str)):
-            # Add py-cid validation here
+            # add check if asset is ipld marshalled CID string
             raise TypeError("`asset` must be a CID string or None")
         if not (metadata is None or isinstance(metadata, str)):
-            # Add py-cid validation here
+            # add check if metadata is ipld marshalled CID string
             raise TypeError("`metadata` must be a CID string or None")
 
         inputs = []
