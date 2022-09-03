@@ -13,7 +13,7 @@ from planetmint.parallel_validation import ParallelValidationApp
 from planetmint.web import server, websocket_server
 from planetmint.events import Exchange, EventTypes
 from planetmint.utils import Process
-
+from planetmint.meter import csv_handler, create_handler
 
 logger = logging.getLogger(__name__)
 
@@ -39,6 +39,7 @@ def start(args):
     logger.info("Starting Planetmint")
     exchange = Exchange()
     # start the web api
+    create_handler()
     app_server = server.create_server(
         settings=Config().get()["server"], log_config=Config().get()["log"], planetmint_factory=Planetmint
     )
@@ -80,7 +81,7 @@ def start(args):
             )
         )
     app.run()
-
+    csv_handler.save_data()
 
 if __name__ == "__main__":
     start()

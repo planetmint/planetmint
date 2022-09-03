@@ -37,6 +37,9 @@ from planetmint.validation import BaseValidationRules
 
 logger = logging.getLogger(__name__)
 
+from pyJoules.energy_meter import measure_energy
+from planetmint.meter import csv_handler, create_handler
+
 
 class Planetmint(object):
     """Planetmint API
@@ -74,6 +77,8 @@ class Planetmint(object):
         else:
             self.validation = BaseValidationRules
         self.connection = connection if connection is not None else planetmint.backend.connect()
+        create_handler()
+
 
     def post_transaction(self, transaction, mode):
         """Submit a valid transaction to the mempool."""
@@ -358,6 +363,7 @@ class Planetmint(object):
 
         return [block["height"] for block in blocks]
 
+    @measure_energy(handler=csv_handler)
     def validate_transaction(self, tx, current_transactions=[]):
         """Validate a transaction against the current status of the database."""
 
