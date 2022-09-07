@@ -7,17 +7,16 @@ from cryptoconditions.types.ed25519 import Ed25519Sha256
 from cryptoconditions.types.zenroom import ZenroomSha256
 from planetmint.transactions.common.crypto import generate_key_pair
 
-CONDITION_SCRIPT = """
-    Scenario 'ecdh': create the signature of an object
+CONDITION_SCRIPT = """Scenario 'ecdh': create the signature of an object
     Given I have the 'keyring'
-    Given that I have a 'string dictionary' named 'houses' inside 'asset'
+    Given that I have a 'string dictionary' named 'houses'
     When I create the signature of 'houses'
     Then print the 'signature'"""
 
 FULFILL_SCRIPT = """Scenario 'ecdh': Bob verifies the signature from Alice
     Given I have a 'ecdh public key' from 'Alice'
-    Given that I have a 'string dictionary' named 'houses' inside 'asset'
-    Given I have a 'signature' named 'signature' inside 'metadata'
+    Given that I have a 'string dictionary' named 'houses'
+    Given I have a 'signature' named 'signature'
     When I verify the 'houses' has a signature in 'signature' by 'Alice'
     Then print the string 'ok'"""
 
@@ -35,21 +34,18 @@ GENERATE_KEYPAIR = """Scenario 'ecdh': Create the keypair
     When I create the bitcoin key
     Then print data"""
 
-ZENROOM_DATA = {"also": "more data"}
-
-HOUSE_ASSETS = {
-    "data": {
-        "houses": [
-            {
-                "name": "Harry",
-                "team": "Gryffindor",
-            },
-            {
-                "name": "Draco",
-                "team": "Slytherin",
-            },
-        ],
-    }
+INITIAL_STATE = {"also": "more data"}
+SCRIPT_INPUT = {
+    "houses": [
+        {
+            "name": "Harry",
+            "team": "Gryffindor",
+        },
+        {
+            "name": "Draco",
+            "team": "Slytherin",
+        },
+    ],
 }
 
 metadata = {"units": 300, "type": "KG"}
@@ -66,7 +62,7 @@ def test_zenroom_signing():
     zen_public_keys = json.loads(zencode_exec(SK_TO_PK.format("Alice"), keys=json.dumps({"keyring": alice})).output)
     zen_public_keys.update(json.loads(zencode_exec(SK_TO_PK.format("Bob"), keys=json.dumps({"keyring": bob})).output))
 
-    zenroomscpt = ZenroomSha256(script=FULFILL_SCRIPT, data=ZENROOM_DATA, keys=zen_public_keys)
+    zenroomscpt = ZenroomSha256(script=FULFILL_SCRIPT, data=INITIAL_STATE, keys=zen_public_keys)
     print(f"zenroom is: {zenroomscpt.script}")
 
     # CRYPTO-CONDITIONS: generate the condition uri
@@ -95,11 +91,23 @@ def test_zenroom_signing():
             biolabs.public_key,
         ],
     }
+    script_ = {
+        "code": {
+            "type": "zenroom",
+            "raw": "test_string",
+            "parameters": [{"obj":"1"}, {"obj":"2"}]
+        },
+        "state": "dd8bbd234f9869cab4cc0b84aa660e9b5ef0664559b8375804ee8dce75b10576",
+        "input": SCRIPT_INPUT,
+        "output": ["ok"],
+        "policies": {}
+    }
     metadata = {"result": {"output": ["ok"]}}
     token_creation_tx = {
         "operation": "CREATE",
-        "asset": HOUSE_ASSETS,
+        "asset": { "data": {"test": "my asset" }},
         "metadata": metadata,
+        "script": script_,
         "outputs": [
             output,
         ],
@@ -111,32 +119,31 @@ def test_zenroom_signing():
     }
 
     # JSON: serialize the transaction-without-id to a json formatted string
-    message = json.dumps(
+    tx = json.dumps(
         token_creation_tx,
         sort_keys=True,
         separators=(",", ":"),
         ensure_ascii=False,
     )
-
+    script_= json.dumps(script_)
     # major workflow:
     # we store the fulfill script in the transaction/message (zenroom-sha)
     # the condition script is used to fulfill the transaction and create the signature
     #
     # the server should ick the fulfill script and recreate the zenroom-sha and verify the signature
 
-    message = zenroomscpt.sign(message, CONDITION_SCRIPT, alice)
-    assert zenroomscpt.validate(message=message)
+    signed_intput = zenroomscpt.sign(script_, CONDITION_SCRIPT, alice)
+    assert zenroomscpt.validate(message=signed_intput)
 
-    message = json.loads(message)
+    tx = json.loads(tx)
     fulfillment_uri_zen = zenroomscpt.serialize_uri()
 
-    message["inputs"][0]["fulfillment"] = fulfillment_uri_zen
-    tx = message
+    tx["inputs"][0]["fulfillment"] = fulfillment_uri_zen
     tx["id"] = None
     json_str_tx = json.dumps(tx, sort_keys=True, skipkeys=False, separators=(",", ":"))
     # SHA3: hash the serialized id-less transaction to generate the id
     shared_creation_txid = sha3_256(json_str_tx.encode()).hexdigest()
-    message["id"] = shared_creation_txid
+    tx["id"] = shared_creation_txid
 
     from planetmint.models import Transaction
     from planetmint.transactions.common.exceptions import (
@@ -145,7 +152,7 @@ def test_zenroom_signing():
     )
 
     try:
-        tx_obj = Transaction.from_dict(message)
+        tx_obj = Transaction.from_dict(tx)
     except SchemaValidationError:
         assert ()
     except ValidationError as e:

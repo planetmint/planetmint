@@ -110,7 +110,7 @@ install_requires = [
     "chardet==3.0.4",
     "aiohttp==3.8.1",
     "abci==0.8.3",
-    "planetmint-cryptoconditions>=0.9.9",
+    "planetmint-cryptoconditions>=0.10.0",
     "flask-cors==3.0.10",
     "flask-restful==0.3.9",
     "flask==2.1.2",

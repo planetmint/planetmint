@@ -68,7 +68,8 @@ def merkleroot(hashes):
     parent_hashes = [sha3_256(hashes[i] + hashes[i + 1]).digest() for i in range(0, len(hashes) - 1, 2)]
     return merkleroot(parent_hashes)
 
-
+# ripemd160 is only available below python 3.9.13
+@DeprecationWarning
 def public_key64_to_address(base64_public_key):
     """Note this only compatible with Tendermint 0.19.x"""
     ed25519_public_key = public_key_from_base64(base64_public_key)

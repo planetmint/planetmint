@@ -93,6 +93,7 @@ class Transaction(object):
         version=None,
         hash_id=None,
         tx_dict=None,
+        script = None,
     ):
         """The constructor allows to create a customizable Transaction.
 
@@ -138,15 +139,20 @@ class Transaction(object):
 
         if metadata is not None and not isinstance(metadata, dict):
             raise TypeError("`metadata` must be a dict or None")
-
+        
+        if script is not None and not isinstance(script, dict):
+            raise TypeError("`script` must be a dict or None")
+        
         self.version = version if version is not None else self.VERSION
         self.operation = operation
         self.asset = asset
         self.inputs = inputs or []
         self.outputs = outputs or []
         self.metadata = metadata
+        self.script = script
         self._id = hash_id
         self.tx_dict = tx_dict
+        
 
     @property
     def unspent_outputs(self):
@@ -320,7 +326,7 @@ class Transaction(object):
         elif isinstance(input_.fulfillment, ThresholdSha256):
             return cls._sign_threshold_signature_fulfillment(input_, message, key_pairs)
         elif isinstance(input_.fulfillment, ZenroomSha256):
-            return cls._sign_threshold_signature_fulfillment(input_, message, key_pairs)
+            return cls._sign_zenroom_fulfillment(input_, message, key_pairs)
         else:
             raise ValueError("Fulfillment couldn't be matched to " "Cryptocondition fulfillment type.")
 
@@ -564,6 +570,7 @@ class Transaction(object):
             "operation": str(self.operation),
             "metadata": self.metadata,
             "asset": self.asset,
+            "script": self.script,
             "version": self.version,
             "id": self._id,
         }
@@ -699,6 +706,12 @@ class Transaction(object):
             "version": tx["version"],
             "id": id,
         }
+        try:
+            script_dict = { "script": tx["script"] }
+        except KeyError:
+            pass
+        else:
+            local_dict = { ** local_dict, **script_dict }
 
         if not skip_schema_validation:
             cls.validate_id(local_dict)
@@ -715,6 +728,7 @@ class Transaction(object):
             tx["version"],
             hash_id=tx["id"],
             tx_dict=tx,
+            script= tx["script"],
         )
 
     @classmethod
