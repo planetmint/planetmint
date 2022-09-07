@@ -707,8 +707,10 @@ class Transaction(object):
             "id": id,
         }
         try:
-            script_dict = { "script": tx["script"] }
+            script_ = tx["script"]
+            script_dict = { "script": script_}
         except KeyError:
+            script_ = None
             pass
         else:
             local_dict = { ** local_dict, **script_dict }
@@ -728,7 +730,7 @@ class Transaction(object):
             tx["version"],
             hash_id=tx["id"],
             tx_dict=tx,
-            script= tx["script"],
+            script= script_,
         )
 
     @classmethod
