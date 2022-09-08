@@ -1196,6 +1196,6 @@ The first public release of Planetmint, including:
 - Initial documentation (in `planetmint/docs`).
 - Initial `README.md`, `ROADMAP.md`, `CODE_OF_CONDUCT.md`, and `CONTRIBUTING.md`.
 - Packaging for PyPI, including `setup.py` and `setup.cfg`.
-- Initial `Dockerfile` and `docker-compose.yml` (for deployment using Docker and Docker Compose).
+- Initial `Dockerfile` and `docker compose.yml` (for deployment using Docker and Docker Compose).
 - Initial `.gitignore` (list of things for git to ignore).
 - Initial `.travis.yml` (used by Travis CI).

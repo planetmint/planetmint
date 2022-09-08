@@ -48,7 +48,7 @@ SCRIPT_INPUT = {
 
 metadata = {"units": 300, "type": "KG"}
 
-ZENROOM_DATA = { "that": "is my data" }
+ZENROOM_DATA = {"that": "is my data"}
 
 
 @pytest.fixture
@@ -74,6 +74,7 @@ def condition_script_zencode():
 @pytest.fixture
 def zenroom_house_assets():
     return SCRIPT_INPUT
+
 
 @pytest.fixture
 def zenroom_script_input():

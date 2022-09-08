@@ -309,7 +309,6 @@ def test_invalid_input_initialization(user_input, user_pub):
 
 def test_transaction_link_serialization():
 
-
     tx_id = "a transaction id"
     expected = {
         "transaction_id": tx_id,
@@ -801,7 +800,6 @@ def test_create_transfer_with_invalid_parameters(tx, user_pub):
 
 
 def test_cant_add_empty_output():
-
 
     tx = Transaction(Transaction.CREATE, None)
 

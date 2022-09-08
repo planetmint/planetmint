@@ -107,7 +107,7 @@ INDEX_COMMANDS = {
     },
     "scripts": {
         "txid_search": "scripts:create_index('txid_search', {type='tree', parts={'transaction_id'}})",
-    }
+    },
 }
 
 

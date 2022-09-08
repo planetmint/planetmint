@@ -92,20 +92,16 @@ def test_zenroom_signing():
         ],
     }
     script_ = {
-        "code": {
-            "type": "zenroom",
-            "raw": "test_string",
-            "parameters": [{"obj":"1"}, {"obj":"2"}]
-        },
+        "code": {"type": "zenroom", "raw": "test_string", "parameters": [{"obj": "1"}, {"obj": "2"}]},
         "state": "dd8bbd234f9869cab4cc0b84aa660e9b5ef0664559b8375804ee8dce75b10576",
         "input": SCRIPT_INPUT,
         "output": ["ok"],
-        "policies": {}
+        "policies": {},
     }
     metadata = {"result": {"output": ["ok"]}}
     token_creation_tx = {
         "operation": "CREATE",
-        "asset": { "data": {"test": "my asset" }},
+        "asset": {"data": {"test": "my asset"}},
         "metadata": metadata,
         "script": script_,
         "outputs": [
@@ -125,7 +121,7 @@ def test_zenroom_signing():
         separators=(",", ":"),
         ensure_ascii=False,
     )
-    script_= json.dumps(script_)
+    script_ = json.dumps(script_)
     # major workflow:
     # we store the fulfill script in the transaction/message (zenroom-sha)
     # the condition script is used to fulfill the transaction and create the signature
@@ -138,23 +134,21 @@ def test_zenroom_signing():
     input_signed["input"]["signature"] = input_signed["output"]["signature"]
     del input_signed["output"]["signature"]
     del input_signed["output"]["logs"]
-    input_signed["output"] =["ok"] # define expected output that is to be compared
-    input_msg =json.dumps(input_signed)
+    input_signed["output"] = ["ok"]  # define expected output that is to be compared
+    input_msg = json.dumps(input_signed)
     assert zenroomscpt.validate(message=input_msg)
 
     tx = json.loads(tx)
     fulfillment_uri_zen = zenroomscpt.serialize_uri()
 
-    tx["script"]= input_signed
+    tx["script"] = input_signed
     tx["inputs"][0]["fulfillment"] = fulfillment_uri_zen
     tx["id"] = None
     json_str_tx = json.dumps(tx, sort_keys=True, skipkeys=False, separators=(",", ":"))
     # SHA3: hash the serialized id-less transaction to generate the id
     shared_creation_txid = sha3_256(json_str_tx.encode()).hexdigest()
     tx["id"] = shared_creation_txid
-    
-    
-    
+
     from planetmint.models import Transaction
     from planetmint.lib import Planetmint
     from planetmint.transactions.common.exceptions import (
@@ -163,7 +157,7 @@ def test_zenroom_signing():
     )
 
     try:
-        print( f"TX\n{tx}")
+        print(f"TX\n{tx}")
         tx_obj = Transaction.from_dict(tx)
     except SchemaValidationError as e:
         print(e)
@@ -178,8 +172,8 @@ def test_zenroom_signing():
         print("Invalid transaction ({}): {}".format(type(e).__name__, e))
         assert ()
     except e:
-        print( f"Exception : {e}")
-        assert()
+        print(f"Exception : {e}")
+        assert ()
 
     print(f"VALIDATED : {tx_obj}")
     assert (tx_obj == False) is False

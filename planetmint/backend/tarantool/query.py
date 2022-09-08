@@ -75,10 +75,9 @@ def store_transactions(connection, signed_transactions: list):
 
         if txtuples["asset"] is not None:
             connection.run(connection.space("assets").insert(txtuples["asset"]), only_data=False)
-        
+
         if txtuples["script"] is not None:
             connection.run(connection.space("scripts").insert(txtuples["script"]), only_data=False)
-
 
 
 @register_query(TarantoolDBConnection)

@@ -45,7 +45,7 @@ def start(args):
     p_webapi = Process(name="planetmint_webapi", target=app_server.run, daemon=True)
     p_webapi.start()
 
-    logger.info(BANNER.format(__version__,Config().get()["server"]["bind"]))
+    logger.info(BANNER.format(__version__, Config().get()["server"]["bind"]))
 
     # start websocket server
     p_websocket_server = Process(

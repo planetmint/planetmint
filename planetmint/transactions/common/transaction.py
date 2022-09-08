@@ -93,7 +93,7 @@ class Transaction(object):
         version=None,
         hash_id=None,
         tx_dict=None,
-        script = None,
+        script=None,
     ):
         """The constructor allows to create a customizable Transaction.
 
@@ -139,10 +139,10 @@ class Transaction(object):
 
         if metadata is not None and not isinstance(metadata, dict):
             raise TypeError("`metadata` must be a dict or None")
-        
+
         if script is not None and not isinstance(script, dict):
             raise TypeError("`script` must be a dict or None")
-        
+
         self.version = version if version is not None else self.VERSION
         self.operation = operation
         self.asset = asset
@@ -152,7 +152,6 @@ class Transaction(object):
         self.script = script
         self._id = hash_id
         self.tx_dict = tx_dict
-        
 
     @property
     def unspent_outputs(self):
@@ -540,6 +539,7 @@ class Transaction(object):
         ffill_valid = False
         if isinstance(parsed_ffill, ZenroomSha256):
             import json
+
             msg = json.loads(message)
             ffill_valid = parsed_ffill.validate(message=json.dumps(msg["script"]))
         else:
@@ -571,7 +571,7 @@ class Transaction(object):
             "outputs": [output.to_dict() for output in self.outputs],
             "operation": str(self.operation),
             "metadata": self.metadata,
-            "asset": self.asset,   
+            "asset": self.asset,
             "version": self.version,
             "id": self._id,
         }
@@ -712,12 +712,12 @@ class Transaction(object):
         }
         try:
             script_ = tx["script"]
-            script_dict = { "script": script_}
+            script_dict = {"script": script_}
         except KeyError:
             script_ = None
             pass
         else:
-            local_dict = { ** local_dict, **script_dict }
+            local_dict = {**local_dict, **script_dict}
 
         if not skip_schema_validation:
             cls.validate_id(local_dict)
@@ -734,7 +734,7 @@ class Transaction(object):
             tx["version"],
             hash_id=tx["id"],
             tx_dict=tx,
-            script= script_,
+            script=script_,
         )
 
     @classmethod
