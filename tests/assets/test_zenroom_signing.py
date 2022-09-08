@@ -132,32 +132,54 @@ def test_zenroom_signing():
     #
     # the server should ick the fulfill script and recreate the zenroom-sha and verify the signature
 
-    signed_intput = zenroomscpt.sign(script_, CONDITION_SCRIPT, alice)
-    assert zenroomscpt.validate(message=signed_intput)
+    signed_input = zenroomscpt.sign(script_, CONDITION_SCRIPT, alice)
+
+    input_signed = json.loads(signed_input)
+    input_signed["input"]["signature"] = input_signed["output"]["signature"]
+    del input_signed["output"]["signature"]
+    del input_signed["output"]["logs"]
+    input_signed["output"] =["ok"] # define expected output that is to be compared
+    input_msg =json.dumps(input_signed)
+    assert zenroomscpt.validate(message=input_msg)
 
     tx = json.loads(tx)
     fulfillment_uri_zen = zenroomscpt.serialize_uri()
 
+    tx["script"]= input_signed
     tx["inputs"][0]["fulfillment"] = fulfillment_uri_zen
     tx["id"] = None
     json_str_tx = json.dumps(tx, sort_keys=True, skipkeys=False, separators=(",", ":"))
     # SHA3: hash the serialized id-less transaction to generate the id
     shared_creation_txid = sha3_256(json_str_tx.encode()).hexdigest()
     tx["id"] = shared_creation_txid
-
+    
+    
+    
     from planetmint.models import Transaction
+    from planetmint.lib import Planetmint
     from planetmint.transactions.common.exceptions import (
         SchemaValidationError,
         ValidationError,
     )
 
     try:
+        print( f"TX\n{tx}")
         tx_obj = Transaction.from_dict(tx)
-    except SchemaValidationError:
+    except SchemaValidationError as e:
+        print(e)
         assert ()
     except ValidationError as e:
         print(e)
         assert ()
+    planet = Planetmint()
+    try:
+        planet.validate_transaction(tx_obj)
+    except ValidationError as e:
+        print("Invalid transaction ({}): {}".format(type(e).__name__, e))
+        assert ()
+    except e:
+        print( f"Exception : {e}")
+        assert()
 
     print(f"VALIDATED : {tx_obj}")
     assert (tx_obj == False) is False

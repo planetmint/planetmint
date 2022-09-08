@@ -539,7 +539,9 @@ class Transaction(object):
 
         ffill_valid = False
         if isinstance(parsed_ffill, ZenroomSha256):
-            ffill_valid = parsed_ffill.validate(message=message)
+            import json
+            msg = json.loads(message)
+            ffill_valid = parsed_ffill.validate(message=json.dumps(msg["script"]))
         else:
             message = sha3_256(message.encode())
             if input_.fulfills:
@@ -564,16 +566,18 @@ class Transaction(object):
         Returns:
             dict: The Transaction as an alternative serialization format.
         """
-        return {
+        tx_dict = {
             "inputs": [input_.to_dict() for input_ in self.inputs],
             "outputs": [output.to_dict() for output in self.outputs],
             "operation": str(self.operation),
             "metadata": self.metadata,
-            "asset": self.asset,
-            "script": self.script,
+            "asset": self.asset,   
             "version": self.version,
             "id": self._id,
         }
+        if self.script:
+            tx_dict["script"] = self.script
+        return tx_dict
 
     @staticmethod
     # TODO: Remove `_dict` prefix of variable.

@@ -206,7 +206,10 @@ class TransactionCompose:
         return _outputs
     
     def _get_script(self):
-        return self.db_results["script"][0][1]
+        if self.db_results["script"]: 
+            return self.db_results["script"][0][1]
+        else: 
+            return None
         
 
     def convert_to_dict(self):
@@ -218,5 +221,6 @@ class TransactionCompose:
         transaction["operation"] = self._get_transaction_operation()
         transaction["inputs"] = self._get_inputs()
         transaction["outputs"] = self._get_outputs()
-        transaction["script"] = self._get_script()
+        if self._get_script() :
+            transaction["script"] = self._get_script()
         return transaction

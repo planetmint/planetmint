@@ -108,6 +108,7 @@ tests_require = [
 
 install_requires = [
     "chardet==3.0.4",
+    "base58==2.1.1",
     "aiohttp==3.8.1",
     "abci==0.8.3",
     "planetmint-cryptoconditions>=0.10.0",
