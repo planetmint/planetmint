@@ -39,3 +39,8 @@ zipp==3.8.0
 nest-asyncio==1.5.5
 sphinx-press-theme==0.8.0
 sphinx-documatt-theme
+base58>=2.1.1
+pynacl==1.4.0
+zenroom==2.1.0.dev1655293214
+pyasn1==0.4.8
+cryptography==3.4.7

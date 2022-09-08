@@ -34,6 +34,7 @@ def _group_transaction_by_ids(connection, txids: list):
         _txkeys = connection.run(connection.space("keys").select(txid, index="txid_search"))
         _txassets = connection.run(connection.space("assets").select(txid, index="txid_search"))
         _txmeta = connection.run(connection.space("meta_data").select(txid, index="id_search"))
+        _txscript = connection.run(connection.space("scripts").select(txid, index="txid_search"))
 
         _txinputs = sorted(_txinputs, key=itemgetter(6), reverse=False)
         _txoutputs = sorted(_txoutputs, key=itemgetter(8), reverse=False)
@@ -44,6 +45,7 @@ def _group_transaction_by_ids(connection, txids: list):
             "keys": _txkeys,
             "asset": _txassets,
             "metadata": _txmeta,
+            "script": _txscript,
         }
         tx_compose = TransactionCompose(db_results=result_map)
         _transaction = tx_compose.convert_to_dict()
@@ -73,6 +75,9 @@ def store_transactions(connection, signed_transactions: list):
 
         if txtuples["asset"] is not None:
             connection.run(connection.space("assets").insert(txtuples["asset"]), only_data=False)
+
+        if txtuples["script"] is not None:
+            connection.run(connection.space("scripts").insert(txtuples["script"]), only_data=False)
 
 
 @register_query(TarantoolDBConnection)
