@@ -5,6 +5,7 @@
 
 from base58 import b58decode
 import pytest
+from cryptoconditions import ThresholdSha256, Ed25519Sha256
 
 
 USER_PRIVATE_KEY = "8eJ8q9ZQpReWyQT5aFCiwtZ5wDZC4eDnCen88p3tQ6ie"
@@ -69,15 +70,11 @@ def cond_uri():
 
 @pytest.fixture
 def user_Ed25519(user_pub):
-    from cryptoconditions import Ed25519Sha256
-
     return Ed25519Sha256(public_key=b58decode(user_pub))
 
 
 @pytest.fixture
 def user_user2_threshold(user_pub, user2_pub):
-    from cryptoconditions import ThresholdSha256, Ed25519Sha256
-
     user_pub_keys = [user_pub, user2_pub]
     threshold = ThresholdSha256(threshold=len(user_pub_keys))
     for user_pub in user_pub_keys:
@@ -87,8 +84,6 @@ def user_user2_threshold(user_pub, user2_pub):
 
 @pytest.fixture
 def user2_Ed25519(user2_pub):
-    from cryptoconditions import Ed25519Sha256
-
     return Ed25519Sha256(public_key=b58decode(user2_pub))
 
 

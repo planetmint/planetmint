@@ -5,6 +5,7 @@
 
 import base64
 import json
+from pytest import mark
 
 try:
     from hashlib import sha3_256
@@ -47,6 +48,9 @@ SAMPLE_PUBLIC_KEY = {
 }
 
 
+@mark.skip(
+    reason="ripemd160, the core of pulbic_key64_to_address is no longer supported by hashlib (from python 3.9.13 on)"
+)
 def test_convert_base64_public_key_to_address():
     from planetmint.tendermint_utils import public_key64_to_address
 

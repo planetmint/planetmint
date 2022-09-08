@@ -9,18 +9,18 @@ type: object
 additionalProperties: false
 title: Transaction Schema
 required:
-- id
-- inputs
-- outputs
-- operation
-- metadata
-- asset
-- version
+  - id
+  - inputs
+  - outputs
+  - operation
+  - metadata
+  - asset
+  - version
 properties:
   id:
     anyOf:
-    - "$ref": "#/definitions/sha3_hexdigest"
-    - type: 'null'
+      - "$ref": "#/definitions/sha3_hexdigest"
+      - type: 'null'
   operation:
     "$ref": "#/definitions/operation"
   asset:
@@ -39,6 +39,8 @@ properties:
   version:
     type: string
     pattern: "^2\\.0$"
+  script:
+    "$ref": "#/definitions/script"
 definitions:
   offset:
     type: integer
@@ -48,10 +50,10 @@ definitions:
     type: string
   public_keys:
     anyOf:
-    - type: array
-      items:
-        "$ref": "#/definitions/base58"
-    - type: 'null'
+      - type: array
+        items:
+          "$ref": "#/definitions/base58"
+      - type: 'null'
   sha3_hexdigest:
     pattern: "[0-9a-f]{64}"
     type: string
@@ -61,11 +63,11 @@ definitions:
   operation:
     type: string
     enum:
-    - CREATE
-    - TRANSFER
-    - VALIDATOR_ELECTION
-    - CHAIN_MIGRATION_ELECTION
-    - VOTE
+      - CREATE
+      - TRANSFER
+      - VALIDATOR_ELECTION
+      - CHAIN_MIGRATION_ELECTION
+      - VOTE
   asset:
     type: object
     additionalProperties: false
@@ -74,16 +76,16 @@ definitions:
         "$ref": "#/definitions/sha3_hexdigest"
       data:
         anyOf:
-        - type: object
-          additionalProperties: true
-        - type: 'null'
+          - type: object
+            additionalProperties: true
+          - type: 'null'
   output:
     type: object
     additionalProperties: false
     required:
-    - amount
-    - condition
-    - public_keys
+      - amount
+      - condition
+      - public_keys
     properties:
       amount:
         type: string
@@ -92,8 +94,8 @@ definitions:
         type: object
         additionalProperties: false
         required:
-        - details
-        - uri
+          - details
+          - uri
         properties:
           details:
             "$ref": "#/definitions/condition_details"
@@ -108,63 +110,115 @@ definitions:
     type: "object"
     additionalProperties: false
     required:
-    - owners_before
-    - fulfillment
+      - owners_before
+      - fulfillment
     properties:
       owners_before:
         "$ref": "#/definitions/public_keys"
       fulfillment:
         anyOf:
-        - type: string
-          pattern: "^[a-zA-Z0-9_-]*$"
-        - "$ref": "#/definitions/condition_details"
+          - type: string
+            pattern: "^[a-zA-Z0-9_-]*$"
+          - "$ref": "#/definitions/condition_details"
       fulfills:
         anyOf:
-        - type: 'object'
-          additionalProperties: false
-          required:
-          - output_index
-          - transaction_id
-          properties:
-            output_index:
-              "$ref": "#/definitions/offset"
-            transaction_id:
-              "$ref": "#/definitions/sha3_hexdigest"
-        - type: 'null'
+          - type: 'object'
+            additionalProperties: false
+            required:
+              - output_index
+              - transaction_id
+            properties:
+              output_index:
+                "$ref": "#/definitions/offset"
+              transaction_id:
+                "$ref": "#/definitions/sha3_hexdigest"
+          - type: 'null'
   metadata:
     anyOf:
-    - type: object
-      additionalProperties: true
-      minProperties: 1
-    - type: 'null'
+      - type: object
+        additionalProperties: true
+        minProperties: 1
+      - type: 'null'
   condition_details:
     anyOf:
-    - type: object
-      additionalProperties: false
-      required:
-      - type
-      - public_key
-      properties:
-        type:
-          type: string
-          pattern: "^(ed25519|zenroom)-sha-256$"
-        public_key:
-          "$ref": "#/definitions/base58"
-    - type: object
-      additionalProperties: false
-      required:
-      - type
-      - threshold
-      - subconditions
-      properties:
-        type:
-          type: "string"
-          pattern: "^threshold-sha-256$"
-        threshold:
-          type: integer
-          minimum: 1
-          maximum: 100
-        subconditions:
-          type: array
-          items:
-            "$ref": "#/definitions/condition_details"
+      - type: object
+        additionalProperties: false
+        required:
+          - type
+          - public_key
+        properties:
+          type:
+            type: string
+            pattern: "^(ed25519|zenroom)-sha-256$"
+          public_key:
+            "$ref": "#/definitions/base58"
+      - type: object
+        additionalProperties: false
+        required:
+          - type
+          - threshold
+          - subconditions
+        properties:
+          type:
+            type: "string"
+            pattern: "^threshold-sha-256$"
+          threshold:
+            type: integer
+            minimum: 1
+            maximum: 100
+          subconditions:
+            type: array
+            items:
+              "$ref": "#/definitions/condition_details"
+  script:
+    type: object
+    additionalProperties: false
+    required:
+      - code
+      - state
+      - input
+      - output
+    properties:
+      code:
+        anyOf:
+          - type: object
+            additionalProperties: false
+            required:
+              - type
+              - raw
+              - parameters
+            properties:
+              type:
+                type: string
+                enum:
+                  - zenroom
+              raw:
+                type: string
+              parameters:
+                type: array
+                items:
+                  type: object
+          - type: object
+            additionalProperties: false
+            required:
+              - transaction_id
+            properties:
+              transaction_id:
+                "$ref": "#/definitions/sha3_hexdigest"
+      state:
+        anyOf:
+          - type: object
+            "$ref": "#/definitions/sha3_hexdigest"
+      input:
+        type: object
+      output:
+        anyOf:
+          - type: object
+          - type: array
+      policies:
+        type: object
+        properties:
+          raw:
+            type: object
+          txids:
+            type: object

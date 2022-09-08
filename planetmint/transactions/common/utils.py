@@ -195,6 +195,7 @@ def _fulfillment_to_details(fulfillment):
             "type": "zenroom-sha-256",
             "public_key": base58.b58encode(fulfillment.public_key).decode(),
             "script": base58.b58encode(fulfillment.script).decode(),
+            "data": base58.b58encode(fulfillment.data).decode(),
         }
 
     raise UnsupportedTypeError(fulfillment.type_name)
@@ -221,10 +222,10 @@ def _fulfillment_from_details(data, _depth=0):
         return threshold
 
     if data["type"] == "zenroom-sha-256":
-        public_key = base58.b58decode(data["public_key"])
-        script = base58.b58decode(data["script"])
-        # zenroom = ZenroomSha256(script=script, data=None, keys={public_key})
+        public_key_ = base58.b58decode(data["public_key"])
+        script_ = base58.b58decode(data["script"])
+        data_ = base58.b58decode(data["data"])
         # TODO: assign to zenroom and evaluate the outcome
-        ZenroomSha256(script=script, data=None, keys={public_key})
+        ZenroomSha256(script=script_, data=data_, keys={public_key_})
 
     raise UnsupportedTypeError(data.get("type"))

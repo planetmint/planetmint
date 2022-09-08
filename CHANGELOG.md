@@ -27,6 +27,18 @@ For reference, the possible headings are:
 
 ## [Unreleased]
 
+## [1.1.0] - 2022-09-05
+* **Changed** adjusted to zenroom calling convention of PRP #13 (breaking change)
+* **Changed** zenroom test cases to comply to the new calling convention
+* **Fixed** zenroom signing bug (call of wrong function)
+* **Changed** using cryptoconditions 0.10.0 
+* **Deprecated** usage of ripde160md as a address generation algorithm, isn't available from python 3.9.14 on, skipping these tests from now on.
+* **Changed** script/ouptut tag to be of type array or object for schema v3.0 and v2.0 
+* **Changed** added 'script' handling to the common/transactions.py class
+* **Fixed** data input handling to the transaction fullfillment methods
+
+
+
 ## [1.0.1] - 2022-07-07
 updated documentation
 
@@ -1184,6 +1196,6 @@ The first public release of Planetmint, including:
 - Initial documentation (in `planetmint/docs`).
 - Initial `README.md`, `ROADMAP.md`, `CODE_OF_CONDUCT.md`, and `CONTRIBUTING.md`.
 - Packaging for PyPI, including `setup.py` and `setup.cfg`.
-- Initial `Dockerfile` and `docker-compose.yml` (for deployment using Docker and Docker Compose).
+- Initial `Dockerfile` and `docker compose.yml` (for deployment using Docker and Docker Compose).
 - Initial `.gitignore` (list of things for git to ignore).
 - Initial `.travis.yml` (used by Travis CI).
