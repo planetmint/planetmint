@@ -10,9 +10,17 @@ import json
 from copy import deepcopy
 
 from base58 import b58encode, b58decode
-from cryptoconditions import Ed25519Sha256
 from planetmint.transactions.types.assets.create import Create
 from planetmint.transactions.types.assets.transfer import Transfer
+from planetmint.transactions.common.transaction import Output
+from planetmint.transactions.common.transaction import Input
+from planetmint.transactions.common.exceptions import AmountError
+from planetmint.transactions.common.transaction import Transaction
+from planetmint.transactions.common.transaction import TransactionLink
+from cryptoconditions import ThresholdSha256
+from cryptoconditions import Fulfillment
+from cryptoconditions import PreimageSha256
+from cryptoconditions import Ed25519Sha256
 from pytest import mark, raises
 
 try:
@@ -24,9 +32,6 @@ pytestmark = mark.bdb
 
 
 def test_input_serialization(ffill_uri, user_pub):
-    from planetmint.transactions.common.transaction import Input
-    from cryptoconditions import Fulfillment
-
     expected = {
         "owners_before": [user_pub],
         "fulfillment": ffill_uri,
@@ -37,9 +42,6 @@ def test_input_serialization(ffill_uri, user_pub):
 
 
 def test_input_deserialization_with_uri(ffill_uri, user_pub):
-    from planetmint.transactions.common.transaction import Input
-    from cryptoconditions import Fulfillment
-
     expected = Input(Fulfillment.from_uri(ffill_uri), [user_pub])
     ffill = {
         "owners_before": [user_pub],
@@ -78,9 +80,6 @@ def test_input_deserialization_with_invalid_fulfillment_uri(user_pub):
 
 
 def test_input_deserialization_with_unsigned_fulfillment(ffill_uri, user_pub):
-    from planetmint.transactions.common.transaction import Input
-    from cryptoconditions import Fulfillment
-
     expected = Input(Fulfillment.from_uri(ffill_uri), [user_pub])
     ffill = {
         "owners_before": [user_pub],
@@ -133,9 +132,6 @@ def test_output_deserialization(user_Ed25519, user_pub):
 
 
 def test_output_hashlock_serialization():
-    from planetmint.transactions.common.transaction import Output
-    from cryptoconditions import PreimageSha256
-
     secret = b"wow much secret"
     hashlock = PreimageSha256(preimage=secret).condition_uri
 
@@ -152,9 +148,6 @@ def test_output_hashlock_serialization():
 
 
 def test_output_hashlock_deserialization():
-    from planetmint.transactions.common.transaction import Output
-    from cryptoconditions import PreimageSha256
-
     secret = b"wow much secret"
     hashlock = PreimageSha256(preimage=secret).condition_uri
     expected = Output(hashlock, amount=1)
@@ -170,9 +163,6 @@ def test_output_hashlock_deserialization():
 
 
 def test_invalid_output_initialization(cond_uri, user_pub):
-    from planetmint.transactions.common.transaction import Output
-    from planetmint.transactions.common.exceptions import AmountError
-
     with raises(TypeError):
         Output(cond_uri, user_pub)
     with raises(TypeError):
@@ -182,9 +172,6 @@ def test_invalid_output_initialization(cond_uri, user_pub):
 
 
 def test_generate_output_split_half_recursive(user_pub, user2_pub, user3_pub):
-    from planetmint.transactions.common.transaction import Output
-    from cryptoconditions import Ed25519Sha256, ThresholdSha256
-
     expected_simple1 = Ed25519Sha256(public_key=b58decode(user_pub))
     expected_simple2 = Ed25519Sha256(public_key=b58decode(user2_pub))
     expected_simple3 = Ed25519Sha256(public_key=b58decode(user3_pub))
@@ -201,9 +188,6 @@ def test_generate_output_split_half_recursive(user_pub, user2_pub, user3_pub):
 
 
 def test_generate_outputs_split_half_single_owner(user_pub, user2_pub, user3_pub):
-    from planetmint.transactions.common.transaction import Output
-    from cryptoconditions import Ed25519Sha256, ThresholdSha256
-
     expected_simple1 = Ed25519Sha256(public_key=b58decode(user_pub))
     expected_simple2 = Ed25519Sha256(public_key=b58decode(user2_pub))
     expected_simple3 = Ed25519Sha256(public_key=b58decode(user3_pub))
@@ -220,9 +204,6 @@ def test_generate_outputs_split_half_single_owner(user_pub, user2_pub, user3_pub
 
 
 def test_generate_outputs_flat_ownage(user_pub, user2_pub, user3_pub):
-    from planetmint.transactions.common.transaction import Output
-    from cryptoconditions import Ed25519Sha256, ThresholdSha256
-
     expected_simple1 = Ed25519Sha256(public_key=b58decode(user_pub))
     expected_simple2 = Ed25519Sha256(public_key=b58decode(user2_pub))
     expected_simple3 = Ed25519Sha256(public_key=b58decode(user3_pub))
@@ -237,9 +218,6 @@ def test_generate_outputs_flat_ownage(user_pub, user2_pub, user3_pub):
 
 
 def test_generate_output_single_owner(user_pub):
-    from planetmint.transactions.common.transaction import Output
-    from cryptoconditions import Ed25519Sha256
-
     expected = Ed25519Sha256(public_key=b58decode(user_pub))
     cond = Output.generate([user_pub], 1)
 
@@ -247,9 +225,6 @@ def test_generate_output_single_owner(user_pub):
 
 
 def test_generate_output_single_owner_with_output(user_pub):
-    from planetmint.transactions.common.transaction import Output
-    from cryptoconditions import Ed25519Sha256
-
     expected = Ed25519Sha256(public_key=b58decode(user_pub))
     cond = Output.generate([expected], 1)
 
@@ -273,8 +248,6 @@ def test_generate_output_invalid_parameters(user_pub, user2_pub, user3_pub):
 
 
 def test_invalid_transaction_initialization(asset_definition):
-    from planetmint.transactions.common.transaction import Transaction
-
     with raises(ValueError):
         Transaction(operation="invalid operation", asset=asset_definition)
     with raises(TypeError):
@@ -290,8 +263,6 @@ def test_invalid_transaction_initialization(asset_definition):
 
 
 def test_create_default_asset_on_tx_initialization(asset_definition):
-    from planetmint.transactions.common.transaction import Transaction
-
     expected = {"data": None}
     tx = Transaction(Transaction.CREATE, asset=expected)
     asset = tx.asset
@@ -300,8 +271,6 @@ def test_create_default_asset_on_tx_initialization(asset_definition):
 
 
 def test_transaction_serialization(user_input, user_output, data):
-    from planetmint.transactions.common.transaction import Transaction
-
     expected = {
         "id": None,
         "version": Transaction.VERSION,
@@ -323,7 +292,6 @@ def test_transaction_serialization(user_input, user_output, data):
 
 
 def test_transaction_deserialization(tri_state_transaction):
-    from planetmint.transactions.common.transaction import Transaction
     from .utils import validate_transaction_model
 
     tx = Transaction.from_dict(tri_state_transaction)
@@ -340,7 +308,6 @@ def test_invalid_input_initialization(user_input, user_pub):
 
 
 def test_transaction_link_serialization():
-    from planetmint.transactions.common.transaction import TransactionLink
 
     tx_id = "a transaction id"
     expected = {
@@ -353,8 +320,6 @@ def test_transaction_link_serialization():
 
 
 def test_transaction_link_serialization_with_empty_payload():
-    from planetmint.transactions.common.transaction import TransactionLink
-
     expected = None
     tx_link = TransactionLink()
 
@@ -362,8 +327,6 @@ def test_transaction_link_serialization_with_empty_payload():
 
 
 def test_transaction_link_deserialization():
-    from planetmint.transactions.common.transaction import TransactionLink
-
     tx_id = "a transaction id"
     expected = TransactionLink(tx_id, 0)
     tx_link = {
@@ -376,8 +339,6 @@ def test_transaction_link_deserialization():
 
 
 def test_transaction_link_deserialization_with_empty_payload():
-    from planetmint.transactions.common.transaction import TransactionLink
-
     expected = TransactionLink()
     tx_link = TransactionLink.from_dict(None)
 
@@ -385,8 +346,6 @@ def test_transaction_link_deserialization_with_empty_payload():
 
 
 def test_transaction_link_empty_to_uri():
-    from planetmint.transactions.common.transaction import TransactionLink
-
     expected = None
     tx_link = TransactionLink().to_uri()
 
@@ -394,8 +353,6 @@ def test_transaction_link_empty_to_uri():
 
 
 def test_transaction_link_to_uri():
-    from planetmint.transactions.common.transaction import TransactionLink
-
     expected = "path/transactions/abc/outputs/0"
     tx_link = TransactionLink("abc", 0).to_uri("path")
 
@@ -403,8 +360,6 @@ def test_transaction_link_to_uri():
 
 
 def test_cast_transaction_link_to_boolean():
-    from planetmint.transactions.common.transaction import TransactionLink
-
     assert bool(TransactionLink()) is False
     assert bool(TransactionLink("a", None)) is False
     assert bool(TransactionLink(None, "b")) is False
@@ -413,8 +368,6 @@ def test_cast_transaction_link_to_boolean():
 
 
 def test_transaction_link_eq():
-    from planetmint.transactions.common.transaction import TransactionLink
-
     assert TransactionLink(1, 2) == TransactionLink(1, 2)
     assert TransactionLink(2, 2) != TransactionLink(1, 2)
     assert TransactionLink(1, 1) != TransactionLink(1, 2)
@@ -422,7 +375,6 @@ def test_transaction_link_eq():
 
 
 def test_add_input_to_tx(user_input, asset_definition):
-    from planetmint.transactions.common.transaction import Transaction
     from .utils import validate_transaction_model
 
     tx = Transaction(Transaction.CREATE, asset_definition, [], [])
@@ -434,8 +386,6 @@ def test_add_input_to_tx(user_input, asset_definition):
 
 
 def test_add_input_to_tx_with_invalid_parameters(asset_definition):
-    from planetmint.transactions.common.transaction import Transaction
-
     tx = Transaction(Transaction.CREATE, asset_definition)
 
     with raises(TypeError):
@@ -443,7 +393,6 @@ def test_add_input_to_tx_with_invalid_parameters(asset_definition):
 
 
 def test_add_output_to_tx(user_output, user_input, asset_definition):
-    from planetmint.transactions.common.transaction import Transaction
     from .utils import validate_transaction_model
 
     tx = Transaction(Transaction.CREATE, asset_definition, [user_input])
@@ -455,8 +404,6 @@ def test_add_output_to_tx(user_output, user_input, asset_definition):
 
 
 def test_add_output_to_tx_with_invalid_parameters(asset_definition):
-    from planetmint.transactions.common.transaction import Transaction
-
     tx = Transaction(Transaction.CREATE, asset_definition, [], [])
 
     with raises(TypeError):
@@ -471,7 +418,6 @@ def test_sign_with_invalid_parameters(utx, user_priv):
 
 
 def test_validate_tx_simple_create_signature(user_input, user_output, user_priv, asset_definition):
-    from planetmint.transactions.common.transaction import Transaction
     from .utils import validate_transaction_model
 
     tx = Transaction(Transaction.CREATE, asset_definition, [user_input], [user_output])
@@ -508,8 +454,6 @@ def test_sign_threshold_with_invalid_params(utx, user_user2_threshold_input, use
 
 
 def test_validate_input_with_invalid_parameters(utx):
-    from planetmint.transactions.common.transaction import Transaction
-
     input_conditions = [out.fulfillment.condition_uri for out in utx.outputs]
     tx_dict = utx.to_dict()
     tx_serialized = Transaction._to_str(tx_dict)
@@ -526,7 +470,6 @@ def test_validate_tx_threshold_create_signature(
     user2_priv,
     asset_definition,
 ):
-    from planetmint.transactions.common.transaction import Transaction
     from .utils import validate_transaction_model
 
     tx = Transaction(Transaction.CREATE, asset_definition, [user_user2_threshold_input], [user_user2_threshold_output])
@@ -546,9 +489,6 @@ def test_validate_tx_threshold_create_signature(
 
 
 def test_validate_tx_threshold_duplicated_pk(user_pub, user_priv, asset_definition):
-    from cryptoconditions import Ed25519Sha256, ThresholdSha256
-    from planetmint.transactions.common.transaction import Input, Output, Transaction
-
     threshold = ThresholdSha256(threshold=2)
     threshold.add_subfulfillment(Ed25519Sha256(public_key=b58decode(user_pub)))
     threshold.add_subfulfillment(Ed25519Sha256(public_key=b58decode(user_pub)))
@@ -581,8 +521,6 @@ def test_validate_tx_threshold_duplicated_pk(user_pub, user_priv, asset_definiti
 def test_multiple_input_validation_of_transfer_tx(
     user_input, user_output, user_priv, user2_pub, user2_priv, user3_pub, user3_priv, asset_definition
 ):
-    from planetmint.transactions.common.transaction import Transaction, TransactionLink, Input, Output
-    from cryptoconditions import Ed25519Sha256
     from .utils import validate_transaction_model
 
     tx = Transaction(Transaction.CREATE, asset_definition, [user_input], [user_output, deepcopy(user_output)])
@@ -607,9 +545,6 @@ def test_multiple_input_validation_of_transfer_tx(
 def test_validate_inputs_of_transfer_tx_with_invalid_params(
     transfer_tx, cond_uri, utx, user2_pub, user_priv, ffill_uri
 ):
-    from planetmint.transactions.common.transaction import Output
-    from cryptoconditions import Ed25519Sha256
-
     invalid_out = Output(Ed25519Sha256.from_uri(ffill_uri), ["invalid"])
     assert transfer_tx.inputs_valid([invalid_out]) is False
     invalid_out = utx.outputs[0]
@@ -628,7 +563,6 @@ def test_validate_inputs_of_transfer_tx_with_invalid_params(
 
 
 def test_create_create_transaction_single_io(user_output, user_pub, data):
-    from planetmint.transactions.common.transaction import Transaction
     from .utils import validate_transaction_model
 
     expected = {
@@ -660,8 +594,6 @@ def test_validate_single_io_create_transaction(user_pub, user_priv, data, asset_
 
 
 def test_create_create_transaction_multiple_io(user_output, user2_output, user_pub, user2_pub, asset_definition):
-    from planetmint.transactions.common.transaction import Transaction, Input
-
     # a fulfillment for a create transaction with multiple `owners_before`
     # is a fulfillment for an implicit threshold condition with
     # weight = len(owners_before)
@@ -695,8 +627,6 @@ def test_validate_multiple_io_create_transaction(user_pub, user_priv, user2_pub,
 def test_create_create_transaction_threshold(
     user_pub, user2_pub, user3_pub, user_user2_threshold_output, user_user2_threshold_input, data
 ):
-    from planetmint.transactions.common.transaction import Transaction
-
     expected = {
         "outputs": [user_user2_threshold_output.to_dict()],
         "metadata": data,
@@ -763,7 +693,6 @@ def test_outputs_to_inputs(tx):
 
 
 def test_create_transfer_transaction_single_io(tx, user_pub, user2_pub, user2_output, user_priv):
-    from planetmint.transactions.common.transaction import Transaction
     from .utils import validate_transaction_model
 
     expected = {
@@ -812,8 +741,6 @@ def test_create_transfer_transaction_single_io(tx, user_pub, user2_pub, user2_ou
 def test_create_transfer_transaction_multiple_io(
     user_pub, user_priv, user2_pub, user2_priv, user3_pub, user2_output, asset_definition
 ):
-    from planetmint.transactions.common.transaction import Transaction
-
     tx = Create.generate([user_pub], [([user_pub], 1), ([user2_pub], 1)], metadata="QmaozNR7DZHQK1ZcU9p7QdrshMvXqWK6gpu5rmrkPdT3L4")
     tx = tx.sign([user_priv])
 
@@ -873,7 +800,6 @@ def test_create_transfer_with_invalid_parameters(tx, user_pub):
 
 
 def test_cant_add_empty_output():
-    from planetmint.transactions.common.transaction import Transaction
 
     tx = Transaction(Transaction.CREATE, None)
 
@@ -882,8 +808,6 @@ def test_cant_add_empty_output():
 
 
 def test_cant_add_empty_input():
-    from planetmint.transactions.common.transaction import Transaction
-
     tx = Transaction(Transaction.CREATE, None)
 
     with raises(TypeError):
@@ -891,24 +815,18 @@ def test_cant_add_empty_input():
 
 
 def test_unfulfilled_transaction_serialized(unfulfilled_transaction):
-    from planetmint.transactions.common.transaction import Transaction
-
     tx_obj = Transaction.from_dict(unfulfilled_transaction)
     expected = json.dumps(unfulfilled_transaction, sort_keys=True, separators=(",", ":"), ensure_ascii=True)
     assert tx_obj.serialized == expected
 
 
 def test_fulfilled_transaction_serialized(fulfilled_transaction):
-    from planetmint.transactions.common.transaction import Transaction
-
     tx_obj = Transaction.from_dict(fulfilled_transaction)
     expected = json.dumps(fulfilled_transaction, sort_keys=True, separators=(",", ":"), ensure_ascii=True)
     assert tx_obj.serialized == expected
 
 
 def test_transaction_hash(fulfilled_transaction):
-    from planetmint.transactions.common.transaction import Transaction
-
     tx_obj = Transaction.from_dict(fulfilled_transaction)
     assert tx_obj._id is None
     assert tx_obj.id is None

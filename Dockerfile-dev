@@ -9,7 +9,6 @@ RUN apt-get update \
     && pip install -U pip \
     && apt-get autoremove \
     && apt-get clean
-
 ARG backend
 ARG abci_status
 
@@ -34,6 +33,6 @@ RUN mkdir -p /usr/src/app
 COPY . /usr/src/app/
 WORKDIR /usr/src/app
 RUN pip install -e .[dev]
-# added because cryptoconditions are not installed with subdependencies..
-RUN pip install pynacl pyasn1 zenroom
+RUN pip install flask-cors
+RUN pip install pynacl==1.4.0 base58==2.1.1 pyasn1==0.4.8 zenroom==2.1.0.dev1655293214 cryptography==3.4.7
 RUN planetmint -y configure

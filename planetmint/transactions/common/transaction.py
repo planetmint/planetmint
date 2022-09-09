@@ -93,6 +93,7 @@ class Transaction(object):
         version=None,
         hash_id=None,
         tx_dict=None,
+        script=None,
     ):
         """The constructor allows to create a customizable Transaction.
 
@@ -141,12 +142,16 @@ class Transaction(object):
             # Add CID validation
             raise TypeError("`metadata` must be a CID string or None")
 
+        if script is not None and not isinstance(script, dict):
+            raise TypeError("`script` must be a dict or None")
+
         self.version = version if version is not None else self.VERSION
         self.operation = operation
         self.asset = asset
         self.inputs = inputs or []
         self.outputs = outputs or []
         self.metadata = metadata
+        self.script = script
         self._id = hash_id
         self.tx_dict = tx_dict
 
@@ -322,7 +327,7 @@ class Transaction(object):
         elif isinstance(input_.fulfillment, ThresholdSha256):
             return cls._sign_threshold_signature_fulfillment(input_, message, key_pairs)
         elif isinstance(input_.fulfillment, ZenroomSha256):
-            return cls._sign_threshold_signature_fulfillment(input_, message, key_pairs)
+            return cls._sign_zenroom_fulfillment(input_, message, key_pairs)
         else:
             raise ValueError("Fulfillment couldn't be matched to " "Cryptocondition fulfillment type.")
 
@@ -535,7 +540,10 @@ class Transaction(object):
 
         ffill_valid = False
         if isinstance(parsed_ffill, ZenroomSha256):
-            ffill_valid = parsed_ffill.validate(message=message)
+            import json
+
+            msg = json.loads(message)
+            ffill_valid = parsed_ffill.validate(message=json.dumps(msg["script"]))
         else:
             message = sha3_256(message.encode())
             if input_.fulfills:
@@ -560,7 +568,7 @@ class Transaction(object):
         Returns:
             dict: The Transaction as an alternative serialization format.
         """
-        return {
+        tx_dict = {
             "inputs": [input_.to_dict() for input_ in self.inputs],
             "outputs": [output.to_dict() for output in self.outputs],
             "operation": str(self.operation),
@@ -569,6 +577,9 @@ class Transaction(object):
             "version": self.version,
             "id": self._id,
         }
+        if self.script:
+            tx_dict["script"] = self.script
+        return tx_dict
 
     @staticmethod
     # TODO: Remove `_dict` prefix of variable.
@@ -701,6 +712,14 @@ class Transaction(object):
             "version": tx["version"],
             "id": id,
         }
+        try:
+            script_ = tx["script"]
+            script_dict = {"script": script_}
+        except KeyError:
+            script_ = None
+            pass
+        else:
+            local_dict = {**local_dict, **script_dict}
 
         if not skip_schema_validation:
             cls.validate_id(local_dict)
@@ -717,6 +736,7 @@ class Transaction(object):
             tx["version"],
             hash_id=tx["id"],
             tx_dict=tx,
+            script=script_,
         )
 
     @classmethod

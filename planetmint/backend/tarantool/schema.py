@@ -23,7 +23,9 @@ SPACE_NAMES = (
     "outputs",
     "keys",
     "utxos",
+    "scripts",
 )
+
 
 SPACE_COMMANDS = {
     "abci_chains": "abci_chains = box.schema.space.create('abci_chains', {engine='memtx', is_sync = false})",
@@ -39,6 +41,7 @@ SPACE_COMMANDS = {
     "outputs": "outputs = box.schema.space.create('outputs')",
     "keys": "keys = box.schema.space.create('keys')",
     "utxos": "utxos = box.schema.space.create('utxos', {engine = 'memtx' , is_sync = false})",
+    "scripts": "scripts = box.schema.space.create('scripts', {engine = 'memtx' , is_sync = false})",
 }
 
 INDEX_COMMANDS = {
@@ -102,7 +105,11 @@ INDEX_COMMANDS = {
         "transaction_search": "utxos:create_index('transaction_search', {type='tree', unique=false, parts={'transaction_id'}})",  # noqa: E501
         "index_Search": "utxos:create_index('index_search', {type='tree', unique=false, parts={'output_index'}})",
     },
+    "scripts": {
+        "txid_search": "scripts:create_index('txid_search', {type='tree', parts={'transaction_id'}})",
+    },
 }
+
 
 SCHEMA_COMMANDS = {
     "abci_chains": "abci_chains:format({{name='height' , type='integer'},{name='is_synched' , type='boolean'},{name='chain_id',type='string'}, {name='id', type='string'}})",  # noqa: E501
@@ -118,6 +125,7 @@ SCHEMA_COMMANDS = {
     "outputs": "outputs:format({{name='transaction_id' , type='string'}, {name='amount' , type='string'}, {name='uri', type='string'}, {name='details_type', type='string'}, {name='details_public_key', type='any'}, {name = 'output_id', type = 'string'}, {name='treshold', type='any'}, {name='subconditions', type='any'}, {name='output_index', type='number'}})",  # noqa: E501
     "keys": "keys:format({{name = 'id', type='string'}, {name = 'transaction_id', type = 'string'} ,{name = 'output_id', type = 'string'}, {name = 'public_key', type = 'string'}, {name = 'key_index', type = 'integer'}})",  # noqa: E501
     "utxos": "utxos:format({{name='transaction_id' , type='string'}, {name='output_index' , type='integer'}, {name='utxo_dict', type='string'}})",  # noqa: E501
+    "scripts": "scripts:format({{name='transaction_id', type='string'},{name='script' , type='any'}})",  # noqa: E501
 }
 
 SCHEMA_DROP_COMMANDS = {
@@ -134,6 +142,7 @@ SCHEMA_DROP_COMMANDS = {
     "outputs": "box.space.outputs:drop()",
     "keys": "box.space.keys:drop()",
     "utxos": "box.space.utxos:drop()",
+    "scripts": "box.space.scripts:drop()",
 }
 
 

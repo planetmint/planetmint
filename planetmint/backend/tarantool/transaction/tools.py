@@ -40,6 +40,7 @@ class TransactionDecompose:
             "inputs": [],
             "outputs": [],
             "keys": [],
+            "script": None,
             "metadata": None,
             "asset": None,
         }
@@ -132,6 +133,12 @@ class TransactionDecompose:
         _map = self.get_map()
         return (self._transaction["id"], self._transaction["operation"], self._transaction["version"], _map)
 
+    def __prepare_script(self):
+        try:
+            return (self._transaction["id"], self._transaction["script"])
+        except KeyError:
+            return None
+
     def convert_to_tuple(self):
         self._metadata_check()
         self.__asset_check()
@@ -140,6 +147,7 @@ class TransactionDecompose:
         keys, outputs = self.__prepare_outputs()
         self._tuple_transaction["outputs"] = outputs
         self._tuple_transaction["keys"] = keys
+        self._tuple_transaction["script"] = self.__prepare_script()
         return self._tuple_transaction
 
 
@@ -197,6 +205,12 @@ class TransactionCompose:
             _outputs.append(_out)
         return _outputs
 
+    def _get_script(self):
+        if self.db_results["script"]:
+            return self.db_results["script"][0][1]
+        else:
+            return None
+
     def convert_to_dict(self):
         transaction = {k: None for k in list(self._map.keys())}
         transaction["id"] = self._get_transaction_id()
@@ -206,4 +220,6 @@ class TransactionCompose:
         transaction["operation"] = self._get_transaction_operation()
         transaction["inputs"] = self._get_inputs()
         transaction["outputs"] = self._get_outputs()
+        if self._get_script():
+            transaction["script"] = self._get_script()
         return transaction

@@ -213,7 +213,9 @@ definitions:
       input:
         type: object
       output:
-        type: object
+        anyOf:
+          - type: object
+          - type: array
       policies:
         type: object
         properties:
