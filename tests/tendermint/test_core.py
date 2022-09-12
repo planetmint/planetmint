@@ -299,7 +299,7 @@ def test_deliver_transfer_tx__double_spend_fails(b, init_chain_request):
     bob = generate_key_pair()
     carly = generate_key_pair()
 
-    asset = {"msg": "live long and prosper"}
+    asset = "QmaozNR7DZHQK1ZcU9p7QdrshMvXqWK6gpu5rmrkPdT3L4"
 
     tx = Create.generate([alice.public_key], [([alice.public_key], 1)], asset=asset).sign([alice.private_key])
 
@@ -355,7 +355,7 @@ def test_store_pre_commit_state_in_end_block(b, alice, init_chain_request):
     from planetmint import App
     from planetmint.backend import query
 
-    tx = Create.generate([alice.public_key], [([alice.public_key], 1)], asset={"msg": "live long and prosper"}).sign(
+    tx = Create.generate([alice.public_key], [([alice.public_key], 1)], asset="QmaozNR7DZHQK1ZcU9p7QdrshMvXqWK6gpu5rmrkPdT3L4").sign(
         [alice.private_key]
     )
 
