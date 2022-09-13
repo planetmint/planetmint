@@ -185,7 +185,6 @@ class Transaction(object):
 
         return self
 
-
     @property
     def unspent_outputs(self):
         """UnspentOutput: The outputs of this transaction, in a data
