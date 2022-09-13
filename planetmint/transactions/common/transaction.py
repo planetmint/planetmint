@@ -124,7 +124,6 @@ class Transaction(object):
             allowed_ops = ", ".join(self.__class__.ALLOWED_OPERATIONS)
             raise ValueError("`operation` must be one of {}".format(allowed_ops))
 
-
         # Asset payloads for 'CREATE' operations must be None or
         # dicts holding a `data` property. Asset payloads for 'TRANSFER'
         # operations must be dicts holding an `id` property.
@@ -724,7 +723,6 @@ class Transaction(object):
         Returns:
             :class:`~planetmint.transactions.common.transaction.Transaction`
         """
-
         operation = tx.get("operation", Transaction.CREATE) if isinstance(tx, dict) else Transaction.CREATE
         cls = Transaction.resolve_class(operation)
 
@@ -829,7 +827,6 @@ class Transaction(object):
     def register_type(tx_type, tx_class):
         Transaction.type_registry[tx_type] = tx_class
 
-    # TODO: Figure out why this is always uses the create_txn_class 
     def resolve_class(operation):
         """For the given `tx` based on the `operation` key return its implementation class"""
 
