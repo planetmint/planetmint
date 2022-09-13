@@ -306,7 +306,7 @@ def test_post_invalid_transaction(
 
     exc_cls = getattr(exceptions, exc)
 
-    def mock_validation(self_, tx, skip_schema_validation):
+    def mock_validation(self_, tx, skip_schema_validation=True):
         raise exc_cls(msg)
 
     TransactionMock = Mock(validate=mock_validation)
