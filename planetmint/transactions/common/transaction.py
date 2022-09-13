@@ -124,7 +124,6 @@ class Transaction(object):
             allowed_ops = ", ".join(self.__class__.ALLOWED_OPERATIONS)
             raise ValueError("`operation` must be one of {}".format(allowed_ops))
 
-        # TODO: Move operation specific validation to sub classes
 
         # Asset payloads for 'CREATE' operations must be None or
         # dicts holding a `data` property. Asset payloads for 'TRANSFER'
@@ -174,7 +173,6 @@ class Transaction(object):
         """
         input_conditions = []
 
-        # TODO: Move to Create(Transaction)
         if self.operation == Transaction.CREATE:
             duplicates = any(txn for txn in current_transactions if txn.id == self.id)
             if planet.is_committed(self.id) or duplicates:
@@ -183,13 +181,11 @@ class Transaction(object):
             if not self.inputs_valid(input_conditions):
                 raise InvalidSignature("Transaction signature is invalid.")
 
-        # TODO: Move to Transfer(Transaction)
         elif self.operation == Transaction.TRANSFER:
             self.validate_transfer_inputs(planet, current_transactions)
 
         return self
 
-    # TODO: Make this abstract, implement unspent_outputs in sub classes
 
     @property
     def unspent_outputs(self):
@@ -567,8 +563,6 @@ class Transaction(object):
             print(f"Exception ASN1EncodeError : {e}")
             return False
 
-        # TODO: find out how to resolve this
-
         if operation == self.CREATE:
             # NOTE: In the case of a `CREATE` transaction, the
             #       output is always valid.
@@ -687,8 +681,6 @@ class Transaction(object):
         if not isinstance(transactions, list):
             transactions = [transactions]
 
-        # TODO: How to decouple this?
-
         # create a set of the transactions' asset ids
         asset_ids = {tx.id if tx.operation == tx.CREATE else tx.asset["id"] for tx in transactions}
 
@@ -732,8 +724,6 @@ class Transaction(object):
         Returns:
             :class:`~planetmint.transactions.common.transaction.Transaction`
         """
-        # NOTE: this is the place where the Transaction.resolve_class function is called. 
-        # TODO: Resolve CREATE somewhere else. Figure out where this is called with tx as something else as dict
 
         operation = tx.get("operation", Transaction.CREATE) if isinstance(tx, dict) else Transaction.CREATE
         cls = Transaction.resolve_class(operation)
@@ -853,8 +843,6 @@ class Transaction(object):
         validate_txn_obj(cls.METADATA, tx, cls.METADATA, validate_key)
         validate_language_key(tx[cls.ASSET], cls.DATA)
         validate_language_key(tx, cls.METADATA)
-
-    # TODO: this should be in the Transfer(Transaction) class
 
     def validate_transfer_inputs(self, planet, current_transactions=[]):
         # store the inputs so that we can check if the asset ids match
