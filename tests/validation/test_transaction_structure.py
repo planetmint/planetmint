@@ -18,7 +18,7 @@ except ImportError:
 from unittest.mock import MagicMock
 
 from planetmint.transactions.common.exceptions import AmountError, SchemaValidationError, ThresholdTooDeep
-from planetmint.models import Transaction
+from planetmint.transactions.common.transaction import Transaction
 from planetmint.transactions.common.utils import _fulfillment_to_details, _fulfillment_from_details
 
 ################################################################################
@@ -28,7 +28,7 @@ from planetmint.transactions.common.utils import _fulfillment_to_details, _fulfi
 def validate(tx):
     if isinstance(tx, Transaction):
         tx = tx.to_dict()
-    Transaction.from_dict(tx)
+    Transaction.from_dict(tx, False)
 
 
 def validate_raises(tx, exc=SchemaValidationError):
@@ -38,7 +38,7 @@ def validate_raises(tx, exc=SchemaValidationError):
 
 # We should test that validation works when we expect it to
 def test_validation_passes(signed_create_tx):
-    Transaction.from_dict(signed_create_tx.to_dict())
+    Transaction.from_dict(signed_create_tx.to_dict(), False)
 
 
 ################################################################################
@@ -53,7 +53,6 @@ def test_tx_serialization_hash_function(signed_create_tx):
 
 
 def test_tx_serialization_with_incorrect_hash(signed_create_tx):
-    from planetmint.transactions.common.transaction import Transaction
     from planetmint.transactions.common.exceptions import InvalidHash
 
     tx = signed_create_tx.to_dict()
@@ -68,7 +67,7 @@ def test_tx_serialization_with_no_hash(signed_create_tx):
     tx = signed_create_tx.to_dict()
     del tx["id"]
     with pytest.raises(InvalidHash):
-        Transaction.from_dict(tx)
+        Transaction.from_dict(tx, False)
 
 
 ################################################################################

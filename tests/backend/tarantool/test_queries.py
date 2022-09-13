@@ -7,6 +7,7 @@ from copy import deepcopy
 
 import pytest
 import json
+from planetmint.transactions.common.transaction import Transaction
 from planetmint.transactions.types.assets.create import Create
 from planetmint.transactions.types.assets.transfer import Transfer
 
@@ -15,7 +16,6 @@ pytestmark = pytest.mark.bdb
 
 def test_get_txids_filtered(signed_create_tx, signed_transfer_tx, db_conn):
     from planetmint.backend.tarantool import query
-    from planetmint.models import Transaction
 
     # create and insert two blocks, one for the create and one for the
     # transfer transaction
