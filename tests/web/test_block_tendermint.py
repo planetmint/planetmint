@@ -7,6 +7,7 @@ import pytest
 
 from planetmint.transactions.types.assets.create import Create
 from planetmint.lib import Block
+from ipld import marshal, multihash
 
 BLOCKS_ENDPOINT = "/api/v1/blocks/"
 
@@ -47,7 +48,7 @@ def test_get_block_returns_404_if_not_found(client):
 
 @pytest.mark.bdb
 def test_get_block_containing_transaction(b, client, alice):
-    tx = Create.generate([alice.public_key], [([alice.public_key], 1)], asset={"cycle": "hero"})
+    tx = Create.generate([alice.public_key], [([alice.public_key], 1)], asset=multihash(marshal( {"cycle": "hero"})))
     tx = tx.sign([alice.private_key])
     b.store_bulk_transactions([tx])
 

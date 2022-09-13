@@ -6,7 +6,7 @@ import warnings
 from unittest.mock import patch
 from planetmint.transactions.types.assets.create import Create
 from planetmint.transactions.types.assets.transfer import Transfer
-
+from ipld import marshal, multihash
 import pytest
 from base58 import b58decode
 
@@ -472,8 +472,9 @@ def test_transaction_unicode(b, alice):
     from planetmint.transactions.common.utils import serialize
 
     # http://www.fileformat.info/info/unicode/char/1f37a/index.htm
-    beer_python = {"beer": "\N{BEER MUG}"}
-    beer_json = '{"beer":"\N{BEER MUG}"}'
+    
+    beer_python = multihash(marshal( {"beer": "\N{BEER MUG}"} ))
+    beer_json = multihash(marshal( {"beer":"\N{BEER MUG}"} ))
 
     tx = (Create.generate([alice.public_key], [([alice.public_key], 100)], beer_python)).sign([alice.private_key])
 
