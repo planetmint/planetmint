@@ -306,12 +306,12 @@ def test_post_invalid_transaction(
 
     exc_cls = getattr(exceptions, exc)
 
-    def mock_validation(self_, tx):
+    def mock_validation(self_, tx, skip_schema_validation):
         raise exc_cls(msg)
 
     TransactionMock = Mock(validate=mock_validation)
 
-    monkeypatch.setattr("planetmint.transactions.common.transaction.Transaction.from_dict", lambda tx: TransactionMock)
+    monkeypatch.setattr("planetmint.transactions.common.transaction.Transaction.from_dict", lambda tx, skip_schema_validation: TransactionMock)
     res = client.post(TX_ENDPOINT, data=json.dumps({}))
     expected_status_code = 400
     expected_error_message = "Invalid transaction ({}): {}".format(exc, msg)
