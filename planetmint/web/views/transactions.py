@@ -19,7 +19,7 @@ from planetmint.transactions.common.exceptions import (
 )
 from planetmint.web.views.base import make_error
 from planetmint.web.views import parameters
-from planetmint.models import Transaction
+from planetmint.transactions.common.transaction import Transaction
 
 
 logger = logging.getLogger(__name__)
@@ -76,7 +76,7 @@ class TransactionListApi(Resource):
         tx = request.get_json(force=True)
 
         try:
-            tx_obj = Transaction.from_dict(tx)
+            tx_obj = Transaction.from_dict(tx, False)
         except SchemaValidationError as e:
             return make_error(
                 400,

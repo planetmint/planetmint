@@ -3,56 +3,6 @@
 # SPDX-License-Identifier: (Apache-2.0 AND CC-BY-4.0)
 # Code is Apache-2.0 and docs are CC-BY-4.0
 
-from planetmint.backend.schema import validate_language_key
-from planetmint.transactions.common.exceptions import InvalidSignature, DuplicateTransaction
-from planetmint.transactions.common.schema import validate_transaction_schema
-from planetmint.transactions.common.transaction import Transaction
-from planetmint.transactions.common.utils import validate_txn_obj, validate_key
-
-
-class Transaction(Transaction):
-    ASSET = "asset"
-    METADATA = "metadata"
-    DATA = "data"
-
-    def validate(self, planet, current_transactions=[]):
-        """Validate transaction spend
-        Args:
-            planet (Planetmint): an instantiated planetmint.Planetmint object.
-        Returns:
-            The transaction (Transaction) if the transaction is valid else it
-            raises an exception describing the reason why the transaction is
-            invalid.
-        Raises:
-            ValidationError: If the transaction is invalid
-        """
-        input_conditions = []
-
-        if self.operation == Transaction.CREATE:
-            duplicates = any(txn for txn in current_transactions if txn.id == self.id)
-            if planet.is_committed(self.id) or duplicates:
-                raise DuplicateTransaction("transaction `{}` already exists".format(self.id))
-
-            if not self.inputs_valid(input_conditions):
-                raise InvalidSignature("Transaction signature is invalid.")
-
-        elif self.operation == Transaction.TRANSFER:
-            self.validate_transfer_inputs(planet, current_transactions)
-
-        return self
-
-    @classmethod
-    def from_dict(cls, tx_body):
-        return super().from_dict(tx_body, False)
-
-    @classmethod
-    def validate_schema(cls, tx_body):
-        validate_transaction_schema(tx_body)
-        validate_txn_obj(cls.ASSET, tx_body[cls.ASSET], cls.DATA, validate_key)
-        validate_txn_obj(cls.METADATA, tx_body, cls.METADATA, validate_key)
-        validate_language_key(tx_body[cls.ASSET], cls.DATA)
-        validate_language_key(tx_body, cls.METADATA)
-
 
 class FastTransaction:
     """A minimal wrapper around a transaction dictionary. This is useful for
