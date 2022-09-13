@@ -6,7 +6,7 @@
 import pytest
 from copy import deepcopy
 
-from planetmint.models import Transaction
+from planetmint.transactions.common.transaction import Transaction
 from planetmint.transactions.types.assets.create import Create
 from planetmint.transactions.common.crypto import generate_key_pair
 from planetmint.transactions.common.memoize import to_dict, from_dict

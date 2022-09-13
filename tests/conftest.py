@@ -142,7 +142,7 @@ def _setup_database(_configure_planetmint):  # TODO Here is located setup databa
 @pytest.fixture
 def _bdb(_setup_database, _configure_planetmint):
     from planetmint.transactions.common.memoize import to_dict, from_dict
-    from planetmint.models import Transaction
+    from planetmint.transactions.common.transaction import Transaction
     from .utils import flush_db
     from planetmint.config import Config
 

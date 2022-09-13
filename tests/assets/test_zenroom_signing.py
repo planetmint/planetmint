@@ -150,7 +150,7 @@ def test_zenroom_signing():
     shared_creation_txid = sha3_256(json_str_tx.encode()).hexdigest()
     tx["id"] = shared_creation_txid
 
-    from planetmint.models import Transaction
+    from planetmint.transactions.common.transaction import Transaction
     from planetmint.lib import Planetmint
     from planetmint.transactions.common.exceptions import (
         SchemaValidationError,
@@ -159,7 +159,7 @@ def test_zenroom_signing():
 
     try:
         print(f"TX\n{tx}")
-        tx_obj = Transaction.from_dict(tx)
+        tx_obj = Transaction.from_dict(tx, False)
     except SchemaValidationError as e:
         print(e)
         assert ()
