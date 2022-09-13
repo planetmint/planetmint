@@ -69,15 +69,17 @@ definitions:
       - CHAIN_MIGRATION_ELECTION
       - VOTE
   asset:
-    type: object
-    additionalProperties: false
-    properties:
-      id:
-        "$ref": "#/definitions/sha3_hexdigest"
-      data:
-        anyOf:
-          - type: string
-          - type: 'null'
+    anyOf:
+    - type: 'null'
+    - type: object
+      additionalProperties: false
+      properties:
+        id:
+          "$ref": "#/definitions/sha3_hexdigest"
+        data:
+          anyOf:
+            - type: string
+            - type: 'null'
   output:
     type: object
     additionalProperties: false

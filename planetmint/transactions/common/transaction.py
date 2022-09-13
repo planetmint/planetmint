@@ -121,14 +121,25 @@ class Transaction(object):
         # Asset payloads for 'CREATE' operations must be None or
         # dicts holding a `data` property. Asset payloads for 'TRANSFER'
         # operations must be dicts holding an `id` property.
-        if operation == self.CREATE and asset is not None and not (isinstance(asset, dict) and "data" in asset):
-            # add check if data is ipld marshalled CID string
-            raise TypeError(
-                (
-                    "`asset` must be None or a dict holding a `data` "
-                    " property instance for '{}' Transactions".format(operation)
-                )
-            )
+        if operation == self.CREATE and asset is not None:
+            if not isinstance(asset, dict):
+                raise TypeError(
+                    (
+                        "`asset` must be None or a dict holding a `data` "
+                        " property instance for '{}' Transactions".format(operation)
+                    )
+                )    
+                    
+            if "data" in asset :
+                if asset["data"] is not None and not isinstance( asset["data"], str):
+                # add check if data is ipld marshalled CID string
+                    raise TypeError(
+                        (
+                            "`asset` must be None or a dict holding a `data` "
+                            " property instance for '{}' Transactions".format(operation)
+                        )
+                    )    
+                
         elif operation == self.TRANSFER and not (isinstance(asset, dict) and "id" in asset):
             raise TypeError(("`asset` must be a dict holding an `id` property " "for 'TRANSFER' Transactions"))
 

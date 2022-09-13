@@ -576,7 +576,7 @@ def test_create_create_transaction_single_io(user_output, user_pub, data):
         "version": Transaction.VERSION,
     }
 
-    tx = Create.generate([user_pub], [([user_pub], 1)], metadata=data, asset=data)
+    tx = Create.generate([user_pub], [([user_pub], 1)], metadata=data, asset= {"data": data })
     tx_dict = tx.to_dict()
     tx_dict["inputs"][0]["fulfillment"] = None
     tx_dict.pop("id")
@@ -645,7 +645,7 @@ def test_create_create_transaction_threshold(
         "operation": "CREATE",
         "version": Transaction.VERSION,
     }
-    tx = Create.generate([user_pub], [([user_pub, user2_pub], 1)], metadata=data, asset=data)
+    tx = Create.generate([user_pub], [([user_pub, user2_pub], 1)], metadata=data, asset={"data": data})
     tx_dict = tx.to_dict()
     tx_dict.pop("id")
     tx_dict["inputs"][0]["fulfillment"] = None
@@ -678,7 +678,7 @@ def test_create_create_transaction_with_invalid_parameters(user_pub):
         Create.generate([user_pub], [([user_pub],)])
     with raises(TypeError):
         Create.generate([user_pub], [([user_pub], 1)], metadata={"data": "not a dict or none"})
-    with raises(TypeError):
+    with raises(ValueError):
         Create.generate([user_pub], [([user_pub], 1)], asset={"data": "not a dict or none"})
 
 
@@ -851,7 +851,7 @@ def test_unspent_outputs_property(merlin, alice, bob, carol):
     tx = Create.generate(
         [merlin.public_key],
         [([alice.public_key], 1), ([bob.public_key], 2), ([carol.public_key], 3)],
-        asset="QmaozNR7DZHQK1ZcU9p7QdrshMvXqWK6gpu5rmrkPdT3L4",
+        asset= { "data": "QmaozNR7DZHQK1ZcU9p7QdrshMvXqWK6gpu5rmrkPdT3L4" },
     ).sign([merlin.private_key])
     unspent_outputs = list(tx.unspent_outputs)
     assert len(unspent_outputs) == 3

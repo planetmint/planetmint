@@ -23,14 +23,14 @@ def test_get_metadata_with_missing_text_search(client):
 
 @pytest.mark.bdb
 def test_get_metadata_tendermint(client, b, alice):
-    asset = multihash(marshal( {"msg": "abc"} ))
+    asset = {"data" : multihash(marshal( {"msg": "abc"} )) }
     # test returns empty list when no assets are found
-    res = client.get(METADATA_ENDPOINT + "?search=" + asset)
+    res = client.get(METADATA_ENDPOINT + "?search=" + asset["data"])
     assert res.json == []
     assert res.status_code == 200
 
     # create asset
-    asset #= {"msg": "abc"}
+    #asset #= {"msg": "abc"}
     metadata = multihash(marshal( {"key": "my_meta"} ))
     tx = Create.generate([alice.public_key], [([alice.public_key], 1)], metadata=metadata, asset=asset).sign(
         [alice.private_key]
@@ -49,14 +49,14 @@ def test_get_metadata_tendermint(client, b, alice):
 def test_get_metadata_limit_tendermint(client, b, alice):
     
     # create two assets
-    asset1 = multihash(marshal( {"msg": "abc 1"} ))
+    asset1 = {"data" : multihash(marshal( {"msg": "abc 1"} )) }
     meta1 = multihash(marshal( {"key": "meta 1"} ))
     tx1 = Create.generate([alice.public_key], [([alice.public_key], 1)], metadata=meta1, asset=asset1).sign(
         [alice.private_key]
     )
     b.store_bulk_transactions([tx1])
 
-    asset2 = multihash(marshal( {"msg": "abc 2"} ))
+    asset2 = {"data" : multihash(marshal( {"msg": "abc 2"} )) }
     meta2 = multihash(marshal( {"key": "meta 2"} ))
     tx2 = Create.generate([alice.public_key], [([alice.public_key], 1)], metadata=meta2, asset=asset2).sign(
         [alice.private_key]

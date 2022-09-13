@@ -130,6 +130,13 @@ install_requires = [
     "nest-asyncio==1.5.5",
     "protobuf==3.20.1",
     "planetmint-ipld",
+    "pyasn1",
+    "zenroom==2.1.0.dev1655293214",
+    "base58>=2.1.0",
+    "PyNaCl==1.4.0",
+    "pyasn1>=0.4.8",
+    "cryptography==3.4.7",
+
 ]
 
 setup(

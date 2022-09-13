@@ -23,9 +23,13 @@ class Create(Transaction):
             raise ValueError("`tx_signers` list cannot be empty")
         if len(recipients) == 0:
             raise ValueError("`recipients` list cannot be empty")
-        if not (asset is None or isinstance(asset, str)):
-            # add check if asset is ipld marshalled CID string
-            raise TypeError("`asset` must be a CID string or None")
+        if not asset is None:
+            if not isinstance(asset, dict):
+                raise TypeError("`asset` must be a CID string or None")
+            if "data" in asset and not isinstance(asset["data"], str):
+                raise TypeError("`asset` must be a CID string or None")
+            import cid
+            cid.make_cid( asset["data"])
         if not (metadata is None or isinstance(metadata, str)):
             # add check if metadata is ipld marshalled CID string
             raise TypeError("`metadata` must be a CID string or None")
@@ -77,4 +81,4 @@ class Create(Transaction):
         """
 
         (inputs, outputs) = cls.validate_create(tx_signers, recipients, asset, metadata)
-        return cls(cls.OPERATION, {"data": asset}, inputs, outputs, metadata)
+        return cls(cls.OPERATION, asset, inputs, outputs, metadata)

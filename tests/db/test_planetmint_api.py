@@ -65,9 +65,9 @@ class TestBigchainApi(object):
             return
 
         # define the assets
-        asset1 = {"msg": "Planetmint 1"}
-        asset2 = {"msg": "Planetmint 2"}
-        asset3 = {"msg": "Planetmint 3"}
+        asset1 = {"data": multihash(marshal({"msg": "Planetmint 1"}))}
+        asset2 = {"data": multihash(marshal({"msg": "Planetmint 2"}))}
+        asset3 = {"data": multihash(marshal({"msg": "Planetmint 3"}))}
 
         # create the transactions
         tx1 = Create.generate([alice.public_key], [([alice.public_key], 1)], asset=asset1).sign([alice.private_key])
@@ -79,7 +79,7 @@ class TestBigchainApi(object):
 
         # get the assets through text search
         assets = list(b.text_search("planetmint"))
-        assert len(assets) == 3
+        assert len(assets) == 0
 
     @pytest.mark.usefixtures("inputs")
     def test_non_create_input_not_found(self, b, user_pk):
@@ -97,7 +97,7 @@ class TestBigchainApi(object):
 
     def test_write_transaction(self, b, user_sk, user_pk, alice, create_tx):
 
-        asset1 = "QmaozNR7DZHQK1ZcU9p7QdrshMvXqWK6gpu5rmrkPdT3L4"
+        asset1 = { "data": "QmaozNR7DZHQK1ZcU9p7QdrshMvXqWK6gpu5rmrkPdT3L4"}
 
         tx = Create.generate([alice.public_key], [([alice.public_key], 1)], asset=asset1).sign([alice.private_key])
         b.store_bulk_transactions([tx])
@@ -473,12 +473,13 @@ def test_transaction_unicode(b, alice):
 
     # http://www.fileformat.info/info/unicode/char/1f37a/index.htm
     
-    beer_python = multihash(marshal( {"beer": "\N{BEER MUG}"} ))
-    beer_json = multihash(marshal( {"beer":"\N{BEER MUG}"} ))
+    beer_python = {"data" : multihash(marshal( {"beer": "\N{BEER MUG}"} )) }
+    beer_json = {"data" : multihash(marshal( {"beer":"\N{BEER MUG}"} )) }
 
-    tx = (Create.generate([alice.public_key], [([alice.public_key], 100)], beer_python)).sign([alice.private_key])
+    tx = (Create.generate([alice.public_key], [([alice.public_key], 100)], asset = beer_python)).sign([alice.private_key])
+    
 
     tx_1 = copy.deepcopy(tx)
     b.store_bulk_transactions([tx])
 
-    assert beer_json in serialize(tx_1.to_dict())
+    assert beer_json["data"] in serialize(tx_1.to_dict())
