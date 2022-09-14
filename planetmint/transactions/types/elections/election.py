@@ -21,7 +21,7 @@ from planetmint.transactions.common.exceptions import (
 from planetmint.tendermint_utils import key_from_base64, public_key_to_base64
 from planetmint.transactions.common.crypto import public_key_from_ed25519_key
 from planetmint.transactions.common.transaction import Transaction
-from planetmint.transactions.common.schema import _validate_schema, TX_SCHEMA_COMMON, TX_SCHEMA_CREATE
+from planetmint.transactions.common.schema import _validate_schema, TX_SCHEMA_COMMON
 
 
 class Election(Transaction):
@@ -175,8 +175,7 @@ class Election(Transaction):
         """Validate the election transaction. Since `ELECTION` extends `CREATE` transaction, all the validations for
         `CREATE` transaction should be inherited
         """
-        #_validate_schema(TX_SCHEMA_COMMON, tx)
-        #_validate_schema(TX_SCHEMA_VALIDATOR_ELECTION, tx)
+        _validate_schema(TX_SCHEMA_COMMON, tx)
         if cls.TX_SCHEMA_CUSTOM:
             _validate_schema(cls.TX_SCHEMA_CUSTOM, tx)
 
