@@ -14,7 +14,7 @@ register_query = module_dispatch_registrar(convert)
 
 @register_query(LocalMongoDBConnection)
 def prepare_asset(connection, transaction_type, transaction_id, filter_operation, asset):
-    if transaction_type == filter_operation:
+    if transaction_type in filter_operation:
         asset["id"] = transaction_id
     return asset
 

@@ -12,7 +12,7 @@ class Create(Transaction):
 
     OPERATION = "CREATE"
     ALLOWED_OPERATIONS = (OPERATION,)
-
+    
     @classmethod
     def validate_create(self, tx_signers, recipients, asset, metadata):
         if not isinstance(tx_signers, list):
@@ -34,22 +34,7 @@ class Create(Transaction):
             # add check if metadata is ipld marshalled CID string
             raise TypeError("`metadata` must be a CID string or None")
 
-        inputs = []
-        outputs = []
-
-        # generate_outputs
-        for recipient in recipients:
-            if not isinstance(recipient, tuple) or len(recipient) != 2:
-                raise ValueError(
-                    ("Each `recipient` in the list must be a" " tuple of `([<list of public keys>]," " <amount>)`")
-                )
-            pub_keys, amount = recipient
-            outputs.append(Output.generate(pub_keys, amount))
-
-        # generate inputs
-        inputs.append(Input.generate(tx_signers))
-
-        return (inputs, outputs)
+        return True
 
     @classmethod
     def generate(cls, tx_signers, recipients, metadata=None, asset=None):
@@ -80,5 +65,6 @@ class Create(Transaction):
             :class:`~planetmint.common.transaction.Transaction`
         """
 
-        (inputs, outputs) = cls.validate_create(tx_signers, recipients, asset, metadata)
+        Create.validate_create( tx_signers, recipients, asset, metadata)
+        (inputs, outputs) = Transaction.complete_tx_i_o(tx_signers, recipients)
         return cls(cls.OPERATION, asset, inputs, outputs, metadata)

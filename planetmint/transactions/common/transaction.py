@@ -57,7 +57,9 @@ UnspentOutput = namedtuple(
     ),
 )
 
-
+VALIDATOR_ELECTION = "VALIDATOR_ELECTION"
+CHAIN_MIGRATION_ELECTION= "CHAIN_MIGRATION_ELECTION"
+VOTE = "VOTE"
 class Transaction(object):
     """A Transaction is used to create and transfer assets.
 
@@ -83,6 +85,9 @@ class Transaction(object):
 
     CREATE = "CREATE"
     TRANSFER = "TRANSFER"
+    VALIDATOR_ELECTION = VALIDATOR_ELECTION
+    CHAIN_MIGRATION_ELECTION= CHAIN_MIGRATION_ELECTION
+    VOTE = VOTE
     ALLOWED_OPERATIONS = (CREATE, TRANSFER)
     ASSET = "asset"
     METADATA = "metadata"
@@ -503,6 +508,10 @@ class Transaction(object):
             return self._inputs_valid(["dummyvalue" for _ in self.inputs])
         elif self.operation == self.TRANSFER:
             return self._inputs_valid([output.fulfillment.condition_uri for output in outputs])
+        elif self.operation == self.VALIDATOR_ELECTION:
+            return self._inputs_valid(["dummyvalue" for _ in self.inputs])
+        elif self.operation == self.CHAIN_MIGRATION_ELECTION:
+            return self._inputs_valid(["dummyvalue" for _ in self.inputs])
         else:
             allowed_ops = ", ".join(self.__class__.ALLOWED_OPERATIONS)
             raise TypeError("`operation` must be one of {}".format(allowed_ops))
@@ -574,7 +583,7 @@ class Transaction(object):
             print(f"Exception ASN1EncodeError : {e}")
             return False
 
-        if operation == self.CREATE:
+        if operation in [ self.CREATE, self.CHAIN_MIGRATION_ELECTION, self.VALIDATOR_ELECTION ]:
             # NOTE: In the case of a `CREATE` transaction, the
             #       output is always valid.
             output_valid = True
@@ -693,7 +702,7 @@ class Transaction(object):
             transactions = [transactions]
 
         # create a set of the transactions' asset ids
-        asset_ids = {tx.id if tx.operation == tx.CREATE else tx.asset["id"] for tx in transactions}
+        asset_ids = {tx.id if tx.operation in [ tx.CREATE, tx.VALIDATOR_ELECTION] else tx.asset["id"] for tx in transactions}
 
         # check that all the transasctions have the same asset id
         if len(asset_ids) > 1:
@@ -900,3 +909,22 @@ class Transaction(object):
             raise InvalidSignature("Transaction signature is invalid.")
 
         return True
+    
+    @classmethod
+    def complete_tx_i_o(self, tx_signers, recipients):
+        inputs = []
+        outputs = []
+
+        # generate_outputs
+        for recipient in recipients:
+            if not isinstance(recipient, tuple) or len(recipient) != 2:
+                raise ValueError(
+                    ("Each `recipient` in the list must be a" " tuple of `([<list of public keys>]," " <amount>)`")
+                )
+            pub_keys, amount = recipient
+            outputs.append(Output.generate(pub_keys, amount))
+
+        # generate inputs
+        inputs.append(Input.generate(tx_signers))
+
+        return (inputs, outputs)

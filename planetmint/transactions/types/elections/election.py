@@ -93,6 +93,25 @@ class Election(Transaction):
         # Check whether the voters and their votes is same to that of the
         # validators and their voting power in the network
         return current_topology == voters
+    
+    @classmethod
+    def validate_election(self, tx_signers, recipients, asset, metadata):
+        if not isinstance(tx_signers, list):
+            raise TypeError("`tx_signers` must be a list instance")
+        if not isinstance(recipients, list):
+            raise TypeError("`recipients` must be a list instance")
+        if len(tx_signers) == 0:
+            raise ValueError("`tx_signers` list cannot be empty")
+        if len(recipients) == 0:
+            raise ValueError("`recipients` list cannot be empty")
+        if not asset is None:
+            if not isinstance(asset, dict):
+                raise TypeError("`asset` must be a CID string or None")
+        if not (metadata is None or isinstance(metadata, str)):
+            # add check if metadata is ipld marshalled CID string
+            raise TypeError("`metadata` must be a CID string or None")
+
+        return True
 
     def validate(self, planet, current_transactions=[]):
         """Validate election transaction
@@ -144,8 +163,9 @@ class Election(Transaction):
         # Break symmetry in case we need to call an election with the same properties twice
         uuid = uuid4()
         election_data["seed"] = str(uuid)
-
-        (inputs, outputs) = Create.validate_create(initiator, voters, election_data, metadata)
+        
+        Election.validate_election(initiator, voters, election_data, metadata)
+        (inputs, outputs) = Transaction.complete_tx_i_o(initiator, voters)
         election = cls(cls.OPERATION, {"data": election_data}, inputs, outputs, metadata)
         cls.validate_schema(election.to_dict())
         return election
@@ -155,8 +175,8 @@ class Election(Transaction):
         """Validate the election transaction. Since `ELECTION` extends `CREATE` transaction, all the validations for
         `CREATE` transaction should be inherited
         """
-        _validate_schema(TX_SCHEMA_COMMON, tx)
-        _validate_schema(TX_SCHEMA_CREATE, tx)
+        #_validate_schema(TX_SCHEMA_COMMON, tx)
+        #_validate_schema(TX_SCHEMA_VALIDATOR_ELECTION, tx)
         if cls.TX_SCHEMA_CUSTOM:
             _validate_schema(cls.TX_SCHEMA_CUSTOM, tx)
 
