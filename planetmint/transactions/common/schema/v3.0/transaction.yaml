@@ -73,16 +73,9 @@ definitions:
     - COMPOSE
     - DECOMPOSE
   asset:
-    type: object
-    additionalProperties: false
-    properties:
-      id:
-        "$ref": "#/definitions/sha3_hexdigest"
-      data:
-        anyOf:
-        - type: object
-          additionalProperties: true
-        - type: 'null'
+    anyOf:
+    - type: 'null'
+    - type: object
   output:
     type: object
     additionalProperties: false
@@ -139,9 +132,7 @@ definitions:
         - type: 'null'
   metadata:
     anyOf:
-    - type: object
-      additionalProperties: true
-      minProperties: 1
+    - type: string
     - type: 'null'
   condition_details:
     anyOf:

@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: (Apache-2.0 AND CC-BY-4.0)
 # Code is Apache-2.0 and docs are CC-BY-4.0
 
-from planetmint.models import Transaction
+from planetmint.transactions.common.transaction import Transaction
 from planetmint.transactions.common.input import Input
 from planetmint.transactions.common.output import Output
 
@@ -23,27 +23,19 @@ class Create(Transaction):
             raise ValueError("`tx_signers` list cannot be empty")
         if len(recipients) == 0:
             raise ValueError("`recipients` list cannot be empty")
-        if not (asset is None or isinstance(asset, dict)):
-            raise TypeError("`asset` must be a dict or None")
-        if not (metadata is None or isinstance(metadata, dict)):
-            raise TypeError("`metadata` must be a dict or None")
+        if not asset is None:
+            if not isinstance(asset, dict):
+                raise TypeError("`asset` must be a CID string or None")
+            if "data" in asset and not isinstance(asset["data"], str):
+                raise TypeError("`asset` must be a CID string or None")
+            import cid
 
-        inputs = []
-        outputs = []
+            cid.make_cid(asset["data"])
+        if not (metadata is None or isinstance(metadata, str)):
+            # add check if metadata is ipld marshalled CID string
+            raise TypeError("`metadata` must be a CID string or None")
 
-        # generate_outputs
-        for recipient in recipients:
-            if not isinstance(recipient, tuple) or len(recipient) != 2:
-                raise ValueError(
-                    ("Each `recipient` in the list must be a" " tuple of `([<list of public keys>]," " <amount>)`")
-                )
-            pub_keys, amount = recipient
-            outputs.append(Output.generate(pub_keys, amount))
-
-        # generate inputs
-        inputs.append(Input.generate(tx_signers))
-
-        return (inputs, outputs)
+        return True
 
     @classmethod
     def generate(cls, tx_signers, recipients, metadata=None, asset=None):
@@ -74,5 +66,6 @@ class Create(Transaction):
             :class:`~planetmint.common.transaction.Transaction`
         """
 
-        (inputs, outputs) = cls.validate_create(tx_signers, recipients, asset, metadata)
-        return cls(cls.OPERATION, {"data": asset}, inputs, outputs, metadata)
+        Create.validate_create(tx_signers, recipients, asset, metadata)
+        (inputs, outputs) = Transaction.complete_tx_i_o(tx_signers, recipients)
+        return cls(cls.OPERATION, asset, inputs, outputs, metadata)

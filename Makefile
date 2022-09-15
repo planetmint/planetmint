@@ -81,7 +81,7 @@ test: check-deps test-unit test-acceptance ## Run unit and acceptance tests
 
 test-unit: check-deps ## Run all tests once
 	@$(DC) up -d bdb
-	@$(DC) exec planetmint pytest
+	@$(DC) exec planetmint pytest ${TEST}
 
 test-unit-watch: check-deps ## Run all tests and wait. Every time you change code, tests will be run again
 	@$(DC) run --rm --no-deps planetmint pytest -f

@@ -35,8 +35,7 @@ definitions:
     properties:
       data:
         anyOf:
-        - type: object
-          additionalProperties: true
+        - type: string
         - type: 'null'
     required:
     - data

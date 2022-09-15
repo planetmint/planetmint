@@ -25,6 +25,7 @@ from planetmint.transactions.common.transaction_mode_types import (
     BROADCAST_TX_SYNC,
 )
 from planetmint.lib import Block
+from ipld import marshal, multihash
 
 
 @pytest.mark.bdb
@@ -40,15 +41,21 @@ def test_asset_is_separated_from_transaciton(b):
     bob = generate_key_pair()
 
     asset = {
-        "Never gonna": [
-            "give you up",
-            "let you down",
-            "run around" "desert you",
-            "make you cry",
-            "say goodbye",
-            "tell a lie",
-            "hurt you",
-        ]
+        "data": multihash(
+            marshal(
+                {
+                    "Never gonna": [
+                        "give you up",
+                        "let you down",
+                        "run around" "desert you",
+                        "make you cry",
+                        "say goodbye",
+                        "tell a lie",
+                        "hurt you",
+                    ]
+                }
+            )
+        )
     }
 
     tx = Create.generate([alice.public_key], [([bob.public_key], 1)], metadata=None, asset=asset).sign(
@@ -404,7 +411,7 @@ def test_get_spent_transaction_critical_double_spend(b, alice, bob, carol):
     from planetmint.exceptions import CriticalDoubleSpend
     from planetmint.transactions.common.exceptions import DoubleSpend
 
-    asset = {"test": "asset"}
+    asset = {"data": multihash(marshal({"test": "asset"}))}
 
     tx = Create.generate([alice.public_key], [([alice.public_key], 1)], asset=asset).sign([alice.private_key])
 

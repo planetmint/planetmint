@@ -18,8 +18,9 @@ except ImportError:
 from unittest.mock import MagicMock
 
 from planetmint.transactions.common.exceptions import AmountError, SchemaValidationError, ThresholdTooDeep
-from planetmint.models import Transaction
+from planetmint.transactions.common.transaction import Transaction
 from planetmint.transactions.common.utils import _fulfillment_to_details, _fulfillment_from_details
+from ipld import marshal, multihash
 
 ################################################################################
 # Helper functions
@@ -28,7 +29,7 @@ from planetmint.transactions.common.utils import _fulfillment_to_details, _fulfi
 def validate(tx):
     if isinstance(tx, Transaction):
         tx = tx.to_dict()
-    Transaction.from_dict(tx)
+    Transaction.from_dict(tx, False)
 
 
 def validate_raises(tx, exc=SchemaValidationError):
@@ -38,7 +39,7 @@ def validate_raises(tx, exc=SchemaValidationError):
 
 # We should test that validation works when we expect it to
 def test_validation_passes(signed_create_tx):
-    Transaction.from_dict(signed_create_tx.to_dict())
+    Transaction.from_dict(signed_create_tx.to_dict(), False)
 
 
 ################################################################################
@@ -53,7 +54,6 @@ def test_tx_serialization_hash_function(signed_create_tx):
 
 
 def test_tx_serialization_with_incorrect_hash(signed_create_tx):
-    from planetmint.transactions.common.transaction import Transaction
     from planetmint.transactions.common.exceptions import InvalidHash
 
     tx = signed_create_tx.to_dict()
@@ -68,7 +68,7 @@ def test_tx_serialization_with_no_hash(signed_create_tx):
     tx = signed_create_tx.to_dict()
     del tx["id"]
     with pytest.raises(InvalidHash):
-        Transaction.from_dict(tx)
+        Transaction.from_dict(tx, False)
 
 
 ################################################################################
@@ -86,7 +86,7 @@ def test_validate_invalid_operation(b, create_tx, alice):
 
 
 def test_validate_fails_metadata_empty_dict(b, create_tx, alice):
-    create_tx.metadata = {"a": 1}
+    create_tx.metadata = multihash(marshal({"a": 1}))
     signed_tx = create_tx.sign([alice.private_key])
     validate(signed_tx)
 
@@ -130,9 +130,10 @@ def test_create_tx_no_asset_id(b, create_tx, alice):
 
 
 def test_create_tx_asset_type(b, create_tx, alice):
-    create_tx.asset["data"] = "a"
+    create_tx.asset["data"] = multihash(marshal({"a": ""}))
     signed_tx = create_tx.sign([alice.private_key])
-    validate_raises(signed_tx)
+    validate(signed_tx)
+    # validate_raises(signed_tx)
 
 
 def test_create_tx_no_asset_data(b, create_tx, alice):

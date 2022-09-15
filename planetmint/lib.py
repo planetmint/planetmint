@@ -24,7 +24,7 @@ import requests
 import planetmint
 from planetmint.config import Config
 from planetmint import backend, config_utils, fastquery
-from planetmint.models import Transaction
+from planetmint.transactions.common.transaction import Transaction
 from planetmint.transactions.common.exceptions import SchemaValidationError, ValidationError, DoubleSpend
 from planetmint.transactions.common.transaction_mode_types import (
     BROADCAST_TX_COMMIT,
@@ -133,7 +133,7 @@ class Planetmint(object):
                 self.connection,
                 transaction_type=transaction["operation"],
                 transaction_id=transaction["id"],
-                filter_operation=t.CREATE,
+                filter_operation=[t.CREATE, t.VALIDATOR_ELECTION, t.CHAIN_MIGRATION_ELECTION],
                 asset=asset,
             )
 
@@ -248,7 +248,7 @@ class Planetmint(object):
 
                 transaction.update({"metadata": metadata})
 
-            transaction = Transaction.from_dict(transaction)
+            transaction = Transaction.from_dict(transaction, False)
 
         return transaction
 
@@ -301,7 +301,7 @@ class Planetmint(object):
             raise DoubleSpend('tx "{}" spends inputs twice'.format(txid))
         elif transactions:
             transaction = backend.query.get_transactions(self.connection, [transactions[0]["id"]])
-            transaction = Transaction.from_dict(transaction[0])
+            transaction = Transaction.from_dict(transaction[0], False)
         elif current_spent_transactions:
             transaction = current_spent_transactions[0]
 
@@ -368,7 +368,7 @@ class Planetmint(object):
         # throught the code base.
         if isinstance(transaction, dict):
             try:
-                transaction = Transaction.from_dict(tx)
+                transaction = Transaction.from_dict(tx, False)
             except SchemaValidationError as e:
                 logger.warning("Invalid transaction schema: %s", e.__cause__.message)
                 return False

@@ -6,7 +6,7 @@
 import pytest
 from copy import deepcopy
 
-from planetmint.models import Transaction
+from planetmint.transactions.common.transaction import Transaction
 from planetmint.transactions.types.assets.create import Create
 from planetmint.transactions.common.crypto import generate_key_pair
 from planetmint.transactions.common.memoize import to_dict, from_dict
@@ -17,9 +17,7 @@ pytestmark = pytest.mark.bdb
 
 def test_memoize_to_dict(b):
     alice = generate_key_pair()
-    asset = {
-        "data": {"id": "test_id"},
-    }
+    asset = {"data": "QmaozNR7DZHQK1ZcU9p7QdrshMvXqWK6gpu5rmrkPdT3L4"}
 
     assert to_dict.cache_info().hits == 0
     assert to_dict.cache_info().misses == 0
@@ -44,9 +42,7 @@ def test_memoize_to_dict(b):
 
 def test_memoize_from_dict(b):
     alice = generate_key_pair()
-    asset = {
-        "data": {"id": "test_id"},
-    }
+    asset = {"data": "QmaozNR7DZHQK1ZcU9p7QdrshMvXqWK6gpu5rmrkPdT3L4"}
 
     assert from_dict.cache_info().hits == 0
     assert from_dict.cache_info().misses == 0
@@ -72,9 +68,7 @@ def test_memoize_from_dict(b):
 
 def test_memoize_input_valid(b):
     alice = generate_key_pair()
-    asset = {
-        "data": {"id": "test_id"},
-    }
+    asset = {"data": "QmaozNR7DZHQK1ZcU9p7QdrshMvXqWK6gpu5rmrkPdT3L4"}
 
     assert Transaction._input_valid.cache_info().hits == 0
     assert Transaction._input_valid.cache_info().misses == 0

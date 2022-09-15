@@ -21,7 +21,7 @@ from planetmint.transactions.common.exceptions import (
 from planetmint.tendermint_utils import key_from_base64, public_key_to_base64
 from planetmint.transactions.common.crypto import public_key_from_ed25519_key
 from planetmint.transactions.common.transaction import Transaction
-from planetmint.transactions.common.schema import _validate_schema, TX_SCHEMA_COMMON, TX_SCHEMA_CREATE
+from planetmint.transactions.common.schema import _validate_schema, TX_SCHEMA_COMMON
 
 
 class Election(Transaction):
@@ -94,6 +94,25 @@ class Election(Transaction):
         # validators and their voting power in the network
         return current_topology == voters
 
+    @classmethod
+    def validate_election(self, tx_signers, recipients, asset, metadata):
+        if not isinstance(tx_signers, list):
+            raise TypeError("`tx_signers` must be a list instance")
+        if not isinstance(recipients, list):
+            raise TypeError("`recipients` must be a list instance")
+        if len(tx_signers) == 0:
+            raise ValueError("`tx_signers` list cannot be empty")
+        if len(recipients) == 0:
+            raise ValueError("`recipients` list cannot be empty")
+        if not asset is None:
+            if not isinstance(asset, dict):
+                raise TypeError("`asset` must be a CID string or None")
+        if not (metadata is None or isinstance(metadata, str)):
+            # add check if metadata is ipld marshalled CID string
+            raise TypeError("`metadata` must be a CID string or None")
+
+        return True
+
     def validate(self, planet, current_transactions=[]):
         """Validate election transaction
 
@@ -145,7 +164,8 @@ class Election(Transaction):
         uuid = uuid4()
         election_data["seed"] = str(uuid)
 
-        (inputs, outputs) = Create.validate_create(initiator, voters, election_data, metadata)
+        Election.validate_election(initiator, voters, election_data, metadata)
+        (inputs, outputs) = Transaction.complete_tx_i_o(initiator, voters)
         election = cls(cls.OPERATION, {"data": election_data}, inputs, outputs, metadata)
         cls.validate_schema(election.to_dict())
         return election
@@ -156,7 +176,6 @@ class Election(Transaction):
         `CREATE` transaction should be inherited
         """
         _validate_schema(TX_SCHEMA_COMMON, tx)
-        _validate_schema(TX_SCHEMA_CREATE, tx)
         if cls.TX_SCHEMA_CUSTOM:
             _validate_schema(cls.TX_SCHEMA_CUSTOM, tx)
 

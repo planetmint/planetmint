@@ -21,6 +21,7 @@ import queue
 import json
 from threading import Thread, Event
 from uuid import uuid4
+from ipld import multihash, marshal
 
 # For this script, we need to set up a websocket connection, that's the reason
 # we import the
@@ -91,7 +92,9 @@ def test_stream():
     for _ in range(10):
         tx = bdb.transactions.fulfill(
             bdb.transactions.prepare(
-                operation="CREATE", signers=alice.public_key, asset={"data": {"uuid": str(uuid4())}}
+                operation="CREATE",
+                signers=alice.public_key,
+                asset={"data": multihash(marshal({"uuid": str(uuid4())}))},
             ),
             private_keys=alice.private_key,
         )

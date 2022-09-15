@@ -5,6 +5,7 @@
 
 from planetmint.transactions.types.assets.create import Create
 from planetmint.transactions.types.assets.transfer import Transfer
+from planetmint.transactions.common.transaction import VOTE
 from planetmint.transactions.common.schema import (
     _validate_schema,
     TX_SCHEMA_COMMON,
@@ -15,7 +16,7 @@ from planetmint.transactions.common.schema import (
 
 class Vote(Transfer):
 
-    OPERATION = "VOTE"
+    OPERATION = VOTE
     # NOTE: This class inherits TRANSFER txn type. The `TRANSFER` property is
     # overriden to re-use methods from parent class
     TRANSFER = OPERATION

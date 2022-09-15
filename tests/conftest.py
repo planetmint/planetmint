@@ -15,6 +15,7 @@ import copy
 import random
 import tempfile
 import codecs
+from ipld import marshal, multihash
 from collections import namedtuple
 from logging import getLogger
 from logging.config import dictConfig
@@ -141,7 +142,7 @@ def _setup_database(_configure_planetmint):  # TODO Here is located setup databa
 @pytest.fixture
 def _bdb(_setup_database, _configure_planetmint):
     from planetmint.transactions.common.memoize import to_dict, from_dict
-    from planetmint.models import Transaction
+    from planetmint.transactions.common.transaction import Transaction
     from .utils import flush_db
     from planetmint.config import Config
 
@@ -287,7 +288,8 @@ def create_tx(alice, user_pk):
     from planetmint.transactions.types.assets.create import Create
 
     name = f"I am created by the create_tx fixture. My random identifier is {random.random()}."
-    return Create.generate([alice.public_key], [([user_pk], 1)], asset={"name": name})
+    asset = {"data": multihash(marshal({"name": name}))}
+    return Create.generate([alice.public_key], [([user_pk], 1)], asset=asset)
 
 
 @pytest.fixture
@@ -333,9 +335,7 @@ def inputs(user_pk, b, alice):
     for height in range(1, 4):
         transactions = [
             Create.generate(
-                [alice.public_key],
-                [([user_pk], 1)],
-                metadata={"msg": random.random()},
+                [alice.public_key], [([user_pk], 1)], metadata=multihash(marshal({"data": f"{random.random()}"}))
             ).sign([alice.private_key])
             for _ in range(10)
         ]

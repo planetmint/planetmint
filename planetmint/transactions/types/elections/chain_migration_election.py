@@ -1,13 +1,14 @@
 import json
 
 from planetmint.transactions.common.schema import TX_SCHEMA_CHAIN_MIGRATION_ELECTION
+from planetmint.transactions.common.transaction import CHAIN_MIGRATION_ELECTION
 from planetmint.transactions.types.elections.election import Election
 
 
 class ChainMigrationElection(Election):
 
-    OPERATION = "CHAIN_MIGRATION_ELECTION"
-    CREATE = OPERATION
+    OPERATION = CHAIN_MIGRATION_ELECTION
+    # CREATE = OPERATION
     ALLOWED_OPERATIONS = (OPERATION,)
     TX_SCHEMA_CUSTOM = TX_SCHEMA_CHAIN_MIGRATION_ELECTION
 

@@ -6,6 +6,7 @@ from zenroom import zencode_exec
 from cryptoconditions.types.ed25519 import Ed25519Sha256
 from cryptoconditions.types.zenroom import ZenroomSha256
 from planetmint.transactions.common.crypto import generate_key_pair
+from ipld import multihash, marshal
 
 CONDITION_SCRIPT = """Scenario 'ecdh': create the signature of an object
     Given I have the 'keyring'
@@ -101,8 +102,8 @@ def test_zenroom_signing():
     metadata = {"result": {"output": ["ok"]}}
     token_creation_tx = {
         "operation": "CREATE",
-        "asset": {"data": {"test": "my asset"}},
-        "metadata": metadata,
+        "asset": {"data": multihash(marshal({"test": "my asset"}))},
+        "metadata": multihash(marshal(metadata)),
         "script": script_,
         "outputs": [
             output,
@@ -149,7 +150,7 @@ def test_zenroom_signing():
     shared_creation_txid = sha3_256(json_str_tx.encode()).hexdigest()
     tx["id"] = shared_creation_txid
 
-    from planetmint.models import Transaction
+    from planetmint.transactions.common.transaction import Transaction
     from planetmint.lib import Planetmint
     from planetmint.transactions.common.exceptions import (
         SchemaValidationError,
@@ -158,7 +159,7 @@ def test_zenroom_signing():
 
     try:
         print(f"TX\n{tx}")
-        tx_obj = Transaction.from_dict(tx)
+        tx_obj = Transaction.from_dict(tx, False)
     except SchemaValidationError as e:
         print(e)
         assert ()
@@ -170,9 +171,6 @@ def test_zenroom_signing():
         planet.validate_transaction(tx_obj)
     except ValidationError as e:
         print("Invalid transaction ({}): {}".format(type(e).__name__, e))
-        assert ()
-    except e:
-        print(f"Exception : {e}")
         assert ()
 
     print(f"VALIDATED : {tx_obj}")
