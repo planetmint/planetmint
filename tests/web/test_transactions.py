@@ -10,6 +10,7 @@ import base58
 import pytest
 from cryptoconditions import Ed25519Sha256
 from ipld import multihash, marshal
+
 try:
     from hashlib import sha3_256
 except ImportError:

@@ -11,7 +11,7 @@ import threading
 # from unittest.mock import patch
 from planetmint.transactions.types.assets.create import Create
 from planetmint.transactions.types.assets.transfer import Transfer
-from ipld import multihash,marshal
+from ipld import multihash, marshal
 
 import pytest
 
