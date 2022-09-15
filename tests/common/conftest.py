@@ -189,9 +189,7 @@ def dummy_transaction():
 @pytest.fixture
 def unfulfilled_transaction():
     return {
-        "asset": {
-            "data": "QmaozNR7DZHQK1ZcU9p7QdrshMvXqWK6gpu5rmrkPdT3L4"
-        },
+        "asset": {"data": "QmaozNR7DZHQK1ZcU9p7QdrshMvXqWK6gpu5rmrkPdT3L4"},
         "id": None,
         "inputs": [
             {
@@ -227,9 +225,7 @@ def unfulfilled_transaction():
 @pytest.fixture
 def fulfilled_transaction():
     return {
-        "asset": {
-            "data": "QmaozNR7DZHQK1ZcU9p7QdrshMvXqWK6gpu5rmrkPdT3L4"
-        },
+        "asset": {"data": "QmaozNR7DZHQK1ZcU9p7QdrshMvXqWK6gpu5rmrkPdT3L4"},
         "id": None,
         "inputs": [
             {
@@ -288,9 +284,7 @@ def fulfilled_transaction():
 )
 def tri_state_transaction(request):
     tx = {
-        "asset": {
-            "data": "QmaozNR7DZHQK1ZcU9p7QdrshMvXqWK6gpu5rmrkPdT3L4"
-        },
+        "asset": {"data": "QmaozNR7DZHQK1ZcU9p7QdrshMvXqWK6gpu5rmrkPdT3L4"},
         "id": None,
         "inputs": [
             {"fulfillment": None, "fulfills": None, "owners_before": ["JEAkEJqLbbgDRAtMm8YAjGp759Aq2qTn9eaEHUj2XePE"]}

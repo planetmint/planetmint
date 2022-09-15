@@ -268,10 +268,16 @@ def test_run_recover(b, alice, bob):
     from planetmint.backend import query
 
     tx1 = Create.generate(
-        [alice.public_key], [([alice.public_key], 1)], asset= { "data": "QmaozNR7DZHQK1ZcU9p7QdrshMvXqWK6gpu5rmrkPdT3L4" }, metadata="QmaozNR7DZHQK1ZcU9p7QdrshMvXqWK6gpu5rmrkPdT3L4"
+        [alice.public_key],
+        [([alice.public_key], 1)],
+        asset={"data": "QmaozNR7DZHQK1ZcU9p7QdrshMvXqWK6gpu5rmrkPdT3L4"},
+        metadata="QmaozNR7DZHQK1ZcU9p7QdrshMvXqWK6gpu5rmrkPdT3L4",
     ).sign([alice.private_key])
     tx2 = Create.generate(
-        [bob.public_key], [([bob.public_key], 1)], asset= { "data": "QmaozNR7DZHQK1ZcU9p7QdrshMvXqWK6gpu5rmrkPdT3L4" }, metadata="QmaozNR7DZHQK1ZcU9p7QdrshMvXqWK6gpu5rmrkPdT3L4"
+        [bob.public_key],
+        [([bob.public_key], 1)],
+        asset={"data": "QmaozNR7DZHQK1ZcU9p7QdrshMvXqWK6gpu5rmrkPdT3L4"},
+        metadata="QmaozNR7DZHQK1ZcU9p7QdrshMvXqWK6gpu5rmrkPdT3L4",
     ).sign([bob.private_key])
     print(tx1.id)
     print(tx2.id)

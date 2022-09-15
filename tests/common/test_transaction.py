@@ -259,7 +259,9 @@ def test_invalid_transaction_initialization(asset_definition):
     with raises(TypeError):
         Transaction(operation="CREATE", asset=asset_definition, outputs=[], inputs="invalid inputs")
     with raises(TypeError):
-        Transaction(operation="CREATE", asset=asset_definition, outputs=[], inputs=[], metadata={"data": "invalid metadata"})
+        Transaction(
+            operation="CREATE", asset=asset_definition, outputs=[], inputs=[], metadata={"data": "invalid metadata"}
+        )
 
 
 def test_create_default_asset_on_tx_initialization(asset_definition):
@@ -576,7 +578,7 @@ def test_create_create_transaction_single_io(user_output, user_pub, data):
         "version": Transaction.VERSION,
     }
 
-    tx = Create.generate([user_pub], [([user_pub], 1)], metadata=data, asset= {"data": data })
+    tx = Create.generate([user_pub], [([user_pub], 1)], metadata=data, asset={"data": data})
     tx_dict = tx.to_dict()
     tx_dict["inputs"][0]["fulfillment"] = None
     tx_dict.pop("id")
@@ -606,7 +608,9 @@ def test_create_create_transaction_multiple_io(user_output, user2_output, user_p
         "version": Transaction.VERSION,
     }
     tx = Create.generate(
-        [user_pub, user2_pub], [([user_pub], 1), ([user2_pub], 1)], metadata="QmaozNR7DZHQK1ZcU9p7QdrshMvXqWK6gpu5rmrkPdT3L4"
+        [user_pub, user2_pub],
+        [([user_pub], 1), ([user2_pub], 1)],
+        metadata="QmaozNR7DZHQK1ZcU9p7QdrshMvXqWK6gpu5rmrkPdT3L4",
     ).to_dict()
     tx.pop("id")
     tx.pop("asset")
@@ -617,7 +621,11 @@ def test_create_create_transaction_multiple_io(user_output, user2_output, user_p
 def test_validate_multiple_io_create_transaction(user_pub, user_priv, user2_pub, user2_priv, asset_definition):
     from .utils import validate_transaction_model
 
-    tx = Create.generate([user_pub, user2_pub], [([user_pub], 1), ([user2_pub], 1)], metadata="QmaozNR7DZHQK1ZcU9p7QdrshMvXqWK6gpu5rmrkPdT3L4")
+    tx = Create.generate(
+        [user_pub, user2_pub],
+        [([user_pub], 1), ([user2_pub], 1)],
+        metadata="QmaozNR7DZHQK1ZcU9p7QdrshMvXqWK6gpu5rmrkPdT3L4",
+    )
     tx = tx.sign([user_priv, user2_priv])
     assert tx.inputs_valid() is True
 
@@ -741,7 +749,9 @@ def test_create_transfer_transaction_single_io(tx, user_pub, user2_pub, user2_ou
 def test_create_transfer_transaction_multiple_io(
     user_pub, user_priv, user2_pub, user2_priv, user3_pub, user2_output, asset_definition
 ):
-    tx = Create.generate([user_pub], [([user_pub], 1), ([user2_pub], 1)], metadata="QmaozNR7DZHQK1ZcU9p7QdrshMvXqWK6gpu5rmrkPdT3L4")
+    tx = Create.generate(
+        [user_pub], [([user_pub], 1), ([user2_pub], 1)], metadata="QmaozNR7DZHQK1ZcU9p7QdrshMvXqWK6gpu5rmrkPdT3L4"
+    )
     tx = tx.sign([user_priv])
 
     expected = {
@@ -851,7 +861,7 @@ def test_unspent_outputs_property(merlin, alice, bob, carol):
     tx = Create.generate(
         [merlin.public_key],
         [([alice.public_key], 1), ([bob.public_key], 2), ([carol.public_key], 3)],
-        asset= { "data": "QmaozNR7DZHQK1ZcU9p7QdrshMvXqWK6gpu5rmrkPdT3L4" },
+        asset={"data": "QmaozNR7DZHQK1ZcU9p7QdrshMvXqWK6gpu5rmrkPdT3L4"},
     ).sign([merlin.private_key])
     unspent_outputs = list(tx.unspent_outputs)
     assert len(unspent_outputs) == 3

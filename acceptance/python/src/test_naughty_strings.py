@@ -119,8 +119,8 @@ def send_naughty_tx(asset, metadata):
 @pytest.mark.parametrize("naughty_string", naughty_strings, ids=naughty_strings)
 def test_naughty_keys(naughty_string):
 
-    asset = {"data": multihash(marshal({naughty_string: "nice_value"} ))}
-    metadata =  multihash(marshal({naughty_string: "nice_value"}))
+    asset = {"data": multihash(marshal({naughty_string: "nice_value"}))}
+    metadata = multihash(marshal({naughty_string: "nice_value"}))
 
     send_naughty_tx(asset, metadata)
 
@@ -128,7 +128,7 @@ def test_naughty_keys(naughty_string):
 @pytest.mark.parametrize("naughty_string", naughty_strings, ids=naughty_strings)
 def test_naughty_values(naughty_string):
 
-    asset = {"data":  multihash(marshal({"nice_key": naughty_string} ))}
-    metadata =  multihash(marshal({"nice_key": naughty_string}))
+    asset = {"data": multihash(marshal({"nice_key": naughty_string}))}
+    metadata = multihash(marshal({"nice_key": naughty_string}))
 
     send_naughty_tx(asset, metadata)

@@ -30,6 +30,7 @@ from planetmint_driver import Planetmint
 from planetmint_driver.crypto import generate_keypair
 from ipld import multihash, marshal
 
+
 def test_divisible_assets():
     # ## Set up a connection to Planetmint
     # Check [test_basic.py](./test_basic.html) to get some more details
@@ -48,10 +49,14 @@ def test_divisible_assets():
     # the bike for one hour.
 
     bike_token = {
-        "data": multihash(marshal({
-            "token_for": {"bike": {"serial_number": 420420}},
-            "description": "Time share token. Each token equals one hour of riding.",
-        })),
+        "data": multihash(
+            marshal(
+                {
+                    "token_for": {"bike": {"serial_number": 420420}},
+                    "description": "Time share token. Each token equals one hour of riding.",
+                }
+            )
+        ),
     }
 
     # She prepares a `CREATE` transaction and issues 10 tokens.

@@ -93,7 +93,7 @@ class Election(Transaction):
         # Check whether the voters and their votes is same to that of the
         # validators and their voting power in the network
         return current_topology == voters
-    
+
     @classmethod
     def validate_election(self, tx_signers, recipients, asset, metadata):
         if not isinstance(tx_signers, list):
@@ -163,7 +163,7 @@ class Election(Transaction):
         # Break symmetry in case we need to call an election with the same properties twice
         uuid = uuid4()
         election_data["seed"] = str(uuid)
-        
+
         Election.validate_election(initiator, voters, election_data, metadata)
         (inputs, outputs) = Transaction.complete_tx_i_o(initiator, voters)
         election = cls(cls.OPERATION, {"data": election_data}, inputs, outputs, metadata)

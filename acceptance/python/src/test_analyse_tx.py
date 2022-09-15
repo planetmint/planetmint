@@ -25,6 +25,7 @@ from planetmint_driver import Planetmint
 from planetmint_driver.crypto import generate_keypair
 from ipld import multihash, marshal
 
+
 def test_get_tests():
     # ## Set up a connection to Planetmint
     # To use BighainDB we need a connection. Here we create one. By default we

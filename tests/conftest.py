@@ -288,7 +288,7 @@ def create_tx(alice, user_pk):
     from planetmint.transactions.types.assets.create import Create
 
     name = f"I am created by the create_tx fixture. My random identifier is {random.random()}."
-    asset = { "data" : multihash(marshal({"name": name})) }
+    asset = {"data": multihash(marshal({"name": name}))}
     return Create.generate([alice.public_key], [([user_pk], 1)], asset=asset)
 
 
@@ -335,9 +335,7 @@ def inputs(user_pk, b, alice):
     for height in range(1, 4):
         transactions = [
             Create.generate(
-                [alice.public_key],
-                [([user_pk], 1)],
-                metadata=multihash(marshal({"data": f"{random.random()}"}))
+                [alice.public_key], [([user_pk], 1)], metadata=multihash(marshal({"data": f"{random.random()}"}))
             ).sign([alice.private_key])
             for _ in range(10)
         ]

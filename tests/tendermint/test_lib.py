@@ -40,17 +40,23 @@ def test_asset_is_separated_from_transaciton(b):
     alice = generate_key_pair()
     bob = generate_key_pair()
 
-    asset = {"data" : multihash(marshal({
-        "Never gonna": [
-            "give you up",
-            "let you down",
-            "run around" "desert you",
-            "make you cry",
-            "say goodbye",
-            "tell a lie",
-            "hurt you",
-        ]
-    }))}
+    asset = {
+        "data": multihash(
+            marshal(
+                {
+                    "Never gonna": [
+                        "give you up",
+                        "let you down",
+                        "run around" "desert you",
+                        "make you cry",
+                        "say goodbye",
+                        "tell a lie",
+                        "hurt you",
+                    ]
+                }
+            )
+        )
+    }
 
     tx = Create.generate([alice.public_key], [([bob.public_key], 1)], metadata=None, asset=asset).sign(
         [alice.private_key]

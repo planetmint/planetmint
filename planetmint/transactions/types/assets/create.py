@@ -12,7 +12,7 @@ class Create(Transaction):
 
     OPERATION = "CREATE"
     ALLOWED_OPERATIONS = (OPERATION,)
-    
+
     @classmethod
     def validate_create(self, tx_signers, recipients, asset, metadata):
         if not isinstance(tx_signers, list):
@@ -29,7 +29,8 @@ class Create(Transaction):
             if "data" in asset and not isinstance(asset["data"], str):
                 raise TypeError("`asset` must be a CID string or None")
             import cid
-            cid.make_cid( asset["data"])
+
+            cid.make_cid(asset["data"])
         if not (metadata is None or isinstance(metadata, str)):
             # add check if metadata is ipld marshalled CID string
             raise TypeError("`metadata` must be a CID string or None")
@@ -65,6 +66,6 @@ class Create(Transaction):
             :class:`~planetmint.common.transaction.Transaction`
         """
 
-        Create.validate_create( tx_signers, recipients, asset, metadata)
+        Create.validate_create(tx_signers, recipients, asset, metadata)
         (inputs, outputs) = Transaction.complete_tx_i_o(tx_signers, recipients)
         return cls(cls.OPERATION, asset, inputs, outputs, metadata)

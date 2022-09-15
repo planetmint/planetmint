@@ -133,7 +133,7 @@ class Planetmint(object):
                 self.connection,
                 transaction_type=transaction["operation"],
                 transaction_id=transaction["id"],
-                filter_operation= [t.CREATE, t.VALIDATOR_ELECTION, t.CHAIN_MIGRATION_ELECTION],
+                filter_operation=[t.CREATE, t.VALIDATOR_ELECTION, t.CHAIN_MIGRATION_ELECTION],
                 asset=asset,
             )
 

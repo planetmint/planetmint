@@ -21,6 +21,7 @@ from planetmint.transactions.common.exceptions import AmountError, SchemaValidat
 from planetmint.transactions.common.transaction import Transaction
 from planetmint.transactions.common.utils import _fulfillment_to_details, _fulfillment_from_details
 from ipld import marshal, multihash
+
 ################################################################################
 # Helper functions
 
@@ -132,7 +133,7 @@ def test_create_tx_asset_type(b, create_tx, alice):
     create_tx.asset["data"] = multihash(marshal({"a": ""}))
     signed_tx = create_tx.sign([alice.private_key])
     validate(signed_tx)
-    #validate_raises(signed_tx)
+    # validate_raises(signed_tx)
 
 
 def test_create_tx_no_asset_data(b, create_tx, alice):

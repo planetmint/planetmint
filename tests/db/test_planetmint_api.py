@@ -97,7 +97,7 @@ class TestBigchainApi(object):
 
     def test_write_transaction(self, b, user_sk, user_pk, alice, create_tx):
 
-        asset1 = { "data": "QmaozNR7DZHQK1ZcU9p7QdrshMvXqWK6gpu5rmrkPdT3L4"}
+        asset1 = {"data": "QmaozNR7DZHQK1ZcU9p7QdrshMvXqWK6gpu5rmrkPdT3L4"}
 
         tx = Create.generate([alice.public_key], [([alice.public_key], 1)], asset=asset1).sign([alice.private_key])
         b.store_bulk_transactions([tx])
@@ -377,7 +377,7 @@ class TestMultipleInputs(object):
 
         transactions = []
         for i in range(3):
-            payload = f"QmaozNR7DZHQK1ZcU9p7QdrshMvXqWK6gpu5rmrkPdT3L{i}" # create unique CIDs
+            payload = f"QmaozNR7DZHQK1ZcU9p7QdrshMvXqWK6gpu5rmrkPdT3L{i}"  # create unique CIDs
             tx = Create.generate([alice.public_key], [([user_pk, user2_pk], 1)], payload)
             tx = tx.sign([alice.private_key])
             transactions.append(tx)
@@ -472,12 +472,13 @@ def test_transaction_unicode(b, alice):
     from planetmint.transactions.common.utils import serialize
 
     # http://www.fileformat.info/info/unicode/char/1f37a/index.htm
-    
-    beer_python = {"data" : multihash(marshal( {"beer": "\N{BEER MUG}"} )) }
-    beer_json = {"data" : multihash(marshal( {"beer":"\N{BEER MUG}"} )) }
 
-    tx = (Create.generate([alice.public_key], [([alice.public_key], 100)], asset = beer_python)).sign([alice.private_key])
-    
+    beer_python = {"data": multihash(marshal({"beer": "\N{BEER MUG}"}))}
+    beer_json = {"data": multihash(marshal({"beer": "\N{BEER MUG}"}))}
+
+    tx = (Create.generate([alice.public_key], [([alice.public_key], 100)], asset=beer_python)).sign(
+        [alice.private_key]
+    )
 
     tx_1 = copy.deepcopy(tx)
     b.store_bulk_transactions([tx])

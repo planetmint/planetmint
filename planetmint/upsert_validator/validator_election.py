@@ -7,7 +7,8 @@ from planetmint.transactions.common.exceptions import InvalidPowerChange
 from planetmint.transactions.types.elections.election import Election
 from planetmint.transactions.common.schema import TX_SCHEMA_VALIDATOR_ELECTION
 from planetmint.transactions.common.transaction import VALIDATOR_ELECTION
-#from planetmint.transactions.common.transaction import Transaction
+
+# from planetmint.transactions.common.transaction import Transaction
 
 from .validator_utils import new_validator_set, encode_validator, validate_asset_public_key
 

@@ -30,7 +30,7 @@ def test_get_assets_tendermint(client, b, alice):
     assert res.status_code == 200
 
     # create asset
-    asset = {"data" : multihash(marshal( {"msg": "abc"} )) }
+    asset = {"data": multihash(marshal({"msg": "abc"}))}
     tx = Create.generate([alice.public_key], [([alice.public_key], 1)], asset=asset).sign([alice.private_key])
 
     b.store_bulk_transactions([tx])
@@ -46,8 +46,8 @@ def test_get_assets_tendermint(client, b, alice):
 def test_get_assets_limit_tendermint(client, b, alice):
 
     # create two assets
-    asset1 = {"data" :  multihash(marshal( {"msg": "abc 1"} )) }
-    asset2 = {"data" :  multihash(marshal( {"msg": "abc 2"} )) }
+    asset1 = {"data": multihash(marshal({"msg": "abc 1"}))}
+    asset2 = {"data": multihash(marshal({"msg": "abc 2"}))}
     tx1 = Create.generate([alice.public_key], [([alice.public_key], 1)], asset=asset1).sign([alice.private_key])
     tx2 = Create.generate([alice.public_key], [([alice.public_key], 1)], asset=asset2).sign([alice.private_key])
 
@@ -60,6 +60,6 @@ def test_get_assets_limit_tendermint(client, b, alice):
     assert len(res.json) == 1
 
     # test that only one asset is returned when using limit=1
-    res = client.get(ASSETS_ENDPOINT + "?search="+asset1["data"] + "&limit=1")
+    res = client.get(ASSETS_ENDPOINT + "?search=" + asset1["data"] + "&limit=1")
     assert res.status_code == 200
     assert len(res.json) == 1

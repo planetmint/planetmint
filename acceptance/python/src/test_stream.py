@@ -92,7 +92,9 @@ def test_stream():
     for _ in range(10):
         tx = bdb.transactions.fulfill(
             bdb.transactions.prepare(
-                operation="CREATE", signers=alice.public_key, asset={"data": multihash(marshal({"uuid": str(uuid4())} )) }
+                operation="CREATE",
+                signers=alice.public_key,
+                asset={"data": multihash(marshal({"uuid": str(uuid4())}))},
             ),
             private_keys=alice.private_key,
         )

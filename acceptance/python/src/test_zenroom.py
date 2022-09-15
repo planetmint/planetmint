@@ -67,8 +67,8 @@ def test_zenroom_signing(
     metadata = {"result": {"output": ["ok"]}}
 
     script_ = {
-        "code": {"type": "zenroom", "raw": "test_string", "parameters": [{"obj": "1"}, {"obj": "2"}]}, # obsolete
-        "state": "dd8bbd234f9869cab4cc0b84aa660e9b5ef0664559b8375804ee8dce75b10576", # 
+        "code": {"type": "zenroom", "raw": "test_string", "parameters": [{"obj": "1"}, {"obj": "2"}]},  # obsolete
+        "state": "dd8bbd234f9869cab4cc0b84aa660e9b5ef0664559b8375804ee8dce75b10576",  #
         "input": zenroom_script_input,
         "output": ["ok"],
         "policies": {},

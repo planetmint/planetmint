@@ -8,7 +8,7 @@ from planetmint.transactions.types.elections.election import Election
 class ChainMigrationElection(Election):
 
     OPERATION = CHAIN_MIGRATION_ELECTION
-    #CREATE = OPERATION
+    # CREATE = OPERATION
     ALLOWED_OPERATIONS = (OPERATION,)
     TX_SCHEMA_CUSTOM = TX_SCHEMA_CHAIN_MIGRATION_ELECTION
 

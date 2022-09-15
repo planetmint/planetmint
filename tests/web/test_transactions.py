@@ -108,7 +108,7 @@ def test_post_create_transaction_with_language(b, client, nested, language, expe
             asset = {"root": lang_obj}
         else:
             asset = lang_obj
-        asset = { "data": multihash(marshal(asset))}
+        asset = {"data": multihash(marshal(asset))}
         tx = Create.generate([user_pub], [([user_pub], 1)], asset=asset)
         tx = tx.sign([user_priv])
         res = client.post(TX_ENDPOINT, data=json.dumps(tx.to_dict()))
@@ -368,7 +368,9 @@ def test_post_wrong_asset_division_transfer_returns_400(b, client, user_pk):
 
     priv_key, pub_key = crypto.generate_key_pair()
 
-    create_tx = Create.generate([pub_key], [([pub_key], 10)], asset={"data":multihash(marshal({"test": "asset"}))} ).sign([priv_key])
+    create_tx = Create.generate(
+        [pub_key], [([pub_key], 10)], asset={"data": multihash(marshal({"test": "asset"}))}
+    ).sign([priv_key])
     res = client.post(TX_ENDPOINT + "?mode=commit", data=json.dumps(create_tx.to_dict()))
     assert res.status_code == 202
 

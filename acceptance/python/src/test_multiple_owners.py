@@ -27,6 +27,7 @@ from planetmint_driver import Planetmint
 from planetmint_driver.crypto import generate_keypair
 from ipld import multihash, marshal
 
+
 def test_multiple_owners():
     # ## Set up a connection to Planetmint
     # Check [test_basic.py](./test_basic.html) to get some more details
