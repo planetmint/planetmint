@@ -25,6 +25,7 @@ import os
 # For this test case we import and use the Python Driver.
 from planetmint_driver import Planetmint
 from planetmint_driver.crypto import generate_keypair
+from ipld import multihash, marshal
 
 
 def test_multiple_owners():
@@ -41,7 +42,7 @@ def test_multiple_owners():
     # high rents anymore. Bob suggests to get a dish washer for the
     # kitchen. Alice agrees and here they go, creating the asset for their
     # dish washer.
-    dw_asset = {"data": {"dish washer": {"serial_number": 1337}}}
+    dw_asset = {"data": multihash(marshal({"dish washer": {"serial_number": 1337}}))}
 
     # They prepare a `CREATE` transaction. To have multiple owners, both
     # Bob and Alice need to be the recipients.

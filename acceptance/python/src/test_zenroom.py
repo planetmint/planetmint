@@ -7,6 +7,7 @@ from cryptoconditions.types.zenroom import ZenroomSha256
 from zenroom import zencode_exec
 from planetmint_driver import Planetmint
 from planetmint_driver.crypto import generate_keypair
+from ipld import multihash, marshal
 
 
 def test_zenroom_signing(
@@ -66,8 +67,8 @@ def test_zenroom_signing(
     metadata = {"result": {"output": ["ok"]}}
 
     script_ = {
-        "code": {"type": "zenroom", "raw": "test_string", "parameters": [{"obj": "1"}, {"obj": "2"}]},
-        "state": "dd8bbd234f9869cab4cc0b84aa660e9b5ef0664559b8375804ee8dce75b10576",
+        "code": {"type": "zenroom", "raw": "test_string", "parameters": [{"obj": "1"}, {"obj": "2"}]},  # obsolete
+        "state": "dd8bbd234f9869cab4cc0b84aa660e9b5ef0664559b8375804ee8dce75b10576",  #
         "input": zenroom_script_input,
         "output": ["ok"],
         "policies": {},
@@ -75,9 +76,9 @@ def test_zenroom_signing(
 
     token_creation_tx = {
         "operation": "CREATE",
-        "asset": {"data": {"test": "my asset"}},
+        "asset": {"data": multihash(marshal({"test": "my asset"}))},
+        "metadata": multihash(marshal(metadata)),
         "script": script_,
-        "metadata": metadata,
         "outputs": [
             output,
         ],

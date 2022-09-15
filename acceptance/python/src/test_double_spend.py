@@ -14,6 +14,7 @@ import queue
 import planetmint_driver.exceptions
 from planetmint_driver import Planetmint
 from planetmint_driver.crypto import generate_keypair
+from ipld import multihash, marshal
 
 
 def test_double_create():
@@ -23,7 +24,9 @@ def test_double_create():
     results = queue.Queue()
 
     tx = bdb.transactions.fulfill(
-        bdb.transactions.prepare(operation="CREATE", signers=alice.public_key, asset={"data": {"uuid": str(uuid4())}}),
+        bdb.transactions.prepare(
+            operation="CREATE", signers=alice.public_key, asset={"data": multihash(marshal({"uuid": str(uuid4())}))}
+        ),
         private_keys=alice.private_key,
     )
 

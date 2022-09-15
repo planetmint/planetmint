@@ -27,6 +27,15 @@ For reference, the possible headings are:
 
 ## [Unreleased]
 
+
+
+## [1.2.0] - 2022-09-05
+* **Changed** disabled acceptance and integration tests, they have a circular dep. to the python driver
+* **Changed** Metadata and asset["data"] types to string containing an IPLD hash
+* **Fixed** Transaction generation bug that automatically assigned 'assets' to asset["data"]
+* **Changed** adjusted test caes
+
+
 ## [1.1.0] - 2022-09-05
 * **Changed** adjusted to zenroom calling convention of PRP #13 (breaking change)
 * **Changed** zenroom test cases to comply to the new calling convention

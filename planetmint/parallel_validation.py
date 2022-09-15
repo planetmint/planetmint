@@ -108,6 +108,8 @@ class ValidationWorker:
             asset_id = dict_transaction["asset"]["id"]
         except KeyError:
             asset_id = dict_transaction["id"]
+        except TypeError:
+            asset_id = dict_transaction["id"]
 
         transaction = self.planetmint.is_valid_transaction(dict_transaction, self.validated_transactions[asset_id])
 

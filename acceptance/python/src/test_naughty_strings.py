@@ -29,6 +29,7 @@ import pytest
 from planetmint_driver import Planetmint
 from planetmint_driver.crypto import generate_keypair
 from planetmint_driver.exceptions import BadRequest
+from ipld import multihash, marshal
 
 naughty_strings = blns.all()
 skipped_naughty_strings = [
@@ -118,8 +119,8 @@ def send_naughty_tx(asset, metadata):
 @pytest.mark.parametrize("naughty_string", naughty_strings, ids=naughty_strings)
 def test_naughty_keys(naughty_string):
 
-    asset = {"data": {naughty_string: "nice_value"}}
-    metadata = {naughty_string: "nice_value"}
+    asset = {"data": multihash(marshal({naughty_string: "nice_value"}))}
+    metadata = multihash(marshal({naughty_string: "nice_value"}))
 
     send_naughty_tx(asset, metadata)
 
@@ -127,7 +128,7 @@ def test_naughty_keys(naughty_string):
 @pytest.mark.parametrize("naughty_string", naughty_strings, ids=naughty_strings)
 def test_naughty_values(naughty_string):
 
-    asset = {"data": {"nice_key": naughty_string}}
-    metadata = {"nice_key": naughty_string}
+    asset = {"data": multihash(marshal({"nice_key": naughty_string}))}
+    metadata = multihash(marshal({"nice_key": naughty_string}))
 
     send_naughty_tx(asset, metadata)

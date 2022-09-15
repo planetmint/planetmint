@@ -89,7 +89,7 @@ def test_bigchain_show_config(capsys):
     print(f"config : {sorted_output_config}")
     # Note: This test passed previously because we were always
     # using the default configuration parameters, but since we
-    # are running with docker-compose now and expose parameters like
+    # are running with docker compose now and expose parameters like
     # PLANETMINT_SERVER_BIND, PLANETMINT_WSSERVER_HOST, PLANETMINT_WSSERVER_ADVERTISED_HOST
     # the default comparison fails i.e. when config is imported at the beginning the
     # dict returned is different that what is expected after run_show_config
@@ -268,10 +268,16 @@ def test_run_recover(b, alice, bob):
     from planetmint.backend import query
 
     tx1 = Create.generate(
-        [alice.public_key], [([alice.public_key], 1)], asset={"cycle": "hero"}, metadata={"name": "hohenheim"}
+        [alice.public_key],
+        [([alice.public_key], 1)],
+        asset={"data": "QmaozNR7DZHQK1ZcU9p7QdrshMvXqWK6gpu5rmrkPdT3L4"},
+        metadata="QmaozNR7DZHQK1ZcU9p7QdrshMvXqWK6gpu5rmrkPdT3L4",
     ).sign([alice.private_key])
     tx2 = Create.generate(
-        [bob.public_key], [([bob.public_key], 1)], asset={"cycle": "hero"}, metadata={"name": "hohenheim"}
+        [bob.public_key],
+        [([bob.public_key], 1)],
+        asset={"data": "QmaozNR7DZHQK1ZcU9p7QdrshMvXqWK6gpu5rmrkPdT3L4"},
+        metadata="QmaozNR7DZHQK1ZcU9p7QdrshMvXqWK6gpu5rmrkPdT3L4",
     ).sign([bob.private_key])
     print(tx1.id)
     print(tx2.id)

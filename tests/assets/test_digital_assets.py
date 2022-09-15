@@ -51,9 +51,13 @@ def test_asset_id_mismatch(alice, user_pk):
     from planetmint.transactions.common.transaction import Transaction
     from planetmint.transactions.common.exceptions import AssetIdMismatch
 
-    tx1 = Create.generate([alice.public_key], [([user_pk], 1)], metadata={"msg": random.random()})
+    tx1 = Create.generate(
+        [alice.public_key], [([user_pk], 1)], metadata="QmaozNR7DZHQK1ZcU9p7QdrshMvXqWK6gpu5rmrkPdT3L4"
+    )
     tx1.sign([alice.private_key])
-    tx2 = Create.generate([alice.public_key], [([user_pk], 1)], metadata={"msg": random.random()})
+    tx2 = Create.generate(
+        [alice.public_key], [([user_pk], 1)], metadata="zb2rhe5P4gXftAwvA4eXQ5HJwsER2owDyS9sKaQRRVQPn93bA"
+    )
     tx2.sign([alice.private_key])
 
     with pytest.raises(AssetIdMismatch):

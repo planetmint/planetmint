@@ -23,6 +23,7 @@ import os
 # For this test case we import and use the Python Driver.
 from planetmint_driver import Planetmint
 from planetmint_driver.crypto import generate_keypair
+from ipld import multihash, marshal
 
 
 def test_get_tests():
@@ -41,7 +42,7 @@ def test_get_tests():
     # ## Alice registers her bike in Planetmint
     # Alice has a nice bike, and here she creates the "digital twin"
     # of her bike.
-    bike = {"data": {"bicycle": {"serial_number": 420420}}}
+    bike = {"data": multihash(marshal({"bicycle": {"serial_number": 420420}}))}
 
     # She prepares a `CREATE` transaction...
     prepared_creation_tx = bdb.transactions.prepare(operation="CREATE", signers=alice.public_key, asset=bike)

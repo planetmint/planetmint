@@ -57,6 +57,10 @@ UnspentOutput = namedtuple(
     ),
 )
 
+VALIDATOR_ELECTION = "VALIDATOR_ELECTION"
+CHAIN_MIGRATION_ELECTION = "CHAIN_MIGRATION_ELECTION"
+VOTE = "VOTE"
+
 
 class Transaction(object):
     """A Transaction is used to create and transfer assets.
@@ -83,6 +87,9 @@ class Transaction(object):
 
     CREATE = "CREATE"
     TRANSFER = "TRANSFER"
+    VALIDATOR_ELECTION = VALIDATOR_ELECTION
+    CHAIN_MIGRATION_ELECTION = CHAIN_MIGRATION_ELECTION
+    VOTE = VOTE
     ALLOWED_OPERATIONS = (CREATE, TRANSFER)
     ASSET = "asset"
     METADATA = "metadata"
@@ -127,13 +134,25 @@ class Transaction(object):
         # Asset payloads for 'CREATE' operations must be None or
         # dicts holding a `data` property. Asset payloads for 'TRANSFER'
         # operations must be dicts holding an `id` property.
-        if operation == self.CREATE and asset is not None and not (isinstance(asset, dict) and "data" in asset):
-            raise TypeError(
-                (
-                    "`asset` must be None or a dict holding a `data` "
-                    " property instance for '{}' Transactions".format(operation)
+        if operation == self.CREATE and asset is not None:
+            if not isinstance(asset, dict):
+                raise TypeError(
+                    (
+                        "`asset` must be None or a dict holding a `data` "
+                        " property instance for '{}' Transactions".format(operation)
+                    )
                 )
-            )
+
+            if "data" in asset:
+                if asset["data"] is not None and not isinstance(asset["data"], str):
+                    # add check if data is ipld marshalled CID string
+                    raise TypeError(
+                        (
+                            "`asset` must be None or a dict holding a `data` "
+                            " property instance for '{}' Transactions".format(operation)
+                        )
+                    )
+
         elif operation == self.TRANSFER and not (isinstance(asset, dict) and "id" in asset):
             raise TypeError(("`asset` must be a dict holding an `id` property " "for 'TRANSFER' Transactions"))
 
@@ -143,8 +162,9 @@ class Transaction(object):
         if inputs and not isinstance(inputs, list):
             raise TypeError("`inputs` must be a list instance or None")
 
-        if metadata is not None and not isinstance(metadata, dict):
-            raise TypeError("`metadata` must be a dict or None")
+        if metadata is not None and not isinstance(metadata, str):
+            # Add CID validation
+            raise TypeError("`metadata` must be a CID string or None")
 
         if script is not None and not isinstance(script, dict):
             raise TypeError("`script` must be a dict or None")
@@ -490,6 +510,10 @@ class Transaction(object):
             return self._inputs_valid(["dummyvalue" for _ in self.inputs])
         elif self.operation == self.TRANSFER:
             return self._inputs_valid([output.fulfillment.condition_uri for output in outputs])
+        elif self.operation == self.VALIDATOR_ELECTION:
+            return self._inputs_valid(["dummyvalue" for _ in self.inputs])
+        elif self.operation == self.CHAIN_MIGRATION_ELECTION:
+            return self._inputs_valid(["dummyvalue" for _ in self.inputs])
         else:
             allowed_ops = ", ".join(self.__class__.ALLOWED_OPERATIONS)
             raise TypeError("`operation` must be one of {}".format(allowed_ops))
@@ -561,7 +585,7 @@ class Transaction(object):
             print(f"Exception ASN1EncodeError : {e}")
             return False
 
-        if operation == self.CREATE:
+        if operation in [self.CREATE, self.CHAIN_MIGRATION_ELECTION, self.VALIDATOR_ELECTION]:
             # NOTE: In the case of a `CREATE` transaction, the
             #       output is always valid.
             output_valid = True
@@ -680,7 +704,9 @@ class Transaction(object):
             transactions = [transactions]
 
         # create a set of the transactions' asset ids
-        asset_ids = {tx.id if tx.operation == tx.CREATE else tx.asset["id"] for tx in transactions}
+        asset_ids = {
+            tx.id if tx.operation in [tx.CREATE, tx.VALIDATOR_ELECTION] else tx.asset["id"] for tx in transactions
+        }
 
         # check that all the transasctions have the same asset id
         if len(asset_ids) > 1:
@@ -887,3 +913,22 @@ class Transaction(object):
             raise InvalidSignature("Transaction signature is invalid.")
 
         return True
+
+    @classmethod
+    def complete_tx_i_o(self, tx_signers, recipients):
+        inputs = []
+        outputs = []
+
+        # generate_outputs
+        for recipient in recipients:
+            if not isinstance(recipient, tuple) or len(recipient) != 2:
+                raise ValueError(
+                    ("Each `recipient` in the list must be a" " tuple of `([<list of public keys>]," " <amount>)`")
+                )
+            pub_keys, amount = recipient
+            outputs.append(Output.generate(pub_keys, amount))
+
+        # generate inputs
+        inputs.append(Input.generate(tx_signers))
+
+        return (inputs, outputs)

@@ -6,15 +6,16 @@
 from planetmint.transactions.common.exceptions import InvalidPowerChange
 from planetmint.transactions.types.elections.election import Election
 from planetmint.transactions.common.schema import TX_SCHEMA_VALIDATOR_ELECTION
+from planetmint.transactions.common.transaction import VALIDATOR_ELECTION
+
+# from planetmint.transactions.common.transaction import Transaction
+
 from .validator_utils import new_validator_set, encode_validator, validate_asset_public_key
 
 
 class ValidatorElection(Election):
 
-    OPERATION = "VALIDATOR_ELECTION"
-    # NOTE: this transaction class extends create so the operation inheritence is achieved
-    # by renaming CREATE to VALIDATOR_ELECTION
-    CREATE = OPERATION
+    OPERATION = VALIDATOR_ELECTION
     ALLOWED_OPERATIONS = (OPERATION,)
     TX_SCHEMA_CUSTOM = TX_SCHEMA_VALIDATOR_ELECTION
 
