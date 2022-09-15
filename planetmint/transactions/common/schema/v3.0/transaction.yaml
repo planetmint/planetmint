@@ -73,15 +73,9 @@ definitions:
     - COMPOSE
     - DECOMPOSE
   asset:
-    type: object
-    additionalProperties: false
-    properties:
-      id:
-        "$ref": "#/definitions/sha3_hexdigest"
-      data:
-        anyOf:
-        - type: string
-        - type: 'null'
+    anyOf:
+    - type: 'null'
+    - type: object
   output:
     type: object
     additionalProperties: false
