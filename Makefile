@@ -57,7 +57,7 @@ help: ## Show this help
 	@$(HELP) < $(MAKEFILE_LIST)
 
 run: check-deps ## Run Planetmint from source (stop it with ctrl+c)
-	# although planetmint has tendermint and mongodb in depends_on,
+	# although planetmint has tendermint and tarantool in depends_on,
 	# launch them first otherwise tendermint will get stuck upon sending yet another log
 	# due to some docker-compose issue; does not happen when containers are run as daemons
 	@$(DC) up --no-deps tarantool tendermint planetmint
