@@ -122,7 +122,7 @@ install_requires = [
     # TODO Consider not installing the db drivers, or putting them in extras.
     "pymongo==3.11.4",
     "tarantool==0.7.1",
-    "python-rapidjson==1.0",
+    "python-rapidjson>=1.0",
     "pyyaml==5.4.1",
     "requests==2.25.1",
     "setproctitle==1.2.2",
