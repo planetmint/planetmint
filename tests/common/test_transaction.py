@@ -22,6 +22,7 @@ from cryptoconditions import Fulfillment
 from cryptoconditions import PreimageSha256
 from cryptoconditions import Ed25519Sha256
 from pytest import mark, raises
+from ipld import marshal, multihash
 
 try:
     from hashlib import sha3_256
@@ -685,8 +686,8 @@ def test_create_create_transaction_with_invalid_parameters(user_pub):
     with raises(ValueError):
         Create.generate([user_pub], [([user_pub],)])
     with raises(TypeError):
-        Create.generate([user_pub], [([user_pub], 1)], metadata={"data": "not a dict or none"})
-    with raises(ValueError):
+        Create.generate([user_pub], [([user_pub], 1)], metadata={"data": "not a cid string or none"})
+    with raises(TypeError):
         Create.generate([user_pub], [([user_pub], 1)], asset={"data": "not a dict or none"})
 
 
