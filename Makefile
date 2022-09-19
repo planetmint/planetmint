@@ -60,7 +60,7 @@ run: check-deps ## Run Planetmint from source (stop it with ctrl+c)
 	# although planetmint has tendermint and mongodb in depends_on,
 	# launch them first otherwise tendermint will get stuck upon sending yet another log
 	# due to some docker-compose issue; does not happen when containers are run as daemons
-	@$(DC) up --no-deps mongodb tendermint planetmint
+	@$(DC) up --no-deps tarantool tendermint planetmint
 
 start: check-deps ## Run Planetmint from source and daemonize it (stop with `make stop`)
 	@$(DC) up -d planetmint
@@ -144,3 +144,4 @@ ifndef IS_BLACK_INSTALLED
 	@$(ECHO) "You need to activate your virtual environment and install the test dependencies"
 	black # black is not installed, so we call it to generate an error and exit
 endif
+
