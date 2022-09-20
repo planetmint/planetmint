@@ -27,13 +27,15 @@ For reference, the possible headings are:
 
 ## [Unreleased]
 
-
+## [1.2.1] - 2022-20-09
+* **Changed** Create model now validates for CID strings for asset["data"] and metadata
+* **Changed** adjusted test cases
 
 ## [1.2.0] - 2022-09-05
 * **Changed** disabled acceptance and integration tests, they have a circular dep. to the python driver
 * **Changed** Metadata and asset["data"] types to string containing an IPLD hash
 * **Fixed** Transaction generation bug that automatically assigned 'assets' to asset["data"]
-* **Changed** adjusted test caes
+* **Changed** adjusted test cases
 
 
 ## [1.1.0] - 2022-09-05
