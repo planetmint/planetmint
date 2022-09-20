@@ -378,7 +378,7 @@ class TestMultipleInputs(object):
 
         transactions = []
         for i in range(3):
-            payload = multihash(marshal({'msg': random.random()}))
+            payload = multihash(marshal({"msg": random.random()}))
             tx = Create.generate([alice.public_key], [([user_pk, user2_pk], 1)], payload)
             tx = tx.sign([alice.private_key])
             transactions.append(tx)

@@ -148,7 +148,7 @@ class Transaction(object):
                 if asset["data"] is not None and not isinstance(asset["data"], str):
                     if is_cid(asset["data"]) == False:
                         raise TypeError("`asset.data` not valid CID")
-                    
+
                     raise TypeError(
                         (
                             "`asset` must be None or a dict holding a `data` "
@@ -168,7 +168,7 @@ class Transaction(object):
         if metadata is not None and not isinstance(metadata, str):
             if is_cid(metadata) == False:
                 raise TypeError("`metadata` not valid CID")
-            
+
             raise TypeError("`metadata` must be a CID string or None")
 
         if script is not None and not isinstance(script, dict):
