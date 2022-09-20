@@ -17,7 +17,7 @@ two kinds: CREATE transactions and TRANSFER transactions.
 
 You can view the transaction specifications in Github, which describe transaction components and the conditions they have to fulfill in order to be valid. 
 
-[Planetmint Transactions Specs](https://github.com/planetmint/BEPs/tree/master/13/)
+[Planetmint Transactions Specs](https://github.com/bigchaindb/BEPs/tree/master/13/)
 
 ### CREATE Transactions
 
@@ -44,7 +44,7 @@ Planetmint supports a variety of conditions.
 For details, see
 the section titled **Transaction Components: Conditions**
 in the relevant
-[Planetmint Transactions Spec](https://github.com/planetmint/BEPs/tree/master/13/).
+[Planetmint Transactions Spec](https://github.com/bigchaindb/BEPs/tree/master/13/).
 
 ![Example Planetmint CREATE transaction](./_static/CREATE_example.png)
 
@@ -58,7 +58,7 @@ Loosely speaking, that list might be interpreted as the list of "owners."
 A more accurate word might be fulfillers, signers, controllers,
 or transfer-enablers.
 See the section titled **A Note about Owners**
-in the relevant [Planetmint Transactions Spec](https://github.com/planetmint/BEPs/tree/master/13/).
+in the relevant [Planetmint Transactions Spec](https://github.com/bigchaindb/BEPs/tree/master/13/).
 
 A CREATE transaction must be signed by all the owners.
 (If you're looking for that signature,
@@ -119,9 +119,26 @@ of the outgoing paperclips (100).
 ### Transaction Validity
 
 When a node is asked to check if a transaction is valid, it checks several
-things. This got documentet by a BigchainDB post (previous version of Planetmint) at*The BigchainDB Blog*:
+things. This got documented by a BigchainDB post (previous version of Planetmint) at*The BigchainDB Blog*:
 ["What is a Valid Transaction in BigchainDB?"](https://blog.bigchaindb.com/what-is-a-valid-transaction-in-planetmint-9a1a075a9598)
 (Note: That post was about Planetmint Server v1.0.0.)
+
+## A Note on IPLD marshalling and CIDs
+
+Planetmint utilizes IPLD (interplanetary linked data) marshalling and CIDs (content identifiers) to store and verify data.
+Before submitting a transaction to the network the data is marshalled using [py-ipld](https://github.com/planetmint/py-ipld) and instead of the raw data a CID is stored on chain.
+
+The CID is a self describing data structure. It contains information about the encoding, cryptographic algorithm, length and the actual hashvalue. For example the CID `bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi` tells us the following:
+
+```
+Encoding: base32
+Codec: dag-pb (MerkleDAG protobuf)
+Hashing-Algorithm: sha2-256
+Digest (Hex): C3C4733EC8AFFD06CF9E9FF50FFC6BCD2EC85A6170004BB709669C31DE94391A
+```
+
+With this information we can validate that information about an asset we've received is actually valid.
+
 
 ### Example Transactions
 

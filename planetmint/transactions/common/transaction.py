@@ -19,6 +19,7 @@ import rapidjson
 import base58
 from cryptoconditions import Fulfillment, ThresholdSha256, Ed25519Sha256, ZenroomSha256
 from cryptoconditions.exceptions import ParsingError, ASN1DecodeError, ASN1EncodeError
+from cid import is_cid
 
 try:
     from hashlib import sha3_256
@@ -145,7 +146,9 @@ class Transaction(object):
 
             if "data" in asset:
                 if asset["data"] is not None and not isinstance(asset["data"], str):
-                    # add check if data is ipld marshalled CID string
+                    if is_cid(asset["data"]) == False:
+                        raise TypeError("`asset.data` not valid CID")
+
                     raise TypeError(
                         (
                             "`asset` must be None or a dict holding a `data` "
@@ -163,7 +166,9 @@ class Transaction(object):
             raise TypeError("`inputs` must be a list instance or None")
 
         if metadata is not None and not isinstance(metadata, str):
-            # Add CID validation
+            if is_cid(metadata) == False:
+                raise TypeError("`metadata` not valid CID")
+
             raise TypeError("`metadata` must be a CID string or None")
 
         if script is not None and not isinstance(script, dict):

@@ -9,6 +9,7 @@ from planetmint.transactions.types.assets.transfer import Transfer
 from ipld import marshal, multihash
 import pytest
 from base58 import b58decode
+import random
 
 pytestmark = pytest.mark.bdb
 
@@ -377,7 +378,7 @@ class TestMultipleInputs(object):
 
         transactions = []
         for i in range(3):
-            payload = f"QmaozNR7DZHQK1ZcU9p7QdrshMvXqWK6gpu5rmrkPdT3L{i}"  # create unique CIDs
+            payload = multihash(marshal({"msg": random.random()}))
             tx = Create.generate([alice.public_key], [([user_pk, user2_pk], 1)], payload)
             tx = tx.sign([alice.private_key])
             transactions.append(tx)

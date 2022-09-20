@@ -3,6 +3,8 @@
 # SPDX-License-Identifier: (Apache-2.0 AND CC-BY-4.0)
 # Code is Apache-2.0 and docs are CC-BY-4.0
 
+from cid import is_cid
+
 from planetmint.transactions.common.transaction import Transaction
 from planetmint.transactions.common.input import Input
 from planetmint.transactions.common.output import Output
@@ -26,13 +28,9 @@ class Create(Transaction):
         if not asset is None:
             if not isinstance(asset, dict):
                 raise TypeError("`asset` must be a CID string or None")
-            if "data" in asset and not isinstance(asset["data"], str):
+            if "data" in asset and not is_cid(asset["data"]):
                 raise TypeError("`asset` must be a CID string or None")
-            import cid
-
-            cid.make_cid(asset["data"])
-        if not (metadata is None or isinstance(metadata, str)):
-            # add check if metadata is ipld marshalled CID string
+        if not (metadata is None or is_cid(metadata)):
             raise TypeError("`metadata` must be a CID string or None")
 
         return True
