@@ -93,7 +93,7 @@ def test_filter_unspent_outputs(b, user_pk, user_sk):
 
 def test_outputs_query_key_order(b, user_pk, user_sk, user2_pk, user2_sk):
     from planetmint import backend
-    from planetmint.backend.connection import connect
+    from planetmint.backend.connection import Connection
     from planetmint.backend import query
 
     tx1 = Create.generate([user_pk],
@@ -119,7 +119,7 @@ def test_outputs_query_key_order(b, user_pk, user_sk, user2_pk, user2_sk):
 
     # clean the transaction, metdata and asset collection
     # conn = connect()
-    connection = connect()
+    connection = Connection()
     # conn.run(conn.collection('transactions').delete_many({}))
     # conn.run(conn.collection('metadata').delete_many({}))
     # conn.run(conn.collection('assets').delete_many({}))

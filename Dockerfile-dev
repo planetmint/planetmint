@@ -34,4 +34,5 @@ RUN mkdir -p /usr/src/app
 COPY . /usr/src/app/
 WORKDIR /usr/src/app
 RUN pip install -e .[dev]
+RUN pip install base58 PyNaCl==1.4.0 pyasn1>=0.4.8 cryptography==3.4.7 
 RUN planetmint -y configure

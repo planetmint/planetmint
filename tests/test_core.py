@@ -20,6 +20,7 @@ from planetmint.transactions.types.elections.election import Election
 from planetmint.lib import Block
 from planetmint.transactions.types.elections.chain_migration_election import ChainMigrationElection
 from planetmint.upsert_validator.validator_election import ValidatorElection
+from planetmint.backend.exceptions import ConnectionError
 from planetmint.upsert_validator.validator_utils import new_validator_set
 from planetmint.tendermint_utils import public_key_to_base64
 from planetmint.version import __tm_supported_versions__
@@ -68,21 +69,17 @@ def test_bigchain_class_default_initialization(config):
 
 def test_bigchain_class_initialization_with_parameters():
     from planetmint import Planetmint
-    from planetmint.backend import connect
+    from planetmint.backend import Connection
     from planetmint.validation import BaseValidationRules
+    
     init_db_kwargs = {
         'backend': 'localmongodb',
         'host': 'this_is_the_db_host',
         'port': 12345,
         'name': 'this_is_the_db_name',
     }
-    connection = connect(**init_db_kwargs)
-    planet = Planetmint(connection=connection)
-    assert planet.connection == connection
-    assert planet.connection.host == init_db_kwargs['host']
-    assert planet.connection.port == init_db_kwargs['port']
-    # assert planet.connection.name == init_db_kwargs['name']
-    assert planet.validation == BaseValidationRules
+    with pytest.raises(ConnectionError):
+        Connection().connect(**init_db_kwargs)
 
 
 @pytest.mark.bdb

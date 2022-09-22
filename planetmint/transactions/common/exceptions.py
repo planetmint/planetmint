@@ -10,6 +10,9 @@ from planetmint.exceptions import BigchainDBError
 
 class ConfigurationError(BigchainDBError):
     """Raised when there is a problem with server configuration"""
+    
+class ConnectionError(BigchainDBError):
+    """Raised when there is a problem with server connection"""
 
 
 class DatabaseDoesNotExist(BigchainDBError):
