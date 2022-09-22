@@ -44,7 +44,8 @@ class LocalMongoDBConnection(DBConnection):
         self.crlfile = _kwargs_parser(key="crlfile", kwargs=kwargs) or dbconf['crlfile']
         self.max_tries = _kwargs_parser(key="max_tries", kwargs=kwargs)
         self.connection_timeout = _kwargs_parser(key="connection_timeout", kwargs=kwargs)
-        self.conn = self.connect()
+        self.__conn = None
+        self.connect()
 
         if not self.ssl:
             self.ssl = False
@@ -53,7 +54,7 @@ class LocalMongoDBConnection(DBConnection):
 
     @property
     def db(self):
-        return self.conn[self.dbname]
+        return self.connect()[self.dbname]
 
     def query(self):
         return Lazy()
@@ -69,11 +70,11 @@ class LocalMongoDBConnection(DBConnection):
     def run(self, query):
         try:
             try:
-                return query.run(self.conn)
+                return query.run(self.connect())
             except pymongo.errors.AutoReconnect:
                 logger.warning('Lost connection to the database, '
                                'retrying query.')
-                return query.run(self.conn)
+                return query.run(self.connect())
         except pymongo.errors.AutoReconnect as exc:
             raise ConnectionError from exc
         except pymongo.errors.DuplicateKeyError as exc:
@@ -93,7 +94,8 @@ class LocalMongoDBConnection(DBConnection):
             :exc:`~ConfigurationError`: If there is a ConfigurationError while
                 connecting to the database.
         """
-
+        if self.__conn:
+            return self._conn
         try:
             # FYI: the connection process might raise a
             # `ServerSelectionTimeoutError`, that is a subclass of
@@ -127,20 +129,20 @@ class LocalMongoDBConnection(DBConnection):
                 if self.login is not None:
                     client[self.dbname].authenticate(self.login,
                                                      mechanism='MONGODB-X509')
-
+            self.__conn = client
             return client
 
         except (pymongo.errors.ConnectionFailure,
                 pymongo.errors.OperationFailure) as exc:
             logger.info('Exception in connect(): {}'.format(exc))
             raise ConnectionError(str(exc)) from exc
-        except pymongo.errors.ConfigurationError as exc:
+        except pymongo.queryerrors.ConfigurationError as exc:
             raise ConfigurationError from exc
 
     def close(self):
         try:
-            self.conn.close()
-            self.conn = None
+            self.__conn.close()
+            self.__conn = None
         except Exception as exc:
             logger.info('Exception in planetmint.backend.localmongodb.close(): {}'.format(exc))
             raise ConnectionError(str(exc)) from exc
