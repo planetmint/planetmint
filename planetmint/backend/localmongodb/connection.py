@@ -136,7 +136,7 @@ class LocalMongoDBConnection(DBConnection):
                 pymongo.errors.OperationFailure) as exc:
             logger.info('Exception in connect(): {}'.format(exc))
             raise ConnectionError(str(exc)) from exc
-        except pymongo.queryerrors.ConfigurationError as exc:
+        except pymongo.errors.ConfigurationError as exc:
             raise ConfigurationError from exc
 
     def close(self):
