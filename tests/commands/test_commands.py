@@ -14,6 +14,7 @@ import pytest
 from planetmint.config import Config
 from planetmint import ValidatorElection
 from planetmint.commands.planetmint import run_election_show
+from planetmint.backend.connection import Connection
 from planetmint.transactions.types.elections.election import Election
 from planetmint.lib import Block
 from planetmint.transactions.types.elections.chain_migration_election import ChainMigrationElection
@@ -93,9 +94,7 @@ def test__run_init(mocker):
     init_db_mock = mocker.patch(
         'planetmint.backend.tarantool.connection.TarantoolDBConnection.init_database')
 
-    from planetmint.backend.connection import connect
-
-    conn = connect()
+    conn = Connection()
     conn.init_database()
 
     init_db_mock.assert_called_once_with()

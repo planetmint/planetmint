@@ -1,5 +1,5 @@
 import pytest
-from planetmint.backend.connection import connect
+from planetmint.backend.connection import Connection
 
 
 #
@@ -27,5 +27,5 @@ from planetmint.backend.connection import connect
 
 @pytest.fixture
 def db_conn():
-    conn = connect()
+    conn = Connection()
     return conn
