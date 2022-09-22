@@ -1,7 +1,6 @@
 import copy
 import logging
 import os
-
 # from planetmint.log import DEFAULT_LOGGING_CONFIG as log_config
 from planetmint.version import __version__  # noqa
 

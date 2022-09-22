@@ -3,24 +3,22 @@ Content-Type: application/json
 
 [{
   "asset": {
-    "id": "6438c733f53dff60bdeded80e8c95126dd3a7ce8c1ee5d5591d030e61cde35d2"
+    "id": "e4ebc02324e10925226bf2143363c1a28481ee38f70a9245a5a76df5f4380a7a"
   },
-  "id": "2bf8ae1e3bc889a26df129dd6bbe6ccab30d1ae8e9e434fae1c4446042a68931",
+  "id": "b3f39407b3907587de26bedec93cd6b2c6958bca90f77349f1db9780f014bc1f",
   "inputs": [
     {
-      "fulfillment": "pGSAIDE5i63cn4X8T8N1sZ2mGkJD5lNRnBM4PZgI_zvzbr-cgUA90mMa9AWnbI70CUSVgzV9kRFf3tQ20RUIczNFqmwg9xrpOk_5uNoJB4bWRIojZmUhEyxSueCHLpqPXCEuyisE",
+      "fulfillment": "pGSAIDE5i63cn4X8T8N1sZ2mGkJD5lNRnBM4PZgI_zvzbr-cgUCtt9Thk_enrynxclNFj8B76QvIFbvhyj_38wuy1vA-lncUb2Q7bwJvnmmufeXucyEBTZQ0xoI5dfjG3KeTsLkH",
       "fulfills": {
         "output_index": 0,
-        "transaction_id": "6438c733f53dff60bdeded80e8c95126dd3a7ce8c1ee5d5591d030e61cde35d2"
+        "transaction_id": "e4ebc02324e10925226bf2143363c1a28481ee38f70a9245a5a76df5f4380a7a"
       },
       "owners_before": [
         "4K9sWUMFwTgaDGPfdynrbxWqWS6sWmKbZoTjxLtVUibD"
       ]
     }
   ],
-  "metadata": {
-    "sequence": 1
-  },
+  "metadata": "QmQ9Sc3VWZ3nH5FWVVi2MNMDhyjTiKrEb6mN79qqt1Uq9s",
   "operation": "TRANSFER",
   "outputs": [
     {
@@ -41,24 +39,22 @@ Content-Type: application/json
 },
 {
   "asset": {
-    "id": "6438c733f53dff60bdeded80e8c95126dd3a7ce8c1ee5d5591d030e61cde35d2"
+    "id": "e4ebc02324e10925226bf2143363c1a28481ee38f70a9245a5a76df5f4380a7a"
   },
-  "id": "b9b614175eaed7cc93d9b80ebc2a91d35ae31928a7c218ae982272bb1785ef16",
+  "id": "95d99c245cd83af10f3c8ba6c32eda7cb668698b5aaaeec67be3faf915bb6b5d",
   "inputs": [
     {
-      "fulfillment": "pGSAICw7Ul-c2lG6NFbHp3FbKRC7fivQcNGO7GS4wV3A-1QggUDi2bAVKJgEyE3LzMrAnAu1PnNs9DbDNkABaY6j3OCNEVwNVNg3V3qELOFNnH8vGUevREr4E-8Vb1Kzk4VR71MO",
+      "fulfillment": "pGSAICw7Ul-c2lG6NFbHp3FbKRC7fivQcNGO7GS4wV3A-1QggUA2Z5Iw7YlMO0K9H_qcfGyepj6rqODxUZSysK_QS_tiZSlSdkXzCSLRCDO07EsyeBKEUUXpWHoBUv1lqJhFtjUK",
       "fulfills": {
         "output_index": 0,
-        "transaction_id": "2bf8ae1e3bc889a26df129dd6bbe6ccab30d1ae8e9e434fae1c4446042a68931"
+        "transaction_id": "b3f39407b3907587de26bedec93cd6b2c6958bca90f77349f1db9780f014bc1f"
       },
       "owners_before": [
         "3yfQPHeWAa1MxTX9Zf9176QqcpcnWcanVZZbaHb8B3h9"
       ]
     }
   ],
-  "metadata": {
-    "sequence": 2
-  },
+  "metadata": "QmRRg9RGq3TmV6nj2SXJacPuTdwaFDGTPACJLdN368pN3t",
   "operation": "TRANSFER",
   "outputs": [
     {

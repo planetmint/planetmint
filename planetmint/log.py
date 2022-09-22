@@ -11,7 +11,6 @@ from logging.config import dictConfig as set_logging_config
 from planetmint.config import Config, DEFAULT_LOGGING_CONFIG
 import os
 
-
 def _normalize_log_level(level):
     try:
         return level.upper()

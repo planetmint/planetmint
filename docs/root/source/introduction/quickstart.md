@@ -43,7 +43,11 @@ $ python notarize.py
 # Install Planetmint
 ## Local Node
 Planemtint is a Tendermint applicatoin with an attached database.
+<<<<<<< HEAD
 A basic installation installs the database, Tendermint and therafter Planetmint.
+=======
+A basic installation installs the database, Tenermint and therafter Planetmint.
+>>>>>>> planetmint-tarantool
 
 Planetmint currently supports Tarantool and MongoDB database. The installation is as follows:
 ```

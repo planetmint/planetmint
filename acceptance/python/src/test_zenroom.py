@@ -38,6 +38,26 @@ def test_zenroom_signing(
     zenroomscpt = ZenroomSha256(script=fulfill_script_zencode, data=zenroom_data, keys=zen_public_keys)
     print(f"zenroom is: {zenroomscpt.script}")
 
+def test_zenroom_signing(gen_key_zencode, secret_key_to_private_key_zencode,
+                         fulfill_script_zencode, zenroom_data, zenroom_house_assets,
+                         condition_script_zencode):
+
+    biolabs = generate_keypair()
+    version = '2.0'
+
+    alice = json.loads(zencode_exec(gen_key_zencode).output)['keyring']
+    bob = json.loads(zencode_exec(gen_key_zencode).output)['keyring']
+
+    zen_public_keys = json.loads(zencode_exec(secret_key_to_private_key_zencode.format('Alice'),
+                                                keys=json.dumps({'keyring': alice})).output)
+    zen_public_keys.update(json.loads(zencode_exec(secret_key_to_private_key_zencode.format('Bob'),
+                                                keys=json.dumps({'keyring': bob})).output))
+
+
+
+    zenroomscpt = ZenroomSha256(script=fulfill_script_zencode, data=zenroom_data, keys=zen_public_keys)
+    print(F'zenroom is: {zenroomscpt.script}')
+    
     # CRYPTO-CONDITIONS: generate the condition uri
     condition_uri_zen = zenroomscpt.condition.serialize_uri()
     print(f"\nzenroom condition URI: {condition_uri_zen}")
@@ -73,7 +93,12 @@ def test_zenroom_signing(
         "output": ["ok"],
         "policies": {},
     }
-
+    metadata = {
+        "result": {
+            "output": ["ok"]
+        }
+    }
+    
     token_creation_tx = {
         "operation": "CREATE",
         "asset": {"data": multihash(marshal({"test": "my asset"}))},

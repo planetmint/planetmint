@@ -3,7 +3,6 @@ import base58
 from hashlib import sha3_256
 from cryptoconditions.types.zenroom import ZenroomSha256
 from planetmint_driver.crypto import generate_keypair
-
 from .helper.hosts import Hosts
 from zenroom import zencode_exec
 import time
@@ -72,7 +71,7 @@ def test_zenroom_signing(
         "output": ["ok"],
         "policies": {},
     }
-
+    metadata = {"result": {"output": ["ok"]}}
     token_creation_tx = {
         "operation": "CREATE",
         "asset": {"data": {"test": "my asset"}},

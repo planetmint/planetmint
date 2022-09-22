@@ -6,7 +6,7 @@ Content-Type: application/json
     "v1": {
       "assets": "/api/v1/assets/",
       "blocks": "/api/v1/blocks/",
-      "docs": "https://docs.planetmint.io/projects/server/en/v1.0.1/http-client-server-api.html",
+      "docs": "https://docs.planetmint.io/projects/server/en/v1.2.2/http-client-server-api.html",
       "metadata": "/api/v1/metadata/",
       "outputs": "/api/v1/outputs/",
       "streamedblocks": "ws://localhost:9985/api/v1/streams/valid_blocks",
@@ -15,7 +15,7 @@ Content-Type: application/json
       "validators": "/api/v1/validators"
     }
   },
-  "docs": "https://docs.planetmint.io/projects/server/en/v1.0.1/",
+  "docs": "https://docs.planetmint.io/projects/server/en/v1.2.2/",
   "software": "Planetmint",
-  "version": "1.0.1"
+  "version": "1.2.2"
 }

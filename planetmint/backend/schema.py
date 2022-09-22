@@ -9,7 +9,7 @@ from functools import singledispatch
 import logging
 
 from planetmint.config import Config
-from planetmint.backend.connection import connect
+from planetmint.backend.connection import Connection
 from planetmint.transactions.common.exceptions import ValidationError
 from planetmint.transactions.common.utils import (
     validate_all_values_for_key_in_obj,
@@ -134,8 +134,9 @@ def init_database(connection=None, dbname=None):
             configuration.
     """
 
-    connection = connection or connect()
-    dbname = dbname or Config().get()["database"]["name"]
+    connection = connection or Connection()
+    print("=========================================", connection.__class__, "=========================================================")
+    dbname = dbname or Config().get()['database']['name']
 
     create_database(connection, dbname)
     create_tables(connection, dbname)
