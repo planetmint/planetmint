@@ -136,7 +136,12 @@ install_requires = [
     'setproctitle==1.2.2',
     'werkzeug==2.0.3',
     'nest-asyncio==1.5.5',
-    'protobuf==3.20.1'
+    'protobuf==3.20.1',
+    "base58>=2.1.0",
+    "PyNaCl==1.4.0",
+    "pyasn1>=0.4.8",
+    "cryptography==3.4.7",
+    "zenroom==2.1.0.dev1655293214",
 ]
 
 setup(
