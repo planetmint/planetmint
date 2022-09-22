@@ -8,18 +8,16 @@ from ssl import CERT_REQUIRED
 import pymongo
 
 from planetmint.config import Config
-from planetmint.backend.exceptions import (DuplicateKeyError,
-                                           OperationError,
-                                           ConnectionError)
+from planetmint.backend.exceptions import DuplicateKeyError, OperationError, ConnectionError
 from planetmint.transactions.common.exceptions import ConfigurationError
 from planetmint.utils import Lazy
 from planetmint.backend.connection import DBConnection, _kwargs_parser
 
 logger = logging.getLogger(__name__)
 
-class LocalMongoDBConnection(DBConnection):
 
-    def __init__(self, host: str =None, port: int = None, login: str = None, password: str = None, **kwargs):
+class LocalMongoDBConnection(DBConnection):
+    def __init__(self, host: str = None, port: int = None, login: str = None, password: str = None, **kwargs):
         """Create a new Connection instance.
 
         Args:
@@ -31,17 +29,18 @@ class LocalMongoDBConnection(DBConnection):
 
         super().__init__(host=host, port=port, login=login, password=password, **kwargs)
 
-        dbconf = Config().get()['database']
-        self.dbname = _kwargs_parser(key="name", kwargs=kwargs) or dbconf['name']
-        self.replicaset = _kwargs_parser(key="replicaset", kwargs=kwargs) or dbconf['replicaset']
-        self.ssl = _kwargs_parser(key="ssl", kwargs=kwargs) or dbconf['ssl']
-        
-        self.ca_cert = _kwargs_parser(key="ca_cert", kwargs=kwargs) or dbconf['ca_cert']
-        self.certfile = _kwargs_parser(key="certfile", kwargs=kwargs) or dbconf['certfile']
-        self.keyfile = _kwargs_parser(key="keyfile", kwargs=kwargs) or dbconf['keyfile']
-        self.keyfile_passphrase = _kwargs_parser(key="keyfile_passphrase", kwargs=kwargs) or dbconf[
-            'keyfile_passphrase']
-        self.crlfile = _kwargs_parser(key="crlfile", kwargs=kwargs) or dbconf['crlfile']
+        dbconf = Config().get()["database"]
+        self.dbname = _kwargs_parser(key="name", kwargs=kwargs) or dbconf["name"]
+        self.replicaset = _kwargs_parser(key="replicaset", kwargs=kwargs) or dbconf["replicaset"]
+        self.ssl = _kwargs_parser(key="ssl", kwargs=kwargs) or dbconf["ssl"]
+
+        self.ca_cert = _kwargs_parser(key="ca_cert", kwargs=kwargs) or dbconf["ca_cert"]
+        self.certfile = _kwargs_parser(key="certfile", kwargs=kwargs) or dbconf["certfile"]
+        self.keyfile = _kwargs_parser(key="keyfile", kwargs=kwargs) or dbconf["keyfile"]
+        self.keyfile_passphrase = (
+            _kwargs_parser(key="keyfile_passphrase", kwargs=kwargs) or dbconf["keyfile_passphrase"]
+        )
+        self.crlfile = _kwargs_parser(key="crlfile", kwargs=kwargs) or dbconf["crlfile"]
         self.max_tries = _kwargs_parser(key="max_tries", kwargs=kwargs)
         self.connection_timeout = _kwargs_parser(key="connection_timeout", kwargs=kwargs)
         self.__conn = None
@@ -72,8 +71,7 @@ class LocalMongoDBConnection(DBConnection):
             try:
                 return query.run(self.connect())
             except pymongo.errors.AutoReconnect:
-                logger.warning('Lost connection to the database, '
-                               'retrying query.')
+                logger.warning("Lost connection to the database, " "retrying query.")
                 return query.run(self.connect())
         except pymongo.errors.AutoReconnect as exc:
             raise ConnectionError from exc
@@ -130,14 +128,12 @@ class LocalMongoDBConnection(DBConnection):
                     **MONGO_OPTS,
                 )
                 if self.login is not None:
-                    client[self.dbname].authenticate(self.login,
-                                                     mechanism='MONGODB-X509')
+                    client[self.dbname].authenticate(self.login, mechanism="MONGODB-X509")
             self.__conn = client
             return client
 
-        except (pymongo.errors.ConnectionFailure,
-                pymongo.errors.OperationFailure) as exc:
-            logger.info('Exception in connect(): {}'.format(exc))
+        except (pymongo.errors.ConnectionFailure, pymongo.errors.OperationFailure) as exc:
+            logger.info("Exception in connect(): {}".format(exc))
             raise ConnectionError(str(exc)) from exc
         except pymongo.errors.ConfigurationError as exc:
             raise ConfigurationError from exc
@@ -147,8 +143,9 @@ class LocalMongoDBConnection(DBConnection):
             self.__conn.close()
             self.__conn = None
         except Exception as exc:
-            logger.info('Exception in planetmint.backend.localmongodb.close(): {}'.format(exc))
+            logger.info("Exception in planetmint.backend.localmongodb.close(): {}".format(exc))
             raise ConnectionError(str(exc)) from exc
+
 
 MONGO_OPTS = {
     "socketTimeoutMS": 20000,

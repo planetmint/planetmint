@@ -135,8 +135,12 @@ def init_database(connection=None, dbname=None):
     """
 
     connection = connection or Connection()
-    print("=========================================", connection.__class__, "=========================================================")
-    dbname = dbname or Config().get()['database']['name']
+    print(
+        "=========================================",
+        connection.__class__,
+        "=========================================================",
+    )
+    dbname = dbname or Config().get()["database"]["name"]
 
     create_database(connection, dbname)
     create_tables(connection, dbname)

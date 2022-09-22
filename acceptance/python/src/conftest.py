@@ -81,7 +81,6 @@ def zenroom_script_input():
     return SCRIPT_INPUT
 
 
-
 @pytest.fixture
 def zenroom_data():
     return ZENROOM_DATA

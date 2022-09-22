@@ -290,6 +290,7 @@ def test_delete_zero_unspent_outputs(b, utxoset):
 @pytest.mark.bdb
 def test_delete_one_unspent_outputs(b, utxoset):
     from planetmint.backend.tarantool.connection import TarantoolDBConnection
+
     unspent_outputs, utxo_collection = utxoset
     delete_res = b.delete_unspent_outputs(unspent_outputs[0])
     if not isinstance(b.connection, TarantoolDBConnection):
@@ -318,6 +319,7 @@ def test_delete_one_unspent_outputs(b, utxoset):
 @pytest.mark.bdb
 def test_delete_many_unspent_outputs(b, utxoset):
     from planetmint.backend.tarantool.connection import TarantoolDBConnection
+
     unspent_outputs, utxo_collection = utxoset
     delete_res = b.delete_unspent_outputs(*unspent_outputs[::2])
     if not isinstance(b.connection, TarantoolDBConnection):
@@ -355,6 +357,7 @@ def test_store_zero_unspent_output(b, utxo_collection):
 @pytest.mark.bdb
 def test_store_one_unspent_output(b, unspent_output_1, utxo_collection):
     from planetmint.backend.tarantool.connection import TarantoolDBConnection
+
     res = b.store_unspent_outputs(unspent_output_1)
     if not isinstance(b.connection, TarantoolDBConnection):
         assert res.acknowledged
@@ -379,6 +382,7 @@ def test_store_one_unspent_output(b, unspent_output_1, utxo_collection):
 @pytest.mark.bdb
 def test_store_many_unspent_outputs(b, unspent_outputs, utxo_collection):
     from planetmint.backend.tarantool.connection import TarantoolDBConnection
+
     res = b.store_unspent_outputs(*unspent_outputs)
     if not isinstance(b.connection, TarantoolDBConnection):
         assert res.acknowledged

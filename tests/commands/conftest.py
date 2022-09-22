@@ -8,6 +8,7 @@ import pytest
 
 from planetmint.config import Config
 
+
 @pytest.fixture
 def mock_run_configure(monkeypatch):
     from planetmint.commands import planetmint

@@ -904,12 +904,8 @@ class Transaction(object):
         if asset_id != self.asset["id"]:
             raise AssetIdMismatch(("The asset id of the input does not" " match the asset id of the" " transaction"))
 
-        input_amount = sum(
-            [input_condition.amount for input_condition in input_conditions]
-        )
-        output_amount = sum(
-            [output_condition.amount for output_condition in self.outputs]
-        )
+        input_amount = sum([input_condition.amount for input_condition in input_conditions])
+        output_amount = sum([output_condition.amount for output_condition in self.outputs])
 
         if output_amount != input_amount:
             raise AmountError(

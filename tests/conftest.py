@@ -23,6 +23,7 @@ from planetmint.backend.connection import Connection
 from planetmint.backend.tarantool.connection import TarantoolDBConnection
 
 import pytest
+
 # from pymongo import MongoClient
 
 from planetmint import ValidatorElection
@@ -117,21 +118,21 @@ def _configure_planetmint(request):
     config_utils.set_config(config)
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture(scope="session")
 def _setup_database(_configure_planetmint):  # TODO Here is located setup database
     from planetmint.config import Config
 
-    print('Initializing test db')
-    dbname = Config().get()['database']['name']
+    print("Initializing test db")
+    dbname = Config().get()["database"]["name"]
     conn = Connection()
 
     _drop_db(conn, dbname)
     schema.init_database(conn, dbname)
-    print('Finishing init database')
+    print("Finishing init database")
 
     yield
 
-    print('Deleting `{}` database'.format(dbname))
+    print("Deleting `{}` database".format(dbname))
     conn = Connection()
     _drop_db(conn, dbname)
 
@@ -144,9 +145,10 @@ def _bdb(_setup_database, _configure_planetmint):
     from planetmint.transactions.common.transaction import Transaction
     from .utils import flush_db
     from planetmint.config import Config
+
     conn = Connection()
     yield
-    dbname = Config().get()['database']['name']
+    dbname = Config().get()["database"]["name"]
     flush_db(conn, dbname)
 
     to_dict.cache_clear()
@@ -249,6 +251,7 @@ def abci_fixture():
     from tendermint.abci import types_pb2
 
     return types_pb2
+
 
 @pytest.fixture
 def b():
@@ -547,6 +550,7 @@ def tarantool_client(db_context):  # TODO Here add TarantoolConnectionClass
 #
 #
 
+
 @pytest.fixture
 def utxo_collection(tarantool_client, _setup_database):
     return tarantool_client.get_space("utxos")
@@ -564,6 +568,7 @@ def dummy_unspent_outputs():
 @pytest.fixture
 def utxoset(dummy_unspent_outputs, utxo_collection):
     from json import dumps
+
     num_rows_before_operation = utxo_collection.select().rowcount
     for utxo in dummy_unspent_outputs:
         res = utxo_collection.insert((utxo["transaction_id"], utxo["output_index"], dumps(utxo)))
@@ -618,6 +623,7 @@ def node_keys():
         "JbfwrLvCVIwOPm8tj8936ki7IYbmGHjPiKb6nAZegRA=": "83VINXdj2ynOHuhvSZz5tGuOE5oYzIi0mEximkX1KYMlt/Csu8JUjA4+by2Pz3fqSLshhuYYeM+IpvqcBl6BEA==",
         "PecJ58SaNRsWJZodDmqjpCWqG6btdwXFHLyE40RYlYM=": "uz8bYgoL4rHErWT1gjjrnA+W7bgD/uDQWSRKDmC8otc95wnnxJo1GxYlmh0OaqOkJaobpu13BcUcvITjRFiVgw==",
     }
+
 
 @pytest.fixture
 def priv_validator_path(node_keys):

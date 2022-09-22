@@ -89,15 +89,7 @@ docs_require = [
 
 check_setuptools_features()
 
-dev_require = [
-    "ipdb",
-    "ipython",
-    "watchdog",
-    "logging_tree",
-    "pre-commit",
-    "twine",
-    "ptvsd"
-]
+dev_require = ["ipdb", "ipython", "watchdog", "logging_tree", "pre-commit", "twine", "ptvsd"]
 
 tests_require = [
     "coverage",

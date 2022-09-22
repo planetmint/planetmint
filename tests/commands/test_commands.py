@@ -21,6 +21,7 @@ from planetmint.transactions.types.elections.chain_migration_election import Cha
 
 from tests.utils import generate_election, generate_validators
 
+
 def test_make_sure_we_dont_remove_any_command():
     # thanks to: http://stackoverflow.com/a/18161115/597097
     from planetmint.commands.planetmint import create_parser
@@ -95,6 +96,7 @@ def test_bigchain_show_config(capsys):
     # dict returned is different that what is expected after run_show_config
     # and run_show_config updates the planetmint.config
     from planetmint.config import Config
+
     _config = Config().get()
     sorted_config = json.dumps(_config, indent=4, sort_keys=True)
     print(f"_config : {sorted_config}")
@@ -103,8 +105,7 @@ def test_bigchain_show_config(capsys):
 
 
 def test__run_init(mocker):
-    init_db_mock = mocker.patch(
-        'planetmint.backend.tarantool.connection.TarantoolDBConnection.init_database')
+    init_db_mock = mocker.patch("planetmint.backend.tarantool.connection.TarantoolDBConnection.init_database")
 
     conn = Connection()
     conn.init_database()

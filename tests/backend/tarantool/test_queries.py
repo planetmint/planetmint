@@ -16,6 +16,7 @@ pytestmark = pytest.mark.bdb
 
 def test_get_txids_filtered(signed_create_tx, signed_transfer_tx, db_conn):
     from planetmint.backend.tarantool import query
+
     # create and insert two blocks, one for the create and one for the
     # transfer transaction
     create_tx_dict = signed_create_tx.to_dict()

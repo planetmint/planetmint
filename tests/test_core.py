@@ -55,25 +55,28 @@ def config(request, monkeypatch):
     monkeypatch.setattr("planetmint.config", config)
     return config
 
+
 def test_bigchain_class_initialization_with_parameters():
     from planetmint.backend.localmongodb.connection import LocalMongoDBConnection
     from planetmint.transactions.common.exceptions import ConfigurationError
 
     init_db_kwargs = {
-        'backend': 'localmongodb',
-        'host': 'this_is_the_db_host',
-        'port': 12345,
-        'name': 'this_is_the_db_name',
+        "backend": "localmongodb",
+        "host": "this_is_the_db_host",
+        "port": 12345,
+        "name": "this_is_the_db_name",
     }
     with pytest.raises(ConfigurationError):
         LocalMongoDBConnection(**init_db_kwargs)
 
+
 def test_bigchain_class_default_initialization(config):
     from planetmint import Planetmint
     from planetmint.validation import BaseValidationRules
+
     planet = Planetmint()
-    assert planet.connection.host == config['database']['host']
-    assert planet.connection.port == config['database']['port']
+    assert planet.connection.host == config["database"]["host"]
+    assert planet.connection.port == config["database"]["port"]
     assert planet.validation == BaseValidationRules
 
 

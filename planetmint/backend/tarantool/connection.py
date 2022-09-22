@@ -71,7 +71,7 @@ class TarantoolDBConnection(DBConnection):
             self.__conn.close()
             self.__conn = None
         except Exception as exc:
-            logger.info('Exception in planetmint.backend.tarantool.close(): {}'.format(exc))
+            logger.info("Exception in planetmint.backend.tarantool.close(): {}".format(exc))
             raise ConnectionError(str(exc)) from exc
 
     def get_space(self, space_name: str):
