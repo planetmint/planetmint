@@ -151,7 +151,6 @@ and
 
 Planetmint has been developed with simple logical gateways in mind. The logic got introduced by [cryptoconditions](https://https://docs.planetmint.io/projects/cryptoconditions). The cryptocondition documentation contains all details about how conditoins are defined and how they can be verified and fulfilled. 
 
-<<<<<<< HEAD
 The integration of such into the transaction schema of Planetmint is shown below.
 
 ## Zenroom Smart Contracts and Policies
@@ -160,6 +159,3 @@ The integration of such into the transaction schema of Planetmint is shown below
 At the moment these contracts can only be stateless, which implies that the conditions and fulfillments need to be transacted in the same transaction. However, [PRP-10](https://github.com/planetmint/PRPs/tree/main/10) aims to make stateful contracts possible, which enables asynchronous and party-independent processing of contracts.
 
 As for network-wide or asset-based policies [PRP-11](https://github.com/planetmint/PRPs/tree/main/11) specifies how these can be implemented and how these can be used to verify a transaction state before it is commited to the network.
-=======
-The integration of such into the transaction schema of Planetmint is shown below.
->>>>>>> planetmint-tarantool

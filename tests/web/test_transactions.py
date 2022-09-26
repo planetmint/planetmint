@@ -10,11 +10,7 @@ import base58
 import pytest
 from cryptoconditions import Ed25519Sha256
 from ipld import multihash, marshal
-
-try:
-    from hashlib import sha3_256
-except ImportError:
-    from sha3 import sha3_256
+from hashlib import sha3_256
 
 from planetmint.transactions.common import crypto
 from planetmint.transactions.types.assets.create import Create

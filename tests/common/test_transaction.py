@@ -23,11 +23,7 @@ from cryptoconditions import PreimageSha256
 from cryptoconditions import Ed25519Sha256
 from pytest import mark, raises
 from ipld import marshal, multihash
-
-try:
-    from hashlib import sha3_256
-except ImportError:
-    from sha3 import sha3_256
+from hashlib import sha3_256
 
 pytestmark = mark.bdb
 

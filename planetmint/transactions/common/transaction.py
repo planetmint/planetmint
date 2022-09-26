@@ -20,11 +20,7 @@ import base58
 from cryptoconditions import Fulfillment, ThresholdSha256, Ed25519Sha256, ZenroomSha256
 from cryptoconditions.exceptions import ParsingError, ASN1DecodeError, ASN1EncodeError
 from cid import is_cid
-
-try:
-    from hashlib import sha3_256
-except ImportError:
-    from sha3 import sha3_256
+from hashlib import sha3_256
 
 from planetmint.transactions.common.crypto import PrivateKey, hash_data
 from planetmint.transactions.common.exceptions import (

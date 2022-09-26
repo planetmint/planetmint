@@ -44,6 +44,7 @@ class TarantoolDBConnection(DBConnection):
                 "inputs",
                 "outputs",
                 "keys",
+                "scripts"
             ]
         except tarantool.error.NetworkError as network_err:
             logger.info("Host cant be reached")
