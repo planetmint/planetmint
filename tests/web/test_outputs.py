@@ -11,7 +11,6 @@ from planetmint.transactions.types.assets.create import Create
 from planetmint.transactions.types.assets.transfer import Transfer
 
 
-
 OUTPUTS_ENDPOINT = "/api/v1/outputs/"
 
 
@@ -83,12 +82,40 @@ def test_get_outputs_endpoint_with_invalid_spent(client, user_pk):
     assert res.status_code == 400
 
 
-@pytest.mark.skip
+@pytest.mark.skip(
+    reason="just failing sometimes - a test to narrow down the issues of the test 'test_get_divisble_transactions_returns_500'"
+)
+@pytest.mark.abci
+def test_get_divisble_transactions_returns_500_phase_one(b, client):
+    import json
+    import time
+
+    TX_ENDPOINT = "/api/v1/transactions"
+
+    def mine(tx_list):
+        b.store_bulk_transactions(tx_list)
+
+    alice_priv, alice_pub = crypto.generate_key_pair()
+    # bob_priv, bob_pub = crypto.generate_key_pair()
+    # carly_priv, carly_pub = crypto.generate_key_pair()
+    # time.sleep(1)
+    create_tx = Create.generate([alice_pub], [([alice_pub], 4)])
+    create_tx.sign([alice_priv])
+    # ATTENTION: comment out the next line and the test will never fail
+    res = client.post(TX_ENDPOINT, data=json.dumps(create_tx.to_dict()))
+    assert res.status_code == 202
+
+    mine([create_tx])
+
+
+@pytest.mark.skip(
+    reason="this test fails with strange inconsistent tarantool error messages. sometimes, it's even passing."
+)
 @pytest.mark.abci
 def test_get_divisble_transactions_returns_500(b, client):
     import json
     import time
-    
+
     TX_ENDPOINT = "/api/v1/transactions"
 
     def mine(tx_list):
