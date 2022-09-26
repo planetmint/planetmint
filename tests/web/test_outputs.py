@@ -5,9 +5,11 @@
 
 
 import pytest
+from unittest.mock import MagicMock, patch
+from planetmint.transactions.common import crypto
 from planetmint.transactions.types.assets.create import Create
 from planetmint.transactions.types.assets.transfer import Transfer
-from unittest.mock import MagicMock, patch
+
 
 
 OUTPUTS_ENDPOINT = "/api/v1/outputs/"
@@ -81,11 +83,12 @@ def test_get_outputs_endpoint_with_invalid_spent(client, user_pk):
     assert res.status_code == 400
 
 
+@pytest.mark.skip
 @pytest.mark.abci
 def test_get_divisble_transactions_returns_500(b, client):
-    from planetmint.transactions.common import crypto
     import json
-
+    import time
+    
     TX_ENDPOINT = "/api/v1/transactions"
 
     def mine(tx_list):
@@ -94,7 +97,6 @@ def test_get_divisble_transactions_returns_500(b, client):
     alice_priv, alice_pub = crypto.generate_key_pair()
     bob_priv, bob_pub = crypto.generate_key_pair()
     carly_priv, carly_pub = crypto.generate_key_pair()
-
     create_tx = Create.generate([alice_pub], [([alice_pub], 4)])
     create_tx.sign([alice_priv])
 
@@ -108,7 +110,6 @@ def test_get_divisble_transactions_returns_500(b, client):
 
     res = client.post(TX_ENDPOINT, data=json.dumps(transfer_tx.to_dict()))
     assert res.status_code == 202
-
     mine([transfer_tx])
 
     transfer_tx_carly = Transfer.generate([transfer_tx.to_inputs()[1]], [([carly_pub], 1)], asset_id=create_tx.id)
@@ -116,7 +117,6 @@ def test_get_divisble_transactions_returns_500(b, client):
 
     res = client.post(TX_ENDPOINT, data=json.dumps(transfer_tx_carly.to_dict()))
     assert res.status_code == 202
-
     mine([transfer_tx_carly])
 
     asset_id = create_tx.id
