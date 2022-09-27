@@ -199,7 +199,7 @@ def run_election_approve(args, planet):
     inputs = [i for i in tx.to_inputs() if key.public_key in i.owners_before]
     election_pub_key = ValidatorElection.to_public_key(tx.id)
     approval = Vote.generate(inputs, [([election_pub_key], voting_power)], tx.id).sign([key.private_key])
-    approval.validate(planet)
+    planet.validate_transaction(approval)
 
     resp = planet.write_transaction(approval, BROADCAST_TX_COMMIT)
 

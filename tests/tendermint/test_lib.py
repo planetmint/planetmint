@@ -424,7 +424,7 @@ def test_get_spent_transaction_critical_double_spend(b, alice, bob, carol):
     b.store_bulk_transactions([tx])
 
     with pytest.raises(DoubleSpend):
-        same_input_double_spend.validate(b)
+        b.validate_transaction(same_input_double_spend)
 
     assert b.get_spent(tx.id, tx_transfer.inputs[0].fulfills.output, [tx_transfer])
 
@@ -504,7 +504,7 @@ def test_get_spent_key_order(b, user_pk, user_sk, user2_pk, user2_sk):
 
     inputs = tx1.to_inputs()
     tx2 = Transfer.generate([inputs[1]], [([user2_pk], 2)], tx1.id).sign([user_sk])
-    assert tx2.validate(b)
+    assert b.validate_transaction(tx2)
 
     tx2_dict = tx2.to_dict()
     fulfills = tx2_dict["inputs"][0]["fulfills"]
@@ -518,4 +518,4 @@ def test_get_spent_key_order(b, user_pk, user_sk, user2_pk, user2_sk):
     tx3 = Transfer.generate([inputs[1]], [([bob.public_key], 2)], tx1.id).sign([user_sk])
 
     with pytest.raises(DoubleSpend):
-        tx3.validate(b)
+        b.validate_transaction(tx3)

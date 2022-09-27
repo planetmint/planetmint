@@ -73,7 +73,7 @@ def test_get_spent_issue_1271(b, alice, bob, carol):
         [carol.public_key],
         [([carol.public_key], 8)],
     ).sign([carol.private_key])
-    assert tx_1.validate(b)
+    assert b.validate_transaction(tx_1)
     b.store_bulk_transactions([tx_1])
 
     tx_2 = Transfer.generate(
@@ -81,7 +81,7 @@ def test_get_spent_issue_1271(b, alice, bob, carol):
         [([bob.public_key], 2), ([alice.public_key], 2), ([carol.public_key], 4)],
         asset_id=tx_1.id,
     ).sign([carol.private_key])
-    assert tx_2.validate(b)
+    assert b.validate_transaction(tx_2)
     b.store_bulk_transactions([tx_2])
 
     tx_3 = Transfer.generate(
@@ -89,7 +89,7 @@ def test_get_spent_issue_1271(b, alice, bob, carol):
         [([alice.public_key], 1), ([carol.public_key], 3)],
         asset_id=tx_1.id,
     ).sign([carol.private_key])
-    assert tx_3.validate(b)
+    assert b.validate_transaction(tx_3)
     b.store_bulk_transactions([tx_3])
 
     tx_4 = Transfer.generate(
@@ -97,7 +97,7 @@ def test_get_spent_issue_1271(b, alice, bob, carol):
         [([bob.public_key], 3)],
         asset_id=tx_1.id,
     ).sign([alice.private_key])
-    assert tx_4.validate(b)
+    assert b.validate_transaction(tx_4)
     b.store_bulk_transactions([tx_4])
 
     tx_5 = Transfer.generate(
@@ -105,7 +105,7 @@ def test_get_spent_issue_1271(b, alice, bob, carol):
         [([alice.public_key], 2)],
         asset_id=tx_1.id,
     ).sign([bob.private_key])
-    assert tx_5.validate(b)
+    assert b.validate_transaction(tx_5)
 
     b.store_bulk_transactions([tx_5])
     assert b.get_spent(tx_2.id, 0) == tx_5

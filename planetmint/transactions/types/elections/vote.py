@@ -15,7 +15,6 @@ from planetmint.transactions.common.schema import (
 
 
 class Vote(Transfer):
-
     OPERATION = VOTE
     # NOTE: This class inherits TRANSFER txn type. The `TRANSFER` property is
     # overriden to re-use methods from parent class
@@ -23,25 +22,6 @@ class Vote(Transfer):
     ALLOWED_OPERATIONS = (OPERATION,)
     # Custom validation schema
     TX_SCHEMA_CUSTOM = TX_SCHEMA_VOTE
-
-    def validate(self, planet, current_transactions=[]):
-        """Validate election vote transaction
-        NOTE: There are no additional validity conditions on casting votes i.e.
-        a vote is just a valid TRANFER transaction
-
-        For more details refer BEP-21: https://github.com/planetmint/BEPs/tree/master/21
-
-        Args:
-            planet (Planetmint): an instantiated planetmint.lib.Planetmint object.
-
-        Returns:
-            Vote: a Vote object
-
-        Raises:
-            ValidationError: If the election vote is invalid
-        """
-        self.validate_transfer_inputs(planet, current_transactions)
-        return self
 
     @classmethod
     def generate(cls, inputs, recipients, election_id, metadata=None):

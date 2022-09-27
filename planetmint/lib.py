@@ -21,7 +21,7 @@ import planetmint
 from planetmint.config import Config
 from planetmint import backend, config_utils, fastquery
 from planetmint.transactions.common.transaction import Transaction
-from planetmint.transactions.common.exceptions import SchemaValidationError, ValidationError, DoubleSpend
+from planetmint.transactions.common.exceptions import DuplicateTransaction, InvalidSignature, SchemaValidationError, ValidationError, DoubleSpend, AmountError, InputDoesNotExist, AssetIdMismatch
 from planetmint.transactions.common.transaction_mode_types import (
     BROADCAST_TX_COMMIT,
     BROADCAST_TX_ASYNC,
@@ -371,7 +371,69 @@ class Planetmint(object):
             except ValidationError as e:
                 logger.warning("Invalid transaction (%s): %s", type(e).__name__, e)
                 return False
-        return transaction.validate(self, current_transactions)
+
+        input_conditions = []
+
+        if transaction.operation == Transaction.CREATE:
+            duplicates = any(txn for txn in current_transactions if txn.id == transaction.id)
+            if self.is_committed(transaction.id) or duplicates:
+                raise DuplicateTransaction("transaction `{}` already exists".format(transaction.id))
+            
+            if not transaction.inputs_valid(input_conditions):
+                raise InvalidSignature("Transaction signature is invalid.")
+
+        elif transaction.operation in [Transaction.TRANSFER, Transaction.VOTE]:
+            self.validate_transfer_inputs(transaction, current_transactions)
+
+        return transaction
+
+    def validate_transfer_inputs(self, tx, current_transactions=[]):
+        # store the inputs so that we can check if the asset ids match
+        input_txs = []
+        input_conditions = []
+        for input_ in tx.inputs:
+            input_txid = input_.fulfills.txid
+            input_tx = self.get_transaction(input_txid)
+            if input_tx is None:
+                for ctxn in current_transactions:
+                    if ctxn.id == input_txid:
+                        input_tx = ctxn
+
+            if input_tx is None:
+                raise InputDoesNotExist("input `{}` doesn't exist".format(input_txid))
+
+            spent = self.get_spent(input_txid, input_.fulfills.output, current_transactions)
+            if spent:
+                raise DoubleSpend("input `{}` was already spent".format(input_txid))
+
+            output = input_tx.outputs[input_.fulfills.output]
+            input_conditions.append(output)
+            input_txs.append(input_tx)
+
+        # Validate that all inputs are distinct
+        links = [i.fulfills.to_uri() for i in tx.inputs]
+        if len(links) != len(set(links)):
+            raise DoubleSpend('tx "{}" spends inputs twice'.format(tx.id))
+
+        # validate asset id
+        asset_id = tx.get_asset_id(input_txs)
+        if asset_id != tx.asset["id"]:
+            raise AssetIdMismatch(("The asset id of the input does not" " match the asset id of the" " transaction"))
+
+        input_amount = sum([input_condition.amount for input_condition in input_conditions])
+        output_amount = sum([output_condition.amount for output_condition in tx.outputs])
+
+        if output_amount != input_amount:
+            raise AmountError(
+                (
+                    "The amount used in the inputs `{}`" " needs to be same as the amount used" " in the outputs `{}`"
+                ).format(input_amount, output_amount)
+            )
+
+        if not tx.inputs_valid(input_conditions):
+            raise InvalidSignature("Transaction signature is invalid.")
+
+        return True
 
     def is_valid_transaction(self, tx, current_transactions=[]):
         # NOTE: the function returns the Transaction object in case

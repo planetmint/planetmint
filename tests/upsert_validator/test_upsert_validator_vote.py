@@ -33,7 +33,8 @@ def test_upsert_validator_valid_election_vote(b_mock, valid_upsert_validator_ele
     vote = Vote.generate([input0], [([election_pub_key], votes)], election_id=valid_upsert_validator_election.id).sign(
         [key0.private_key]
     )
-    assert vote.validate(b_mock)
+    # assert vote.validate(b_mock)
+    assert b_mock.validate_transaction(vote)
 
 
 @pytest.mark.bdb
@@ -71,7 +72,8 @@ def test_upsert_validator_delegate_election_vote(b_mock, valid_upsert_validator_
         election_id=valid_upsert_validator_election.id,
     ).sign([key0.private_key])
 
-    assert delegate_vote.validate(b_mock)
+    # assert delegate_vote.validate(b_mock)
+    assert b_mock.validate_transaction(delegate_vote)
 
     b_mock.store_bulk_transactions([delegate_vote])
     election_pub_key = ValidatorElection.to_public_key(valid_upsert_validator_election.id)
@@ -80,13 +82,15 @@ def test_upsert_validator_delegate_election_vote(b_mock, valid_upsert_validator_
     alice_casted_vote = Vote.generate(
         [alice_votes], [([election_pub_key], 3)], election_id=valid_upsert_validator_election.id
     ).sign([alice.private_key])
-    assert alice_casted_vote.validate(b_mock)
+    # assert alice_casted_vote.validate(b_mock)
+    assert b_mock.validate_transaction(alice_casted_vote)
 
     key0_votes = delegate_vote.to_inputs()[1]
     key0_casted_vote = Vote.generate(
         [key0_votes], [([election_pub_key], votes - 3)], election_id=valid_upsert_validator_election.id
     ).sign([key0.private_key])
-    assert key0_casted_vote.validate(b_mock)
+    # assert key0_casted_vote.validate(b_mock)
+    assert b_mock.validate_transaction(key0_casted_vote)
 
 
 @pytest.mark.bdb
@@ -105,7 +109,8 @@ def test_upsert_validator_invalid_election_vote(b_mock, valid_upsert_validator_e
     ).sign([key0.private_key])
 
     with pytest.raises(AmountError):
-        assert vote.validate(b_mock)
+        # assert vote.validate(b_mock)
+        assert b_mock.validate_transaction(vote)
 
 
 @pytest.mark.bdb
@@ -138,7 +143,7 @@ def test_valid_election_votes_received(b_mock, valid_upsert_validator_election, 
         election_id=valid_upsert_validator_election.id,
     ).sign([alice.private_key])
 
-    assert alice_casted_vote.validate(b_mock)
+    assert b_mock.validate_transaction(alice_casted_vote)
     b_mock.store_bulk_transactions([alice_casted_vote])
 
     # Check if the delegated vote is count as valid vote
@@ -148,7 +153,7 @@ def test_valid_election_votes_received(b_mock, valid_upsert_validator_election, 
         [key0_votes], [([election_public_key], votes - 4)], election_id=valid_upsert_validator_election.id
     ).sign([key0.private_key])
 
-    assert key0_casted_vote.validate(b_mock)
+    assert b_mock.validate_transaction(key0_casted_vote)
     b_mock.store_bulk_transactions([key0_casted_vote])
 
     assert valid_upsert_validator_election.get_commited_votes(b_mock) == votes - 2
@@ -162,7 +167,7 @@ def test_valid_election_conclude(b_mock, valid_upsert_validator_election, ed2551
 
     # check if the vote is valid even before the election doesn't exist
     with pytest.raises(ValidationError):
-        assert tx_vote0.validate(b_mock)
+        assert b_mock.validate_transaction(tx_vote0)
 
     # store election
     b_mock.store_bulk_transactions([valid_upsert_validator_election])
@@ -170,7 +175,8 @@ def test_valid_election_conclude(b_mock, valid_upsert_validator_election, ed2551
     assert not valid_upsert_validator_election.has_concluded(b_mock)
 
     # validate vote
-    assert tx_vote0.validate(b_mock)
+    # assert tx_vote0.validate(b_mock)
+    assert b_mock.validate_transaction(tx_vote0)
     assert not valid_upsert_validator_election.has_concluded(b_mock, [tx_vote0])
 
     b_mock.store_bulk_transactions([tx_vote0])
@@ -185,7 +191,7 @@ def test_valid_election_conclude(b_mock, valid_upsert_validator_election, ed2551
     # Node 3: cast vote
     tx_vote3 = gen_vote(valid_upsert_validator_election, 3, ed25519_node_keys)
 
-    assert tx_vote1.validate(b_mock)
+    assert b_mock.validate_transaction(tx_vote1)
     assert not valid_upsert_validator_election.has_concluded(b_mock, [tx_vote1])
 
     # 2/3 is achieved in the same block so the election can be.has_concludedd
@@ -194,8 +200,8 @@ def test_valid_election_conclude(b_mock, valid_upsert_validator_election, ed2551
     b_mock.store_bulk_transactions([tx_vote1])
     assert not valid_upsert_validator_election.has_concluded(b_mock)
 
-    assert tx_vote2.validate(b_mock)
-    assert tx_vote3.validate(b_mock)
+    assert b_mock.validate_transaction(tx_vote2)
+    assert b_mock.validate_transaction(tx_vote3)
 
     # conclusion can be triggered my different votes in the same block
     assert valid_upsert_validator_election.has_concluded(b_mock, [tx_vote2])
@@ -209,7 +215,7 @@ def test_valid_election_conclude(b_mock, valid_upsert_validator_election, ed2551
 
     # Vote is still valid but the election cannot be.has_concludedd as it it assmed that it has
     # been.has_concludedd before
-    assert tx_vote3.validate(b_mock)
+    assert b_mock.validate_transaction(tx_vote3)
     assert not valid_upsert_validator_election.has_concluded(b_mock, [tx_vote3])
 
 

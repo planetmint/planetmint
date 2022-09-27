@@ -99,7 +99,7 @@ def test_outputs_query_key_order(b, user_pk, user_sk, user2_pk, user2_sk):
 
     inputs = tx1.to_inputs()
     tx2 = Transfer.generate([inputs[1]], [([user2_pk], 2)], tx1.id).sign([user_sk])
-    assert tx2.validate(b)
+    assert b.validate_transaction(tx2)
 
     tx2_dict = tx2.to_dict()
     fulfills = tx2_dict["inputs"][0]["fulfills"]

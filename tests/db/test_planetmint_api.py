@@ -94,7 +94,7 @@ class TestBigchainApi(object):
         )
         tx = Transfer.generate([input], [([user_pk], 1)], asset_id="mock_asset_link")
         with pytest.raises(InputDoesNotExist):
-            tx.validate(b)
+            b.validate_transaction(tx)
 
     def test_write_transaction(self, b, user_sk, user_pk, alice, create_tx):
 
@@ -162,7 +162,7 @@ class TestMultipleInputs(object):
         tx = tx.sign([user_sk])
 
         # validate transaction
-        tx.validate(b)
+        b.validate_transaction(tx)
         assert len(tx.inputs) == 1
         assert len(tx.outputs) == 1
 
@@ -177,7 +177,7 @@ class TestMultipleInputs(object):
         tx = Transfer.generate(input_tx.to_inputs(), [([user2_pk, user3_pk], 1)], asset_id=input_tx.id)
         tx = tx.sign([user_sk])
 
-        tx.validate(b)
+        b.validate_transaction(tx)
         assert len(tx.inputs) == 1
         assert len(tx.outputs) == 1
 
@@ -200,7 +200,7 @@ class TestMultipleInputs(object):
         transfer_tx = transfer_tx.sign([user_sk, user2_sk])
 
         # validate transaction
-        transfer_tx.validate(b)
+        b.validate_transaction(transfer_tx)
         assert len(transfer_tx.inputs) == 1
         assert len(transfer_tx.outputs) == 1
 
@@ -223,7 +223,7 @@ class TestMultipleInputs(object):
         tx = Transfer.generate(tx_input.to_inputs(), [([user3_pk, user4_pk], 1)], asset_id=tx_input.id)
         tx = tx.sign([user_sk, user2_sk])
 
-        tx.validate(b)
+        b.validate_transaction(tx)
         assert len(tx.inputs) == 1
         assert len(tx.outputs) == 1
 
@@ -465,7 +465,7 @@ def test_cant_spend_same_input_twice_in_tx(b, alice):
     tx_transfer = Transfer.generate(dup_inputs, [([alice.public_key], 200)], asset_id=tx_create.id)
     tx_transfer_signed = tx_transfer.sign([alice.private_key])
     with pytest.raises(DoubleSpend):
-        tx_transfer_signed.validate(b)
+        b.validate_transaction(tx_transfer_signed)
 
 
 def test_transaction_unicode(b, alice):

@@ -18,13 +18,12 @@ from planetmint.transactions.common.exceptions import DoubleSpend
 # Single output
 # Single owners_after
 def test_single_in_single_own_single_out_single_own_create(alice, user_pk, b):
-
     tx = Create.generate(
         [alice.public_key], [([user_pk], 100)], asset={"data": "QmaozNR7DZHQK1ZcU9p7QdrshMvXqWK6gpu5rmrkPdT3L4"}
     )
     tx_signed = tx.sign([alice.private_key])
 
-    assert tx_signed.validate(b) == tx_signed
+    assert b.validate_transaction(tx_signed) == tx_signed
     assert len(tx_signed.outputs) == 1
     assert tx_signed.outputs[0].amount == 100
     assert len(tx_signed.inputs) == 1
@@ -44,7 +43,7 @@ def test_single_in_single_own_multiple_out_single_own_create(alice, user_pk, b):
     )
     tx_signed = tx.sign([alice.private_key])
 
-    assert tx_signed.validate(b) == tx_signed
+    assert b.validate_transaction(tx_signed) == tx_signed
     assert len(tx_signed.outputs) == 2
     assert tx_signed.outputs[0].amount == 50
     assert tx_signed.outputs[1].amount == 50
@@ -65,7 +64,7 @@ def test_single_in_single_own_single_out_multiple_own_create(alice, user_pk, b):
     )
     tx_signed = tx.sign([alice.private_key])
 
-    assert tx_signed.validate(b) == tx_signed
+    assert b.validate_transaction(tx_signed) == tx_signed
     assert len(tx_signed.outputs) == 1
     assert tx_signed.outputs[0].amount == 100
 
@@ -91,7 +90,7 @@ def test_single_in_single_own_multiple_out_mix_own_create(alice, user_pk, b):
     )
     tx_signed = tx.sign([alice.private_key])
 
-    assert tx_signed.validate(b) == tx_signed
+    assert b.validate_transaction(tx_signed) == tx_signed
     assert len(tx_signed.outputs) == 2
     assert tx_signed.outputs[0].amount == 50
     assert tx_signed.outputs[1].amount == 50
@@ -116,7 +115,7 @@ def test_single_in_multiple_own_single_out_single_own_create(alice, b, user_pk, 
         asset={"data": "QmaozNR7DZHQK1ZcU9p7QdrshMvXqWK6gpu5rmrkPdT3L4"},
     )
     tx_signed = tx.sign([alice.private_key, user_sk])
-    assert tx_signed.validate(b) == tx_signed
+    assert b.validate_transaction(tx_signed) == tx_signed
     assert len(tx_signed.outputs) == 1
     assert tx_signed.outputs[0].amount == 100
     assert len(tx_signed.inputs) == 1
@@ -145,7 +144,7 @@ def test_single_in_single_own_single_out_single_own_transfer(alice, b, user_pk, 
 
     b.store_bulk_transactions([tx_create_signed])
 
-    assert tx_transfer_signed.validate(b)
+    assert b.validate_transaction(tx_transfer_signed) == tx_transfer_signed
     assert len(tx_transfer_signed.outputs) == 1
     assert tx_transfer_signed.outputs[0].amount == 100
     assert len(tx_transfer_signed.inputs) == 1
@@ -172,7 +171,7 @@ def test_single_in_single_own_multiple_out_single_own_transfer(alice, b, user_pk
 
     b.store_bulk_transactions([tx_create_signed])
 
-    assert tx_transfer_signed.validate(b) == tx_transfer_signed
+    assert b.validate_transaction(tx_transfer_signed) == tx_transfer_signed
     assert len(tx_transfer_signed.outputs) == 2
     assert tx_transfer_signed.outputs[0].amount == 50
     assert tx_transfer_signed.outputs[1].amount == 50
@@ -200,7 +199,7 @@ def test_single_in_single_own_single_out_multiple_own_transfer(alice, b, user_pk
 
     b.store_bulk_transactions([tx_create_signed])
 
-    assert tx_transfer_signed.validate(b) == tx_transfer_signed
+    assert b.validate_transaction(tx_transfer_signed) == tx_transfer_signed
     assert len(tx_transfer_signed.outputs) == 1
     assert tx_transfer_signed.outputs[0].amount == 100
 
@@ -211,7 +210,7 @@ def test_single_in_single_own_single_out_multiple_own_transfer(alice, b, user_pk
     assert len(tx_transfer_signed.inputs) == 1
     b.store_bulk_transactions([tx_transfer_signed])
     with pytest.raises(DoubleSpend):
-        tx_transfer_signed.validate(b)
+        b.validate_transaction(tx_transfer_signed)
 
 
 # TRANSFER divisible asset
@@ -238,7 +237,7 @@ def test_single_in_single_own_multiple_out_mix_own_transfer(alice, b, user_pk, u
 
     b.store_bulk_transactions([tx_create_signed])
 
-    assert tx_transfer_signed.validate(b) == tx_transfer_signed
+    assert b.validate_transaction(tx_transfer_signed) == tx_transfer_signed
     assert len(tx_transfer_signed.outputs) == 2
     assert tx_transfer_signed.outputs[0].amount == 50
     assert tx_transfer_signed.outputs[1].amount == 50
@@ -251,7 +250,7 @@ def test_single_in_single_own_multiple_out_mix_own_transfer(alice, b, user_pk, u
 
     b.store_bulk_transactions([tx_transfer_signed])
     with pytest.raises(DoubleSpend):
-        tx_transfer_signed.validate(b)
+        b.validate_transaction(tx_transfer_signed)
 
 
 # TRANSFER divisible asset
@@ -276,7 +275,7 @@ def test_single_in_multiple_own_single_out_single_own_transfer(alice, b, user_pk
 
     b.store_bulk_transactions([tx_create_signed])
 
-    assert tx_transfer_signed.validate(b) == tx_transfer_signed
+    assert b.validate_transaction(tx_transfer_signed) == tx_transfer_signed
     assert len(tx_transfer_signed.outputs) == 1
     assert tx_transfer_signed.outputs[0].amount == 100
     assert len(tx_transfer_signed.inputs) == 1
@@ -287,7 +286,7 @@ def test_single_in_multiple_own_single_out_single_own_transfer(alice, b, user_pk
 
     b.store_bulk_transactions([tx_transfer_signed])
     with pytest.raises(DoubleSpend):
-        tx_transfer_signed.validate(b)
+        b.validate_transaction(tx_transfer_signed)
 
 
 # TRANSFER divisible asset
@@ -310,14 +309,14 @@ def test_multiple_in_single_own_single_out_single_own_transfer(alice, b, user_pk
 
     b.store_bulk_transactions([tx_create_signed])
 
-    assert tx_transfer_signed.validate(b)
+    assert b.validate_transaction(tx_transfer_signed) == tx_transfer_signed
     assert len(tx_transfer_signed.outputs) == 1
     assert tx_transfer_signed.outputs[0].amount == 100
     assert len(tx_transfer_signed.inputs) == 2
 
     b.store_bulk_transactions([tx_transfer_signed])
     with pytest.raises(DoubleSpend):
-        tx_transfer_signed.validate(b)
+        b.validate_transaction(tx_transfer_signed)
 
 
 # TRANSFER divisible asset
@@ -342,7 +341,7 @@ def test_multiple_in_multiple_own_single_out_single_own_transfer(alice, b, user_
 
     b.store_bulk_transactions([tx_create_signed])
 
-    assert tx_transfer_signed.validate(b) == tx_transfer_signed
+    assert b.validate_transaction(tx_transfer_signed) == tx_transfer_signed
     assert len(tx_transfer_signed.outputs) == 1
     assert tx_transfer_signed.outputs[0].amount == 100
     assert len(tx_transfer_signed.inputs) == 2
@@ -356,7 +355,7 @@ def test_multiple_in_multiple_own_single_out_single_own_transfer(alice, b, user_
 
     b.store_bulk_transactions([tx_transfer_signed])
     with pytest.raises(DoubleSpend):
-        tx_transfer_signed.validate(b)
+        b.validate_transaction(tx_transfer_signed)
 
 
 # TRANSFER divisible asset
@@ -381,7 +380,7 @@ def test_muiltiple_in_mix_own_multiple_out_single_own_transfer(alice, b, user_pk
     tx_transfer_signed = tx_transfer.sign([alice.private_key, user_sk])
 
     b.store_bulk_transactions([tx_create_signed])
-    assert tx_transfer_signed.validate(b) == tx_transfer_signed
+    assert b.validate_transaction(tx_transfer_signed) == tx_transfer_signed
     assert len(tx_transfer_signed.outputs) == 1
     assert tx_transfer_signed.outputs[0].amount == 100
     assert len(tx_transfer_signed.inputs) == 2
@@ -394,7 +393,7 @@ def test_muiltiple_in_mix_own_multiple_out_single_own_transfer(alice, b, user_pk
 
     b.store_bulk_transactions([tx_transfer_signed])
     with pytest.raises(DoubleSpend):
-        tx_transfer_signed.validate(b)
+        b.validate_transaction(tx_transfer_signed)
 
 
 # TRANSFER divisible asset
@@ -421,7 +420,7 @@ def test_muiltiple_in_mix_own_multiple_out_mix_own_transfer(alice, b, user_pk, u
     tx_transfer_signed = tx_transfer.sign([alice.private_key, user_sk])
     b.store_bulk_transactions([tx_create_signed])
 
-    assert tx_transfer_signed.validate(b) == tx_transfer_signed
+    assert b.validate_transaction(tx_transfer_signed) == tx_transfer_signed
     assert len(tx_transfer_signed.outputs) == 2
     assert tx_transfer_signed.outputs[0].amount == 50
     assert tx_transfer_signed.outputs[1].amount == 50
@@ -441,7 +440,7 @@ def test_muiltiple_in_mix_own_multiple_out_mix_own_transfer(alice, b, user_pk, u
 
     b.store_bulk_transactions([tx_transfer_signed])
     with pytest.raises(DoubleSpend):
-        tx_transfer_signed.validate(b)
+        b.validate_transaction(tx_transfer_signed)
 
 
 # TRANSFER divisible asset
@@ -478,7 +477,7 @@ def test_multiple_in_different_transactions(alice, b, user_pk, user_sk):
 
     b.store_bulk_transactions([tx_create_signed, tx_transfer1_signed])
 
-    assert tx_transfer2_signed.validate(b) == tx_transfer2_signed
+    assert b.validate_transaction(tx_transfer2_signed) == tx_transfer2_signed
     assert len(tx_transfer2_signed.outputs) == 1
     assert tx_transfer2_signed.outputs[0].amount == 100
     assert len(tx_transfer2_signed.inputs) == 2
@@ -509,7 +508,7 @@ def test_amount_error_transfer(alice, b, user_pk, user_sk):
     tx_transfer_signed = tx_transfer.sign([user_sk])
 
     with pytest.raises(AmountError):
-        tx_transfer_signed.validate(b)
+        b.validate_transaction(tx_transfer_signed)
 
     # TRANSFER
     # output amount greater than input amount
@@ -517,7 +516,7 @@ def test_amount_error_transfer(alice, b, user_pk, user_sk):
     tx_transfer_signed = tx_transfer.sign([user_sk])
 
     with pytest.raises(AmountError):
-        tx_transfer_signed.validate(b)
+        b.validate_transaction(tx_transfer_signed)
 
 
 def test_threshold_same_public_key(alice, b, user_pk, user_sk):
@@ -541,11 +540,13 @@ def test_threshold_same_public_key(alice, b, user_pk, user_sk):
     tx_transfer_signed = tx_transfer.sign([user_sk, user_sk])
     b.store_bulk_transactions([tx_create_signed])
 
-    assert tx_transfer_signed.validate(b) == tx_transfer_signed
+    # assert tx_transfer_signed.validate(b) == tx_transfer_signed
+    assert b.validate_transaction(tx_transfer_signed) == tx_transfer_signed
 
     b.store_bulk_transactions([tx_transfer_signed])
     with pytest.raises(DoubleSpend):
-        tx_transfer_signed.validate(b)
+        # tx_transfer_signed.validate(b)
+        b.validate_transaction(tx_transfer_signed)
 
 
 def test_sum_amount(alice, b, user_pk, user_sk):
@@ -565,13 +566,13 @@ def test_sum_amount(alice, b, user_pk, user_sk):
 
     b.store_bulk_transactions([tx_create_signed])
 
-    assert tx_transfer_signed.validate(b) == tx_transfer_signed
+    assert b.validate_transaction(tx_transfer_signed) == tx_transfer_signed
     assert len(tx_transfer_signed.outputs) == 1
     assert tx_transfer_signed.outputs[0].amount == 3
 
     b.store_bulk_transactions([tx_transfer_signed])
     with pytest.raises(DoubleSpend):
-        tx_transfer_signed.validate(b)
+        b.validate_transaction(tx_transfer_signed)
 
 
 def test_divide(alice, b, user_pk, user_sk):
@@ -593,11 +594,11 @@ def test_divide(alice, b, user_pk, user_sk):
 
     b.store_bulk_transactions([tx_create_signed])
 
-    assert tx_transfer_signed.validate(b) == tx_transfer_signed
+    assert b.validate_transaction(tx_transfer_signed) == tx_transfer_signed
     assert len(tx_transfer_signed.outputs) == 3
     for output in tx_transfer_signed.outputs:
         assert output.amount == 1
 
     b.store_bulk_transactions([tx_transfer_signed])
     with pytest.raises(DoubleSpend):
-        tx_transfer_signed.validate(b)
+        b.validate_transaction(tx_transfer_signed)
