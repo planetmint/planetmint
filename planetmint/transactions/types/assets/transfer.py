@@ -3,7 +3,10 @@
 # SPDX-License-Identifier: (Apache-2.0 AND CC-BY-4.0)
 # Code is Apache-2.0 and docs are CC-BY-4.0
 
+from typing import Optional
+
 from planetmint.transactions.common.transaction import Transaction
+from planetmint.transactions.common.input import Input
 from planetmint.transactions.common.output import Output
 from copy import deepcopy
 
@@ -14,7 +17,7 @@ class Transfer(Transaction):
     ALLOWED_OPERATIONS = (OPERATION,)
 
     @classmethod
-    def validate_transfer(cls, inputs, recipients, asset_id, metadata):
+    def validate_transfer(cls, inputs: list[Input], recipients: list[tuple[list[str],int]], asset_id: str, metadata: Optional[dict]):
         if not isinstance(inputs, list):
             raise TypeError("`inputs` must be a list instance")
         if len(inputs) == 0:
@@ -39,7 +42,7 @@ class Transfer(Transaction):
         return (deepcopy(inputs), outputs)
 
     @classmethod
-    def generate(cls, inputs, recipients, asset_id, metadata=None):
+    def generate(cls, inputs: list[Input], recipients: list[tuple[list[str],int]], asset_id: str, metadata: Optional[dict] = None):
         """A simple way to generate a `TRANSFER` transaction.
 
         Note:

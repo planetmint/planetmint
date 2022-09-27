@@ -4,6 +4,7 @@
 # Code is Apache-2.0 and docs are CC-BY-4.0
 
 from functools import reduce
+from typing import Union, Optional
 
 import base58
 from cryptoconditions import ThresholdSha256, Ed25519Sha256, ZenroomSha256
@@ -27,7 +28,7 @@ class Output(object):
 
     MAX_AMOUNT = 9 * 10**18
 
-    def __init__(self, fulfillment, public_keys=None, amount=1):
+    def __init__(self, fulfillment: type[Fulfillment], public_keys: Optional[list[str]] = None, amount: int = 1):
         """Create an instance of a :class:`~.Output`.
 
         Args:
@@ -90,7 +91,7 @@ class Output(object):
         return output
 
     @classmethod
-    def generate(cls, public_keys, amount):
+    def generate(cls, public_keys: list[str], amount: int):
         """Generates a Output from a specifically formed tuple or list.
 
         Note:
@@ -136,7 +137,7 @@ class Output(object):
             return cls(threshold_cond, public_keys, amount=amount)
 
     @classmethod
-    def _gen_condition(cls, initial, new_public_keys):
+    def _gen_condition(cls, initial: type[ThresholdSha256], new_public_keys: Union[list[str],str]) -> type[ThresholdSha256]:
         """Generates ThresholdSha256 conditions from a list of new owners.
 
         Note:
@@ -165,7 +166,8 @@ class Output(object):
             raise ValueError("Sublist cannot contain single owner")
         else:
             try:
-                new_public_keys = new_public_keys.pop()
+                if isinstance(new_public_keys, list):
+                    new_public_keys = new_public_keys.pop()
             except AttributeError:
                 pass
             # NOTE: Instead of submitting base58 encoded addresses, a user
@@ -182,7 +184,7 @@ class Output(object):
         return initial
 
     @classmethod
-    def from_dict(cls, data):
+    def from_dict(cls, data: dict):
         """Transforms a Python dictionary to an Output object.
 
         Note:

@@ -3,11 +3,10 @@
 # SPDX-License-Identifier: (Apache-2.0 AND CC-BY-4.0)
 # Code is Apache-2.0 and docs are CC-BY-4.0
 
+from typing import Optional
 from cid import is_cid
 
 from planetmint.transactions.common.transaction import Transaction
-from planetmint.transactions.common.input import Input
-from planetmint.transactions.common.output import Output
 
 
 class Create(Transaction):
@@ -16,7 +15,7 @@ class Create(Transaction):
     ALLOWED_OPERATIONS = (OPERATION,)
 
     @classmethod
-    def validate_create(self, tx_signers, recipients, asset, metadata):
+    def validate_create(self, tx_signers: list[str], recipients: list[tuple[list[str],int]], asset: Optional[dict], metadata: Optional[dict]):
         if not isinstance(tx_signers, list):
             raise TypeError("`tx_signers` must be a list instance")
         if not isinstance(recipients, list):
@@ -36,7 +35,7 @@ class Create(Transaction):
         return True
 
     @classmethod
-    def generate(cls, tx_signers, recipients, metadata=None, asset=None):
+    def generate(cls, tx_signers: list[str], recipients: list[tuple[list[str],int]], metadata: Optional[dict] = None, asset: Optional[dict] = None):
         """A simple way to generate a `CREATE` transaction.
 
         Note:

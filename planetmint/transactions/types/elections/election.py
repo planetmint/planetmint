@@ -6,6 +6,7 @@ from collections import OrderedDict
 
 import base58
 from uuid import uuid4
+from typing import Optional
 
 from planetmint import backend
 from planetmint.transactions.types.assets.create import Create
@@ -32,13 +33,13 @@ class Election(Transaction):
     set to (OPERATION,), CREATE set to OPERATION.
     """
 
-    OPERATION = None
+    OPERATION: Optional[str] = None
     # Custom validation schema
     TX_SCHEMA_CUSTOM = None
     # Election Statuses:
-    ONGOING = "ongoing"
-    CONCLUDED = "concluded"
-    INCONCLUSIVE = "inconclusive"
+    ONGOING: str = "ongoing"
+    CONCLUDED: str = "concluded"
+    INCONCLUSIVE: str = "inconclusive"
     # Vote ratio to approve an election
     ELECTION_THRESHOLD = 2 / 3
 

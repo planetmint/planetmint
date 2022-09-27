@@ -1,7 +1,7 @@
 import functools
 import codecs
 from functools import lru_cache
-
+from typing import Callable
 
 class HDict(dict):
     def __hash__(self):
@@ -9,11 +9,11 @@ class HDict(dict):
 
 
 @lru_cache(maxsize=16384)
-def from_dict(func, *args, **kwargs):
+def from_dict(func: Callable, *args, **kwargs):
     return func(*args, **kwargs)
 
 
-def memoize_from_dict(func):
+def memoize_from_dict(func: Callable):
     @functools.wraps(func)
     def memoized_func(*args, **kwargs):
         if args[1] is None:
@@ -45,7 +45,7 @@ def to_dict(func, tx_wrapped):
     return func(tx_wrapped.tx)
 
 
-def memoize_to_dict(func):
+def memoize_to_dict(func: Callable):
     @functools.wraps(func)
     def memoized_func(*args, **kwargs):
 

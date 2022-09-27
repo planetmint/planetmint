@@ -4,6 +4,9 @@
 # Code is Apache-2.0 and docs are CC-BY-4.0
 
 
+from typing import Optional, Union
+
+
 class TransactionLink(object):
     """An object for unidirectional linking to a Transaction's Output.
 
@@ -13,7 +16,7 @@ class TransactionLink(object):
         `txid`.
     """
 
-    def __init__(self, txid=None, output=None):
+    def __init__(self, txid: Optional[str] = None, output: Optional[int] = None):
         """Create an instance of a :class:`~.TransactionLink`.
 
         Note:
@@ -42,7 +45,7 @@ class TransactionLink(object):
         return hash((self.txid, self.output))
 
     @classmethod
-    def from_dict(cls, link):
+    def from_dict(cls, link: dict):
         """Transforms a Python dictionary to a TransactionLink object.
 
         Args:
@@ -56,7 +59,7 @@ class TransactionLink(object):
         except TypeError:
             return cls()
 
-    def to_dict(self):
+    def to_dict(self) -> Union[dict,None]:
         """Transforms the object to a Python dictionary.
 
         Returns:
@@ -70,7 +73,7 @@ class TransactionLink(object):
                 "output_index": self.output,
             }
 
-    def to_uri(self, path=""):
+    def to_uri(self, path: str = "") -> Union[str,None]:
         if self.txid is None and self.output is None:
             return None
         return "{}/transactions/{}/outputs/{}".format(path, self.txid, self.output)

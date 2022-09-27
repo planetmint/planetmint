@@ -17,7 +17,7 @@ def hash_data(data):
     return sha3_256(data.encode()).hexdigest()
 
 
-def generate_key_pair():
+def generate_key_pair() -> CryptoKeypair:
     """Generates a cryptographic key pair.
 
     Returns:

@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: (Apache-2.0 AND CC-BY-4.0)
 # Code is Apache-2.0 and docs are CC-BY-4.0
 
+from typing import Optional
 from cryptoconditions import Fulfillment
 from cryptoconditions.exceptions import ASN1DecodeError, ASN1EncodeError
 
@@ -27,7 +28,7 @@ class Input(object):
                 Transaction.
     """
 
-    def __init__(self, fulfillment, owners_before, fulfills=None):
+    def __init__(self, fulfillment: Fulfillment, owners_before: list[str], fulfills: Optional[TransactionLink] = None):
         """Create an instance of an :class:`~.Input`.
 
         Args:
@@ -86,7 +87,7 @@ class Input(object):
         return input_
 
     @classmethod
-    def generate(cls, public_keys):
+    def generate(cls, public_keys: list[str]):
         # TODO: write docstring
         # The amount here does not really matter. It is only use on the
         # output data model but here we only care about the fulfillment
@@ -94,7 +95,7 @@ class Input(object):
         return cls(output.fulfillment, public_keys)
 
     @classmethod
-    def from_dict(cls, data):
+    def from_dict(cls, data: dict):
         """Transforms a Python dictionary to an Input object.
 
         Note:
