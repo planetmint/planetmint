@@ -8,7 +8,7 @@ import codecs
 
 from planetmint.transactions.types.elections.election import Election
 from planetmint.tendermint_utils import public_key_to_base64
-from planetmint.upsert_validator import ValidatorElection
+from planetmint.transactions.types.elections.validator_election import ValidatorElection
 from planetmint.transactions.common.exceptions import AmountError
 from planetmint.transactions.common.crypto import generate_key_pair
 from planetmint.transactions.common.exceptions import ValidationError

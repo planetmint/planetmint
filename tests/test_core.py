@@ -3,28 +3,10 @@
 # SPDX-License-Identifier: (Apache-2.0 AND CC-BY-4.0)
 # Code is Apache-2.0 and docs are CC-BY-4.0
 
-import json
 import pytest
-import random
-
-from tendermint.abci import types_pb2 as types
-from tendermint.crypto import keys_pb2
-
-from planetmint import App
-from planetmint.backend import query
-from planetmint.transactions.common.crypto import generate_key_pair
-from planetmint.core import OkCode, CodeTypeError, rollback
-from planetmint.transactions.types.elections.election import Election
-from planetmint.lib import Block
-from planetmint.transactions.types.elections.chain_migration_election import ChainMigrationElection
-from planetmint.upsert_validator.validator_election import ValidatorElection
-from planetmint.upsert_validator.validator_utils import new_validator_set
-from planetmint.tendermint_utils import public_key_to_base64
 from planetmint.version import __tm_supported_versions__
 from planetmint.transactions.types.assets.create import Create
 from planetmint.transactions.types.assets.transfer import Transfer
-
-from tests.utils import generate_election, generate_validators
 
 
 @pytest.fixture

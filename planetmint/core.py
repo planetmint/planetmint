@@ -24,7 +24,7 @@ from planetmint import Planetmint
 from planetmint.transactions.types.elections.election import Election
 from planetmint.tendermint_utils import decode_transaction, calculate_hash
 from planetmint.lib import Block
-import planetmint.upsert_validator.validator_utils as vutils
+import planetmint.transactions.types.elections.validator_utils as vutils
 from planetmint.events import EventTypes, Event
 
 

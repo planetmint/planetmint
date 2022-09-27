@@ -7,7 +7,7 @@ from unittest.mock import patch
 import pytest
 
 from planetmint.backend import query
-from planetmint.upsert_validator import ValidatorElection
+from planetmint.transactions.types.elections.validator_election import ValidatorElection
 
 
 @pytest.fixture

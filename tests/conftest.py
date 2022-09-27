@@ -26,7 +26,6 @@ import pytest
 
 # from pymongo import MongoClient
 
-from planetmint import ValidatorElection
 from planetmint.transactions.common import crypto
 from planetmint.transactions.common.transaction_mode_types import BROADCAST_TX_COMMIT
 from planetmint.tendermint_utils import key_from_base64
@@ -36,7 +35,7 @@ from planetmint.transactions.common.exceptions import DatabaseDoesNotExist
 from planetmint.lib import Block
 from tests.utils import gen_vote
 from planetmint.config import Config
-from planetmint.upsert_validator import ValidatorElection  # noqa
+from planetmint.transactions.types.elections.validator_election import ValidatorElection  # noqa
 
 from tendermint.abci import types_pb2 as types
 from tendermint.crypto import keys_pb2
