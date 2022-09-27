@@ -10,10 +10,8 @@ the command-line interface (CLI) for Planetmint Server.
 import os
 import logging
 import argparse
-import copy
 import json
 import sys
-from planetmint.backend.tarantool.connection import TarantoolDBConnection
 
 from planetmint.core import rollback
 from planetmint.utils import load_node_key
@@ -22,9 +20,8 @@ from planetmint.transactions.common.exceptions import DatabaseDoesNotExist, Vali
 from planetmint.transactions.types.elections.vote import Vote
 from planetmint.transactions.types.elections.chain_migration_election import ChainMigrationElection
 import planetmint
-from planetmint import backend, ValidatorElection, Planetmint
+from planetmint import ValidatorElection, Planetmint
 from planetmint.backend import schema
-from planetmint.backend import tarantool
 from planetmint.commands import utils
 from planetmint.commands.utils import configure_planetmint, input_on_stderr
 from planetmint.log import setup_logging
