@@ -7,10 +7,7 @@ import base64
 import json
 from pytest import mark
 
-try:
-    from hashlib import sha3_256
-except ImportError:
-    from sha3 import sha3_256
+from hashlib import sha3_256
 
 
 def test_encode_decode_transaction(b):

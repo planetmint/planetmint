@@ -5,12 +5,7 @@
 
 # Separate all crypto code so that we can easily test several implementations
 from collections import namedtuple
-
-try:
-    from hashlib import sha3_256
-except ImportError:
-    from sha3 import sha3_256
-
+from hashlib import sha3_256
 from cryptoconditions import crypto
 
 

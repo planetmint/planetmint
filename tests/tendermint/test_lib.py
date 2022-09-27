@@ -9,11 +9,7 @@ from unittest.mock import patch
 from planetmint.transactions.types.assets.create import Create
 from planetmint.transactions.types.assets.transfer import Transfer
 
-try:
-    from hashlib import sha3_256
-except ImportError:
-    # NOTE: needed for Python < 3.6
-    from sha3 import sha3_256
+from hashlib import sha3_256
 
 import pytest
 from pymongo import MongoClient

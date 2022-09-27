@@ -5,32 +5,32 @@
 
 """Custom exceptions used in the `planetmint` package.
 """
-from planetmint.exceptions import BigchainDBError
+from planetmint.exceptions import PlanetmintError
 
 
-class ConfigurationError(BigchainDBError):
+class ConfigurationError(PlanetmintError):
     """Raised when there is a problem with server configuration"""
 
 
-class DatabaseDoesNotExist(BigchainDBError):
+class DatabaseDoesNotExist(PlanetmintError):
     """Raised when trying to delete the database but the db is not there"""
 
 
-class StartupError(BigchainDBError):
+class StartupError(PlanetmintError):
     """Raised when there is an error starting up the system"""
 
 
-class CyclicBlockchainError(BigchainDBError):
+class CyclicBlockchainError(PlanetmintError):
     """Raised when there is a cycle in the blockchain"""
 
 
-class KeypairMismatchException(BigchainDBError):
+class KeypairMismatchException(PlanetmintError):
     """Raised if the private key(s) provided for signing don't match any of the
     current owner(s)
     """
 
 
-class OperationError(BigchainDBError):
+class OperationError(PlanetmintError):
     """Raised when an operation cannot go through"""
 
 
@@ -43,7 +43,7 @@ class OperationError(BigchainDBError):
 # especially for the purposes of testing.
 
 
-class ValidationError(BigchainDBError):
+class ValidationError(PlanetmintError):
     """Raised if there was an error in validation"""
 
 

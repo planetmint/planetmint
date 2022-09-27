@@ -8,10 +8,7 @@ import hashlib
 import json
 from binascii import hexlify
 
-try:
-    from hashlib import sha3_256
-except ImportError:
-    from sha3 import sha3_256
+from hashlib import sha3_256
 
 
 def encode_transaction(value):

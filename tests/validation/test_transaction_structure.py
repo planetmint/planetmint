@@ -11,10 +11,7 @@ import json
 
 import pytest
 
-try:
-    import hashlib as sha3
-except ImportError:
-    import sha3
+import hashlib as sha3
 from unittest.mock import MagicMock
 
 from planetmint.transactions.common.exceptions import AmountError, SchemaValidationError, ThresholdTooDeep
