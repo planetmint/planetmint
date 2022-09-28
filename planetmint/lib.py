@@ -20,14 +20,29 @@ import requests
 import planetmint
 from planetmint.config import Config
 from planetmint import backend, config_utils, fastquery
-from planetmint.transactions.common.transaction import Transaction
-from planetmint.transactions.common.exceptions import DuplicateTransaction, InvalidSignature, SchemaValidationError, ValidationError, DoubleSpend, AmountError, InputDoesNotExist, AssetIdMismatch
+from planetmint.transactions.common.transaction import VALIDATOR_ELECTION, Transaction
+from planetmint.transactions.common.exceptions import (
+    DuplicateTransaction,
+    InvalidSignature,
+    SchemaValidationError,
+    ValidationError,
+    DoubleSpend,
+    AmountError,
+    InputDoesNotExist,
+    AssetIdMismatch,
+    InvalidProposer,
+    UnequalValidatorSet,
+    DuplicateTransaction,
+    MultipleInputsError,
+    InvalidPowerChange
+)
+from planetmint.transactions.common.crypto import public_key_from_ed25519_key
 from planetmint.transactions.common.transaction_mode_types import (
     BROADCAST_TX_COMMIT,
     BROADCAST_TX_ASYNC,
     BROADCAST_TX_SYNC,
 )
-from planetmint.tendermint_utils import encode_transaction, merkleroot
+from planetmint.tendermint_utils import encode_transaction, merkleroot, key_from_base64
 from planetmint import exceptions as core_exceptions
 from planetmint.validation import BaseValidationRules
 
@@ -600,6 +615,79 @@ class Planetmint(object):
             tx = list(tx_map.values())[0]
             return Transaction.from_dict(tx)
 
+    # NOTE: moved here from Election needs to be placed somewhere else
+    def get_validators_dict(self, height=None):
+        """Return a dictionary of validators with key as `public_key` and
+        value as the `voting_power`
+        """
+        validators = {}
+        for validator in self.get_validators(height):
+            # NOTE: we assume that Tendermint encodes public key in base64
+            public_key = public_key_from_ed25519_key(key_from_base64(validator["public_key"]["value"]))
+            validators[public_key] = validator["voting_power"]
 
+        return validators
+
+    def validate_election(self, transaction, current_transactions=[]): # TODO: move somewhere else
+        """Validate election transaction
+
+        NOTE:
+        * A valid election is initiated by an existing validator.
+
+        * A valid election is one where voters are validators and votes are
+          allocated according to the voting power of each validator node.
+
+        Args:
+            :param planet: (Planetmint) an instantiated planetmint.lib.Planetmint object.
+            :param current_transactions: (list) A list of transactions to be validated along with the election
+
+        Returns:
+            Election: a Election object or an object of the derived Election subclass.
+
+        Raises:
+            ValidationError: If the election is invalid
+        """
+        input_conditions = []
+
+        duplicates = any(txn for txn in current_transactions if txn.id == transaction.id)
+        if self.is_committed(transaction.id) or duplicates:
+            raise DuplicateTransaction("transaction `{}` already exists".format(transaction.id))
+
+        if not transaction.inputs_valid(input_conditions):
+            raise InvalidSignature("Transaction signature is invalid.")
+
+        current_validators = self.get_validators_dict()
+
+        # NOTE: Proposer should be a single node
+        if len(transaction.inputs) != 1 or len(transaction.inputs[0].owners_before) != 1:
+            raise MultipleInputsError("`tx_signers` must be a list instance of length one")
+
+        # NOTE: Check if the proposer is a validator.
+        [election_initiator_node_pub_key] = transaction.inputs[0].owners_before
+        if election_initiator_node_pub_key not in current_validators.keys():
+            raise InvalidProposer("Public key is not a part of the validator set")
+
+        # NOTE: Check if all validators have been assigned votes equal to their voting power
+        if not transaction.is_same_topology(current_validators, transaction.outputs):
+            raise UnequalValidatorSet("Validator set much be exactly same to the outputs of election")
+
+        if transaction.operation == VALIDATOR_ELECTION:
+            self.validate_validator_election(transaction, current_transactions)
+
+        return transaction
+
+
+    def validate_validator_election(self, transaction, current_transactions=[]): # TODO: move somewhere else
+        """For more details refer BEP-21: https://github.com/planetmint/BEPs/tree/master/21"""
+
+        current_validators = self.get_validators_dict()
+
+        # super(ValidatorElection, self).validate(planet, current_transactions=current_transactions)
+
+        # NOTE: change more than 1/3 of the current power is not allowed
+        if transaction.asset["data"]["power"] >= (1 / 3) * sum(current_validators.values()):
+            raise InvalidPowerChange("`power` change must be less than 1/3 of total power")
+
+        return transaction
 
 Block = namedtuple("Block", ("app_hash", "height", "transactions"))

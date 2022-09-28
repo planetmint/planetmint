@@ -9,8 +9,6 @@ from uuid import uuid4
 from typing import Optional
 
 from planetmint import backend
-from planetmint.transactions.types.assets.create import Create
-from planetmint.transactions.types.assets.transfer import Transfer
 from planetmint.transactions.types.elections.vote import Vote
 from planetmint.transactions.common.exceptions import (
     InvalidSignature,
@@ -44,7 +42,7 @@ class Election(Transaction):
     ELECTION_THRESHOLD = 2 / 3
 
     @classmethod
-    def get_validator_change(cls, planet):
+    def get_validator_change(cls, planet): # TODO: move somewhere else
         """Return the validator set from the most recent approved block
 
         :return: {
@@ -58,7 +56,7 @@ class Election(Transaction):
         return planet.get_validator_change(latest_block["height"])
 
     @classmethod
-    def get_validators(cls, planet, height=None):
+    def get_validators(cls, planet, height=None): # TODO: move somewhere else
         """Return a dictionary of validators with key as `public_key` and
         value as the `voting_power`
         """
@@ -71,7 +69,7 @@ class Election(Transaction):
         return validators
 
     @classmethod
-    def recipients(cls, planet):
+    def recipients(cls, planet): # TODO: move somewhere else
         """Convert validator dictionary to a recipient list for `Transaction`"""
 
         recipients = []
@@ -81,7 +79,7 @@ class Election(Transaction):
         return recipients
 
     @classmethod
-    def is_same_topology(cls, current_topology, election_topology):
+    def is_same_topology(cls, current_topology, election_topology): # TODO: move somewhere else
         voters = {}
         for voter in election_topology:
             if len(voter.public_keys) > 1:
@@ -114,51 +112,6 @@ class Election(Transaction):
 
         return True
 
-    def validate(self, planet, current_transactions=[]):
-        """Validate election transaction
-
-        NOTE:
-        * A valid election is initiated by an existing validator.
-
-        * A valid election is one where voters are validators and votes are
-          allocated according to the voting power of each validator node.
-
-        Args:
-            :param planet: (Planetmint) an instantiated planetmint.lib.Planetmint object.
-            :param current_transactions: (list) A list of transactions to be validated along with the election
-
-        Returns:
-            Election: a Election object or an object of the derived Election subclass.
-
-        Raises:
-            ValidationError: If the election is invalid
-        """
-        input_conditions = []
-
-        duplicates = any(txn for txn in current_transactions if txn.id == self.id)
-        if planet.is_committed(self.id) or duplicates:
-            raise DuplicateTransaction("transaction `{}` already exists".format(self.id))
-
-        if not self.inputs_valid(input_conditions):
-            raise InvalidSignature("Transaction signature is invalid.")
-
-        current_validators = self.get_validators(planet)
-
-        # NOTE: Proposer should be a single node
-        if len(self.inputs) != 1 or len(self.inputs[0].owners_before) != 1:
-            raise MultipleInputsError("`tx_signers` must be a list instance of length one")
-
-        # NOTE: Check if the proposer is a validator.
-        [election_initiator_node_pub_key] = self.inputs[0].owners_before
-        if election_initiator_node_pub_key not in current_validators.keys():
-            raise InvalidProposer("Public key is not a part of the validator set")
-
-        # NOTE: Check if all validators have been assigned votes equal to their voting power
-        if not self.is_same_topology(current_validators, self.outputs):
-            raise UnequalValidatorSet("Validator set much be exactly same to the outputs of election")
-
-        return self
-
     @classmethod
     def generate(cls, initiator, voters, election_data, metadata=None):
         # Break symmetry in case we need to call an election with the same properties twice
@@ -181,19 +134,11 @@ class Election(Transaction):
             _validate_schema(cls.TX_SCHEMA_CUSTOM, tx)
 
     @classmethod
-    def create(cls, tx_signers, recipients, metadata=None, asset=None):
-        Create.generate(tx_signers, recipients, metadata=None, asset=None)
-
-    @classmethod
-    def transfer(cls, tx_signers, recipients, metadata=None, asset=None):
-        Transfer.generate(tx_signers, recipients, metadata=None, asset=None)
-
-    @classmethod
-    def to_public_key(cls, election_id):
+    def to_public_key(cls, election_id): # TODO: move somewhere else
         return base58.b58encode(bytes.fromhex(election_id)).decode()
 
     @classmethod
-    def count_votes(cls, election_pk, transactions, getter=getattr):
+    def count_votes(cls, election_pk, transactions, getter=getattr): # TODO: move somewhere else
         votes = 0
         for txn in transactions:
             if getter(txn, "operation") == Vote.OPERATION:
@@ -205,13 +150,13 @@ class Election(Transaction):
                         votes = votes + int(getter(output, "amount"))
         return votes
 
-    def get_commited_votes(self, planet, election_pk=None):
+    def get_commited_votes(self, planet, election_pk=None): # TODO: move somewhere else
         if election_pk is None:
             election_pk = self.to_public_key(self.id)
         txns = list(backend.query.get_asset_tokens_for_public_key(planet.connection, self.id, election_pk))
         return self.count_votes(election_pk, txns, dict.get)
 
-    def has_concluded(self, planet, current_votes=[]):
+    def has_concluded(self, planet, current_votes=[]): # TODO: move somewhere else
         """Check if the election can be concluded or not.
 
         * Elections can only be concluded if the validator set has not changed
@@ -233,14 +178,14 @@ class Election(Transaction):
 
         return False
 
-    def get_status(self, planet):
+    def get_status(self, planet): # TODO: move somewhere else
         election = self.get_election(self.id, planet)
         if election and election["is_concluded"]:
             return self.CONCLUDED
 
         return self.INCONCLUSIVE if self.has_validator_set_changed(planet) else self.ONGOING
 
-    def has_validator_set_changed(self, planet):
+    def has_validator_set_changed(self, planet): # TODO: move somewhere else
         latest_change = self.get_validator_change(planet)
         if latest_change is None:
             return False
@@ -251,13 +196,13 @@ class Election(Transaction):
 
         return latest_change_height > election["height"]
 
-    def get_election(self, election_id, planet):
+    def get_election(self, election_id, planet): # TODO: move somewhere else
         return planet.get_election(election_id)
 
-    def store(self, planet, height, is_concluded):
+    def store(self, planet, height, is_concluded): # TODO: move somewhere else
         planet.store_election(self.id, height, is_concluded)
 
-    def show_election(self, planet):
+    def show_election(self, planet): # TODO: move somewhere else
         data = self.asset["data"]
         if "public_key" in data.keys():
             data["public_key"] = public_key_to_base64(data["public_key"]["value"])
@@ -270,7 +215,7 @@ class Election(Transaction):
         return response
 
     @classmethod
-    def _get_initiated_elections(cls, height, txns):
+    def _get_initiated_elections(cls, height, txns): # TODO: move somewhere else
         elections = []
         for tx in txns:
             if not isinstance(tx, Election):
@@ -280,7 +225,7 @@ class Election(Transaction):
         return elections
 
     @classmethod
-    def _get_votes(cls, txns):
+    def _get_votes(cls, txns): # TODO: move somewhere else
         elections = OrderedDict()
         for tx in txns:
             if not isinstance(tx, Vote):
@@ -293,7 +238,7 @@ class Election(Transaction):
         return elections
 
     @classmethod
-    def process_block(cls, planet, new_height, txns):
+    def process_block(cls, planet, new_height, txns): # TODO: move somewhere else
         """Looks for election and vote transactions inside the block, records
         and processes elections.
 
@@ -340,7 +285,7 @@ class Election(Transaction):
         return [validator_update] if validator_update else []
 
     @classmethod
-    def rollback(cls, planet, new_height, txn_ids):
+    def rollback(cls, planet, new_height, txn_ids): # TODO: move somewhere else
         """Looks for election and vote transactions inside the block and
         cleans up the database artifacts possibly created in `process_blocks`.
 

@@ -12,7 +12,7 @@ class ChainMigrationElection(Election):
     ALLOWED_OPERATIONS = (OPERATION,)
     TX_SCHEMA_CUSTOM = TX_SCHEMA_CHAIN_MIGRATION_ELECTION
 
-    def has_concluded(self, planetmint, *args, **kwargs):
+    def has_concluded(self, planetmint, *args, **kwargs): # TODO: move somewhere else
         chain = planetmint.get_latest_abci_chain()
         if chain is not None and not chain["is_synced"]:
             # do not conclude the migration election if
@@ -21,10 +21,10 @@ class ChainMigrationElection(Election):
 
         return super().has_concluded(planetmint, *args, **kwargs)
 
-    def on_approval(self, planet, *args, **kwargs):
+    def on_approval(self, planet, *args, **kwargs): # TODO: move somewhere else
         planet.migrate_abci_chain()
 
-    def show_election(self, planet):
+    def show_election(self, planet): # TODO: move somewhere else
         output = super().show_election(planet)
         chain = planet.get_latest_abci_chain()
         if chain is None or chain["is_synced"]:
@@ -46,5 +46,5 @@ class ChainMigrationElection(Election):
         output += f"\nvalidators={json.dumps(validators, indent=4)}"
         return output
 
-    def on_rollback(self, planet, new_height):
+    def on_rollback(self, planet, new_height): # TODO: move somewhere else
         planet.delete_abci_chain(new_height)

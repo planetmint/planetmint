@@ -25,7 +25,7 @@ def test_upsert_validator_valid_election(b_mock, new_validator, node_key):
     election = ValidatorElection.generate([node_key.public_key], voters, new_validator, None).sign(
         [node_key.private_key]
     )
-    assert election.validate(b_mock)
+    assert b_mock.validate_election(election)
 
 
 def test_upsert_validator_invalid_election_public_key(b_mock, new_validator, node_key):
@@ -47,7 +47,7 @@ def test_upsert_validator_invalid_power_election(b_mock, new_validator, node_key
         [node_key.private_key]
     )
     with pytest.raises(InvalidPowerChange):
-        election.validate(b_mock)
+        b_mock.validate_election(election)
 
 
 def test_upsert_validator_invalid_proposed_election(b_mock, new_validator, node_key):
@@ -57,7 +57,7 @@ def test_upsert_validator_invalid_proposed_election(b_mock, new_validator, node_
     voters = ValidatorElection.recipients(b_mock)
     election = ValidatorElection.generate([alice.public_key], voters, new_validator, None).sign([alice.private_key])
     with pytest.raises(InvalidProposer):
-        election.validate(b_mock)
+        b_mock.validate_election(election)
 
 
 def test_upsert_validator_invalid_inputs_election(b_mock, new_validator, node_key):
@@ -69,7 +69,7 @@ def test_upsert_validator_invalid_inputs_election(b_mock, new_validator, node_ke
         [node_key.private_key, alice.private_key]
     )
     with pytest.raises(MultipleInputsError):
-        election.validate(b_mock)
+        b_mock.validate_election(election)
 
 
 @patch("planetmint.transactions.types.elections.election.uuid4", lambda: "mock_uuid4")
@@ -80,12 +80,12 @@ def test_upsert_validator_invalid_election(b_mock, new_validator, node_key, fixe
     )
 
     with pytest.raises(DuplicateTransaction):
-        fixed_seed_election.validate(b_mock, [duplicate_election])
+        b_mock.validate_election(fixed_seed_election, [duplicate_election])
 
     b_mock.store_bulk_transactions([fixed_seed_election])
 
     with pytest.raises(DuplicateTransaction):
-        duplicate_election.validate(b_mock)
+        b_mock.validate_election(duplicate_election)
 
     # Try creating an election with incomplete voter set
     invalid_election = ValidatorElection.generate([node_key.public_key], voters[1:], new_validator, None).sign(
@@ -93,7 +93,7 @@ def test_upsert_validator_invalid_election(b_mock, new_validator, node_key, fixe
     )
 
     with pytest.raises(UnequalValidatorSet):
-        invalid_election.validate(b_mock)
+        b_mock.validate_election(invalid_election)
 
     recipients = ValidatorElection.recipients(b_mock)
     altered_recipients = []
@@ -107,7 +107,7 @@ def test_upsert_validator_invalid_election(b_mock, new_validator, node_key, fixe
     )
 
     with pytest.raises(UnequalValidatorSet):
-        tx_election.validate(b_mock)
+        b_mock.validate_election(tx_election)
 
 
 def test_get_status_ongoing(b, ongoing_validator_election, new_validator):
