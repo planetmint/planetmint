@@ -773,57 +773,6 @@ class Transaction(object):
             script=script_,
         )
 
-    @classmethod
-    def from_db(cls, planet, tx_dict_list):
-        """Helper method that reconstructs a transaction dict that was returned
-        from the database. It checks what asset_id to retrieve, retrieves the
-        asset from the asset table and reconstructs the transaction.
-
-        Args:
-            planet (:class:`~planetmint.tendermint.Planetmint`): An instance
-                of Planetmint used to perform database queries.
-            tx_dict_list (:list:`dict` or :obj:`dict`): The transaction dict or
-                list of transaction dict as returned from the database.
-
-        Returns:
-            :class:`~Transaction`
-
-        """
-        return_list = True
-        if isinstance(tx_dict_list, dict):
-            tx_dict_list = [tx_dict_list]
-            return_list = False
-
-        tx_map = {}
-        tx_ids = []
-        for tx in tx_dict_list:
-            tx.update({"metadata": None})
-            tx_map[tx["id"]] = tx
-            tx_ids.append(tx["id"])
-
-        assets = list(planet.get_assets(tx_ids))
-        for asset in assets:
-            if asset is not None:
-                # This is tarantool specific behaviour needs to be addressed
-                tx = tx_map[asset[1]]
-                tx["asset"] = asset[0]
-
-        tx_ids = list(tx_map.keys())
-        metadata_list = list(planet.get_metadata(tx_ids))
-        for metadata in metadata_list:
-            if "id" in metadata:
-                tx = tx_map[metadata["id"]]
-                tx.update({"metadata": metadata.get("metadata")})
-
-        if return_list:
-            tx_list = []
-            for tx_id, tx in tx_map.items():
-                tx_list.append(cls.from_dict(tx))
-            return tx_list
-        else:
-            tx = list(tx_map.values())[0]
-            return cls.from_dict(tx)
-
     type_registry: dict[type, type] = {}
 
     @staticmethod
