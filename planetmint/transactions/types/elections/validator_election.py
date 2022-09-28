@@ -3,12 +3,9 @@
 # SPDX-License-Identifier: (Apache-2.0 AND CC-BY-4.0)
 # Code is Apache-2.0 and docs are CC-BY-4.0
 
-from planetmint.transactions.common.exceptions import InvalidPowerChange
 from planetmint.transactions.types.elections.election import Election
 from planetmint.transactions.common.schema import TX_SCHEMA_VALIDATOR_ELECTION
 from planetmint.transactions.common.transaction import VALIDATOR_ELECTION
-
-# from planetmint.transactions.common.transaction import Transaction
 
 from .validator_utils import new_validator_set, encode_validator, validate_asset_public_key
 
@@ -28,7 +25,7 @@ class ValidatorElection(Election):
         latest_block = planet.get_latest_block()
         if latest_block is not None:
             latest_block_height = latest_block["height"]
-            latest_validator_change = planet.get_validator_change()["height"]
+            latest_validator_change = planet.get_validator_set()["height"]
 
             # TODO change to `latest_block_height + 3` when upgrading to Tendermint 0.24.0.
             if latest_validator_change == latest_block_height + 2:

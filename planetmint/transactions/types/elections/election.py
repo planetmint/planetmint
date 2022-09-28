@@ -10,13 +10,6 @@ from typing import Optional
 
 from planetmint import backend
 from planetmint.transactions.types.elections.vote import Vote
-from planetmint.transactions.common.exceptions import (
-    InvalidSignature,
-    MultipleInputsError,
-    InvalidProposer,
-    UnequalValidatorSet,
-    DuplicateTransaction,
-)
 from planetmint.tendermint_utils import key_from_base64, public_key_to_base64
 from planetmint.transactions.common.crypto import public_key_from_ed25519_key
 from planetmint.transactions.common.transaction import Transaction
@@ -40,20 +33,6 @@ class Election(Transaction):
     INCONCLUSIVE: str = "inconclusive"
     # Vote ratio to approve an election
     ELECTION_THRESHOLD = 2 / 3
-
-    @classmethod
-    def get_validator_change(cls, planet): # TODO: move somewhere else
-        """Return the validator set from the most recent approved block
-
-        :return: {
-            'height': <block_height>,
-            'validators': <validator_set>
-        }
-        """
-        latest_block = planet.get_latest_block()
-        if latest_block is None:
-            return None
-        return planet.get_validator_change(latest_block["height"])
 
     @classmethod
     def get_validators(cls, planet, height=None): # TODO: move somewhere else
@@ -165,7 +144,7 @@ class Election(Transaction):
 
         Custom elections may override this function and introduce additional checks.
         """
-        if self.has_validator_set_changed(planet):
+        if planet.has_validator_set_changed(self):
             return False
 
         election_pk = self.to_public_key(self.id)
@@ -178,27 +157,6 @@ class Election(Transaction):
 
         return False
 
-    def get_status(self, planet): # TODO: move somewhere else
-        election = self.get_election(self.id, planet)
-        if election and election["is_concluded"]:
-            return self.CONCLUDED
-
-        return self.INCONCLUSIVE if self.has_validator_set_changed(planet) else self.ONGOING
-
-    def has_validator_set_changed(self, planet): # TODO: move somewhere else
-        latest_change = self.get_validator_change(planet)
-        if latest_change is None:
-            return False
-
-        latest_change_height = latest_change["height"]
-
-        election = self.get_election(self.id, planet)
-
-        return latest_change_height > election["height"]
-
-    def get_election(self, election_id, planet): # TODO: move somewhere else
-        return planet.get_election(election_id)
-
     def store(self, planet, height, is_concluded): # TODO: move somewhere else
         planet.store_election(self.id, height, is_concluded)
 
@@ -210,7 +168,7 @@ class Election(Transaction):
         for k, v in data.items():
             if k != "seed":
                 response += f"{k}={v}\n"
-        response += f"status={self.get_status(planet)}"
+        response += f"status={planet.get_election_status(self)}"
 
         return response
 

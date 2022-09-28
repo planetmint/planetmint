@@ -112,13 +112,13 @@ def test_upsert_validator_invalid_election(b_mock, new_validator, node_key, fixe
 
 def test_get_status_ongoing(b, ongoing_validator_election, new_validator):
     status = ValidatorElection.ONGOING
-    resp = ongoing_validator_election.get_status(b)
+    resp = b.get_election_status(ongoing_validator_election)
     assert resp == status
 
 
 def test_get_status_concluded(b, concluded_election, new_validator):
     status = ValidatorElection.CONCLUDED
-    resp = concluded_election.get_status(b)
+    resp = b.get_election_status(concluded_election)
     assert resp == status
 
 
@@ -169,7 +169,7 @@ def test_get_status_inconclusive(b, inconclusive_election, new_validator):
     b.get_validators = custom_mock_get_validators
     b.get_latest_block = set_block_height_to_3
     status = ValidatorElection.INCONCLUSIVE
-    resp = inconclusive_election.get_status(b)
+    resp = b.get_election_status(inconclusive_election)
     assert resp == status
 
 

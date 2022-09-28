@@ -425,7 +425,7 @@ def test_rollback_pre_commit_state_after_crash(b):
     for tx in txs:
         assert b.get_transaction(tx.id)
     assert b.get_latest_abci_chain()
-    assert len(b.get_validator_change()["validators"]) == 1
+    assert len(b.get_validator_set()["validators"]) == 1
     assert b.get_election(migration_election.id)
     assert b.get_election(validator_election.id)
 
@@ -436,8 +436,8 @@ def test_rollback_pre_commit_state_after_crash(b):
     for tx in txs:
         assert not b.get_transaction(tx.id)
     assert not b.get_latest_abci_chain()
-    assert len(b.get_validator_change()["validators"]) == 4
-    assert len(b.get_validator_change(2)["validators"]) == 4
+    assert len(b.get_validator_set()["validators"]) == 4
+    assert len(b.get_validator_set(2)["validators"]) == 4
     assert not b.get_election(migration_election.id)
     assert not b.get_election(validator_election.id)
 

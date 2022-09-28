@@ -44,6 +44,7 @@ from planetmint.transactions.common.transaction_mode_types import (
 )
 from planetmint.tendermint_utils import encode_transaction, merkleroot, key_from_base64
 from planetmint import exceptions as core_exceptions
+from planetmint.transactions.types.elections.election import Election
 from planetmint.validation import BaseValidationRules
 
 logger = logging.getLogger(__name__)
@@ -499,11 +500,11 @@ class Planetmint(object):
     def fastquery(self):
         return fastquery.FastQuery(self.connection)
 
-    def get_validator_change(self, height=None):
+    def get_validator_set(self, height=None):
         return backend.query.get_validator_set(self.connection, height)
 
     def get_validators(self, height=None):
-        result = self.get_validator_change(height)
+        result = self.get_validator_set(height)
         return [] if result is None else result["validators"]
 
     def get_election(self, election_id):
@@ -682,12 +683,41 @@ class Planetmint(object):
 
         current_validators = self.get_validators_dict()
 
-        # super(ValidatorElection, self).validate(planet, current_transactions=current_transactions)
-
         # NOTE: change more than 1/3 of the current power is not allowed
         if transaction.asset["data"]["power"] >= (1 / 3) * sum(current_validators.values()):
             raise InvalidPowerChange("`power` change must be less than 1/3 of total power")
 
         return transaction
+
+    def get_election_status(self, transaction):
+        election = self.get_election(transaction.id)
+        if election and election["is_concluded"]:
+            return Election.CONCLUDED
+
+        return Election.INCONCLUSIVE if self.has_validator_set_changed(transaction) else Election.ONGOING
+
+    def has_validator_set_changed(self, transaction): # TODO: move somewhere else
+        latest_change = self.get_validator_change()
+        if latest_change is None:
+            return False
+
+        latest_change_height = latest_change["height"]
+
+        election = self.get_election(transaction.id)
+
+        return latest_change_height > election["height"]
+
+    def get_validator_change(self): # TODO: move somewhere else
+        """Return the validator set from the most recent approved block
+
+        :return: {
+            'height': <block_height>,
+            'validators': <validator_set>
+        }
+        """
+        latest_block = self.get_latest_block()
+        if latest_block is None:
+            return None
+        return self.get_validator_set(latest_block["height"])
 
 Block = namedtuple("Block", ("app_hash", "height", "transactions"))
