@@ -334,7 +334,7 @@ class Planetmint(object):
 
         if block:
             transactions = backend.query.get_transactions(self.connection, block["transactions"])
-            result["transactions"] = [t.to_dict() for t in Transaction.from_db(self, transactions)]
+            result["transactions"] = [t.to_dict() for t in self.tx_from_db(transactions)]
 
         return result
 
@@ -551,6 +551,55 @@ class Planetmint(object):
 
     def delete_elections(self, height):
         return backend.query.delete_elections(self.connection, height)
+
+    def tx_from_db(self, tx_dict_list):
+        """Helper method that reconstructs a transaction dict that was returned
+        from the database. It checks what asset_id to retrieve, retrieves the
+        asset from the asset table and reconstructs the transaction.
+
+        Args:
+            tx_dict_list (:list:`dict` or :obj:`dict`): The transaction dict or
+                list of transaction dict as returned from the database.
+
+        Returns:
+            :class:`~Transaction`
+
+        """
+        return_list = True
+        if isinstance(tx_dict_list, dict):
+            tx_dict_list = [tx_dict_list]
+            return_list = False
+
+        tx_map = {}
+        tx_ids = []
+        for tx in tx_dict_list:
+            tx.update({"metadata": None})
+            tx_map[tx["id"]] = tx
+            tx_ids.append(tx["id"])
+
+        assets = list(self.get_assets(tx_ids))
+        for asset in assets:
+            if asset is not None:
+                # This is tarantool specific behaviour needs to be addressed
+                tx = tx_map[asset[1]]
+                tx["asset"] = asset[0]
+
+        tx_ids = list(tx_map.keys())
+        metadata_list = list(self.get_metadata(tx_ids))
+        for metadata in metadata_list:
+            if "id" in metadata:
+                tx = tx_map[metadata["id"]]
+                tx.update({"metadata": metadata.get("metadata")})
+
+        if return_list:
+            tx_list = []
+            for tx_id, tx in tx_map.items():
+                tx_list.append(Transaction.from_dict(tx))
+            return tx_list
+        else:
+            tx = list(tx_map.values())[0]
+            return Transaction.from_dict(tx)
+
 
 
 Block = namedtuple("Block", ("app_hash", "height", "transactions"))
