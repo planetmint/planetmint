@@ -209,7 +209,7 @@ class App(BaseApplication):
         else:
             self.block_txn_hash = block["app_hash"]
 
-        validator_update = Election.process_block(self.planetmint_node, self.new_height, self.block_transactions)
+        validator_update = self.planetmint_node.process_block(self.new_height, self.block_transactions)
 
         return ResponseEndBlock(validator_updates=validator_update)
 

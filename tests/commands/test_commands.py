@@ -524,7 +524,7 @@ def test_chain_migration_election_show_shows_inconclusive(b):
 
     assert not run_election_show(Namespace(election_id=election.id), b)
 
-    Election.process_block(b, 1, [election])
+    b.process_block(1, [election])
     b.store_bulk_transactions([election])
 
     assert run_election_show(Namespace(election_id=election.id), b) == "status=ongoing"
@@ -554,13 +554,13 @@ def test_chain_migration_election_show_shows_concluded(b):
     assert not run_election_show(Namespace(election_id=election.id), b)
 
     b.store_bulk_transactions([election])
-    Election.process_block(b, 1, [election])
+    b.process_block(1, [election])
 
     assert run_election_show(Namespace(election_id=election.id), b) == "status=ongoing"
 
     b.store_abci_chain(1, "chain-X")
     b.store_block(Block(height=1, transactions=[v.id for v in votes], app_hash="last_app_hash")._asdict())
-    Election.process_block(b, 2, votes)
+    b.process_block(2, votes)
 
     assert (
         run_election_show(Namespace(election_id=election.id), b)

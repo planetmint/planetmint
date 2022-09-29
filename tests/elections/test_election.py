@@ -31,11 +31,11 @@ def test_process_block_concludes_all_elections(b):
     total_votes += votes
 
     b.store_abci_chain(1, "chain-X")
-    Election.process_block(b, 1, txs)
+    b.process_block(1, txs)
     b.store_block(Block(height=1, transactions=[tx.id for tx in txs], app_hash="")._asdict())
     b.store_bulk_transactions(txs)
 
-    Election.process_block(b, 2, total_votes)
+    b.process_block(2, total_votes)
 
     validators = b.get_validators()
     assert len(validators) == 5
@@ -78,11 +78,11 @@ def test_process_block_approves_only_one_validator_update(b):
     txs += [election]
     total_votes += votes
 
-    Election.process_block(b, 1, txs)
+    b.process_block(1, txs)
     b.store_block(Block(height=1, transactions=[tx.id for tx in txs], app_hash="")._asdict())
     b.store_bulk_transactions(txs)
 
-    Election.process_block(b, 2, total_votes)
+    b.process_block(2, total_votes)
 
     validators = b.get_validators()
     assert len(validators) == 5
@@ -124,11 +124,11 @@ def test_process_block_approves_after_pending_validator_update(b):
     total_votes += votes
 
     b.store_abci_chain(1, "chain-X")
-    Election.process_block(b, 1, txs)
+    b.process_block(1, txs)
     b.store_block(Block(height=1, transactions=[tx.id for tx in txs], app_hash="")._asdict())
     b.store_bulk_transactions(txs)
 
-    Election.process_block(b, 2, total_votes)
+    b.process_block(2, total_votes)
 
     validators = b.get_validators()
     assert len(validators) == 5
@@ -160,19 +160,19 @@ def test_process_block_does_not_approve_after_validator_update(b):
     total_votes = votes
 
     b.store_block(Block(height=1, transactions=[tx.id for tx in txs], app_hash="")._asdict())
-    Election.process_block(b, 1, txs)
+    b.process_block(1, txs)
     b.store_bulk_transactions(txs)
 
     second_election, second_votes = generate_election(
         b, ChainMigrationElection, public_key, private_key, {}, voter_keys
     )
 
-    Election.process_block(b, 2, total_votes + [second_election])
+    b.process_block(2, total_votes + [second_election])
 
     b.store_block(Block(height=2, transactions=[v.id for v in total_votes + [second_election]], app_hash="")._asdict())
 
     b.store_abci_chain(1, "chain-X")
-    Election.process_block(b, 3, second_votes)
+    b.process_block(3, second_votes)
 
     assert not b.get_election(second_election.id)["is_concluded"]
     assert b.get_latest_abci_chain() == {"height": 1, "chain_id": "chain-X", "is_synced": True}
@@ -197,11 +197,11 @@ def test_process_block_applies_only_one_migration(b):
     total_votes += votes
 
     b.store_abci_chain(1, "chain-X")
-    Election.process_block(b, 1, txs)
+    b.process_block(1, txs)
     b.store_block(Block(height=1, transactions=[tx.id for tx in txs], app_hash="")._asdict())
     b.store_bulk_transactions(txs)
 
-    Election.process_block(b, 1, total_votes)
+    b.process_block(1, total_votes)
     chain = b.get_latest_abci_chain()
     assert chain
     assert chain == {
@@ -215,4 +215,4 @@ def test_process_block_applies_only_one_migration(b):
 
 
 def test_process_block_gracefully_handles_empty_block(b):
-    Election.process_block(b, 1, [])
+    b.process_block(1, [])

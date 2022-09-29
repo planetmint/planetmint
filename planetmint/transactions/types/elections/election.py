@@ -4,11 +4,9 @@
 # Code is Apache-2.0 and docs are CC-BY-4.0
 from collections import OrderedDict
 
-import base58
 from uuid import uuid4
 from typing import Optional
 
-from planetmint import backend
 from planetmint.transactions.types.elections.vote import Vote
 from planetmint.transactions.common.transaction import Transaction
 from planetmint.transactions.common.schema import _validate_schema, TX_SCHEMA_COMMON
@@ -96,76 +94,6 @@ class Election(Transaction):
         return False
 
     @classmethod
-    def _get_initiated_elections(cls, height, txns): # TODO: move somewhere else
-        elections = []
-        for tx in txns:
-            if not isinstance(tx, Election):
-                continue
-
-            elections.append({"election_id": tx.id, "height": height, "is_concluded": False})
-        return elections
-
-    @classmethod
-    def _get_votes(cls, txns): # TODO: move somewhere else
-        elections = OrderedDict()
-        for tx in txns:
-            if not isinstance(tx, Vote):
-                continue
-
-            election_id = tx.asset["id"]
-            if election_id not in elections:
-                elections[election_id] = []
-            elections[election_id].append(tx)
-        return elections
-
-    @classmethod
-    def process_block(cls, planet, new_height, txns): # TODO: move somewhere else
-        """Looks for election and vote transactions inside the block, records
-        and processes elections.
-
-        Every election is recorded in the database.
-
-        Every vote has a chance to conclude the corresponding election. When
-        an election is concluded, the corresponding database record is
-        marked as such.
-
-        Elections and votes are processed in the order in which they
-        appear in the block. Elections are concluded in the order of
-        appearance of their first votes in the block.
-
-        For every election concluded in the block, calls its `on_approval`
-        method. The returned value of the last `on_approval`, if any,
-        is a validator set update to be applied in one of the following blocks.
-
-        `on_approval` methods are implemented by elections of particular type.
-        The method may contain side effects but should be idempotent. To account
-        for other concluded elections, if it requires so, the method should
-        rely on the database state.
-        """
-        # elections initiated in this block
-        initiated_elections = cls._get_initiated_elections(new_height, txns)
-
-        if initiated_elections:
-            planet.store_elections(initiated_elections)
-
-        # elections voted for in this block and their votes
-        elections = cls._get_votes(txns)
-
-        validator_update = None
-        for election_id, votes in elections.items():
-            election = planet.get_transaction(election_id)
-            if election is None:
-                continue
-
-            if not election.has_concluded(planet, votes):
-                continue
-
-            validator_update = election.on_approval(planet, new_height)
-            planet.store_election(election.id, new_height, is_concluded=True)
-
-        return [validator_update] if validator_update else []
-
-    @classmethod
     def rollback(cls, planet, new_height, txn_ids): # TODO: move somewhere else
         """Looks for election and vote transactions inside the block and
         cleans up the database artifacts possibly created in `process_blocks`.
@@ -179,7 +107,7 @@ class Election(Transaction):
 
         txns = [planet.get_transaction(tx_id) for tx_id in txn_ids]
 
-        elections = cls._get_votes(txns)
+        elections = planet._get_votes(txns)
         for election_id in elections:
             election = planet.get_transaction(election_id)
             election.on_rollback(planet, new_height)

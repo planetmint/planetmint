@@ -288,10 +288,10 @@ def test_get_validator_update(b, node_keys, node_key, ed25519_node_keys):
     assert not election.has_concluded(b, [tx_vote0, tx_vote1])
     assert election.has_concluded(b, [tx_vote0, tx_vote1, tx_vote2])
 
-    assert Election.process_block(b, 4, [tx_vote0]) == []
-    assert Election.process_block(b, 4, [tx_vote0, tx_vote1]) == []
+    assert b.process_block(4, [tx_vote0]) == []
+    assert b.process_block(4, [tx_vote0, tx_vote1]) == []
 
-    update = Election.process_block(b, 4, [tx_vote0, tx_vote1, tx_vote2])
+    update = b.process_block(4, [tx_vote0, tx_vote1, tx_vote2])
     assert len(update) == 1
     update_public_key = codecs.encode(update[0].pub_key.ed25519, "base64").decode().rstrip("\n")
     assert update_public_key == public_key64
@@ -314,7 +314,7 @@ def test_get_validator_update(b, node_keys, node_key, ed25519_node_keys):
 
     b.store_bulk_transactions([tx_vote0, tx_vote1])
 
-    update = Election.process_block(b, 9, [tx_vote2])
+    update = b.process_block(9, [tx_vote2])
     assert len(update) == 1
     update_public_key = codecs.encode(update[0].pub_key.ed25519, "base64").decode().rstrip("\n")
     assert update_public_key == public_key64

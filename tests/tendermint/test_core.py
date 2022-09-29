@@ -341,7 +341,7 @@ def test_end_block_return_validator_updates(b, init_chain_request):
     )
     b.store_block(Block(height=1, transactions=[election.id], app_hash="")._asdict())
     b.store_bulk_transactions([election])
-    Election.process_block(b, 1, [election])
+    b.process_block(1, [election])
 
     app.block_transactions = votes
 

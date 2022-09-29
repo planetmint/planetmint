@@ -9,7 +9,7 @@ MongoDB.
 """
 import logging
 import json
-from collections import namedtuple
+from collections import namedtuple, OrderedDict
 from uuid import uuid4
 
 import rapidjson
@@ -811,5 +811,72 @@ class Planetmint(object):
             election_pk = election_id_to_public_key(transaction.id)
         txns = list(backend.query.get_asset_tokens_for_public_key(self.connection, transaction.id, election_pk))
         return self.count_votes(election_pk, txns, dict.get)
+
+    def _get_initiated_elections(self, height, txns): # TODO: move somewhere else
+        elections = []
+        for tx in txns:
+            if not isinstance(tx, Election):
+                continue
+
+            elections.append({"election_id": tx.id, "height": height, "is_concluded": False})
+        return elections
+
+    def _get_votes(self, txns): # TODO: move somewhere else
+        elections = OrderedDict()
+        for tx in txns:
+            if not isinstance(tx, Vote):
+                continue
+
+            election_id = tx.asset["id"]
+            if election_id not in elections:
+                elections[election_id] = []
+            elections[election_id].append(tx)
+        return elections
+
+    def process_block(self, new_height, txns): # TODO: move somewhere else
+        """Looks for election and vote transactions inside the block, records
+        and processes elections.
+
+        Every election is recorded in the database.
+
+        Every vote has a chance to conclude the corresponding election. When
+        an election is concluded, the corresponding database record is
+        marked as such.
+
+        Elections and votes are processed in the order in which they
+        appear in the block. Elections are concluded in the order of
+        appearance of their first votes in the block.
+
+        For every election concluded in the block, calls its `on_approval`
+        method. The returned value of the last `on_approval`, if any,
+        is a validator set update to be applied in one of the following blocks.
+
+        `on_approval` methods are implemented by elections of particular type.
+        The method may contain side effects but should be idempotent. To account
+        for other concluded elections, if it requires so, the method should
+        rely on the database state.
+        """
+        # elections initiated in this block
+        initiated_elections = self._get_initiated_elections(new_height, txns)
+
+        if initiated_elections:
+            self.store_elections(initiated_elections)
+
+        # elections voted for in this block and their votes
+        elections = self._get_votes(txns)
+
+        validator_update = None
+        for election_id, votes in elections.items():
+            election = self.get_transaction(election_id)
+            if election is None:
+                continue
+
+            if not election.has_concluded(self, votes):
+                continue
+
+            validator_update = election.on_approval(self, new_height)
+            self.store_election(election.id, new_height, is_concluded=True)
+
+        return [validator_update] if validator_update else []
 
 Block = namedtuple("Block", ("app_hash", "height", "transactions"))
