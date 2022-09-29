@@ -1,3 +1,4 @@
+import base58
 import base64
 import binascii
 import codecs
@@ -77,3 +78,7 @@ def get_public_key_decoder(pk):
         raise InvalidPublicKey("Invalid `type` specified for public key `value`")
 
     return decoder
+
+
+def election_id_to_public_key(election_id):
+    return base58.b58encode(bytes.fromhex(election_id)).decode()

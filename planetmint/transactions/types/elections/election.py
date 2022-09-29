@@ -10,11 +10,10 @@ from typing import Optional
 
 from planetmint import backend
 from planetmint.transactions.types.elections.vote import Vote
-from planetmint.tendermint_utils import key_from_base64, public_key_to_base64
-from planetmint.transactions.common.crypto import public_key_from_ed25519_key
 from planetmint.transactions.common.transaction import Transaction
 from planetmint.transactions.common.schema import _validate_schema, TX_SCHEMA_COMMON
 
+from .validator_utils import election_id_to_public_key
 
 class Election(Transaction):
     """Represents election transactions.
@@ -74,9 +73,6 @@ class Election(Transaction):
         if cls.TX_SCHEMA_CUSTOM:
             _validate_schema(cls.TX_SCHEMA_CUSTOM, tx)
 
-    @classmethod
-    def to_public_key(cls, election_id): # TODO: move somewhere else
-        return base58.b58encode(bytes.fromhex(election_id)).decode()
 
     @classmethod
     def count_votes(cls, election_pk, transactions, getter=getattr): # TODO: move somewhere else
@@ -93,7 +89,7 @@ class Election(Transaction):
 
     def get_commited_votes(self, planet, election_pk=None): # TODO: move somewhere else
         if election_pk is None:
-            election_pk = self.to_public_key(self.id)
+            election_pk = election_id_to_public_key(self.id)
         txns = list(backend.query.get_asset_tokens_for_public_key(planet.connection, self.id, election_pk))
         return self.count_votes(election_pk, txns, dict.get)
 
@@ -109,7 +105,7 @@ class Election(Transaction):
         if planet.has_validator_set_changed(self):
             return False
 
-        election_pk = self.to_public_key(self.id)
+        election_pk = election_id_to_public_key(self.id)
         votes_committed = self.get_commited_votes(planet, election_pk)
         votes_current = self.count_votes(election_pk, current_votes)
 

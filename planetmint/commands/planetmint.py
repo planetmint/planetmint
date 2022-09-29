@@ -19,6 +19,7 @@ from planetmint.transactions.common.transaction_mode_types import BROADCAST_TX_C
 from planetmint.transactions.common.exceptions import DatabaseDoesNotExist, ValidationError
 from planetmint.transactions.types.elections.vote import Vote
 from planetmint.transactions.types.elections.chain_migration_election import ChainMigrationElection
+from planetmint.transactions.types.elections.validator_utils import election_id_to_public_key
 import planetmint
 from planetmint import ValidatorElection, Planetmint
 from planetmint.backend import schema
@@ -197,7 +198,7 @@ def run_election_approve(args, planet):
         return False
 
     inputs = [i for i in tx.to_inputs() if key.public_key in i.owners_before]
-    election_pub_key = ValidatorElection.to_public_key(tx.id)
+    election_pub_key = election_id_to_public_key(tx.id)
     approval = Vote.generate(inputs, [([election_pub_key], voting_power)], tx.id).sign([key.private_key])
     planet.validate_transaction(approval)
 

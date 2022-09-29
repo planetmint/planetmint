@@ -16,6 +16,7 @@ from planetmint.transactions.common import crypto
 from planetmint.transactions.common.transaction_mode_types import BROADCAST_TX_COMMIT
 from planetmint.transactions.types.assets.create import Create
 from planetmint.transactions.types.elections.election import Election, Vote
+from planetmint.transactions.types.elections.validator_utils import election_id_to_public_key
 from planetmint.tendermint_utils import key_to_base64
 
 
@@ -73,7 +74,7 @@ def to_inputs(election, i, ed25519_node_keys):
 
 def gen_vote(election, i, ed25519_node_keys):
     (input_i, votes_i, key_i) = to_inputs(election, i, ed25519_node_keys)
-    election_pub_key = Election.to_public_key(election.id)
+    election_pub_key = election_id_to_public_key(election.id)
     return Vote.generate([input_i], [([election_pub_key], votes_i)], election_id=election.id).sign([key_i.private_key])
 
 
@@ -123,7 +124,7 @@ def generate_election(b, cls, public_key, private_key, asset_data, voter_keys):
     election = cls.generate([public_key], voters, asset_data, None).sign([private_key])
 
     votes = [
-        Vote.generate([election.to_inputs()[i]], [([Election.to_public_key(election.id)], power)], election.id)
+        Vote.generate([election.to_inputs()[i]], [([election_id_to_public_key(election.id)], power)], election.id)
         for i, (_, power) in enumerate(voters)
     ]
     for key, v in zip(voter_keys, votes):

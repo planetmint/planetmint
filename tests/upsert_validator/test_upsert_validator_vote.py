@@ -14,6 +14,7 @@ from planetmint.transactions.common.crypto import generate_key_pair
 from planetmint.transactions.common.exceptions import ValidationError
 from planetmint.transactions.common.transaction_mode_types import BROADCAST_TX_COMMIT
 from planetmint.transactions.types.elections.vote import Vote
+from planetmint.transactions.types.elections.validator_utils import election_id_to_public_key
 from tests.utils import generate_block, gen_vote
 
 pytestmark = [pytest.mark.execute]
@@ -28,7 +29,7 @@ def test_upsert_validator_valid_election_vote(b_mock, valid_upsert_validator_ele
     public_key0 = input0.owners_before[0]
     key0 = ed25519_node_keys[public_key0]
 
-    election_pub_key = ValidatorElection.to_public_key(valid_upsert_validator_election.id)
+    election_pub_key = election_id_to_public_key(valid_upsert_validator_election.id)
 
     vote = Vote.generate([input0], [([election_pub_key], votes)], election_id=valid_upsert_validator_election.id).sign(
         [key0.private_key]
@@ -46,7 +47,7 @@ def test_upsert_validator_valid_non_election_vote(b_mock, valid_upsert_validator
     public_key0 = input0.owners_before[0]
     key0 = ed25519_node_keys[public_key0]
 
-    election_pub_key = ValidatorElection.to_public_key(valid_upsert_validator_election.id)
+    election_pub_key = election_id_to_public_key(valid_upsert_validator_election.id)
 
     # Ensure that threshold conditions are now allowed
     with pytest.raises(ValidationError):
@@ -76,7 +77,7 @@ def test_upsert_validator_delegate_election_vote(b_mock, valid_upsert_validator_
     assert b_mock.validate_transaction(delegate_vote)
 
     b_mock.store_bulk_transactions([delegate_vote])
-    election_pub_key = ValidatorElection.to_public_key(valid_upsert_validator_election.id)
+    election_pub_key = election_id_to_public_key(valid_upsert_validator_election.id)
 
     alice_votes = delegate_vote.to_inputs()[0]
     alice_casted_vote = Vote.generate(
@@ -102,7 +103,7 @@ def test_upsert_validator_invalid_election_vote(b_mock, valid_upsert_validator_e
     public_key0 = input0.owners_before[0]
     key0 = ed25519_node_keys[public_key0]
 
-    election_pub_key = ValidatorElection.to_public_key(valid_upsert_validator_election.id)
+    election_pub_key = election_id_to_public_key(valid_upsert_validator_election.id)
 
     vote = Vote.generate(
         [input0], [([election_pub_key], votes + 1)], election_id=valid_upsert_validator_election.id
@@ -133,7 +134,7 @@ def test_valid_election_votes_received(b_mock, valid_upsert_validator_election, 
     b_mock.store_bulk_transactions([delegate_vote])
     assert valid_upsert_validator_election.get_commited_votes(b_mock) == 0
 
-    election_public_key = ValidatorElection.to_public_key(valid_upsert_validator_election.id)
+    election_public_key = election_id_to_public_key(valid_upsert_validator_election.id)
     alice_votes = delegate_vote.to_inputs()[0]
     key0_votes = delegate_vote.to_inputs()[1]
 
