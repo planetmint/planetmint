@@ -134,9 +134,6 @@ class Election(Transaction):
 
         return False
 
-    def store(self, planet, height, is_concluded): # TODO: move somewhere else
-        planet.store_election(self.id, height, is_concluded)
-
     def show_election(self, planet): # TODO: move somewhere else
         data = self.asset["data"]
         if "public_key" in data.keys():
@@ -215,7 +212,7 @@ class Election(Transaction):
                 continue
 
             validator_update = election.on_approval(planet, new_height)
-            election.store(planet, new_height, is_concluded=True)
+            planet.store_election(election.id, new_height, is_concluded=True)
 
         return [validator_update] if validator_update else []
 
