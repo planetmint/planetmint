@@ -3,7 +3,6 @@
 # SPDX-License-Identifier: (Apache-2.0 AND CC-BY-4.0)
 # Code is Apache-2.0 and docs are CC-BY-4.0
 
-from planetmint.transactions.types.assets.create import Create
 from planetmint.transactions.types.assets.transfer import Transfer
 from planetmint.transactions.common.transaction import VOTE
 from planetmint.transactions.common.schema import (
@@ -38,11 +37,3 @@ class Vote(Transfer):
         _validate_schema(TX_SCHEMA_COMMON, tx)
         _validate_schema(TX_SCHEMA_TRANSFER, tx)
         _validate_schema(cls.TX_SCHEMA_CUSTOM, tx)
-
-    @classmethod
-    def create(cls, tx_signers, recipients, metadata=None, asset=None):
-        return Create.generate(tx_signers, recipients, metadata=None, asset=None)
-
-    @classmethod
-    def transfer(cls, tx_signers, recipients, metadata=None, asset=None):
-        return Transfer.generate(tx_signers, recipients, metadata=None, asset=None)
