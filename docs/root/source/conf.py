@@ -70,9 +70,9 @@ extensions = [
 ]
 
 try:
-    remove("contributing/cross-project-policies/code-of-conduct.md")
-    remove("contributing/cross-project-policies/release-process.md")
-    remove("contributing/cross-project-policies/python-style-guide.md")
+    remove("references/contributing/cross-project-policies/code-of-conduct.md")
+    remove("references/contributing/cross-project-policies/release-process.md")
+    remove("references/contributing/cross-project-policies/python-style-guide.md")
 except:
     print("done")
 
@@ -85,19 +85,19 @@ def get_old_new(url, old, new):
 get_old_new(
     "https://raw.githubusercontent.com/planetmint/planetmint/master/CODE_OF_CONDUCT.md",
     "CODE_OF_CONDUCT.md",
-    "contributing/cross-project-policies/code-of-conduct.md",
+    "references/contributing/cross-project-policies/code-of-conduct.md",
 )
 
 get_old_new(
     "https://raw.githubusercontent.com/planetmint/planetmint/master/RELEASE_PROCESS.md",
     "RELEASE_PROCESS.md",
-    "contributing/cross-project-policies/release-process.md",
+    "references/contributing/cross-project-policies/release-process.md",
 )
 
 get_old_new(
     "https://raw.githubusercontent.com/planetmint/planetmint/master/PYTHON_STYLE_GUIDE.md",
     "PYTHON_STYLE_GUIDE.md",
-    "contributing/cross-project-policies/python-style-guide.md",
+    "references/contributing/cross-project-policies/python-style-guide.md",
 )
 
 suppress_warnings = ["misc.highlighting_failure"]

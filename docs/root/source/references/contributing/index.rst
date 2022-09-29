@@ -22,7 +22,7 @@ Contents
 --------
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 4
 
    ways-to-contribute/index
    dev-setup-coding-and-contribution-process/index

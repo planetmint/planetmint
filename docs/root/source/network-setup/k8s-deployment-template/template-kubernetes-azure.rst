@@ -50,7 +50,7 @@ for your Kubernetes VMs and nothing else.)
 
 See the
 :doc:`page about how to generate a key pair for SSH
-<../../appendices/generate-key-pair-for-ssh>`.
+<../../references/appendices/generate-key-pair-for-ssh>`.
 
 
 Step 3: Deploy an Azure Container Service (ACS)

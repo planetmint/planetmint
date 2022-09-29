@@ -27,7 +27,7 @@ Planetmint Server writes its logs to two files: normal logs and error logs. The 
 
 Log rotation is baked into Planetmint Server using Python's `logging` module. The logs for Planetmint Server are rotated when any of the above mentioned files exceeds 209715200 bytes (i.e. approximately 209 MB).
 
-For more information, see the docs about [the Planetmint Server configuration settings related to logging](../node-setup/configuration#log).
+For more information, see the docs about [the Planetmint Server configuration settings related to logging](../../node-setup/configuration#log).
 
 ## Tendermint Logging and Log Rotation
 
@@ -37,7 +37,7 @@ Tendermint writes its logs to the files:
 - `tendermint.err.log`
 
 If you started Planetmint Server and Tendermint using Monit, as suggested by our guide on
-[How to Set Up a Planetmint Network](../network-setup/network-setup),
+[How to Set Up a Planetmint Network](../../network-setup/network-setup),
 then the logs will be written to `$HOME/.planetmint-monit/logs/`.
 
 Moreover, if you started Planetmint Server and Tendermint using Monit,

@@ -34,6 +34,7 @@ with something like the following in the body:
 
 
 .. _Api root endpoint:
+
 API Root Endpoint
 =================
 

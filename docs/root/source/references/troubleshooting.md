@@ -3,7 +3,7 @@
 ## General Tips
 
 - Check the Planetmint, Tendermint and Tarantool logs.
-  For help with that, see the page about [Logging and Log Rotation](../appendices/log-rotation).
+  For help with that, see the page about [Logging and Log Rotation](appendices/log-rotation).
 - Try Googling the error message.
 
 ## Tendermint Tips
@@ -88,7 +88,7 @@ One member can make a proposal to call an election to add a validator, remove a 
 
 ## Logging
 
-See the page in the Appendices about [logging and log rotation](../appendices/log-rotation).
+See the page in the Appendices about [logging and log rotation](appendices/log-rotation).
 
 ## Other Problems
 

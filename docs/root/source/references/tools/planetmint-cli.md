@@ -22,7 +22,7 @@ Show the version number. `planetmint -v` does the same thing.
 
 ## planetmint configure
 
-Generate a local configuration file (which can be used to set some or all [Planetmint node configuration settings](../node-setup/configuration)). It will ask you for the values of some configuration settings.
+Generate a local configuration file (which can be used to set some or all [Planetmint node configuration settings](../../node-setup/configuration)). It will ask you for the values of some configuration settings.
 If you press Enter for a value, it will use the default value.
 
 At this point, only one database backend is supported: `tarantool`.
@@ -42,7 +42,7 @@ planetmint -y configure tarantool
 
 ## planetmint show-config
 
-Show the values of the [Planetmint node configuration settings](../node-setup/configuration).
+Show the values of the [Planetmint node configuration settings](../../node-setup/configuration).
 
 
 ## planetmint init
@@ -79,7 +79,7 @@ section of Python's documentation.
 
 For a more fine-grained control over the logging configuration you can use the
 configuration file as documented under
-[Configuration Settings](../node-setup/configuration).
+[Configuration Settings](../../node-setup/configuration).
 
 
 ## planetmint election

@@ -193,7 +193,7 @@ In Planetmint version 2.0.0 and later, each node has its own isolated local Mong
 Inter-node communications are done using Tendermint protocols, not MongoDB protocols, as illustrated in Figure 1 below.
 If a node's local MongoDB database gets compromised, none of the other MongoDB databases (in the other nodes) will be affected.
 
-.. figure:: _static/schemaDB.png
+.. figure:: ../_static/schemaDB.png
    :alt: Diagram of a four-node Planetmint 2.0 network
    :align: center
    
