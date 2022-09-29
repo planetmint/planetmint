@@ -73,26 +73,6 @@ class Election(Transaction):
         if cls.TX_SCHEMA_CUSTOM:
             _validate_schema(cls.TX_SCHEMA_CUSTOM, tx)
 
-
-    @classmethod
-    def count_votes(cls, election_pk, transactions, getter=getattr): # TODO: move somewhere else
-        votes = 0
-        for txn in transactions:
-            if getter(txn, "operation") == Vote.OPERATION:
-                for output in getter(txn, "outputs"):
-                    # NOTE: We enforce that a valid vote to election id will have only
-                    # election_pk in the output public keys, including any other public key
-                    # along with election_pk will lead to vote being not considered valid.
-                    if len(getter(output, "public_keys")) == 1 and [election_pk] == getter(output, "public_keys"):
-                        votes = votes + int(getter(output, "amount"))
-        return votes
-
-    def get_commited_votes(self, planet, election_pk=None): # TODO: move somewhere else
-        if election_pk is None:
-            election_pk = election_id_to_public_key(self.id)
-        txns = list(backend.query.get_asset_tokens_for_public_key(planet.connection, self.id, election_pk))
-        return self.count_votes(election_pk, txns, dict.get)
-
     def has_concluded(self, planet, current_votes=[]): # TODO: move somewhere else
         """Check if the election can be concluded or not.
 
@@ -106,8 +86,8 @@ class Election(Transaction):
             return False
 
         election_pk = election_id_to_public_key(self.id)
-        votes_committed = self.get_commited_votes(planet, election_pk)
-        votes_current = self.count_votes(election_pk, current_votes)
+        votes_committed = planet.get_commited_votes(self, election_pk)
+        votes_current = planet.count_votes(election_pk, current_votes)
 
         total_votes = sum(output.amount for output in self.outputs)
         if (votes_committed < (2 / 3) * total_votes) and (votes_committed + votes_current >= (2 / 3) * total_votes):

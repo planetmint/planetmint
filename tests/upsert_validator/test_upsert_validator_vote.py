@@ -34,7 +34,6 @@ def test_upsert_validator_valid_election_vote(b_mock, valid_upsert_validator_ele
     vote = Vote.generate([input0], [([election_pub_key], votes)], election_id=valid_upsert_validator_election.id).sign(
         [key0.private_key]
     )
-    # assert vote.validate(b_mock)
     assert b_mock.validate_transaction(vote)
 
 
@@ -73,7 +72,6 @@ def test_upsert_validator_delegate_election_vote(b_mock, valid_upsert_validator_
         election_id=valid_upsert_validator_election.id,
     ).sign([key0.private_key])
 
-    # assert delegate_vote.validate(b_mock)
     assert b_mock.validate_transaction(delegate_vote)
 
     b_mock.store_bulk_transactions([delegate_vote])
@@ -83,14 +81,12 @@ def test_upsert_validator_delegate_election_vote(b_mock, valid_upsert_validator_
     alice_casted_vote = Vote.generate(
         [alice_votes], [([election_pub_key], 3)], election_id=valid_upsert_validator_election.id
     ).sign([alice.private_key])
-    # assert alice_casted_vote.validate(b_mock)
     assert b_mock.validate_transaction(alice_casted_vote)
 
     key0_votes = delegate_vote.to_inputs()[1]
     key0_casted_vote = Vote.generate(
         [key0_votes], [([election_pub_key], votes - 3)], election_id=valid_upsert_validator_election.id
     ).sign([key0.private_key])
-    # assert key0_casted_vote.validate(b_mock)
     assert b_mock.validate_transaction(key0_casted_vote)
 
 
@@ -110,7 +106,6 @@ def test_upsert_validator_invalid_election_vote(b_mock, valid_upsert_validator_e
     ).sign([key0.private_key])
 
     with pytest.raises(AmountError):
-        # assert vote.validate(b_mock)
         assert b_mock.validate_transaction(vote)
 
 
@@ -118,7 +113,7 @@ def test_upsert_validator_invalid_election_vote(b_mock, valid_upsert_validator_e
 def test_valid_election_votes_received(b_mock, valid_upsert_validator_election, ed25519_node_keys):
     alice = generate_key_pair()
     b_mock.store_bulk_transactions([valid_upsert_validator_election])
-    assert valid_upsert_validator_election.get_commited_votes(b_mock) == 0
+    assert b_mock.get_commited_votes(valid_upsert_validator_election) == 0
 
     input0 = valid_upsert_validator_election.to_inputs()[0]
     votes = valid_upsert_validator_election.outputs[0].amount
@@ -132,7 +127,7 @@ def test_valid_election_votes_received(b_mock, valid_upsert_validator_election, 
         election_id=valid_upsert_validator_election.id,
     ).sign([key0.private_key])
     b_mock.store_bulk_transactions([delegate_vote])
-    assert valid_upsert_validator_election.get_commited_votes(b_mock) == 0
+    assert b_mock.get_commited_votes(valid_upsert_validator_election) == 0
 
     election_public_key = election_id_to_public_key(valid_upsert_validator_election.id)
     alice_votes = delegate_vote.to_inputs()[0]
@@ -148,7 +143,7 @@ def test_valid_election_votes_received(b_mock, valid_upsert_validator_election, 
     b_mock.store_bulk_transactions([alice_casted_vote])
 
     # Check if the delegated vote is count as valid vote
-    assert valid_upsert_validator_election.get_commited_votes(b_mock) == 2
+    assert b_mock.get_commited_votes(valid_upsert_validator_election) == 2
 
     key0_casted_vote = Vote.generate(
         [key0_votes], [([election_public_key], votes - 4)], election_id=valid_upsert_validator_election.id
@@ -156,9 +151,7 @@ def test_valid_election_votes_received(b_mock, valid_upsert_validator_election, 
 
     assert b_mock.validate_transaction(key0_casted_vote)
     b_mock.store_bulk_transactions([key0_casted_vote])
-
-    assert valid_upsert_validator_election.get_commited_votes(b_mock) == votes - 2
-
+    assert b_mock.get_commited_votes(valid_upsert_validator_election) == votes - 2
 
 @pytest.mark.bdb
 def test_valid_election_conclude(b_mock, valid_upsert_validator_election, ed25519_node_keys):
