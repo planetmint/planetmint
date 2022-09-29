@@ -670,7 +670,7 @@ class Planetmint(object):
             raise InvalidProposer("Public key is not a part of the validator set")
 
         # NOTE: Check if all validators have been assigned votes equal to their voting power
-        if not transaction.is_same_topology(current_validators, transaction.outputs):
+        if not self.is_same_topology(current_validators, transaction.outputs):
             raise UnequalValidatorSet("Validator set much be exactly same to the outputs of election")
 
         if transaction.operation == VALIDATOR_ELECTION:
@@ -777,5 +777,19 @@ class Planetmint(object):
         ]
         status += f"\nvalidators={json.dumps(validators, indent=4)}"
         return status
+
+    def is_same_topology(cls, current_topology, election_topology):
+        voters = {}
+        for voter in election_topology:
+            if len(voter.public_keys) > 1:
+                return False
+
+            [public_key] = voter.public_keys
+            voting_power = voter.amount
+            voters[public_key] = voting_power
+
+        # Check whether the voters and their votes is same to that of the
+        # validators and their voting power in the network
+        return current_topology == voters
 
 Block = namedtuple("Block", ("app_hash", "height", "transactions"))

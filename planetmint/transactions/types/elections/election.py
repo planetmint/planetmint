@@ -35,21 +35,6 @@ class Election(Transaction):
     ELECTION_THRESHOLD = 2 / 3
 
     @classmethod
-    def is_same_topology(cls, current_topology, election_topology): # TODO: move somewhere else
-        voters = {}
-        for voter in election_topology:
-            if len(voter.public_keys) > 1:
-                return False
-
-            [public_key] = voter.public_keys
-            voting_power = voter.amount
-            voters[public_key] = voting_power
-
-        # Check whether the voters and their votes is same to that of the
-        # validators and their voting power in the network
-        return current_topology == voters
-
-    @classmethod
     def validate_election(self, tx_signers, recipients, asset, metadata):
         if not isinstance(tx_signers, list):
             raise TypeError("`tx_signers` must be a list instance")
