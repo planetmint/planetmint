@@ -8,6 +8,7 @@ MongoDB.
 
 """
 import logging
+import json
 from collections import namedtuple
 from uuid import uuid4
 
@@ -20,7 +21,7 @@ import requests
 import planetmint
 from planetmint.config import Config
 from planetmint import backend, config_utils, fastquery
-from planetmint.transactions.common.transaction import VALIDATOR_ELECTION, Transaction
+from planetmint.transactions.common.transaction import CHAIN_MIGRATION_ELECTION, VALIDATOR_ELECTION, Transaction
 from planetmint.transactions.common.exceptions import (
     DuplicateTransaction,
     InvalidSignature,
@@ -42,7 +43,7 @@ from planetmint.transactions.common.transaction_mode_types import (
     BROADCAST_TX_ASYNC,
     BROADCAST_TX_SYNC,
 )
-from planetmint.tendermint_utils import encode_transaction, merkleroot, key_from_base64
+from planetmint.tendermint_utils import encode_transaction, merkleroot, key_from_base64, public_key_to_base64
 from planetmint import exceptions as core_exceptions
 from planetmint.transactions.types.elections.election import Election
 from planetmint.validation import BaseValidationRules
@@ -740,5 +741,41 @@ class Planetmint(object):
             recipients.append(([public_key], voting_power))
 
         return recipients
+
+    def show_election_status(self, transaction):
+        data = transaction.asset["data"]
+        if "public_key" in data.keys():
+            data["public_key"] = public_key_to_base64(data["public_key"]["value"])
+        response = ""
+        for k, v in data.items():
+            if k != "seed":
+                response += f"{k}={v}\n"
+        response += f"status={self.get_election_status(transaction)}"
+
+        if transaction.operation == CHAIN_MIGRATION_ELECTION:
+            response = self.append_chain_migration_status(response)
+
+        return response
+
+    def append_chain_migration_status(self, status):
+        chain = self.get_latest_abci_chain()
+        if chain is None or chain["is_synced"]:
+            return status
+
+        status += f'\nchain_id={chain["chain_id"]}'
+        block = self.get_latest_block()
+        status += f'\napp_hash={block["app_hash"]}'
+        validators = [
+            {
+                "pub_key": {
+                    "type": "tendermint/PubKeyEd25519",
+                    "value": k,
+                },
+                "power": v,
+            }
+            for k, v in self.get_validator_dict().items()
+        ]
+        status += f"\nvalidators={json.dumps(validators, indent=4)}"
+        return status
 
 Block = namedtuple("Block", ("app_hash", "height", "transactions"))

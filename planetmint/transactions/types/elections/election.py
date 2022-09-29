@@ -134,18 +134,6 @@ class Election(Transaction):
 
         return False
 
-    def show_election(self, planet): # TODO: move somewhere else
-        data = self.asset["data"]
-        if "public_key" in data.keys():
-            data["public_key"] = public_key_to_base64(data["public_key"]["value"])
-        response = ""
-        for k, v in data.items():
-            if k != "seed":
-                response += f"{k}={v}\n"
-        response += f"status={planet.get_election_status(self)}"
-
-        return response
-
     @classmethod
     def _get_initiated_elections(cls, height, txns): # TODO: move somewhere else
         elections = []

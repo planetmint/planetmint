@@ -24,27 +24,5 @@ class ChainMigrationElection(Election):
     def on_approval(self, planet, *args, **kwargs): # TODO: move somewhere else
         planet.migrate_abci_chain()
 
-    def show_election(self, planet): # TODO: move somewhere else
-        output = super().show_election(planet)
-        chain = planet.get_latest_abci_chain()
-        if chain is None or chain["is_synced"]:
-            return output
-
-        output += f'\nchain_id={chain["chain_id"]}'
-        block = planet.get_latest_block()
-        output += f'\napp_hash={block["app_hash"]}'
-        validators = [
-            {
-                "pub_key": {
-                    "type": "tendermint/PubKeyEd25519",
-                    "value": k,
-                },
-                "power": v,
-            }
-            for k, v in planet.get_validator_dict().items()
-        ]
-        output += f"\nvalidators={json.dumps(validators, indent=4)}"
-        return output
-
     def on_rollback(self, planet, new_height): # TODO: move somewhere else
         planet.delete_abci_chain(new_height)

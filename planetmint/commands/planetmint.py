@@ -226,7 +226,7 @@ def run_election_show(args, planet):
         logger.error(f"No election found with election_id {args.election_id}")
         return
 
-    response = election.show_election(planet)
+    response = planet.show_election_status(election)
 
     logger.info(response)
 
