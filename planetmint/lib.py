@@ -720,4 +720,25 @@ class Planetmint(object):
             return None
         return self.get_validator_set(latest_block["height"])
 
+    def get_validator_dict(self, height=None):
+        """Return a dictionary of validators with key as `public_key` and
+        value as the `voting_power`
+        """
+        validators = {}
+        for validator in self.get_validators(height):
+            # NOTE: we assume that Tendermint encodes public key in base64
+            public_key = public_key_from_ed25519_key(key_from_base64(validator["public_key"]["value"]))
+            validators[public_key] = validator["voting_power"]
+
+        return validators
+
+    def get_recipients_list(self):
+        """Convert validator dictionary to a recipient list for `Transaction`"""
+
+        recipients = []
+        for public_key, voting_power in self.get_validator_dict().items():
+            recipients.append(([public_key], voting_power))
+
+        return recipients
+
 Block = namedtuple("Block", ("app_hash", "height", "transactions"))

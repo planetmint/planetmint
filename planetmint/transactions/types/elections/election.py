@@ -35,29 +35,6 @@ class Election(Transaction):
     ELECTION_THRESHOLD = 2 / 3
 
     @classmethod
-    def get_validators(cls, planet, height=None): # TODO: move somewhere else
-        """Return a dictionary of validators with key as `public_key` and
-        value as the `voting_power`
-        """
-        validators = {}
-        for validator in planet.get_validators(height):
-            # NOTE: we assume that Tendermint encodes public key in base64
-            public_key = public_key_from_ed25519_key(key_from_base64(validator["public_key"]["value"]))
-            validators[public_key] = validator["voting_power"]
-
-        return validators
-
-    @classmethod
-    def recipients(cls, planet): # TODO: move somewhere else
-        """Convert validator dictionary to a recipient list for `Transaction`"""
-
-        recipients = []
-        for public_key, voting_power in cls.get_validators(planet).items():
-            recipients.append(([public_key], voting_power))
-
-        return recipients
-
-    @classmethod
     def is_same_topology(cls, current_topology, election_topology): # TODO: move somewhere else
         voters = {}
         for voter in election_topology:

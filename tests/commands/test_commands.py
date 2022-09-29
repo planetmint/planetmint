@@ -611,7 +611,7 @@ def call_election(b, new_validator, node_key):
     b.write_transaction = mock_write
 
     # our voters is a list of length 1, populated from our mocked validator
-    voters = ValidatorElection.recipients(b)
+    voters = b.get_recipients_list()
     # and our voter is the public key from the voter list
     voter = node_key.public_key
     valid_election = ValidatorElection.generate([voter], voters, new_validator, None).sign([node_key.private_key])

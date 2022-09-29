@@ -41,7 +41,7 @@ class ChainMigrationElection(Election):
                 },
                 "power": v,
             }
-            for k, v in self.get_validators(planet).items()
+            for k, v in planet.get_validator_dict().items()
         ]
         output += f"\nvalidators={json.dumps(validators, indent=4)}"
         return output

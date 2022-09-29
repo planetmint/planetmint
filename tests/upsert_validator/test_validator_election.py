@@ -21,7 +21,7 @@ pytestmark = pytest.mark.bdb
 
 
 def test_upsert_validator_valid_election(b_mock, new_validator, node_key):
-    voters = ValidatorElection.recipients(b_mock)
+    voters = b_mock.get_recipients_list()
     election = ValidatorElection.generate([node_key.public_key], voters, new_validator, None).sign(
         [node_key.private_key]
     )
@@ -33,14 +33,14 @@ def test_upsert_validator_invalid_election_public_key(b_mock, new_validator, nod
 
     for iv in ["ed25519-base32", "ed25519-base64"]:
         new_validator["public_key"]["type"] = iv
-        voters = ValidatorElection.recipients(b_mock)
+        voters = b_mock.get_recipients_list()
 
         with pytest.raises(InvalidPublicKey):
             ValidatorElection.generate([node_key.public_key], voters, new_validator, None).sign([node_key.private_key])
 
 
 def test_upsert_validator_invalid_power_election(b_mock, new_validator, node_key):
-    voters = ValidatorElection.recipients(b_mock)
+    voters = b_mock.get_recipients_list()
     new_validator["power"] = 30
 
     election = ValidatorElection.generate([node_key.public_key], voters, new_validator, None).sign(
@@ -54,7 +54,7 @@ def test_upsert_validator_invalid_proposed_election(b_mock, new_validator, node_
     from planetmint.transactions.common.crypto import generate_key_pair
 
     alice = generate_key_pair()
-    voters = ValidatorElection.recipients(b_mock)
+    voters = b_mock.get_recipients_list()
     election = ValidatorElection.generate([alice.public_key], voters, new_validator, None).sign([alice.private_key])
     with pytest.raises(InvalidProposer):
         b_mock.validate_election(election)
@@ -64,7 +64,7 @@ def test_upsert_validator_invalid_inputs_election(b_mock, new_validator, node_ke
     from planetmint.transactions.common.crypto import generate_key_pair
 
     alice = generate_key_pair()
-    voters = ValidatorElection.recipients(b_mock)
+    voters = b_mock.get_recipients_list()
     election = ValidatorElection.generate([node_key.public_key, alice.public_key], voters, new_validator, None).sign(
         [node_key.private_key, alice.private_key]
     )
@@ -74,7 +74,7 @@ def test_upsert_validator_invalid_inputs_election(b_mock, new_validator, node_ke
 
 @patch("planetmint.transactions.types.elections.election.uuid4", lambda: "mock_uuid4")
 def test_upsert_validator_invalid_election(b_mock, new_validator, node_key, fixed_seed_election):
-    voters = ValidatorElection.recipients(b_mock)
+    voters = b_mock.get_recipients_list()
     duplicate_election = ValidatorElection.generate([node_key.public_key], voters, new_validator, None).sign(
         [node_key.private_key]
     )
@@ -95,7 +95,7 @@ def test_upsert_validator_invalid_election(b_mock, new_validator, node_key, fixe
     with pytest.raises(UnequalValidatorSet):
         b_mock.validate_election(invalid_election)
 
-    recipients = ValidatorElection.recipients(b_mock)
+    recipients = b_mock.get_recipients_list()
     altered_recipients = []
     for r in recipients:
         ([r_public_key], voting_power) = r

@@ -119,7 +119,7 @@ def run_election_new(args, planet):
 def create_new_election(sk, planet, election_class, data):
     try:
         key = load_node_key(sk)
-        voters = election_class.recipients(planet)
+        voters = planet.get_recipients_list()
         election = election_class.generate([key.public_key], voters, data, None).sign([key.private_key])
         planet.validate_election(election)
     except ValidationError as e:

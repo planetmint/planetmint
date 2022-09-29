@@ -719,13 +719,13 @@ def new_validator():
 
 @pytest.fixture
 def valid_upsert_validator_election(b_mock, node_key, new_validator):
-    voters = ValidatorElection.recipients(b_mock)
+    voters = b_mock.get_recipients_list()
     return ValidatorElection.generate([node_key.public_key], voters, new_validator, None).sign([node_key.private_key])
 
 
 @pytest.fixture
 def valid_upsert_validator_election_2(b_mock, node_key, new_validator):
-    voters = ValidatorElection.recipients(b_mock)
+    voters = b_mock.get_recipients_list()
     return ValidatorElection.generate([node_key.public_key], voters, new_validator, None).sign([node_key.private_key])
 
 
@@ -755,14 +755,14 @@ def ongoing_validator_election_2(b, valid_upsert_validator_election_2, ed25519_n
 
 @pytest.fixture
 def validator_election_votes(b_mock, ongoing_validator_election, ed25519_node_keys):
-    voters = ValidatorElection.recipients(b_mock)
+    voters = b_mock.get_recipients_list()
     votes = generate_votes(ongoing_validator_election, voters, ed25519_node_keys)
     return votes
 
 
 @pytest.fixture
 def validator_election_votes_2(b_mock, ongoing_validator_election_2, ed25519_node_keys):
-    voters = ValidatorElection.recipients(b_mock)
+    voters = b_mock.get_recipients_list()
     votes = generate_votes(ongoing_validator_election_2, voters, ed25519_node_keys)
     return votes
 

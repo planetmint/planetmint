@@ -175,7 +175,6 @@ def test_valid_election_conclude(b_mock, valid_upsert_validator_election, ed2551
     assert not valid_upsert_validator_election.has_concluded(b_mock)
 
     # validate vote
-    # assert tx_vote0.validate(b_mock)
     assert b_mock.validate_transaction(tx_vote0)
     assert not valid_upsert_validator_election.has_concluded(b_mock, [tx_vote0])
 
@@ -243,7 +242,7 @@ def test_upsert_validator(b, node_key, node_keys, ed25519_node_keys):
         "power": power,
     }
 
-    voters = ValidatorElection.recipients(b)
+    voters = b.get_recipients_list()
     election = ValidatorElection.generate([node_key.public_key], voters, new_validator, None).sign(
         [node_key.private_key]
     )
@@ -282,7 +281,7 @@ def test_get_validator_update(b, node_keys, node_key, ed25519_node_keys):
         "node_id": "some_node_id",
         "power": power,
     }
-    voters = ValidatorElection.recipients(b)
+    voters = b.get_recipients_list()
     election = ValidatorElection.generate([node_key.public_key], voters, new_validator).sign([node_key.private_key])
     # store election
     b.store_bulk_transactions([election])
@@ -310,7 +309,7 @@ def test_get_validator_update(b, node_keys, node_key, ed25519_node_keys):
         "node_id": "some_node_id",
         "power": power,
     }
-    voters = ValidatorElection.recipients(b)
+    voters = b.get_recipients_list()
     election = ValidatorElection.generate([node_key.public_key], voters, new_validator).sign([node_key.private_key])
     # store election
     b.store_bulk_transactions([election])

@@ -119,7 +119,7 @@ def generate_validators(powers):
 
 
 def generate_election(b, cls, public_key, private_key, asset_data, voter_keys):
-    voters = cls.recipients(b)
+    voters = b.get_recipients_list()
     election = cls.generate([public_key], voters, asset_data, None).sign([private_key])
 
     votes = [

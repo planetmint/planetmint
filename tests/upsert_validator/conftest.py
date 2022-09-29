@@ -12,14 +12,14 @@ from planetmint.transactions.types.elections.validator_election import Validator
 
 @pytest.fixture
 def valid_upsert_validator_election_b(b, node_key, new_validator):
-    voters = ValidatorElection.recipients(b)
+    voters = b.get_recipients_list()
     return ValidatorElection.generate([node_key.public_key], voters, new_validator, None).sign([node_key.private_key])
 
 
 @pytest.fixture
 @patch("planetmint.transactions.types.elections.election.uuid4", lambda: "mock_uuid4")
 def fixed_seed_election(b_mock, node_key, new_validator):
-    voters = ValidatorElection.recipients(b_mock)
+    voters = b_mock.get_recipients_list()
     return ValidatorElection.generate([node_key.public_key], voters, new_validator, None).sign([node_key.private_key])
 
 
