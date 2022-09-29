@@ -21,19 +21,6 @@ class ValidatorElection(Election):
         super(ValidatorElection, cls).validate_schema(tx)
         validate_asset_public_key(tx["asset"]["data"]["public_key"])
 
-    def has_concluded(self, planet, *args, **kwargs): # TODO: move somewhere else
-        latest_block = planet.get_latest_block()
-        if latest_block is not None:
-            latest_block_height = latest_block["height"]
-            latest_validator_change = planet.get_validator_set()["height"]
-
-            # TODO change to `latest_block_height + 3` when upgrading to Tendermint 0.24.0.
-            if latest_validator_change == latest_block_height + 2:
-                # do not conclude the election if there is a change assigned already
-                return False
-
-        return super().has_concluded(planet, *args, **kwargs)
-
     def on_approval(self, planet, new_height): # TODO: move somewhere else
         validator_updates = [self.asset["data"]]
         curr_validator_set = planet.get_validators(new_height)

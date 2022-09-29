@@ -871,12 +871,62 @@ class Planetmint(object):
             if election is None:
                 continue
 
-            if not election.has_concluded(self, votes):
+            if not self.has_election_concluded(election, votes):
                 continue
 
             validator_update = election.on_approval(self, new_height)
             self.store_election(election.id, new_height, is_concluded=True)
 
         return [validator_update] if validator_update else []
+
+    def has_election_concluded(self, transaction, current_votes=[]): # TODO: move somewhere else
+        """Check if the election can be concluded or not.
+
+        * Elections can only be concluded if the validator set has not changed
+          since the election was initiated.
+        * Elections can be concluded only if the current votes form a supermajority.
+
+        Custom elections may override this function and introduce additional checks.
+        """
+        if self.has_validator_set_changed(transaction):
+            return False
+
+        if not self.has_validator_election_concluded():
+            return False
+
+        if not self.has_chain_migration_concluded():
+            return False
+
+        election_pk = election_id_to_public_key(transaction.id)
+        votes_committed = self.get_commited_votes(transaction, election_pk)
+        votes_current = self.count_votes(election_pk, current_votes)
+
+        total_votes = sum(output.amount for output in transaction.outputs)
+        if (votes_committed < (2 / 3) * total_votes) and (votes_committed + votes_current >= (2 / 3) * total_votes):
+            return True
+
+        return False
+
+    def has_validator_election_concluded(self): # TODO: move somewhere else
+        latest_block = self.get_latest_block()
+        if latest_block is not None:
+            latest_block_height = latest_block["height"]
+            latest_validator_change = self.get_validator_set()["height"]
+
+            # TODO change to `latest_block_height + 3` when upgrading to Tendermint 0.24.0.
+            if latest_validator_change == latest_block_height + 2:
+                # do not conclude the election if there is a change assigned already
+                return False
+
+        return True
+
+    def has_chain_migration_concluded(self): # TODO: move somewhere else
+        chain = self.get_latest_abci_chain()
+        if chain is not None and not chain["is_synced"]:
+            # do not conclude the migration election if
+            # there is another migration in progress
+            return False
+
+        return True
 
 Block = namedtuple("Block", ("app_hash", "height", "transactions"))

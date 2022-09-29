@@ -2,7 +2,6 @@
 # Planetmint and IPDB software contributors.
 # SPDX-License-Identifier: (Apache-2.0 AND CC-BY-4.0)
 # Code is Apache-2.0 and docs are CC-BY-4.0
-from collections import OrderedDict
 
 from uuid import uuid4
 from typing import Optional
@@ -10,8 +9,6 @@ from typing import Optional
 from planetmint.transactions.types.elections.vote import Vote
 from planetmint.transactions.common.transaction import Transaction
 from planetmint.transactions.common.schema import _validate_schema, TX_SCHEMA_COMMON
-
-from .validator_utils import election_id_to_public_key
 
 class Election(Transaction):
     """Represents election transactions.
@@ -70,28 +67,6 @@ class Election(Transaction):
         _validate_schema(TX_SCHEMA_COMMON, tx)
         if cls.TX_SCHEMA_CUSTOM:
             _validate_schema(cls.TX_SCHEMA_CUSTOM, tx)
-
-    def has_concluded(self, planet, current_votes=[]): # TODO: move somewhere else
-        """Check if the election can be concluded or not.
-
-        * Elections can only be concluded if the validator set has not changed
-          since the election was initiated.
-        * Elections can be concluded only if the current votes form a supermajority.
-
-        Custom elections may override this function and introduce additional checks.
-        """
-        if planet.has_validator_set_changed(self):
-            return False
-
-        election_pk = election_id_to_public_key(self.id)
-        votes_committed = planet.get_commited_votes(self, election_pk)
-        votes_current = planet.count_votes(election_pk, current_votes)
-
-        total_votes = sum(output.amount for output in self.outputs)
-        if (votes_committed < (2 / 3) * total_votes) and (votes_committed + votes_current >= (2 / 3) * total_votes):
-            return True
-
-        return False
 
     @classmethod
     def rollback(cls, planet, new_height, txn_ids): # TODO: move somewhere else
