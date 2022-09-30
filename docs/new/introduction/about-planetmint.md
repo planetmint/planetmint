@@ -91,13 +91,13 @@ This example uses [proxy re-encryption](https://en.wikipedia.org/wiki/Proxy\_re-
 7. Moxie sends ciphertext 2 to Zorban (or to MegaCorp who forwards it to Zorban).
 8. Zorban uses his private key to decrypt ciphertext 2, getting the original un-encrypted data.
 
-{% hint style="info" %}
+
 **Note**
 
 * The proxy only ever sees ciphertext. They never see any un-encrypted data.
 * Zorban never got the ability to decrypt ciphertext 1, i.e. the on-chain data.
 * There are variations on the above flow.
-{% endhint %}
+
 
 ### System Example 3
 
