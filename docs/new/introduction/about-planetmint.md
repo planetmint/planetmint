@@ -2,7 +2,7 @@
 
 # About Planetmint
 
-### Basic Facts
+## Basic Facts
 
 1. One can store arbitrary data (including encrypted data) in a Planetmint network, within limits: there’s a maximum transaction size. Every transaction has a `metadata` section which can store almost any Unicode string (up to some maximum length). Similarly, every CREATE transaction has an `asset.data` section which can store almost any Unicode string.
 2. The data stored in certain Planetmint transaction fields must not be encrypted, e.g. public keys and amounts. Planetmint doesn’t offer private transactions akin to Zcoin.
@@ -14,7 +14,7 @@
 8. If the connection between an external user and a Planetmint node isn’t encrypted (using HTTPS, for example), then a wiretapper can read all HTTP requests and responses in transit.
 9. If someone gets access to plaintext (regardless of where they got it), then they can (in principle) share it with the whole world. One can make it difficult for them to do that, e.g. if it is a lot of data and they only get access inside a secure room where they are searched as they leave the room.
 
-### Planetmint for Asset Registrations & Transfers
+## Planetmint for Asset Registrations & Transfers
 
 Planetmint can store data of any kind, but it’s designed to be particularly good for storing asset registrations and transfers:
 
@@ -26,19 +26,18 @@ Planetmint can store data of any kind, but it’s designed to be particularly go
 * Planetmint prevents double-spending of an asset.
 * Validated transactions are immutable.
 
-{% hint style="info" %}
 **Note**
 
 We used the word “owners” somewhat loosely above. A more accurate word might be fulfillers, signers, controllers, or transfer-enablers. See the section titled **A Note about Owners** in the relevant [Planetmint Transactions Spec](https://github.com/Planetmint/PRPs/tree/master/tx-specs/).
-{% endhint %}
 
-#### # Production-Ready?
+
+## Production-Ready?
 
 Depending on your use case, Planetmint may or may not be production-ready. You should ask your service provider. If you want to go live (into production) with Planetmint, please consult with your service provider.
 
 Note: Planetmint has an open source license with a “no warranty” section that is typical of open source licenses. This is standard in the software industry. For example, the Linux kernel is used in production by billions of machines even though its license includes a “no warranty” section. Warranties are usually provided above the level of the software license, by service providers.
 
-### Storing Private Data Off-Chain
+## Storing Private Data Off-Chain
 
 A system could store data off-chain, e.g. in a third-party database, document store, or content management system (CMS) and it could use Planetmint to:
 
@@ -59,7 +58,7 @@ There are other ways to accomplish the same thing. The above is just one example
 
 You might have noticed that the above example didn’t treat the “read permission” as an asset owned (controlled) by a user because if the permission asset is given to (transferred to or created by) the user then it cannot be controlled any further (by DocPile) until the user transfers it back to DocPile. Moreover, the user could transfer the asset to someone else, which might be problematic.
 
-### Storing Private Data On-Chain, Encrypted
+## Storing Private Data On-Chain, Encrypted
 
 There are many ways to store private data on-chain, encrypted. Every use case has its own objectives and constraints, and the best solution depends on the use case. [The IPDB consulting team](mailto:contact%40ipdb.global) can help you design the best solution for your use case.
 
@@ -71,13 +70,15 @@ Please note:
 * If someone (or some group) publishes how to decrypt some encrypted data on-chain, then anyone with access to that encrypted data will be able to get the plaintext. The data can’t be deleted.
 * Encrypted data can’t be indexed or searched by MongoDB. (It can index and search the ciphertext, but that’s not very useful.) One might use homomorphic encryption to index and search encrypted data, but MongoDB doesn’t have any plans to support that any time soon. If there is indexing or keyword search needed, then some fields of the `asset.data` or `metadata` objects can be left as plain text and the sensitive information can be stored in an encrypted child-object.
 
-#### System Example 1
+## Examples 
+
+### System Example 1
 
 Encrypt the data with a symmetric key and store the ciphertext on-chain (in `metadata` or `asset.data`). To communicate the key to a third party, use their public key to encrypt the symmetric key and send them that. They can decrypt the symmetric key with their private key, and then use that symmetric key to decrypt the on-chain ciphertext.
 
 The reason for using a symmetric key along with public/private keypairs is so the ciphertext only has to be stored once.
 
-#### System Example 2
+### System Example 2
 
 This example uses [proxy re-encryption](https://en.wikipedia.org/wiki/Proxy\_re-encryption):
 
@@ -98,7 +99,7 @@ This example uses [proxy re-encryption](https://en.wikipedia.org/wiki/Proxy\_re-
 * There are variations on the above flow.
 {% endhint %}
 
-#### System Example 3
+### System Example 3
 
 This example uses [erasure coding](https://en.wikipedia.org/wiki/Erasure\_code):
 
@@ -109,7 +110,7 @@ This example uses [erasure coding](https://en.wikipedia.org/wiki/Erasure\_code):
 
 If k < N of the key-holders gets and decrypts k of the pieces, they can reconstruct the original plaintext. Less than k would not be enough.
 
-#### System Example 4
+### System Example 4
 
 This setup could be used in an enterprise blockchain scenario where a special node should be able to see parts of the data, but the others should not.
 
