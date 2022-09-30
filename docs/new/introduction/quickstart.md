@@ -1,7 +1,4 @@
 
-
-
-
 # Quickstart 
 Planetmint is a metadata blockchain. This introduction gives an overview about how to attest data to Planetmint. First, simple transaction creation and sending is shown. Thereafter, an introdcution about how to set up a single node or a cluster is given. 
 
