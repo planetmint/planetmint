@@ -947,6 +947,11 @@ class Planetmint(object):
         elections = self._get_votes(txns)
         for election_id in elections:
             election = self.get_transaction(election_id)
-            election.on_rollback(self, new_height)
+            # election.on_rollback(self, new_height)
+            if election.operation == VALIDATOR_ELECTION:
+                # TODO change to `new_height + 2` when upgrading to Tendermint 0.24.0.
+                self.delete_validator_set(new_height + 1)
+            if election.operation == CHAIN_MIGRATION_ELECTION:
+                self.delete_abci_chain(new_height)
 
 Block = namedtuple("Block", ("app_hash", "height", "transactions"))

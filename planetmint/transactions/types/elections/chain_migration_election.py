@@ -17,6 +17,3 @@ class ChainMigrationElection(Election):
 
     def on_approval(self, planet, *args, **kwargs): # TODO: move somewhere else
         planet.migrate_abci_chain()
-
-    def on_rollback(self, planet, new_height): # TODO: move somewhere else
-        planet.delete_abci_chain(new_height)

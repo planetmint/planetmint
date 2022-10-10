@@ -31,7 +31,3 @@ class ValidatorElection(Election):
         # TODO change to `new_height + 2` when upgrading to Tendermint 0.24.0.
         planet.store_validator_set(new_height + 1, updated_validator_set)
         return encode_validator(self.asset["data"])
-
-    def on_rollback(self, planetmint, new_height): # TODO: move somewhere else
-        # TODO change to `new_height + 2` when upgrading to Tendermint 0.24.0.
-        planetmint.delete_validator_set(new_height + 1)

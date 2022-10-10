@@ -73,9 +73,3 @@ class Election(Transaction):
         other concluded elections, if required.
         """
         raise NotImplementedError
-
-    def on_rollback(self, planet, new_height):
-        """Override to clean up the database artifacts possibly created
-        in `on_approval`. Part of the `end_block`/`commit` crash recovery.
-        """
-        raise NotImplementedError
