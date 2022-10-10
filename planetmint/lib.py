@@ -891,11 +891,13 @@ class Planetmint(object):
         if self.has_validator_set_changed(transaction):
             return False
 
-        if not self.has_validator_election_concluded():
-            return False
+        if transaction.operation == VALIDATOR_ELECTION:
+            if not self.has_validator_election_concluded():
+                return False
 
-        if not self.has_chain_migration_concluded():
-            return False
+        if transaction.operation == CHAIN_MIGRATION_ELECTION:
+            if not self.has_chain_migration_concluded():
+                return False
 
         election_pk = election_id_to_public_key(transaction.id)
         votes_committed = self.get_commited_votes(transaction, election_pk)
