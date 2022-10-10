@@ -21,10 +21,8 @@ from tendermint.abci.types_pb2 import (
     ResponseCommit,
 )
 from planetmint import Planetmint
-from planetmint.transactions.types.elections.election import Election
-from planetmint.tendermint_utils import decode_transaction, calculate_hash
+from planetmint.tendermint_utils import decode_transaction, calculate_hash, decode_validator
 from planetmint.lib import Block
-import planetmint.transactions.types.elections.validator_utils as vutils
 from planetmint.events import EventTypes, Event
 
 
@@ -87,7 +85,7 @@ class App(BaseApplication):
             app_hash = "" if block is None else block["app_hash"]
             height = 0 if block is None else block["height"] + 1
         known_validators = self.planetmint_node.get_validators()
-        validator_set = [vutils.decode_validator(v) for v in genesis.validators]
+        validator_set = [decode_validator(v) for v in genesis.validators]
         if known_validators and known_validators != validator_set:
             self.log_abci_migration_error(known_chain["chain_id"], known_validators)
             sys.exit(1)

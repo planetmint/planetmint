@@ -11,9 +11,5 @@ from planetmint.transactions.types.elections.election import Election
 class ChainMigrationElection(Election):
 
     OPERATION = CHAIN_MIGRATION_ELECTION
-    # CREATE = OPERATION
     ALLOWED_OPERATIONS = (OPERATION,)
     TX_SCHEMA_CUSTOM = TX_SCHEMA_CHAIN_MIGRATION_ELECTION
-
-    def on_approval(self, planet, *args, **kwargs): # TODO: move somewhere else
-        planet.migrate_abci_chain()

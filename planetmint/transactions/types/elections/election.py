@@ -66,10 +66,3 @@ class Election(Transaction):
         _validate_schema(TX_SCHEMA_COMMON, tx)
         if cls.TX_SCHEMA_CUSTOM:
             _validate_schema(cls.TX_SCHEMA_CUSTOM, tx)
-
-    def on_approval(self, planet, new_height):
-        """Override to update the database state according to the
-        election rules. Consider the current database state to account for
-        other concluded elections, if required.
-        """
-        raise NotImplementedError

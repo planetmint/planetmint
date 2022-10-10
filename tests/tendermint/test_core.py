@@ -16,11 +16,10 @@ from planetmint import App
 from planetmint.backend import query
 from planetmint.transactions.common.crypto import generate_key_pair
 from planetmint.core import OkCode, CodeTypeError, rollback
-from planetmint.transactions.types.elections.election import Election
 from planetmint.lib import Block
 from planetmint.transactions.types.elections.chain_migration_election import ChainMigrationElection
 from planetmint.transactions.types.elections.validator_election import ValidatorElection
-from planetmint.transactions.types.elections.validator_utils import new_validator_set
+from planetmint.tendermint_utils import new_validator_set
 from planetmint.tendermint_utils import public_key_to_base64
 from planetmint.version import __tm_supported_versions__
 

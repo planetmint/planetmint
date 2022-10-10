@@ -43,7 +43,7 @@ from planetmint.transactions.common.transaction_mode_types import (
     BROADCAST_TX_ASYNC,
     BROADCAST_TX_SYNC,
 )
-from planetmint.tendermint_utils import encode_transaction, merkleroot, key_from_base64, public_key_to_base64
+from planetmint.tendermint_utils import encode_transaction, merkleroot, key_from_base64, public_key_to_base64, encode_validator, new_validator_set
 from planetmint import exceptions as core_exceptions
 from planetmint.transactions.types.elections.election import Election
 from planetmint.transactions.types.elections.vote import Vote
@@ -874,7 +874,7 @@ class Planetmint(object):
             if not self.has_election_concluded(election, votes):
                 continue
 
-            validator_update = election.on_approval(self, new_height)
+            validator_update = self.approve_election(election, new_height)
             self.store_election(election.id, new_height, is_concluded=True)
 
         return [validator_update] if validator_update else []
@@ -947,11 +947,28 @@ class Planetmint(object):
         elections = self._get_votes(txns)
         for election_id in elections:
             election = self.get_transaction(election_id)
-            # election.on_rollback(self, new_height)
             if election.operation == VALIDATOR_ELECTION:
                 # TODO change to `new_height + 2` when upgrading to Tendermint 0.24.0.
                 self.delete_validator_set(new_height + 1)
             if election.operation == CHAIN_MIGRATION_ELECTION:
                 self.delete_abci_chain(new_height)
+
+    def approve_election(self, election, new_height):
+        """Override to update the database state according to the
+        election rules. Consider the current database state to account for
+        other concluded elections, if required.
+        """
+        if election.operation == CHAIN_MIGRATION_ELECTION:
+            self.migrate_abci_chain()
+        if election.operation == VALIDATOR_ELECTION:
+            validator_updates = [election.asset["data"]]
+            curr_validator_set = self.get_validators(new_height)
+            updated_validator_set = new_validator_set(curr_validator_set, validator_updates)
+
+            updated_validator_set = [v for v in updated_validator_set if v["voting_power"] > 0]
+
+            # TODO change to `new_height + 2` when upgrading to Tendermint 0.24.0.
+            self.store_validator_set(new_height + 1, updated_validator_set)
+            return encode_validator(election.asset["data"])
 
 Block = namedtuple("Block", ("app_hash", "height", "transactions"))
