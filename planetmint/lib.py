@@ -931,4 +931,22 @@ class Planetmint(object):
 
         return True
 
+    def rollback_election(self, new_height, txn_ids): # TODO: move somewhere else
+        """Looks for election and vote transactions inside the block and
+        cleans up the database artifacts possibly created in `process_blocks`.
+
+        Part of the `end_block`/`commit` crash recovery.
+        """
+
+        # delete election records for elections initiated at this height and
+        # elections concluded at this height
+        self.delete_elections(new_height)
+
+        txns = [self.get_transaction(tx_id) for tx_id in txn_ids]
+
+        elections = self._get_votes(txns)
+        for election_id in elections:
+            election = self.get_transaction(election_id)
+            election.on_rollback(self, new_height)
+
 Block = namedtuple("Block", ("app_hash", "height", "transactions"))

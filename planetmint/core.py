@@ -265,5 +265,5 @@ def rollback(b):
 
     # NOTE: the pre-commit state is always at most 1 block ahead of the commited state
     if latest_block["height"] < pre_commit["height"]:
-        Election.rollback(b, pre_commit["height"], pre_commit["transactions"])
+        b.rollback_election(pre_commit["height"], pre_commit["transactions"])
         b.delete_transactions(pre_commit["transactions"])

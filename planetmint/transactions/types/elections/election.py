@@ -67,25 +67,6 @@ class Election(Transaction):
         if cls.TX_SCHEMA_CUSTOM:
             _validate_schema(cls.TX_SCHEMA_CUSTOM, tx)
 
-    @classmethod
-    def rollback(cls, planet, new_height, txn_ids): # TODO: move somewhere else
-        """Looks for election and vote transactions inside the block and
-        cleans up the database artifacts possibly created in `process_blocks`.
-
-        Part of the `end_block`/`commit` crash recovery.
-        """
-
-        # delete election records for elections initiated at this height and
-        # elections concluded at this height
-        planet.delete_elections(new_height)
-
-        txns = [planet.get_transaction(tx_id) for tx_id in txn_ids]
-
-        elections = planet._get_votes(txns)
-        for election_id in elections:
-            election = planet.get_transaction(election_id)
-            election.on_rollback(planet, new_height)
-
     def on_approval(self, planet, new_height):
         """Override to update the database state according to the
         election rules. Consider the current database state to account for

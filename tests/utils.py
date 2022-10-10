@@ -15,7 +15,7 @@ from planetmint.backend.schema import TABLES, SPACE_NAMES
 from planetmint.transactions.common import crypto
 from planetmint.transactions.common.transaction_mode_types import BROADCAST_TX_COMMIT
 from planetmint.transactions.types.assets.create import Create
-from planetmint.transactions.types.elections.election import Election, Vote
+from planetmint.transactions.types.elections.vote import Vote
 from planetmint.transactions.types.elections.validator_utils import election_id_to_public_key
 from planetmint.tendermint_utils import key_to_base64
 
