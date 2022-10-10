@@ -6,7 +6,6 @@
 from uuid import uuid4
 from typing import Optional
 
-from planetmint.transactions.types.elections.vote import Vote
 from planetmint.transactions.common.transaction import Transaction
 from planetmint.transactions.common.schema import _validate_schema, TX_SCHEMA_COMMON
 
