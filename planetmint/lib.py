@@ -17,37 +17,21 @@ import rapidjson
 from hashlib import sha3_256
 
 import requests
+from transactions import Transaction, Vote
+from transactions.common.crypto import public_key_from_ed25519_key
+from transactions.common.exceptions import SchemaValidationError, ValidationError, DuplicateTransaction, \
+    InvalidSignature, DoubleSpend, InputDoesNotExist, AssetIdMismatch, AmountError, MultipleInputsError, \
+    InvalidProposer, UnequalValidatorSet, InvalidPowerChange
+from transactions.common.transaction import VALIDATOR_ELECTION, CHAIN_MIGRATION_ELECTION
+from transactions.common.transaction_mode_types import BROADCAST_TX_COMMIT, BROADCAST_TX_ASYNC, BROADCAST_TX_SYNC
+from transactions.types.elections.election import Election
+from transactions.types.elections.validator_utils import election_id_to_public_key
 
 import planetmint
 from planetmint.config import Config
 from planetmint import backend, config_utils, fastquery
-from planetmint.transactions.common.transaction import CHAIN_MIGRATION_ELECTION, VALIDATOR_ELECTION, Transaction
-from planetmint.transactions.common.exceptions import (
-    DuplicateTransaction,
-    InvalidSignature,
-    SchemaValidationError,
-    ValidationError,
-    DoubleSpend,
-    AmountError,
-    InputDoesNotExist,
-    AssetIdMismatch,
-    InvalidProposer,
-    UnequalValidatorSet,
-    DuplicateTransaction,
-    MultipleInputsError,
-    InvalidPowerChange
-)
-from planetmint.transactions.common.crypto import public_key_from_ed25519_key
-from planetmint.transactions.common.transaction_mode_types import (
-    BROADCAST_TX_COMMIT,
-    BROADCAST_TX_ASYNC,
-    BROADCAST_TX_SYNC,
-)
 from planetmint.tendermint_utils import encode_transaction, merkleroot, key_from_base64, public_key_to_base64, encode_validator, new_validator_set
 from planetmint import exceptions as core_exceptions
-from planetmint.transactions.types.elections.election import Election
-from planetmint.transactions.types.elections.vote import Vote
-from planetmint.transactions.types.elections.validator_utils import election_id_to_public_key
 from planetmint.validation import BaseValidationRules
 
 logger = logging.getLogger(__name__)

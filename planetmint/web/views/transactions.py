@@ -12,14 +12,14 @@ import logging
 from flask import current_app, request, jsonify
 from flask_restful import Resource, reqparse
 
-from planetmint.transactions.common.transaction_mode_types import BROADCAST_TX_ASYNC
-from planetmint.transactions.common.exceptions import (
+from transactions.common.transaction_mode_types import BROADCAST_TX_ASYNC
+from transactions.common.exceptions import (
     SchemaValidationError,
     ValidationError,
 )
 from planetmint.web.views.base import make_error
 from planetmint.web.views import parameters
-from planetmint.transactions.common.transaction import Transaction
+from transactions.common.transaction import Transaction
 
 
 logger = logging.getLogger(__name__)

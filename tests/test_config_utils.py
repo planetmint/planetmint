@@ -289,7 +289,7 @@ def test_file_config():
 
 def test_invalid_file_config():
     from planetmint.config_utils import file_config
-    from planetmint.transactions.common import exceptions
+    from transactions.common import exceptions
 
     with patch("builtins.open", mock_open(read_data="{_INVALID_JSON_}")):
         with pytest.raises(exceptions.ConfigurationError):

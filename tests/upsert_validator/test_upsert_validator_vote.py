@@ -6,15 +6,14 @@
 import pytest
 import codecs
 
-from planetmint.transactions.types.elections.election import Election
 from planetmint.tendermint_utils import public_key_to_base64
-from planetmint.transactions.types.elections.validator_election import ValidatorElection
-from planetmint.transactions.common.exceptions import AmountError
-from planetmint.transactions.common.crypto import generate_key_pair
-from planetmint.transactions.common.exceptions import ValidationError
-from planetmint.transactions.common.transaction_mode_types import BROADCAST_TX_COMMIT
-from planetmint.transactions.types.elections.vote import Vote
-from planetmint.transactions.types.elections.validator_utils import election_id_to_public_key
+from transactions.types.elections.validator_election import ValidatorElection
+from transactions.common.exceptions import AmountError
+from transactions.common.crypto import generate_key_pair
+from transactions.common.exceptions import ValidationError
+from transactions.common.transaction_mode_types import BROADCAST_TX_COMMIT
+from transactions.types.elections.vote import Vote
+from transactions.types.elections.validator_utils import election_id_to_public_key
 from tests.utils import generate_block, gen_vote
 
 pytestmark = [pytest.mark.execute]

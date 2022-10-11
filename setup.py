@@ -116,14 +116,14 @@ install_requires = [
     "flask-restful==0.3.9",
     "flask==2.1.2",
     "gunicorn==20.1.0",
-    "jsonschema==3.2.0",
+    "jsonschema==4.16.0",
     "logstats==0.3.0",
     "packaging>=20.9",
     # TODO Consider not installing the db drivers, or putting them in extras.
     "pymongo==3.11.4",
     "tarantool==0.7.1",
     "python-rapidjson>=1.0",
-    "pyyaml==5.4.1",
+    "pyyaml==6.0.0",
     "requests==2.25.1",
     "setproctitle==1.2.2",
     "werkzeug==2.0.3",
@@ -136,6 +136,7 @@ install_requires = [
     "PyNaCl==1.4.0",
     "pyasn1>=0.4.8",
     "cryptography==3.4.7",
+    "planetmint-transactions==0.1.0",
 ]
 
 setup(
@@ -176,7 +177,7 @@ setup(
         "docs": docs_require,
     },
     package_data={
-        "planetmint.transactions.common.schema": [
+        "transactions.common.schema": [
             "v1.0/*.yaml",
             "v2.0/*.yaml",
             "v3.0/*.yaml",

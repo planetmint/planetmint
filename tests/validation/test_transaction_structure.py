@@ -14,9 +14,9 @@ import pytest
 import hashlib as sha3
 from unittest.mock import MagicMock
 
-from planetmint.transactions.common.exceptions import AmountError, SchemaValidationError, ThresholdTooDeep
-from planetmint.transactions.common.transaction import Transaction
-from planetmint.transactions.common.utils import _fulfillment_to_details, _fulfillment_from_details
+from transactions.common.exceptions import AmountError, SchemaValidationError, ThresholdTooDeep
+from transactions.common.transaction import Transaction
+from transactions.common.utils import _fulfillment_to_details, _fulfillment_from_details
 from ipld import marshal, multihash
 
 ################################################################################
@@ -51,7 +51,7 @@ def test_tx_serialization_hash_function(signed_create_tx):
 
 
 def test_tx_serialization_with_incorrect_hash(signed_create_tx):
-    from planetmint.transactions.common.exceptions import InvalidHash
+    from transactions.common.exceptions import InvalidHash
 
     tx = signed_create_tx.to_dict()
     tx["id"] = "a" * 64
@@ -60,7 +60,7 @@ def test_tx_serialization_with_incorrect_hash(signed_create_tx):
 
 
 def test_tx_serialization_with_no_hash(signed_create_tx):
-    from planetmint.transactions.common.exceptions import InvalidHash
+    from transactions.common.exceptions import InvalidHash
 
     tx = signed_create_tx.to_dict()
     del tx["id"]
@@ -105,7 +105,7 @@ def test_validate_fails_metadata_empty_dict(b, create_tx, alice):
 
 
 def test_transfer_asset_schema(user_sk, signed_transfer_tx):
-    from planetmint.transactions.common.transaction import Transaction
+    from transactions.common.transaction import Transaction
 
     tx = signed_transfer_tx.to_dict()
     validate(tx)
@@ -152,7 +152,7 @@ def test_no_inputs(b, create_tx, alice):
 
 
 def test_create_single_input(b, create_tx, alice):
-    from planetmint.transactions.common.transaction import Transaction
+    from transactions.common.transaction import Transaction
 
     tx = create_tx.to_dict()
     tx["inputs"] += tx["inputs"]
@@ -165,7 +165,7 @@ def test_create_single_input(b, create_tx, alice):
 
 
 def test_create_tx_no_fulfills(b, create_tx, alice):
-    from planetmint.transactions.common.transaction import Transaction
+    from transactions.common.transaction import Transaction
 
     tx = create_tx.to_dict()
     tx["inputs"][0]["fulfills"] = {"transaction_id": "a" * 64, "output_index": 0}

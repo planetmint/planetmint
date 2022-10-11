@@ -12,11 +12,11 @@ from functools import singledispatch
 from planetmint.backend.localmongodb.connection import LocalMongoDBConnection
 from planetmint.backend.tarantool.connection import TarantoolDBConnection
 from planetmint.backend.schema import TABLES, SPACE_NAMES
-from planetmint.transactions.common import crypto
-from planetmint.transactions.common.transaction_mode_types import BROADCAST_TX_COMMIT
-from planetmint.transactions.types.assets.create import Create
-from planetmint.transactions.types.elections.vote import Vote
-from planetmint.transactions.types.elections.validator_utils import election_id_to_public_key
+from transactions.common import crypto
+from transactions.common.transaction_mode_types import BROADCAST_TX_COMMIT
+from transactions.types.assets.create import Create
+from transactions.types.elections.vote import Vote
+from transactions.types.elections.validator_utils import election_id_to_public_key
 from planetmint.tendermint_utils import key_to_base64
 
 
@@ -55,7 +55,7 @@ def flush_tarantool_db(connection, dbname):
 
 
 def generate_block(planet):
-    from planetmint.transactions.common.crypto import generate_key_pair
+    from transactions.common.crypto import generate_key_pair
 
     alice = generate_key_pair()
     tx = Create.generate([alice.public_key], [([alice.public_key], 1)], asset=None).sign([alice.private_key])

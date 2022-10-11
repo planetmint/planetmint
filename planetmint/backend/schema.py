@@ -10,8 +10,8 @@ import logging
 
 from planetmint.config import Config
 from planetmint.backend.connection import connect
-from planetmint.transactions.common.exceptions import ValidationError
-from planetmint.transactions.common.utils import (
+from transactions.common.exceptions import ValidationError
+from transactions.common.utils import (
     validate_all_values_for_key_in_obj,
     validate_all_values_for_key_in_list,
 )

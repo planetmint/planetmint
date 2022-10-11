@@ -5,8 +5,8 @@
 
 import pytest
 from planetmint.version import __tm_supported_versions__
-from planetmint.transactions.types.assets.create import Create
-from planetmint.transactions.types.assets.transfer import Transfer
+from transactions.types.assets.create import Create
+from transactions.types.assets.transfer import Transfer
 
 
 @pytest.fixture

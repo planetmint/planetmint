@@ -5,7 +5,7 @@
 
 import re
 
-from planetmint.transactions.common.transaction_mode_types import (
+from transactions.common.transaction_mode_types import (
     BROADCAST_TX_COMMIT,
     BROADCAST_TX_ASYNC,
     BROADCAST_TX_SYNC,

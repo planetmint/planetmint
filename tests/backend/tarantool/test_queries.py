@@ -7,9 +7,9 @@ from copy import deepcopy
 
 import pytest
 import json
-from planetmint.transactions.common.transaction import Transaction
-from planetmint.transactions.types.assets.create import Create
-from planetmint.transactions.types.assets.transfer import Transfer
+from transactions.common.transaction import Transaction
+from transactions.types.assets.create import Create
+from transactions.types.assets.transfer import Transfer
 
 pytestmark = pytest.mark.bdb
 
@@ -228,7 +228,7 @@ def test_get_spending_transactions(user_pk, user_sk, db_conn):
 
 
 def test_get_spending_transactions_multiple_inputs(db_conn):
-    from planetmint.transactions.common.crypto import generate_key_pair
+    from transactions.common.crypto import generate_key_pair
     from planetmint.backend.tarantool import query
 
     (alice_sk, alice_pk) = generate_key_pair()

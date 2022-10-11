@@ -7,7 +7,7 @@ from unittest.mock import patch
 import pytest
 
 from planetmint.backend import query
-from planetmint.transactions.types.elections.validator_election import ValidatorElection
+from transactions.types.elections.validator_election import ValidatorElection
 
 
 @pytest.fixture
@@ -17,7 +17,7 @@ def valid_upsert_validator_election_b(b, node_key, new_validator):
 
 
 @pytest.fixture
-@patch("planetmint.transactions.types.elections.election.uuid4", lambda: "mock_uuid4")
+@patch("transactions.types.elections.election.uuid4", lambda: "mock_uuid4")
 def fixed_seed_election(b_mock, node_key, new_validator):
     voters = b_mock.get_recipients_list()
     return ValidatorElection.generate([node_key.public_key], voters, new_validator, None).sign([node_key.private_key])

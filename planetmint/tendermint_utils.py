@@ -14,7 +14,7 @@ from tendermint.crypto import keys_pb2
 
 from hashlib import sha3_256
 
-from planetmint.transactions.common.exceptions import InvalidPublicKey
+from transactions.common.exceptions import InvalidPublicKey
 
 def encode_validator(v):
     ed25519_public_key = v["public_key"]["value"]

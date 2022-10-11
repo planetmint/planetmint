@@ -4,7 +4,7 @@
 # Code is Apache-2.0 and docs are CC-BY-4.0
 
 import pytest
-from planetmint.transactions.types.assets.create import Create
+from transactions.types.assets.create import Create
 from ipld import marshal, multihash
 
 METADATA_ENDPOINT = "/api/v1/metadata/"

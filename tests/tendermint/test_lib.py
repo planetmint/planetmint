@@ -6,8 +6,8 @@
 from operator import index
 import os
 from unittest.mock import patch
-from planetmint.transactions.types.assets.create import Create
-from planetmint.transactions.types.assets.transfer import Transfer
+from transactions.types.assets.create import Create
+from transactions.types.assets.transfer import Transfer
 
 from hashlib import sha3_256
 
@@ -15,7 +15,7 @@ import pytest
 from pymongo import MongoClient
 
 from planetmint import backend
-from planetmint.transactions.common.transaction_mode_types import (
+from transactions.common.transaction_mode_types import (
     BROADCAST_TX_COMMIT,
     BROADCAST_TX_ASYNC,
     BROADCAST_TX_SYNC,
@@ -27,7 +27,7 @@ from ipld import marshal, multihash
 @pytest.mark.bdb
 def test_asset_is_separated_from_transaciton(b):
     import copy
-    from planetmint.transactions.common.crypto import generate_key_pair
+    from transactions.common.crypto import generate_key_pair
     from planetmint.backend.tarantool.connection import TarantoolDBConnection
 
     if isinstance(b.connection, TarantoolDBConnection):
@@ -92,7 +92,7 @@ def test_get_empty_block(_0, _1, b):
 
 
 def test_validation_error(b):
-    from planetmint.transactions.common.crypto import generate_key_pair
+    from transactions.common.crypto import generate_key_pair
 
     alice = generate_key_pair()
     tx = Create.generate([alice.public_key], [([alice.public_key], 1)], asset=None).sign([alice.private_key]).to_dict()
@@ -103,7 +103,7 @@ def test_validation_error(b):
 
 @patch("requests.post")
 def test_write_and_post_transaction(mock_post, b):
-    from planetmint.transactions.common.crypto import generate_key_pair
+    from transactions.common.crypto import generate_key_pair
     from planetmint.tendermint_utils import encode_transaction
 
     alice = generate_key_pair()
@@ -122,7 +122,7 @@ def test_write_and_post_transaction(mock_post, b):
 @patch("requests.post")
 @pytest.mark.parametrize("mode", [BROADCAST_TX_SYNC, BROADCAST_TX_ASYNC, BROADCAST_TX_COMMIT])
 def test_post_transaction_valid_modes(mock_post, b, mode):
-    from planetmint.transactions.common.crypto import generate_key_pair
+    from transactions.common.crypto import generate_key_pair
 
     alice = generate_key_pair()
     tx = Create.generate([alice.public_key], [([alice.public_key], 1)], asset=None).sign([alice.private_key]).to_dict()
@@ -134,8 +134,8 @@ def test_post_transaction_valid_modes(mock_post, b, mode):
 
 
 def test_post_transaction_invalid_mode(b):
-    from planetmint.transactions.common.crypto import generate_key_pair
-    from planetmint.transactions.common.exceptions import ValidationError
+    from transactions.common.crypto import generate_key_pair
+    from transactions.common.exceptions import ValidationError
 
     alice = generate_key_pair()
     tx = Create.generate([alice.public_key], [([alice.public_key], 1)], asset=None).sign([alice.private_key]).to_dict()
@@ -405,7 +405,7 @@ def test_get_utxoset_merkle_root(b, utxoset):
 @pytest.mark.bdb
 def test_get_spent_transaction_critical_double_spend(b, alice, bob, carol):
     from planetmint.exceptions import CriticalDoubleSpend
-    from planetmint.transactions.common.exceptions import DoubleSpend
+    from transactions.common.exceptions import DoubleSpend
 
     asset = {"data": multihash(marshal({"test": "asset"}))}
 
@@ -443,7 +443,7 @@ def test_get_spent_transaction_critical_double_spend(b, alice, bob, carol):
 
 
 def test_validation_with_transaction_buffer(b):
-    from planetmint.transactions.common.crypto import generate_key_pair
+    from transactions.common.crypto import generate_key_pair
 
     priv_key, pub_key = generate_key_pair()
 
@@ -493,8 +493,8 @@ def test_migrate_abci_chain_generates_new_chains(b, chain, block_height, expecte
 @pytest.mark.bdb
 def test_get_spent_key_order(b, user_pk, user_sk, user2_pk, user2_sk):
     from planetmint import backend
-    from planetmint.transactions.common.crypto import generate_key_pair
-    from planetmint.transactions.common.exceptions import DoubleSpend
+    from transactions.common.crypto import generate_key_pair
+    from transactions.common.exceptions import DoubleSpend
 
     alice = generate_key_pair()
     bob = generate_key_pair()

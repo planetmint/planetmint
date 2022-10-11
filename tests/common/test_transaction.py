@@ -10,13 +10,13 @@ import json
 from copy import deepcopy
 
 from base58 import b58encode, b58decode
-from planetmint.transactions.types.assets.create import Create
-from planetmint.transactions.types.assets.transfer import Transfer
-from planetmint.transactions.common.transaction import Output
-from planetmint.transactions.common.transaction import Input
-from planetmint.transactions.common.exceptions import AmountError
-from planetmint.transactions.common.transaction import Transaction
-from planetmint.transactions.common.transaction import TransactionLink
+from transactions.types.assets.create import Create
+from transactions.types.assets.transfer import Transfer
+from transactions.common.transaction import Output
+from transactions.common.transaction import Input
+from transactions.common.exceptions import AmountError
+from transactions.common.transaction import Transaction
+from transactions.common.transaction import TransactionLink
 from cryptoconditions import ThresholdSha256
 from cryptoconditions import Fulfillment
 from cryptoconditions import PreimageSha256
@@ -52,7 +52,7 @@ def test_input_deserialization_with_uri(ffill_uri, user_pub):
 
 @mark.skip(reason="None is tolerated because it is None before fulfilling.")
 def test_input_deserialization_with_invalid_input(user_pub):
-    from planetmint.transactions.common.transaction import Input
+    from transactions.common.transaction import Input
 
     ffill = {
         "owners_before": [user_pub],
@@ -64,8 +64,8 @@ def test_input_deserialization_with_invalid_input(user_pub):
 
 
 def test_input_deserialization_with_invalid_fulfillment_uri(user_pub):
-    from planetmint.transactions.common.exceptions import InvalidSignature
-    from planetmint.transactions.common.transaction import Input
+    from transactions.common.exceptions import InvalidSignature
+    from transactions.common.transaction import Input
 
     ffill = {
         "owners_before": [user_pub],
@@ -89,7 +89,7 @@ def test_input_deserialization_with_unsigned_fulfillment(ffill_uri, user_pub):
 
 
 def test_output_serialization(user_Ed25519, user_pub):
-    from planetmint.transactions.common.transaction import Output
+    from transactions.common.transaction import Output
 
     expected = {
         "condition": {
@@ -109,7 +109,7 @@ def test_output_serialization(user_Ed25519, user_pub):
 
 
 def test_output_deserialization(user_Ed25519, user_pub):
-    from planetmint.transactions.common.transaction import Output
+    from transactions.common.transaction import Output
 
     expected = Output(user_Ed25519, [user_pub], 1)
     cond = {
@@ -229,8 +229,8 @@ def test_generate_output_single_owner_with_output(user_pub):
 
 
 def test_generate_output_invalid_parameters(user_pub, user2_pub, user3_pub):
-    from planetmint.transactions.common.transaction import Output
-    from planetmint.transactions.common.exceptions import AmountError
+    from transactions.common.transaction import Output
+    from transactions.common.exceptions import AmountError
 
     with raises(ValueError):
         Output.generate([], 1)
@@ -298,7 +298,7 @@ def test_transaction_deserialization(tri_state_transaction):
 
 
 def test_invalid_input_initialization(user_input, user_pub):
-    from planetmint.transactions.common.transaction import Input
+    from transactions.common.transaction import Input
 
     with raises(TypeError):
         Input(user_input, user_pub)
@@ -435,7 +435,7 @@ def test_validate_tx_simple_create_signature(user_input, user_output, user_priv,
 
 
 def test_invoke_simple_signature_fulfillment_with_invalid_params(utx, user_input):
-    from planetmint.transactions.common.exceptions import KeypairMismatchException
+    from transactions.common.exceptions import KeypairMismatchException
 
     with raises(KeypairMismatchException):
         invalid_key_pair = {"wrong_pub_key": "wrong_priv_key"}
@@ -443,7 +443,7 @@ def test_invoke_simple_signature_fulfillment_with_invalid_params(utx, user_input
 
 
 def test_sign_threshold_with_invalid_params(utx, user_user2_threshold_input, user3_pub, user3_priv):
-    from planetmint.transactions.common.exceptions import KeypairMismatchException
+    from transactions.common.exceptions import KeypairMismatchException
 
     with raises(KeypairMismatchException):
         utx._sign_threshold_signature_fulfillment(user_user2_threshold_input, "somemessage", {user3_pub: user3_priv})
@@ -845,8 +845,8 @@ def test_transaction_hash(fulfilled_transaction):
 
 
 def test_output_from_dict_invalid_amount(user_output):
-    from planetmint.transactions.common.transaction import Output
-    from planetmint.transactions.common.exceptions import AmountError
+    from transactions.common.transaction import Output
+    from transactions.common.exceptions import AmountError
 
     out = user_output.to_dict()
     out["amount"] = "a"

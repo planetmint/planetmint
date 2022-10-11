@@ -8,8 +8,8 @@ from unittest.mock import patch
 import pytest
 
 from planetmint.tendermint_utils import public_key_to_base64
-from planetmint.transactions.types.elections.validator_election import ValidatorElection
-from planetmint.transactions.common.exceptions import (
+from transactions.types.elections.validator_election import ValidatorElection
+from transactions.common.exceptions import (
     DuplicateTransaction,
     UnequalValidatorSet,
     InvalidProposer,
@@ -29,7 +29,7 @@ def test_upsert_validator_valid_election(b_mock, new_validator, node_key):
 
 
 def test_upsert_validator_invalid_election_public_key(b_mock, new_validator, node_key):
-    from planetmint.transactions.common.exceptions import InvalidPublicKey
+    from transactions.common.exceptions import InvalidPublicKey
 
     for iv in ["ed25519-base32", "ed25519-base64"]:
         new_validator["public_key"]["type"] = iv
@@ -51,7 +51,7 @@ def test_upsert_validator_invalid_power_election(b_mock, new_validator, node_key
 
 
 def test_upsert_validator_invalid_proposed_election(b_mock, new_validator, node_key):
-    from planetmint.transactions.common.crypto import generate_key_pair
+    from transactions.common.crypto import generate_key_pair
 
     alice = generate_key_pair()
     voters = b_mock.get_recipients_list()
@@ -61,7 +61,7 @@ def test_upsert_validator_invalid_proposed_election(b_mock, new_validator, node_
 
 
 def test_upsert_validator_invalid_inputs_election(b_mock, new_validator, node_key):
-    from planetmint.transactions.common.crypto import generate_key_pair
+    from transactions.common.crypto import generate_key_pair
 
     alice = generate_key_pair()
     voters = b_mock.get_recipients_list()
@@ -72,7 +72,7 @@ def test_upsert_validator_invalid_inputs_election(b_mock, new_validator, node_ke
         b_mock.validate_election(election)
 
 
-@patch("planetmint.transactions.types.elections.election.uuid4", lambda: "mock_uuid4")
+@patch("transactions.types.elections.election.uuid4", lambda: "mock_uuid4")
 def test_upsert_validator_invalid_election(b_mock, new_validator, node_key, fixed_seed_election):
     voters = b_mock.get_recipients_list()
     duplicate_election = ValidatorElection.generate([node_key.public_key], voters, new_validator, None).sign(

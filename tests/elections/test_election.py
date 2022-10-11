@@ -3,9 +3,9 @@ import pytest
 from tests.utils import generate_election, generate_validators
 
 from planetmint.lib import Block
-from planetmint.transactions.types.elections.election import Election
-from planetmint.transactions.types.elections.chain_migration_election import ChainMigrationElection
-from planetmint.transactions.types.elections.validator_election import ValidatorElection
+from transactions.types.elections.election import Election
+from transactions.types.elections.chain_migration_election import ChainMigrationElection
+from transactions.types.elections.validator_election import ValidatorElection
 
 
 @pytest.mark.bdb

@@ -8,10 +8,10 @@ import logging
 from importlib import import_module
 
 import tarantool
+from transactions.common.exceptions import ConfigurationError
 
 from planetmint.config import Config
 from planetmint.backend.exceptions import ConnectionError
-from planetmint.transactions.common.exceptions import ConfigurationError
 
 BACKENDS = {
     "tarantool_db": "planetmint.backend.tarantool.connection.TarantoolDBConnection",

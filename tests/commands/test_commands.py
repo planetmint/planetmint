@@ -14,9 +14,8 @@ import pytest
 from planetmint.config import Config
 from planetmint import ValidatorElection
 from planetmint.commands.planetmint import run_election_show
-from planetmint.transactions.types.elections.election import Election
 from planetmint.lib import Block
-from planetmint.transactions.types.elections.chain_migration_election import ChainMigrationElection
+from transactions.types.elections.chain_migration_election import ChainMigrationElection
 
 from tests.utils import generate_election, generate_validators
 
@@ -137,7 +136,7 @@ def test_drop_db_when_interactive_yes(mock_db_drop, monkeypatch):
 
 @patch("planetmint.backend.schema.drop_database")
 def test_drop_db_when_db_does_not_exist(mock_db_drop, capsys):
-    from planetmint.transactions.common.exceptions import DatabaseDoesNotExist
+    from transactions.common.exceptions import DatabaseDoesNotExist
     from planetmint.commands.planetmint import run_drop
 
     args = Namespace(config=None, yes=True)
@@ -263,7 +262,7 @@ def test_recover_db_on_start(mock_run_recover, mock_start, mocked_setup_logging)
 @pytest.mark.bdb
 def test_run_recover(b, alice, bob):
     from planetmint.commands.planetmint import run_recover
-    from planetmint.transactions.types.assets.create import Create
+    from transactions.types.assets.create import Create
     from planetmint.lib import Block
     from planetmint.backend import query
 
@@ -408,7 +407,7 @@ def test_election_new_upsert_validator_invalid_election(caplog, b, priv_validato
 @pytest.mark.bdb
 def test_election_new_upsert_validator_invalid_power(caplog, b, priv_validator_path, user_sk):
     from planetmint.commands.planetmint import run_election_new_upsert_validator
-    from planetmint.transactions.common.exceptions import InvalidPowerChange
+    from transactions.common.exceptions import InvalidPowerChange
 
     def mock_write(tx, mode):
         b.store_bulk_transactions([tx])

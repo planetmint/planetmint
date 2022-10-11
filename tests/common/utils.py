@@ -5,8 +5,8 @@
 
 
 def validate_transaction_model(tx):
-    from planetmint.transactions.common.transaction import Transaction
-    from planetmint.transactions.common.schema import validate_transaction_schema
+    from transactions.common.transaction import Transaction
+    from transactions.common.schema import validate_transaction_schema
 
     tx_dict = tx.to_dict()
     # Check that a transaction is valid by re-serializing it

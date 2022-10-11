@@ -9,8 +9,8 @@ import queue
 import threading
 
 # from unittest.mock import patch
-from planetmint.transactions.types.assets.create import Create
-from planetmint.transactions.types.assets.transfer import Transfer
+from transactions.types.assets.create import Create
+from transactions.types.assets.transfer import Transfer
 from ipld import multihash, marshal
 
 import pytest
@@ -26,7 +26,7 @@ class MockWebSocket:
 
 def test_eventify_block_works_with_any_transaction():
     from planetmint.web.websocket_dispatcher import Dispatcher
-    from planetmint.transactions.common.crypto import generate_key_pair
+    from transactions.common.crypto import generate_key_pair
 
     alice = generate_key_pair()
 
@@ -48,7 +48,7 @@ def test_eventify_block_works_with_any_transaction():
 
 def test_simplified_block_works():
     from planetmint.web.websocket_dispatcher import Dispatcher
-    from planetmint.transactions.common.crypto import generate_key_pair
+    from transactions.common.crypto import generate_key_pair
 
     alice = generate_key_pair()
 
@@ -138,7 +138,7 @@ async def test_bridge_sync_async_queue(event_loop):
 async def test_websocket_block_event(aiohttp_client, event_loop):
     from planetmint import events
     from planetmint.web.websocket_server import init_app, EVENTS_ENDPOINT_BLOCKS
-    from planetmint.transactions.common import crypto
+    from transactions.common import crypto
 
     user_priv, user_pub = crypto.generate_key_pair()
     tx = Create.generate([user_pub], [([user_pub], 1)])
@@ -172,7 +172,7 @@ async def test_websocket_block_event(aiohttp_client, event_loop):
 async def test_websocket_transaction_event(aiohttp_client, event_loop):
     from planetmint import events
     from planetmint.web.websocket_server import init_app, EVENTS_ENDPOINT
-    from planetmint.transactions.common import crypto
+    from transactions.common import crypto
 
     user_priv, user_pub = crypto.generate_key_pair()
     tx = Create.generate([user_pub], [([user_pub], 1)])
@@ -241,7 +241,7 @@ def test_integration_from_webapi_to_websocket(monkeypatch, client, loop):
     import random
     import aiohttp
 
-    from planetmint.transactions.common import crypto
+    from transactions.common import crypto
 
     # TODO processes does not exist anymore, when reactivating this test it
     # will fail because of this

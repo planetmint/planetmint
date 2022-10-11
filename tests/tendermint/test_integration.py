@@ -4,8 +4,8 @@
 # Code is Apache-2.0 and docs are CC-BY-4.0
 
 import codecs
-from planetmint.transactions.types.assets.create import Create
-from planetmint.transactions.types.assets.transfer import Transfer
+from transactions.types.assets.create import Create
+from transactions.types.assets.transfer import Transfer
 
 from tendermint.abci import types_pb2 as types
 import json
@@ -15,7 +15,7 @@ import pytest
 from abci.server import ProtocolHandler
 from abci.utils import read_messages
 
-from planetmint.transactions.common.transaction_mode_types import BROADCAST_TX_COMMIT, BROADCAST_TX_SYNC
+from transactions.common.transaction_mode_types import BROADCAST_TX_COMMIT, BROADCAST_TX_SYNC
 from planetmint.version import __tm_supported_versions__
 from io import BytesIO
 
@@ -24,7 +24,7 @@ from io import BytesIO
 def test_app(b, eventqueue_fixture, init_chain_request):
     from planetmint import App
     from planetmint.tendermint_utils import calculate_hash
-    from planetmint.transactions.common.crypto import generate_key_pair
+    from transactions.common.crypto import generate_key_pair
 
     app = App(b, eventqueue_fixture)
     p = ProtocolHandler(app)
@@ -111,7 +111,7 @@ def test_app(b, eventqueue_fixture, init_chain_request):
 
 @pytest.mark.abci
 def test_post_transaction_responses(tendermint_ws_url, b):
-    from planetmint.transactions.common.crypto import generate_key_pair
+    from transactions.common.crypto import generate_key_pair
 
     alice = generate_key_pair()
     bob = generate_key_pair()

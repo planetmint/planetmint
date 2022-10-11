@@ -1,4 +1,4 @@
-from planetmint.transactions.types.elections.chain_migration_election import ChainMigrationElection
+from transactions.types.elections.chain_migration_election import ChainMigrationElection
 
 
 def test_valid_migration_election(b_mock, node_key):

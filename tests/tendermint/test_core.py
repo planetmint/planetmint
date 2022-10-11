@@ -4,27 +4,26 @@
 # Code is Apache-2.0 and docs are CC-BY-4.0
 
 import json
-from planetmint.transactions.types.assets.create import Create
-from planetmint.transactions.types.assets.transfer import Transfer
-import pytest
 import random
+import multiprocessing as mp
 
+import pytest
 from tendermint.abci import types_pb2 as types
 from tendermint.crypto import keys_pb2
+from transactions import ValidatorElection, ChainMigrationElection
+from transactions.common.crypto import generate_key_pair
+from transactions.types.assets.create import Create
+from transactions.types.assets.transfer import Transfer
 
 from planetmint import App
 from planetmint.backend import query
-from planetmint.transactions.common.crypto import generate_key_pair
 from planetmint.core import OkCode, CodeTypeError, rollback
 from planetmint.lib import Block
-from planetmint.transactions.types.elections.chain_migration_election import ChainMigrationElection
-from planetmint.transactions.types.elections.validator_election import ValidatorElection
 from planetmint.tendermint_utils import new_validator_set
 from planetmint.tendermint_utils import public_key_to_base64
 from planetmint.version import __tm_supported_versions__
 
 from tests.utils import generate_election, generate_validators
-
 
 pytestmark = pytest.mark.bdb
 
@@ -197,9 +196,6 @@ def test_info(b):
 
 
 def test_check_tx__signed_create_is_ok(b):
-    from planetmint import App
-    from planetmint.transactions.common.crypto import generate_key_pair
-
     alice = generate_key_pair()
     bob = generate_key_pair()
 
@@ -211,9 +207,6 @@ def test_check_tx__signed_create_is_ok(b):
 
 
 def test_check_tx__unsigned_create_is_error(b):
-    from planetmint import App
-    from planetmint.transactions.common.crypto import generate_key_pair
-
     alice = generate_key_pair()
     bob = generate_key_pair()
 
@@ -225,10 +218,6 @@ def test_check_tx__unsigned_create_is_error(b):
 
 
 def test_deliver_tx__valid_create_updates_db_and_emits_event(b, init_chain_request):
-    import multiprocessing as mp
-    from planetmint import App
-    from planetmint.transactions.common.crypto import generate_key_pair
-
     alice = generate_key_pair()
     bob = generate_key_pair()
     events = mp.Queue()
@@ -260,9 +249,6 @@ def test_deliver_tx__valid_create_updates_db_and_emits_event(b, init_chain_reque
 
 
 def test_deliver_tx__double_spend_fails(b, init_chain_request):
-    from planetmint import App
-    from planetmint.transactions.common.crypto import generate_key_pair
-
     alice = generate_key_pair()
     bob = generate_key_pair()
 
@@ -285,9 +271,6 @@ def test_deliver_tx__double_spend_fails(b, init_chain_request):
 
 
 def test_deliver_transfer_tx__double_spend_fails(b, init_chain_request):
-    from planetmint import App
-    from planetmint.transactions.common.crypto import generate_key_pair
-
     app = App(b)
     app.init_chain(init_chain_request)
 

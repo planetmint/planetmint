@@ -1,11 +1,9 @@
-import pytest
 import json
 import base58
 from hashlib import sha3_256
 from zenroom import zencode_exec
-from cryptoconditions.types.ed25519 import Ed25519Sha256
 from cryptoconditions.types.zenroom import ZenroomSha256
-from planetmint.transactions.common.crypto import generate_key_pair
+from transactions.common.crypto import generate_key_pair
 from ipld import multihash, marshal
 
 CONDITION_SCRIPT = """Scenario 'ecdh': create the signature of an object
@@ -150,9 +148,9 @@ def test_zenroom_signing():
     shared_creation_txid = sha3_256(json_str_tx.encode()).hexdigest()
     tx["id"] = shared_creation_txid
 
-    from planetmint.transactions.common.transaction import Transaction
+    from transactions.common.transaction import Transaction
     from planetmint.lib import Planetmint
-    from planetmint.transactions.common.exceptions import (
+    from transactions.common.exceptions import (
         SchemaValidationError,
         ValidationError,
     )

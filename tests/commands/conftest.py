@@ -39,7 +39,7 @@ def mock_processes_start(monkeypatch):
 
 @pytest.fixture
 def mock_generate_key_pair(monkeypatch):
-    monkeypatch.setattr("planetmint.transactions.common.crypto.generate_key_pair", lambda: ("privkey", "pubkey"))
+    monkeypatch.setattr("transactions.common.crypto.generate_key_pair", lambda: ("privkey", "pubkey"))
 
 
 @pytest.fixture

@@ -5,9 +5,9 @@
 
 import pytest
 
-from planetmint.transactions.common.transaction import TransactionLink
-from planetmint.transactions.types.assets.create import Create
-from planetmint.transactions.types.assets.transfer import Transfer
+from transactions.common.transaction import TransactionLink
+from transactions.types.assets.create import Create
+from transactions.types.assets.transfer import Transfer
 
 pytestmark = pytest.mark.bdb
 

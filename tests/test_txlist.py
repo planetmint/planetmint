@@ -12,8 +12,8 @@ import pytest
 
 @pytest.fixture
 def txlist(b, user_pk, user2_pk, user_sk, user2_sk):
-    from planetmint.transactions.types.assets.create import Create
-    from planetmint.transactions.types.assets.transfer import Transfer
+    from transactions.types.assets.create import Create
+    from transactions.types.assets.transfer import Transfer
 
     # Create two CREATE transactions
     create1 = Create.generate([user_pk], [([user2_pk], 6)]).sign([user_sk])

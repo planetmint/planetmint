@@ -7,9 +7,9 @@
 import pytest
 import random
 
-from planetmint.transactions.types.assets.create import Create
-from planetmint.transactions.types.assets.transfer import Transfer
-from planetmint.transactions.common.exceptions import DoubleSpend
+from transactions.types.assets.create import Create
+from transactions.types.assets.transfer import Transfer
+from transactions.common.exceptions import DoubleSpend
 
 
 # CREATE divisible asset
@@ -107,7 +107,7 @@ def test_single_in_single_own_multiple_out_mix_own_create(alice, user_pk, b):
 # Multiple owners_before
 # Output combinations already tested above
 def test_single_in_multiple_own_single_out_single_own_create(alice, b, user_pk, user_sk):
-    from planetmint.transactions.common.utils import _fulfillment_to_details
+    from transactions.common.utils import _fulfillment_to_details
 
     tx = Create.generate(
         [alice.public_key, user_pk],
@@ -259,7 +259,7 @@ def test_single_in_single_own_multiple_out_mix_own_transfer(alice, b, user_pk, u
 # Single output
 # Single owners_after
 def test_single_in_multiple_own_single_out_single_own_transfer(alice, b, user_pk, user_sk):
-    from planetmint.transactions.common.utils import _fulfillment_to_details
+    from transactions.common.utils import _fulfillment_to_details
 
     # CREATE divisible asset
     tx_create = Create.generate(
@@ -325,7 +325,7 @@ def test_multiple_in_single_own_single_out_single_own_transfer(alice, b, user_pk
 # Single output
 # Single owners_after
 def test_multiple_in_multiple_own_single_out_single_own_transfer(alice, b, user_pk, user_sk):
-    from planetmint.transactions.common.utils import _fulfillment_to_details
+    from transactions.common.utils import _fulfillment_to_details
 
     # CREATE divisible asset
     tx_create = Create.generate(
@@ -365,7 +365,7 @@ def test_multiple_in_multiple_own_single_out_single_own_transfer(alice, b, user_
 # Single output
 # Single owners_after
 def test_muiltiple_in_mix_own_multiple_out_single_own_transfer(alice, b, user_pk, user_sk):
-    from planetmint.transactions.common.utils import _fulfillment_to_details
+    from transactions.common.utils import _fulfillment_to_details
 
     # CREATE divisible asset
     tx_create = Create.generate(
@@ -404,7 +404,7 @@ def test_muiltiple_in_mix_own_multiple_out_single_own_transfer(alice, b, user_pk
 # Mix: one output with a single owners_after, one output with multiple
 #      owners_after
 def test_muiltiple_in_mix_own_multiple_out_mix_own_transfer(alice, b, user_pk, user_sk):
-    from planetmint.transactions.common.utils import _fulfillment_to_details
+    from transactions.common.utils import _fulfillment_to_details
 
     # CREATE divisible asset
     tx_create = Create.generate(
@@ -492,7 +492,7 @@ def test_multiple_in_different_transactions(alice, b, user_pk, user_sk):
 # inputs needs to match the amount being sent in the outputs.
 # In other words `amount_in_inputs - amount_in_outputs == 0`
 def test_amount_error_transfer(alice, b, user_pk, user_sk):
-    from planetmint.transactions.common.exceptions import AmountError
+    from transactions.common.exceptions import AmountError
 
     # CREATE divisible asset
     tx_create = Create.generate(
