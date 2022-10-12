@@ -14,6 +14,7 @@ from ipld import multihash, marshal
 from hashlib import sha3_256
 
 from transactions.common import crypto
+from transactions.common.transaction import Transaction
 from transactions.types.assets.create import Create
 from transactions.types.assets.transfer import Transfer
 from transactions.common.transaction_mode_types import (
@@ -298,7 +299,6 @@ def test_post_invalid_transaction(
     client,
     exc,
     msg,
-    monkeypatch,
 ):
     from transactions.common import exceptions
 
@@ -307,28 +307,23 @@ def test_post_invalid_transaction(
     def mock_validation(self_, tx, skip_schema_validation=True):
         raise exc_cls(msg)
 
-    TransactionMock = Mock(validate=mock_validation)
-
-    monkeypatch.setattr(
-        "transactions.common.transaction.Transaction.from_dict",
-        lambda tx, skip_schema_validation: TransactionMock,
-    )
-    res = client.post(TX_ENDPOINT, data=json.dumps({}))
-    expected_status_code = 400
-    expected_error_message = "Invalid transaction ({}): {}".format(exc, msg)
-    assert res.status_code == expected_status_code
-    assert res.json["message"] == "Invalid transaction ({}): {}".format(exc, msg)
-    assert mock_logger.error.called
-    assert "HTTP API error: %(status)s - %(method)s:%(path)s - %(message)s" in mock_logger.error.call_args[0]
-    assert {
-        "message": expected_error_message,
-        "status": expected_status_code,
-        "method": "POST",
-        "path": TX_ENDPOINT,
-    } in mock_logger.error.call_args[0]
-    # TODO put back caplog based asserts once possible
-    # assert caplog.records[2].args['status'] == expected_status_code
-    # assert caplog.records[2].args['message'] == expected_error_message
+    with patch.object(Transaction, "from_dict", mock_validation):
+        res = client.post(TX_ENDPOINT, data=json.dumps({}))
+        expected_status_code = 400
+        expected_error_message = "Invalid transaction ({}): {}".format(exc, msg)
+        assert res.status_code == expected_status_code
+        assert res.json["message"] == "Invalid transaction ({}): {}".format(exc, msg)
+        assert mock_logger.error.called
+        assert "HTTP API error: %(status)s - %(method)s:%(path)s - %(message)s" in mock_logger.error.call_args[0]
+        assert {
+            "message": expected_error_message,
+            "status": expected_status_code,
+            "method": "POST",
+            "path": TX_ENDPOINT,
+        } in mock_logger.error.call_args[0]
+        # TODO put back caplog based asserts once possible
+        # assert caplog.records[2].args['status'] == expected_status_code
+        # assert caplog.records[2].args['message'] == expected_error_message
 
 
 @pytest.mark.abci
