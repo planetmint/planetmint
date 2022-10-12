@@ -11,9 +11,7 @@ import codecs
 from binascii import hexlify
 from tendermint.abci import types_pb2
 from tendermint.crypto import keys_pb2
-
 from hashlib import sha3_256
-
 from transactions.common.exceptions import InvalidPublicKey
 
 

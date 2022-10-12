@@ -1,6 +1,7 @@
-from secrets import token_hex
 import copy
 import json
+
+from secrets import token_hex
 from transactions.common.memoize import HDict
 
 

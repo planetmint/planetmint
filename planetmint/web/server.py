@@ -10,11 +10,10 @@ The application is implemented in Flask and runs using Gunicorn.
 
 import copy
 import multiprocessing
+import gunicorn.app.base
 
 from flask import Flask
 from flask_cors import CORS
-import gunicorn.app.base
-
 from planetmint import utils
 from planetmint import Planetmint
 from planetmint.web.routes import add_routes

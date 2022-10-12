@@ -8,6 +8,7 @@ with Tendermint.
 """
 import logging
 import sys
+
 from tendermint.abci import types_pb2
 from abci.application import BaseApplication
 from abci.application import OkCode

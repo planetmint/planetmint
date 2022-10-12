@@ -1,6 +1,5 @@
 import logging
 
-import tarantool
 from planetmint.config import Config
 from planetmint.backend.utils import module_dispatch_registrar
 from planetmint import backend

@@ -12,6 +12,7 @@ import logging
 import argparse
 import json
 import sys
+import planetmint
 
 from planetmint.core import rollback
 from planetmint.utils import load_node_key
@@ -20,7 +21,6 @@ from transactions.common.exceptions import DatabaseDoesNotExist, ValidationError
 from transactions.types.elections.vote import Vote
 from transactions.types.elections.chain_migration_election import ChainMigrationElection
 from transactions.types.elections.validator_utils import election_id_to_public_key
-import planetmint
 from planetmint import ValidatorElection, Planetmint
 from planetmint.backend import schema
 from planetmint.commands import utils

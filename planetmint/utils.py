@@ -8,8 +8,8 @@ import threading
 import queue
 import multiprocessing as mp
 import json
-
 import setproctitle
+
 from packaging import version
 from planetmint.version import __tm_supported_versions__
 from planetmint.tendermint_utils import key_from_base64

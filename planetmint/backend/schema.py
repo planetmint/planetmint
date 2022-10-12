@@ -5,9 +5,9 @@
 
 """Database creation and schema-providing interfaces for backends."""
 
-from functools import singledispatch
 import logging
 
+from functools import singledispatch
 from planetmint.config import Config
 from planetmint.backend.connection import connect
 from transactions.common.exceptions import ValidationError

@@ -11,7 +11,6 @@ import logging
 
 from flask import current_app, request, jsonify
 from flask_restful import Resource, reqparse
-
 from transactions.common.transaction_mode_types import BROADCAST_TX_ASYNC
 from transactions.common.exceptions import (
     SchemaValidationError,
