@@ -244,11 +244,11 @@ class App(BaseApplication):
         return ResponseCommit(data=data)
 
 
-def rollback(b):
+def rollback(planetmint):
     pre_commit = None
 
     try:
-        pre_commit = b.get_pre_commit_state()
+        pre_commit = planetmint.get_pre_commit_state()
     except Exception as e:
         logger.exception("Unexpected error occurred while executing get_pre_commit_state()", e)
 
@@ -256,12 +256,12 @@ def rollback(b):
         # the pre_commit record is first stored in the first `end_block`
         return
 
-    latest_block = b.get_latest_block()
+    latest_block = planetmint.get_latest_block()
     if latest_block is None:
         logger.error("Found precommit state but no blocks!")
         sys.exit(1)
 
     # NOTE: the pre-commit state is always at most 1 block ahead of the commited state
     if latest_block["height"] < pre_commit["height"]:
-        b.rollback_election(pre_commit["height"], pre_commit["transactions"])
-        b.delete_transactions(pre_commit["transactions"])
+        planetmint.rollback_election(pre_commit["height"], pre_commit["transactions"])
+        planetmint.delete_transactions(pre_commit["transactions"])

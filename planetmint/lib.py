@@ -9,14 +9,13 @@ MongoDB.
 """
 import logging
 import json
+import rapidjson
+import requests
+import planetmint
+
 from collections import namedtuple, OrderedDict
 from uuid import uuid4
-
-import rapidjson
-
 from hashlib import sha3_256
-
-import requests
 from transactions import Transaction, Vote
 from transactions.common.crypto import public_key_from_ed25519_key
 from transactions.common.exceptions import (
@@ -37,8 +36,6 @@ from transactions.common.transaction import VALIDATOR_ELECTION, CHAIN_MIGRATION_
 from transactions.common.transaction_mode_types import BROADCAST_TX_COMMIT, BROADCAST_TX_ASYNC, BROADCAST_TX_SYNC
 from transactions.types.elections.election import Election
 from transactions.types.elections.validator_utils import election_id_to_public_key
-
-import planetmint
 from planetmint.config import Config
 from planetmint import backend, config_utils, fastquery
 from planetmint.tendermint_utils import (
@@ -393,16 +390,10 @@ class Planetmint(object):
                 logger.warning("Invalid transaction (%s): %s", type(e).__name__, e)
                 return False
 
-        input_conditions = []
-
         if transaction.operation == Transaction.CREATE:
             duplicates = any(txn for txn in current_transactions if txn.id == transaction.id)
             if self.is_committed(transaction.id) or duplicates:
                 raise DuplicateTransaction("transaction `{}` already exists".format(transaction.id))
-
-            if not transaction.inputs_valid(input_conditions):
-                raise InvalidSignature("Transaction signature is invalid.")
-
         elif transaction.operation in [Transaction.TRANSFER, Transaction.VOTE]:
             self.validate_transfer_inputs(transaction, current_transactions)
 
@@ -441,6 +432,9 @@ class Planetmint(object):
         if asset_id != tx.asset["id"]:
             raise AssetIdMismatch(("The asset id of the input does not" " match the asset id of the" " transaction"))
 
+        if not tx.inputs_valid(input_conditions):
+            raise InvalidSignature("Transaction signature is invalid.")
+
         input_amount = sum([input_condition.amount for input_condition in input_conditions])
         output_amount = sum([output_condition.amount for output_condition in tx.outputs])
 
@@ -450,9 +444,6 @@ class Planetmint(object):
                     "The amount used in the inputs `{}`" " needs to be same as the amount used" " in the outputs `{}`"
                 ).format(input_amount, output_amount)
             )
-
-        if not tx.inputs_valid(input_conditions):
-            raise InvalidSignature("Transaction signature is invalid.")
 
         return True
 
@@ -653,14 +644,10 @@ class Planetmint(object):
         Raises:
             ValidationError: If the election is invalid
         """
-        input_conditions = []
 
         duplicates = any(txn for txn in current_transactions if txn.id == transaction.id)
         if self.is_committed(transaction.id) or duplicates:
             raise DuplicateTransaction("transaction `{}` already exists".format(transaction.id))
-
-        if not transaction.inputs_valid(input_conditions):
-            raise InvalidSignature("Transaction signature is invalid.")
 
         current_validators = self.get_validators_dict()
 
@@ -678,11 +665,11 @@ class Planetmint(object):
             raise UnequalValidatorSet("Validator set much be exactly same to the outputs of election")
 
         if transaction.operation == VALIDATOR_ELECTION:
-            self.validate_validator_election(transaction, current_transactions)
+            self.validate_validator_election(transaction)
 
         return transaction
 
-    def validate_validator_election(self, transaction, current_transactions=[]):  # TODO: move somewhere else
+    def validate_validator_election(self, transaction):  # TODO: move somewhere else
         """For more details refer BEP-21: https://github.com/planetmint/BEPs/tree/master/21"""
 
         current_validators = self.get_validators_dict()
@@ -690,8 +677,6 @@ class Planetmint(object):
         # NOTE: change more than 1/3 of the current power is not allowed
         if transaction.asset["data"]["power"] >= (1 / 3) * sum(current_validators.values()):
             raise InvalidPowerChange("`power` change must be less than 1/3 of total power")
-
-        return transaction
 
     def get_election_status(self, transaction):
         election = self.get_election(transaction.id)
