@@ -19,9 +19,20 @@ from hashlib import sha3_256
 import requests
 from transactions import Transaction, Vote
 from transactions.common.crypto import public_key_from_ed25519_key
-from transactions.common.exceptions import SchemaValidationError, ValidationError, DuplicateTransaction, \
-    InvalidSignature, DoubleSpend, InputDoesNotExist, AssetIdMismatch, AmountError, MultipleInputsError, \
-    InvalidProposer, UnequalValidatorSet, InvalidPowerChange
+from transactions.common.exceptions import (
+    SchemaValidationError,
+    ValidationError,
+    DuplicateTransaction,
+    InvalidSignature,
+    DoubleSpend,
+    InputDoesNotExist,
+    AssetIdMismatch,
+    AmountError,
+    MultipleInputsError,
+    InvalidProposer,
+    UnequalValidatorSet,
+    InvalidPowerChange,
+)
 from transactions.common.transaction import VALIDATOR_ELECTION, CHAIN_MIGRATION_ELECTION
 from transactions.common.transaction_mode_types import BROADCAST_TX_COMMIT, BROADCAST_TX_ASYNC, BROADCAST_TX_SYNC
 from transactions.types.elections.election import Election
@@ -30,7 +41,14 @@ from transactions.types.elections.validator_utils import election_id_to_public_k
 import planetmint
 from planetmint.config import Config
 from planetmint import backend, config_utils, fastquery
-from planetmint.tendermint_utils import encode_transaction, merkleroot, key_from_base64, public_key_to_base64, encode_validator, new_validator_set
+from planetmint.tendermint_utils import (
+    encode_transaction,
+    merkleroot,
+    key_from_base64,
+    public_key_to_base64,
+    encode_validator,
+    new_validator_set,
+)
 from planetmint import exceptions as core_exceptions
 from planetmint.validation import BaseValidationRules
 
@@ -381,7 +399,7 @@ class Planetmint(object):
             duplicates = any(txn for txn in current_transactions if txn.id == transaction.id)
             if self.is_committed(transaction.id) or duplicates:
                 raise DuplicateTransaction("transaction `{}` already exists".format(transaction.id))
-            
+
             if not transaction.inputs_valid(input_conditions):
                 raise InvalidSignature("Transaction signature is invalid.")
 
@@ -616,7 +634,7 @@ class Planetmint(object):
 
         return validators
 
-    def validate_election(self, transaction, current_transactions=[]): # TODO: move somewhere else
+    def validate_election(self, transaction, current_transactions=[]):  # TODO: move somewhere else
         """Validate election transaction
 
         NOTE:
@@ -664,8 +682,7 @@ class Planetmint(object):
 
         return transaction
 
-
-    def validate_validator_election(self, transaction, current_transactions=[]): # TODO: move somewhere else
+    def validate_validator_election(self, transaction, current_transactions=[]):  # TODO: move somewhere else
         """For more details refer BEP-21: https://github.com/planetmint/BEPs/tree/master/21"""
 
         current_validators = self.get_validators_dict()
@@ -683,7 +700,7 @@ class Planetmint(object):
 
         return Election.INCONCLUSIVE if self.has_validator_set_changed(transaction) else Election.ONGOING
 
-    def has_validator_set_changed(self, transaction): # TODO: move somewhere else
+    def has_validator_set_changed(self, transaction):  # TODO: move somewhere else
         latest_change = self.get_validator_change()
         if latest_change is None:
             return False
@@ -694,7 +711,7 @@ class Planetmint(object):
 
         return latest_change_height > election["height"]
 
-    def get_validator_change(self): # TODO: move somewhere else
+    def get_validator_change(self):  # TODO: move somewhere else
         """Return the validator set from the most recent approved block
 
         :return: {
@@ -790,13 +807,13 @@ class Planetmint(object):
                         votes = votes + int(getter(output, "amount"))
         return votes
 
-    def get_commited_votes(self, transaction, election_pk=None): # TODO: move somewhere else
+    def get_commited_votes(self, transaction, election_pk=None):  # TODO: move somewhere else
         if election_pk is None:
             election_pk = election_id_to_public_key(transaction.id)
         txns = list(backend.query.get_asset_tokens_for_public_key(self.connection, transaction.id, election_pk))
         return self.count_votes(election_pk, txns, dict.get)
 
-    def _get_initiated_elections(self, height, txns): # TODO: move somewhere else
+    def _get_initiated_elections(self, height, txns):  # TODO: move somewhere else
         elections = []
         for tx in txns:
             if not isinstance(tx, Election):
@@ -805,7 +822,7 @@ class Planetmint(object):
             elections.append({"election_id": tx.id, "height": height, "is_concluded": False})
         return elections
 
-    def _get_votes(self, txns): # TODO: move somewhere else
+    def _get_votes(self, txns):  # TODO: move somewhere else
         elections = OrderedDict()
         for tx in txns:
             if not isinstance(tx, Vote):
@@ -817,7 +834,7 @@ class Planetmint(object):
             elections[election_id].append(tx)
         return elections
 
-    def process_block(self, new_height, txns): # TODO: move somewhere else
+    def process_block(self, new_height, txns):  # TODO: move somewhere else
         """Looks for election and vote transactions inside the block, records
         and processes elections.
 
@@ -863,7 +880,7 @@ class Planetmint(object):
 
         return [validator_update] if validator_update else []
 
-    def has_election_concluded(self, transaction, current_votes=[]): # TODO: move somewhere else
+    def has_election_concluded(self, transaction, current_votes=[]):  # TODO: move somewhere else
         """Check if the election can be concluded or not.
 
         * Elections can only be concluded if the validator set has not changed
@@ -893,7 +910,7 @@ class Planetmint(object):
 
         return False
 
-    def has_validator_election_concluded(self): # TODO: move somewhere else
+    def has_validator_election_concluded(self):  # TODO: move somewhere else
         latest_block = self.get_latest_block()
         if latest_block is not None:
             latest_block_height = latest_block["height"]
@@ -906,7 +923,7 @@ class Planetmint(object):
 
         return True
 
-    def has_chain_migration_concluded(self): # TODO: move somewhere else
+    def has_chain_migration_concluded(self):  # TODO: move somewhere else
         chain = self.get_latest_abci_chain()
         if chain is not None and not chain["is_synced"]:
             # do not conclude the migration election if
@@ -915,7 +932,7 @@ class Planetmint(object):
 
         return True
 
-    def rollback_election(self, new_height, txn_ids): # TODO: move somewhere else
+    def rollback_election(self, new_height, txn_ids):  # TODO: move somewhere else
         """Looks for election and vote transactions inside the block and
         cleans up the database artifacts possibly created in `process_blocks`.
 
@@ -954,5 +971,6 @@ class Planetmint(object):
             # TODO change to `new_height + 2` when upgrading to Tendermint 0.24.0.
             self.store_validator_set(new_height + 1, updated_validator_set)
             return encode_validator(election.asset["data"])
+
 
 Block = namedtuple("Block", ("app_hash", "height", "transactions"))

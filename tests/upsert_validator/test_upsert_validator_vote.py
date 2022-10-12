@@ -152,6 +152,7 @@ def test_valid_election_votes_received(b_mock, valid_upsert_validator_election, 
     b_mock.store_bulk_transactions([key0_casted_vote])
     assert b_mock.get_commited_votes(valid_upsert_validator_election) == votes - 2
 
+
 @pytest.mark.bdb
 def test_valid_election_conclude(b_mock, valid_upsert_validator_election, ed25519_node_keys):
 

@@ -16,6 +16,7 @@ from hashlib import sha3_256
 
 from transactions.common.exceptions import InvalidPublicKey
 
+
 def encode_validator(v):
     ed25519_public_key = v["public_key"]["value"]
     pub_key = keys_pb2.PublicKey(ed25519=bytes.fromhex(ed25519_public_key))
@@ -50,6 +51,7 @@ def new_validator_set(validators, updates):
     new_validators_dict = {**validators_dict, **updates_dict}
     return list(new_validators_dict.values())
 
+
 def get_public_key_decoder(pk):
     encoding = pk["type"]
     decoder = base64.b64decode
@@ -64,6 +66,7 @@ def get_public_key_decoder(pk):
         raise InvalidPublicKey("Invalid `type` specified for public key `value`")
 
     return decoder
+
 
 def encode_transaction(value):
     """Encode a transaction (dict) to Base64."""
