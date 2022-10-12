@@ -1,5 +1,6 @@
 import json
 import base58
+
 from hashlib import sha3_256
 from zenroom import zencode_exec
 from cryptoconditions.types.zenroom import ZenroomSha256

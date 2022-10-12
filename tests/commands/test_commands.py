@@ -5,18 +5,15 @@
 
 import json
 import logging
+import pytest
 
 from unittest.mock import Mock, patch
 from argparse import Namespace
-
-import pytest
-
 from planetmint.config import Config
 from planetmint import ValidatorElection
 from planetmint.commands.planetmint import run_election_show
 from planetmint.lib import Block
 from transactions.types.elections.chain_migration_election import ChainMigrationElection
-
 from tests.utils import generate_election, generate_validators
 
 

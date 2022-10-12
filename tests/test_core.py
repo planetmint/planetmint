@@ -4,6 +4,7 @@
 # Code is Apache-2.0 and docs are CC-BY-4.0
 
 import pytest
+
 from planetmint.version import __tm_supported_versions__
 from transactions.types.assets.create import Create
 from transactions.types.assets.transfer import Transfer

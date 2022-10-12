@@ -14,17 +14,14 @@ import os
 import random
 import tempfile
 import codecs
+import pytest
+
 from ipld import marshal, multihash
 from collections import namedtuple
 from logging import getLogger
 from logging.config import dictConfig
 from planetmint.backend.connection import connect
 from planetmint.backend.tarantool.connection import TarantoolDBConnection
-
-import pytest
-
-# from pymongo import MongoClient
-
 from transactions.common import crypto
 from transactions.common.transaction_mode_types import BROADCAST_TX_COMMIT
 from planetmint.tendermint_utils import key_from_base64
@@ -35,7 +32,6 @@ from planetmint.lib import Block
 from tests.utils import gen_vote
 from planetmint.config import Config
 from transactions.types.elections.validator_election import ValidatorElection  # noqa
-
 from tendermint.abci import types_pb2 as types
 from tendermint.crypto import keys_pb2
 

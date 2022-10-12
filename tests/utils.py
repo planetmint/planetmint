@@ -8,7 +8,6 @@ import base64
 import random
 
 from functools import singledispatch
-
 from planetmint.backend.localmongodb.connection import LocalMongoDBConnection
 from planetmint.backend.tarantool.connection import TarantoolDBConnection
 from planetmint.backend.schema import TABLES, SPACE_NAMES

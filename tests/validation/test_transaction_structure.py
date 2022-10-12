@@ -8,12 +8,10 @@ structural / schematic issues are caught when reading a transaction
 (ie going from dict -> transaction).
 """
 import json
-
 import pytest
-
 import hashlib as sha3
-from unittest.mock import MagicMock
 
+from unittest.mock import MagicMock
 from transactions.common.exceptions import AmountError, SchemaValidationError, ThresholdTooDeep
 from transactions.common.transaction import Transaction
 from transactions.common.utils import _fulfillment_to_details, _fulfillment_from_details

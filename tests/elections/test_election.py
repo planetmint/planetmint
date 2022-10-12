@@ -1,7 +1,6 @@
 import pytest
 
 from tests.utils import generate_election, generate_validators
-
 from planetmint.lib import Block
 from transactions.types.elections.election import Election
 from transactions.types.elections.chain_migration_election import ChainMigrationElection

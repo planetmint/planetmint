@@ -4,15 +4,13 @@
 # Code is Apache-2.0 and docs are CC-BY-4.0
 
 import json
-from unittest.mock import Mock, patch
-
 import base58
 import pytest
+
+from unittest.mock import Mock, patch
 from cryptoconditions import Ed25519Sha256
 from ipld import multihash, marshal
-
 from hashlib import sha3_256
-
 from transactions.common import crypto
 from transactions.common.transaction import Transaction
 from transactions.types.assets.create import Create

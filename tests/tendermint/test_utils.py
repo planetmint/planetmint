@@ -5,8 +5,8 @@
 
 import base64
 import json
-from pytest import mark
 
+from pytest import mark
 from hashlib import sha3_256
 
 

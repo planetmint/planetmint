@@ -5,7 +5,6 @@
 
 
 import pytest
-import random
 
 from transactions.types.assets.create import Create
 from transactions.types.assets.transfer import Transfer

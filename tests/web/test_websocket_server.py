@@ -7,14 +7,12 @@ import asyncio
 import json
 import queue
 import threading
+import pytest
 
 # from unittest.mock import patch
 from transactions.types.assets.create import Create
 from transactions.types.assets.transfer import Transfer
 from ipld import multihash, marshal
-
-import pytest
-
 
 class MockWebSocket:
     def __init__(self):

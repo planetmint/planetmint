@@ -4,17 +4,14 @@
 # Code is Apache-2.0 and docs are CC-BY-4.0
 
 import codecs
-from transactions.types.assets.create import Create
-from transactions.types.assets.transfer import Transfer
-
-from tendermint.abci import types_pb2 as types
 import json
 import pytest
 
-
+from transactions.types.assets.create import Create
+from transactions.types.assets.transfer import Transfer
+from tendermint.abci import types_pb2 as types
 from abci.server import ProtocolHandler
 from abci.utils import read_messages
-
 from transactions.common.transaction_mode_types import BROADCAST_TX_COMMIT, BROADCAST_TX_SYNC
 from planetmint.version import __tm_supported_versions__
 from io import BytesIO

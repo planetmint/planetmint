@@ -3,17 +3,16 @@
 # SPDX-License-Identifier: (Apache-2.0 AND CC-BY-4.0)
 # Code is Apache-2.0 and docs are CC-BY-4.0
 
-from operator import index
+
 import os
+import pytest
+
 from unittest.mock import patch
 from transactions.types.assets.create import Create
 from transactions.types.assets.transfer import Transfer
-
+from operator import index
 from hashlib import sha3_256
-
-import pytest
 from pymongo import MongoClient
-
 from planetmint import backend
 from transactions.common.transaction_mode_types import (
     BROADCAST_TX_COMMIT,

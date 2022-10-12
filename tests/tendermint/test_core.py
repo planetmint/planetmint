@@ -8,13 +8,13 @@ import random
 import multiprocessing as mp
 
 import pytest
+
 from tendermint.abci import types_pb2 as types
 from tendermint.crypto import keys_pb2
 from transactions import ValidatorElection, ChainMigrationElection
 from transactions.common.crypto import generate_key_pair
 from transactions.types.assets.create import Create
 from transactions.types.assets.transfer import Transfer
-
 from planetmint import App
 from planetmint.backend import query
 from planetmint.core import OkCode, CodeTypeError, rollback
@@ -22,7 +22,6 @@ from planetmint.lib import Block
 from planetmint.tendermint_utils import new_validator_set
 from planetmint.tendermint_utils import public_key_to_base64
 from planetmint.version import __tm_supported_versions__
-
 from tests.utils import generate_election, generate_validators
 
 pytestmark = pytest.mark.bdb

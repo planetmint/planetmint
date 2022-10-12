@@ -2,11 +2,11 @@
 # Planetmint and IPDB software contributors.
 # SPDX-License-Identifier: (Apache-2.0 AND CC-BY-4.0)
 # Code is Apache-2.0 and docs are CC-BY-4.0
-from argparse import Namespace
-from unittest.mock import patch
 
 import pytest
 
+from argparse import Namespace
+from unittest.mock import patch
 from planetmint.tendermint_utils import public_key_to_base64
 from transactions.types.elections.validator_election import ValidatorElection
 from transactions.common.exceptions import (

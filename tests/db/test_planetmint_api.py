@@ -3,13 +3,15 @@
 # SPDX-License-Identifier: (Apache-2.0 AND CC-BY-4.0)
 # Code is Apache-2.0 and docs are CC-BY-4.0
 import warnings
+import random
+import pytest
+
 from unittest.mock import patch
 from transactions.types.assets.create import Create
 from transactions.types.assets.transfer import Transfer
 from ipld import marshal, multihash
-import pytest
 from base58 import b58decode
-import random
+
 
 pytestmark = pytest.mark.bdb
 

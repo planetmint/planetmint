@@ -4,6 +4,7 @@
 # Code is Apache-2.0 and docs are CC-BY-4.0
 
 import pytest
+
 from transactions.types.assets.create import Create
 from ipld import marshal, multihash
 
