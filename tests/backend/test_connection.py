@@ -7,7 +7,7 @@ import pytest
 
 
 def test_get_connection_raises_a_configuration_error(monkeypatch):
-    from planetmint.transactions.common.exceptions import ConfigurationError
+    from transactions.common.exceptions import ConfigurationError
     from planetmint.backend.connection import connect
 
     with pytest.raises(ConfigurationError):

@@ -8,12 +8,12 @@ import threading
 import queue
 import multiprocessing as mp
 import json
-
 import setproctitle
+
 from packaging import version
 from planetmint.version import __tm_supported_versions__
 from planetmint.tendermint_utils import key_from_base64
-from planetmint.transactions.common.crypto import key_pair_from_ed25519_key
+from transactions.common.crypto import key_pair_from_ed25519_key
 
 
 class ProcessGroup(object):

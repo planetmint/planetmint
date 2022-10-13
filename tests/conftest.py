@@ -11,33 +11,27 @@ Tasks:
 """
 import json
 import os
-import copy
 import random
 import tempfile
 import codecs
+import pytest
+
 from ipld import marshal, multihash
 from collections import namedtuple
 from logging import getLogger
 from logging.config import dictConfig
 from planetmint.backend.connection import connect
 from planetmint.backend.tarantool.connection import TarantoolDBConnection
-
-import pytest
-
-# from pymongo import MongoClient
-
-from planetmint import ValidatorElection
-from planetmint.transactions.common import crypto
-from planetmint.transactions.common.transaction_mode_types import BROADCAST_TX_COMMIT
+from transactions.common import crypto
+from transactions.common.transaction_mode_types import BROADCAST_TX_COMMIT
 from planetmint.tendermint_utils import key_from_base64
 from planetmint.backend import schema, query
-from planetmint.transactions.common.crypto import key_pair_from_ed25519_key, public_key_from_ed25519_key
-from planetmint.transactions.common.exceptions import DatabaseDoesNotExist
+from transactions.common.crypto import key_pair_from_ed25519_key, public_key_from_ed25519_key
+from transactions.common.exceptions import DatabaseDoesNotExist
 from planetmint.lib import Block
 from tests.utils import gen_vote
 from planetmint.config import Config
-from planetmint.upsert_validator import ValidatorElection  # noqa
-
+from transactions.types.elections.validator_election import ValidatorElection  # noqa
 from tendermint.abci import types_pb2 as types
 from tendermint.crypto import keys_pb2
 
@@ -141,8 +135,8 @@ def _setup_database(_configure_planetmint):  # TODO Here is located setup databa
 
 @pytest.fixture
 def _bdb(_setup_database, _configure_planetmint):
-    from planetmint.transactions.common.memoize import to_dict, from_dict
-    from planetmint.transactions.common.transaction import Transaction
+    from transactions.common.memoize import to_dict, from_dict
+    from transactions.common.transaction import Transaction
     from .utils import flush_db
     from planetmint.config import Config
 
@@ -199,14 +193,14 @@ def user2_pk():
 
 @pytest.fixture
 def alice():
-    from planetmint.transactions.common.crypto import generate_key_pair
+    from transactions.common.crypto import generate_key_pair
 
     return generate_key_pair()
 
 
 @pytest.fixture
 def bob():
-    from planetmint.transactions.common.crypto import generate_key_pair
+    from transactions.common.crypto import generate_key_pair
 
     return generate_key_pair()
 
@@ -223,7 +217,7 @@ def bob_pubkey(carol):
 
 @pytest.fixture
 def carol():
-    from planetmint.transactions.common.crypto import generate_key_pair
+    from transactions.common.crypto import generate_key_pair
 
     return generate_key_pair()
 
@@ -240,7 +234,7 @@ def carol_pubkey(carol):
 
 @pytest.fixture
 def merlin():
-    from planetmint.transactions.common.crypto import generate_key_pair
+    from transactions.common.crypto import generate_key_pair
 
     return generate_key_pair()
 
@@ -285,7 +279,7 @@ def mock_get_validators(network_validators):
 
 @pytest.fixture
 def create_tx(alice, user_pk):
-    from planetmint.transactions.types.assets.create import Create
+    from transactions.types.assets.create import Create
 
     name = f"I am created by the create_tx fixture. My random identifier is {random.random()}."
     asset = {"data": multihash(marshal({"name": name}))}
@@ -306,7 +300,7 @@ def posted_create_tx(b, signed_create_tx):
 
 @pytest.fixture
 def signed_transfer_tx(signed_create_tx, user_pk, user_sk):
-    from planetmint.transactions.types.assets.transfer import Transfer
+    from transactions.types.assets.transfer import Transfer
 
     inputs = signed_create_tx.to_inputs()
     tx = Transfer.generate(inputs, [([user_pk], 1)], asset_id=signed_create_tx.id)
@@ -315,7 +309,7 @@ def signed_transfer_tx(signed_create_tx, user_pk, user_sk):
 
 @pytest.fixture
 def double_spend_tx(signed_create_tx, carol_pubkey, user_sk):
-    from planetmint.transactions.types.assets.transfer import Transfer
+    from transactions.types.assets.transfer import Transfer
 
     inputs = signed_create_tx.to_inputs()
     tx = Transfer.generate(inputs, [([carol_pubkey], 1)], asset_id=signed_create_tx.id)
@@ -329,7 +323,7 @@ def _get_height(b):
 
 @pytest.fixture
 def inputs(user_pk, b, alice):
-    from planetmint.transactions.types.assets.create import Create
+    from transactions.types.assets.create import Create
 
     # create blocks with transactions for `USER` to spend
     for height in range(1, 4):
@@ -720,13 +714,13 @@ def new_validator():
 
 @pytest.fixture
 def valid_upsert_validator_election(b_mock, node_key, new_validator):
-    voters = ValidatorElection.recipients(b_mock)
+    voters = b_mock.get_recipients_list()
     return ValidatorElection.generate([node_key.public_key], voters, new_validator, None).sign([node_key.private_key])
 
 
 @pytest.fixture
 def valid_upsert_validator_election_2(b_mock, node_key, new_validator):
-    voters = ValidatorElection.recipients(b_mock)
+    voters = b_mock.get_recipients_list()
     return ValidatorElection.generate([node_key.public_key], voters, new_validator, None).sign([node_key.private_key])
 
 
@@ -756,14 +750,14 @@ def ongoing_validator_election_2(b, valid_upsert_validator_election_2, ed25519_n
 
 @pytest.fixture
 def validator_election_votes(b_mock, ongoing_validator_election, ed25519_node_keys):
-    voters = ValidatorElection.recipients(b_mock)
+    voters = b_mock.get_recipients_list()
     votes = generate_votes(ongoing_validator_election, voters, ed25519_node_keys)
     return votes
 
 
 @pytest.fixture
 def validator_election_votes_2(b_mock, ongoing_validator_election_2, ed25519_node_keys):
-    voters = ValidatorElection.recipients(b_mock)
+    voters = b_mock.get_recipients_list()
     votes = generate_votes(ongoing_validator_election_2, voters, ed25519_node_keys)
     return votes
 

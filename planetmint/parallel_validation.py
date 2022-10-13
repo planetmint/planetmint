@@ -4,8 +4,8 @@
 # Code is Apache-2.0 and docs are CC-BY-4.0
 
 import multiprocessing as mp
-from collections import defaultdict
 
+from collections import defaultdict
 from planetmint import App
 from planetmint.lib import Planetmint
 from planetmint.tendermint_utils import decode_transaction

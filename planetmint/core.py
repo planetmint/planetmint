@@ -8,6 +8,7 @@ with Tendermint.
 """
 import logging
 import sys
+
 from tendermint.abci import types_pb2
 from abci.application import BaseApplication
 from abci.application import OkCode
@@ -21,10 +22,8 @@ from tendermint.abci.types_pb2 import (
     ResponseCommit,
 )
 from planetmint import Planetmint
-from planetmint.transactions.types.elections.election import Election
-from planetmint.tendermint_utils import decode_transaction, calculate_hash
+from planetmint.tendermint_utils import decode_transaction, calculate_hash, decode_validator
 from planetmint.lib import Block
-import planetmint.upsert_validator.validator_utils as vutils
 from planetmint.events import EventTypes, Event
 
 
@@ -87,7 +86,7 @@ class App(BaseApplication):
             app_hash = "" if block is None else block["app_hash"]
             height = 0 if block is None else block["height"] + 1
         known_validators = self.planetmint_node.get_validators()
-        validator_set = [vutils.decode_validator(v) for v in genesis.validators]
+        validator_set = [decode_validator(v) for v in genesis.validators]
         if known_validators and known_validators != validator_set:
             self.log_abci_migration_error(known_chain["chain_id"], known_validators)
             sys.exit(1)
@@ -209,7 +208,7 @@ class App(BaseApplication):
         else:
             self.block_txn_hash = block["app_hash"]
 
-        validator_update = Election.process_block(self.planetmint_node, self.new_height, self.block_transactions)
+        validator_update = self.planetmint_node.process_block(self.new_height, self.block_transactions)
 
         return ResponseEndBlock(validator_updates=validator_update)
 
@@ -246,11 +245,11 @@ class App(BaseApplication):
         return ResponseCommit(data=data)
 
 
-def rollback(b):
+def rollback(planetmint):
     pre_commit = None
 
     try:
-        pre_commit = b.get_pre_commit_state()
+        pre_commit = planetmint.get_pre_commit_state()
     except Exception as e:
         logger.exception("Unexpected error occurred while executing get_pre_commit_state()", e)
 
@@ -258,12 +257,12 @@ def rollback(b):
         # the pre_commit record is first stored in the first `end_block`
         return
 
-    latest_block = b.get_latest_block()
+    latest_block = planetmint.get_latest_block()
     if latest_block is None:
         logger.error("Found precommit state but no blocks!")
         sys.exit(1)
 
     # NOTE: the pre-commit state is always at most 1 block ahead of the commited state
     if latest_block["height"] < pre_commit["height"]:
-        Election.rollback(b, pre_commit["height"], pre_commit["transactions"])
-        b.delete_transactions(pre_commit["transactions"])
+        planetmint.rollback_election(pre_commit["height"], pre_commit["transactions"])
+        planetmint.delete_transactions(pre_commit["transactions"])

@@ -5,7 +5,7 @@
 
 import pytest
 
-from planetmint.transactions.types.assets.create import Create
+from transactions.types.assets.create import Create
 from planetmint.lib import Block
 from ipld import marshal, multihash
 

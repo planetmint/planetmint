@@ -21,7 +21,6 @@ import logging
 import threading
 import aiohttp
 
-
 from uuid import uuid4
 from concurrent.futures import CancelledError
 from planetmint.config import Config

@@ -26,6 +26,9 @@ For reference, the possible headings are:
 * **Notes**
 
 ## [Unreleased]
+* **Changed** replaced transaction module with planetmint-transactions package
+* **Changed** moved transaction network validation to Planetmint class
+* **Changed** adjusted test cases
 
 ## [1.2.1] - 2022-20-09
 * **Changed** Create model now validates for CID strings for asset["data"] and metadata

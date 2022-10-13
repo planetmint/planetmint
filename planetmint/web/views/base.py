@@ -8,7 +8,6 @@
 import logging
 
 from flask import jsonify, request
-
 from planetmint.config import Config
 
 

@@ -6,12 +6,64 @@
 import base64
 import hashlib
 import json
-from binascii import hexlify
+import codecs
 
-try:
-    from hashlib import sha3_256
-except ImportError:
-    from sha3 import sha3_256
+from binascii import hexlify
+from tendermint.abci import types_pb2
+from tendermint.crypto import keys_pb2
+from hashlib import sha3_256
+from transactions.common.exceptions import InvalidPublicKey
+
+
+def encode_validator(v):
+    ed25519_public_key = v["public_key"]["value"]
+    pub_key = keys_pb2.PublicKey(ed25519=bytes.fromhex(ed25519_public_key))
+
+    return types_pb2.ValidatorUpdate(pub_key=pub_key, power=v["power"])
+
+
+def decode_validator(v):
+    return {
+        "public_key": {
+            "type": "ed25519-base64",
+            "value": codecs.encode(v.pub_key.ed25519, "base64").decode().rstrip("\n"),
+        },
+        "voting_power": v.power,
+    }
+
+
+def new_validator_set(validators, updates):
+    validators_dict = {}
+    for v in validators:
+        validators_dict[v["public_key"]["value"]] = v
+
+    updates_dict = {}
+    for u in updates:
+        decoder = get_public_key_decoder(u["public_key"])
+        public_key64 = base64.b64encode(decoder(u["public_key"]["value"])).decode("utf-8")
+        updates_dict[public_key64] = {
+            "public_key": {"type": "ed25519-base64", "value": public_key64},
+            "voting_power": u["power"],
+        }
+
+    new_validators_dict = {**validators_dict, **updates_dict}
+    return list(new_validators_dict.values())
+
+
+def get_public_key_decoder(pk):
+    encoding = pk["type"]
+    decoder = base64.b64decode
+
+    if encoding == "ed25519-base16":
+        decoder = base64.b16decode
+    elif encoding == "ed25519-base32":
+        decoder = base64.b32decode
+    elif encoding == "ed25519-base64":
+        decoder = base64.b64decode
+    else:
+        raise InvalidPublicKey("Invalid `type` specified for public key `value`")
+
+    return decoder
 
 
 def encode_transaction(value):

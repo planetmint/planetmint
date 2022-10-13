@@ -5,9 +5,9 @@
 
 import pytest
 
-from planetmint.transactions.common.crypto import generate_key_pair
-from planetmint.transactions.types.assets.create import Create
-from planetmint.transactions.types.assets.transfer import Transfer
+from transactions.common.crypto import generate_key_pair
+from transactions.types.assets.create import Create
+from transactions.types.assets.transfer import Transfer
 
 pytestmark = pytest.mark.tendermint
 

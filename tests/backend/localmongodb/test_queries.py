@@ -4,8 +4,8 @@
 # # # Code is Apache-2.0 and docs are CC-BY-4.0
 #
 # from copy import deepcopy
-# from planetmint.transactions.types.assets.create import Create
-# from planetmint.transactions.types.assets.transfer import Transfer
+# from transactions.types.assets.create import Create
+# from transactions.types.assets.transfer import Transfer
 #
 # # import pytest
 # # import pymongo
@@ -238,7 +238,7 @@
 # @pytest.mark.skip
 # def test_get_spending_transactions_multiple_inputs():
 #    from planetmint.backend import connect, query
-#    from planetmint.transactions.common.crypto import generate_key_pair
+#    from transactions.common.crypto import generate_key_pair
 #    conn = connect()
 #    (alice_sk, alice_pk) = generate_key_pair()
 #    (bob_sk, bob_pk) = generate_key_pair()

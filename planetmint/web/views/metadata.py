@@ -11,7 +11,6 @@ import logging
 
 from flask_restful import reqparse, Resource
 from flask import current_app
-
 from planetmint.backend.exceptions import OperationError
 from planetmint.web.views.base import make_error
 

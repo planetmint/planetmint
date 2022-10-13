@@ -5,19 +5,15 @@
 
 import json
 import logging
+import pytest
 
 from unittest.mock import Mock, patch
 from argparse import Namespace
-
-import pytest
-
 from planetmint.config import Config
 from planetmint import ValidatorElection
 from planetmint.commands.planetmint import run_election_show
-from planetmint.transactions.types.elections.election import Election
 from planetmint.lib import Block
-from planetmint.transactions.types.elections.chain_migration_election import ChainMigrationElection
-
+from transactions.types.elections.chain_migration_election import ChainMigrationElection
 from tests.utils import generate_election, generate_validators
 
 
@@ -137,7 +133,7 @@ def test_drop_db_when_interactive_yes(mock_db_drop, monkeypatch):
 
 @patch("planetmint.backend.schema.drop_database")
 def test_drop_db_when_db_does_not_exist(mock_db_drop, capsys):
-    from planetmint.transactions.common.exceptions import DatabaseDoesNotExist
+    from transactions.common.exceptions import DatabaseDoesNotExist
     from planetmint.commands.planetmint import run_drop
 
     args = Namespace(config=None, yes=True)
@@ -263,7 +259,7 @@ def test_recover_db_on_start(mock_run_recover, mock_start, mocked_setup_logging)
 @pytest.mark.bdb
 def test_run_recover(b, alice, bob):
     from planetmint.commands.planetmint import run_recover
-    from planetmint.transactions.types.assets.create import Create
+    from transactions.types.assets.create import Create
     from planetmint.lib import Block
     from planetmint.backend import query
 
@@ -408,7 +404,7 @@ def test_election_new_upsert_validator_invalid_election(caplog, b, priv_validato
 @pytest.mark.bdb
 def test_election_new_upsert_validator_invalid_power(caplog, b, priv_validator_path, user_sk):
     from planetmint.commands.planetmint import run_election_new_upsert_validator
-    from planetmint.transactions.common.exceptions import InvalidPowerChange
+    from transactions.common.exceptions import InvalidPowerChange
 
     def mock_write(tx, mode):
         b.store_bulk_transactions([tx])
@@ -524,7 +520,7 @@ def test_chain_migration_election_show_shows_inconclusive(b):
 
     assert not run_election_show(Namespace(election_id=election.id), b)
 
-    Election.process_block(b, 1, [election])
+    b.process_block(1, [election])
     b.store_bulk_transactions([election])
 
     assert run_election_show(Namespace(election_id=election.id), b) == "status=ongoing"
@@ -554,13 +550,13 @@ def test_chain_migration_election_show_shows_concluded(b):
     assert not run_election_show(Namespace(election_id=election.id), b)
 
     b.store_bulk_transactions([election])
-    Election.process_block(b, 1, [election])
+    b.process_block(1, [election])
 
     assert run_election_show(Namespace(election_id=election.id), b) == "status=ongoing"
 
     b.store_abci_chain(1, "chain-X")
     b.store_block(Block(height=1, transactions=[v.id for v in votes], app_hash="last_app_hash")._asdict())
-    Election.process_block(b, 2, votes)
+    b.process_block(2, votes)
 
     assert (
         run_election_show(Namespace(election_id=election.id), b)
@@ -611,7 +607,7 @@ def call_election(b, new_validator, node_key):
     b.write_transaction = mock_write
 
     # our voters is a list of length 1, populated from our mocked validator
-    voters = ValidatorElection.recipients(b)
+    voters = b.get_recipients_list()
     # and our voter is the public key from the voter list
     voter = node_key.public_key
     valid_election = ValidatorElection.generate([voter], voters, new_validator, None).sign([node_key.private_key])

@@ -3,10 +3,10 @@
 # SPDX-License-Identifier: (Apache-2.0 AND CC-BY-4.0)
 # Code is Apache-2.0 and docs are CC-BY-4.0
 
-
 import pytest
-from planetmint.transactions.types.assets.create import Create
-from planetmint.transactions.types.assets.transfer import Transfer
+
+from transactions.types.assets.create import Create
+from transactions.types.assets.transfer import Transfer
 from unittest.mock import MagicMock, patch
 
 
@@ -83,7 +83,7 @@ def test_get_outputs_endpoint_with_invalid_spent(client, user_pk):
 
 @pytest.mark.abci
 def test_get_divisble_transactions_returns_500(b, client):
-    from planetmint.transactions.common import crypto
+    from transactions.common import crypto
     import json
 
     TX_ENDPOINT = "/api/v1/transactions"

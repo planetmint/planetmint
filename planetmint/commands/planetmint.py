@@ -10,21 +10,19 @@ the command-line interface (CLI) for Planetmint Server.
 import os
 import logging
 import argparse
-import copy
 import json
 import sys
-from planetmint.backend.tarantool.connection import TarantoolDBConnection
+import planetmint
 
 from planetmint.core import rollback
 from planetmint.utils import load_node_key
-from planetmint.transactions.common.transaction_mode_types import BROADCAST_TX_COMMIT
-from planetmint.transactions.common.exceptions import DatabaseDoesNotExist, ValidationError
-from planetmint.transactions.types.elections.vote import Vote
-from planetmint.transactions.types.elections.chain_migration_election import ChainMigrationElection
-import planetmint
-from planetmint import backend, ValidatorElection, Planetmint
+from transactions.common.transaction_mode_types import BROADCAST_TX_COMMIT
+from transactions.common.exceptions import DatabaseDoesNotExist, ValidationError
+from transactions.types.elections.vote import Vote
+from transactions.types.elections.chain_migration_election import ChainMigrationElection
+from transactions.types.elections.validator_utils import election_id_to_public_key
+from planetmint import ValidatorElection, Planetmint
 from planetmint.backend import schema
-from planetmint.backend import tarantool
 from planetmint.commands import utils
 from planetmint.commands.utils import configure_planetmint, input_on_stderr
 from planetmint.log import setup_logging
@@ -122,9 +120,9 @@ def run_election_new(args, planet):
 def create_new_election(sk, planet, election_class, data):
     try:
         key = load_node_key(sk)
-        voters = election_class.recipients(planet)
+        voters = planet.get_recipients_list()
         election = election_class.generate([key.public_key], voters, data, None).sign([key.private_key])
-        election.validate(planet)
+        planet.validate_election(election)
     except ValidationError as e:
         logger.error(e)
         return False
@@ -200,9 +198,9 @@ def run_election_approve(args, planet):
         return False
 
     inputs = [i for i in tx.to_inputs() if key.public_key in i.owners_before]
-    election_pub_key = ValidatorElection.to_public_key(tx.id)
+    election_pub_key = election_id_to_public_key(tx.id)
     approval = Vote.generate(inputs, [([election_pub_key], voting_power)], tx.id).sign([key.private_key])
-    approval.validate(planet)
+    planet.validate_transaction(approval)
 
     resp = planet.write_transaction(approval, BROADCAST_TX_COMMIT)
 
@@ -229,7 +227,7 @@ def run_election_show(args, planet):
         logger.error(f"No election found with election_id {args.election_id}")
         return
 
-    response = election.show_election(planet)
+    response = planet.show_election_status(election)
 
     logger.info(response)
 
