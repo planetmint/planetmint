@@ -14,6 +14,7 @@ from transactions.types.assets.create import Create
 from transactions.types.assets.transfer import Transfer
 from ipld import multihash, marshal
 
+
 class MockWebSocket:
     def __init__(self):
         self.received = []
