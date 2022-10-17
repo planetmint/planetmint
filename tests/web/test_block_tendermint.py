@@ -5,17 +5,21 @@
 
 import pytest
 
-from planetmint.transactions.types.assets.create import Create
+from transactions.types.assets.create import Create
 from planetmint.lib import Block
+from ipld import marshal, multihash
 
-BLOCKS_ENDPOINT = '/api/v1/blocks/'
+BLOCKS_ENDPOINT = "/api/v1/blocks/"
 
 
 @pytest.mark.bdb
-@pytest.mark.usefixtures('inputs')
+@pytest.mark.usefixtures("inputs")
 def test_get_block_endpoint(b, client, alice):
     import copy
-    tx = Create.generate([alice.public_key], [([alice.public_key], 1)], assets=[{'cycle': 'hero'}])
+
+    tx = Create.generate(
+        [alice.public_key], [([alice.public_key], 1)], assets=[{"data": multihash(marshal({"cycle": "hero"}))}]
+    )
     tx = tx.sign([alice.private_key])
 
     # with store_bulk_transactions we use `insert_many` where PyMongo
@@ -25,39 +29,36 @@ def test_get_block_endpoint(b, client, alice):
     tx_dict = copy.deepcopy(tx.to_dict())
     b.store_bulk_transactions([tx])
 
-    block = Block(app_hash='random_utxo',
-                  height=31,
-                  transactions=[tx.id])
+    block = Block(app_hash="random_utxo", height=31, transactions=[tx.id])
     b.store_block(block._asdict())
 
     res = client.get(BLOCKS_ENDPOINT + str(block.height))
-    expected_response = {'height': block.height, 'transactions': [tx_dict]}
+    expected_response = {"height": block.height, "transactions": [tx_dict]}
     assert res.json == expected_response
     assert res.status_code == 200
 
 
 @pytest.mark.bdb
-@pytest.mark.usefixtures('inputs')
+@pytest.mark.usefixtures("inputs")
 def test_get_block_returns_404_if_not_found(client):
-    res = client.get(BLOCKS_ENDPOINT + '123')
+    res = client.get(BLOCKS_ENDPOINT + "123")
     assert res.status_code == 404
 
-    res = client.get(BLOCKS_ENDPOINT + '123/')
+    res = client.get(BLOCKS_ENDPOINT + "123/")
     assert res.status_code == 404
 
 
 @pytest.mark.bdb
 def test_get_block_containing_transaction(b, client, alice):
-    tx = Create.generate([alice.public_key], [([alice.public_key], 1)], assets=[{'cycle': 'hero'}])
+    tx = Create.generate(
+        [alice.public_key], [([alice.public_key], 1)], assets=[{"data": multihash(marshal({"cycle": "hero"}))}]
+    )
     tx = tx.sign([alice.private_key])
     b.store_bulk_transactions([tx])
 
-    block = Block(app_hash='random_utxo',
-                  height=13,
-                  transactions=[tx.id])
+    block = Block(app_hash="random_utxo", height=13, transactions=[tx.id])
     b.store_block(block._asdict())
-
-    res = client.get('{}?transaction_id={}'.format(BLOCKS_ENDPOINT, tx.id))
+    res = client.get("{}?transaction_id={}".format(BLOCKS_ENDPOINT, tx.id))
     expected_response = [block.height]
     assert res.json == expected_response
     assert res.status_code == 200
@@ -65,10 +66,10 @@ def test_get_block_containing_transaction(b, client, alice):
 
 @pytest.mark.bdb
 def test_get_blocks_by_txid_endpoint_returns_empty_list_not_found(client):
-    res = client.get(BLOCKS_ENDPOINT + '?transaction_id=')
+    res = client.get(BLOCKS_ENDPOINT + "?transaction_id=")
     assert res.status_code == 200
     assert len(res.json) == 0
 
-    res = client.get(BLOCKS_ENDPOINT + '?transaction_id=123')
+    res = client.get(BLOCKS_ENDPOINT + "?transaction_id=123")
     assert res.status_code == 200
     assert len(res.json) == 0

@@ -16,12 +16,11 @@ RUN apt-get update \
     && pip install -e . \
     && apt-get autoremove
 
-# Install mongodb and monit
+# Install tarantool and monit
 RUN apt-get install -y dirmngr gnupg apt-transport-https software-properties-common ca-certificates curl
-RUN wget -qO - https://www.mongodb.org/static/pgp/server-5.0.asc | apt-key add -
-RUN echo "deb http://repo.mongodb.org/apt/debian buster/mongodb-org/5.0 main" | tee /etc/apt/sources.list.d/mongodb-org-5.0.list
 RUN apt-get update
-RUN apt-get install -y mongodb-org monit
+RUN curl -L https://tarantool.io/wrATeGF/release/2/installer.sh | bash 
+RUN apt-get install -y tarantool monit
 
 # Install Tendermint
 RUN wget https://github.com/tendermint/tendermint/releases/download/v${TM_VERSION}/tendermint_${TM_VERSION}_linux_amd64.tar.gz \
@@ -31,13 +30,10 @@ RUN wget https://github.com/tendermint/tendermint/releases/download/v${TM_VERSIO
 
 ENV TMHOME=/tendermint
 
-# Set permissions required for mongodb
-RUN mkdir -p /data/db /data/configdb \
-        && chown -R mongodb:mongodb /data/db /data/configdb
-
 # Planetmint enviroment variables
-ENV PLANETMINT_DATABASE_PORT 27017
-ENV PLANETMINT_DATABASE_BACKEND localmongodb
+ENV PLANETMINT_DATABASE_PORT 3303
+ENV PLANETMINT_DATABASE_BACKEND tarantool_db
+ENV PLANETMINT_DATABASE_HOST localhost
 ENV PLANETMINT_SERVER_BIND 0.0.0.0:9984
 ENV PLANETMINT_WSSERVER_HOST 0.0.0.0
 ENV PLANETMINT_WSSERVER_SCHEME ws
@@ -49,5 +45,8 @@ ENV PLANETMINT_TENDERMINT_PORT 26657
 VOLUME /data/db /data/configdb /tendermint
 
 EXPOSE 27017 28017 9984 9985 26656 26657 26658
+
+RUN pip install pynacl==1.4.0 base58==2.1.1 pyasn1==0.4.8 zenroom==2.1.0.dev1655293214 cryptography==3.4.7
+
 
 WORKDIR $HOME

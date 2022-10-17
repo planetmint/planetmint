@@ -14,35 +14,36 @@ import queue
 import planetmint_driver.exceptions
 from planetmint_driver import Planetmint
 from planetmint_driver.crypto import generate_keypair
+from ipld import multihash, marshal
 
 
 def test_double_create():
-    bdb = Planetmint(os.environ.get('PLANETMINT_ENDPOINT'))
+    bdb = Planetmint(os.environ.get("PLANETMINT_ENDPOINT"))
     alice = generate_keypair()
 
     results = queue.Queue()
 
     tx = bdb.transactions.fulfill(
-            bdb.transactions.prepare(
-                operation='CREATE',
-                signers=alice.public_key,
-                assets=[{'data': {'uuid': str(uuid4())}}]),
-            private_keys=alice.private_key)
+        bdb.transactions.prepare(
+            operation="CREATE", signers=alice.public_key, assets=[{"data": multihash(marshal({"uuid": str(uuid4())}))}]
+        ),
+        private_keys=alice.private_key,
+    )
 
     def send_and_queue(tx):
         try:
             bdb.transactions.send_commit(tx)
-            results.put('OK')
+            results.put("OK")
         except planetmint_driver.exceptions.TransportError as e:
-            results.put('FAIL')
+            results.put("FAIL")
 
-    t1 = Thread(target=send_and_queue, args=(tx, ))
-    t2 = Thread(target=send_and_queue, args=(tx, ))
+    t1 = Thread(target=send_and_queue, args=(tx,))
+    t2 = Thread(target=send_and_queue, args=(tx,))
 
     t1.start()
     t2.start()
 
     results = [results.get(timeout=2), results.get(timeout=2)]
 
-    assert results.count('OK') == 1
-    assert results.count('FAIL') == 1
+    assert results.count("OK") == 1
+    assert results.count("FAIL") == 1

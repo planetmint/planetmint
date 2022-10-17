@@ -8,8 +8,7 @@
 import logging
 
 from flask import jsonify, request
-
-from planetmint import config
+from planetmint.config import Config
 
 
 logger = logging.getLogger(__name__)
@@ -17,13 +16,13 @@ logger = logging.getLogger(__name__)
 
 def make_error(status_code, message=None):
     if status_code == 404 and message is None:
-        message = 'Not found'
+        message = "Not found"
 
-    response_content = {'status': status_code, 'message': message}
-    request_info = {'method': request.method, 'path': request.path}
+    response_content = {"status": status_code, "message": message}
+    request_info = {"method": request.method, "path": request.path}
     request_info.update(response_content)
 
-    logger.error('HTTP API error: %(status)s - %(method)s:%(path)s - %(message)s', request_info)
+    logger.error("HTTP API error: %(status)s - %(method)s:%(path)s - %(message)s", request_info)
 
     response = jsonify(response_content)
     response.status_code = status_code
@@ -37,10 +36,10 @@ def base_ws_uri():
     customized (typically when running behind NAT, firewall, etc.)
     """
 
-    config_wsserver = config['wsserver']
+    config_wsserver = Config().get()["wsserver"]
 
-    scheme = config_wsserver['advertised_scheme']
-    host = config_wsserver['advertised_host']
-    port = config_wsserver['advertised_port']
+    scheme = config_wsserver["advertised_scheme"]
+    host = config_wsserver["advertised_host"]
+    port = config_wsserver["advertised_port"]
 
-    return '{}://{}:{}'.format(scheme, host, port)
+    return "{}://{}:{}".format(scheme, host, port)

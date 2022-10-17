@@ -4,9 +4,9 @@
 # Code is Apache-2.0 and docs are CC-BY-4.0
 
 
-class BigchainDBError(Exception):
+class PlanetmintError(Exception):
     """Base class for Planetmint exceptions."""
 
 
-class CriticalDoubleSpend(BigchainDBError):
+class CriticalDoubleSpend(PlanetmintError):
     """Data integrity error that requires attention"""

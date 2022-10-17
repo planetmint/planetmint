@@ -8,13 +8,14 @@ import base64
 import random
 
 from functools import singledispatch
-
 from planetmint.backend.localmongodb.connection import LocalMongoDBConnection
-from planetmint.backend.schema import TABLES
-from planetmint.transactions.common import crypto
-from planetmint.transactions.common.transaction_mode_types import BROADCAST_TX_COMMIT
-from planetmint.transactions.types.assets.create import Create
-from planetmint.transactions.types.elections.election import Election, Vote
+from planetmint.backend.tarantool.connection import TarantoolDBConnection
+from planetmint.backend.schema import TABLES, SPACE_NAMES
+from transactions.common import crypto
+from transactions.common.transaction_mode_types import BROADCAST_TX_COMMIT
+from transactions.types.assets.create import Create
+from transactions.types.elections.vote import Vote
+from transactions.types.elections.validator_utils import election_id_to_public_key
 from planetmint.tendermint_utils import key_to_base64
 
 
@@ -29,14 +30,34 @@ def flush_localmongo_db(connection, dbname):
         getattr(connection.conn[dbname], t).delete_many({})
 
 
+@flush_db.register(TarantoolDBConnection)
+def flush_tarantool_db(connection, dbname):
+    for s in SPACE_NAMES:
+        _all_data = connection.run(connection.space(s).select([]))
+        if _all_data is None:
+            continue
+        for _id in _all_data:
+            if "assets" == s:
+                connection.run(connection.space(s).delete(_id[1]), only_data=False)
+            elif s == "blocks":
+                connection.run(connection.space(s).delete(_id[2]), only_data=False)
+            elif s == "inputs":
+                connection.run(connection.space(s).delete(_id[-2]), only_data=False)
+            elif s == "outputs":
+                connection.run(connection.space(s).delete(_id[-4]), only_data=False)
+            elif s == "utxos":
+                connection.run(connection.space(s).delete([_id[0], _id[1]]), only_data=False)
+            elif s == "abci_chains":
+                connection.run(connection.space(s).delete(_id[-1]), only_data=False)
+            else:
+                connection.run(connection.space(s).delete(_id[0]), only_data=False)
+
+
 def generate_block(planet):
-    from planetmint.transactions.common.crypto import generate_key_pair
+    from transactions.common.crypto import generate_key_pair
 
     alice = generate_key_pair()
-    tx = Create.generate([alice.public_key],
-                            [([alice.public_key], 1)],
-                            assets=None)\
-                    .sign([alice.private_key])
+    tx = Create.generate([alice.public_key], [([alice.public_key], 1)], assets=None).sign([alice.private_key])
 
     code, message = planet.write_transaction(tx, BROADCAST_TX_COMMIT)
     assert code == 202
@@ -52,62 +73,59 @@ def to_inputs(election, i, ed25519_node_keys):
 
 def gen_vote(election, i, ed25519_node_keys):
     (input_i, votes_i, key_i) = to_inputs(election, i, ed25519_node_keys)
-    election_pub_key = Election.to_public_key(election.id)
-    return Vote.generate([input_i],
-                         [([election_pub_key], votes_i)],
-                         election_id=election.id)\
-        .sign([key_i.private_key])
+    election_pub_key = election_id_to_public_key(election.id)
+    return Vote.generate([input_i], [([election_pub_key], votes_i)], election_id=election.id).sign([key_i.private_key])
 
 
 def generate_validators(powers):
     """Generates an arbitrary number of validators with random public keys.
 
-       The object under the `storage` key is in the format expected by DB.
+    The object under the `storage` key is in the format expected by DB.
 
-       The object under the `eleciton` key is in the format expected by
-       the upsert validator election.
+    The object under the `eleciton` key is in the format expected by
+    the upsert validator election.
 
-       `public_key`, `private_key` are in the format used for signing transactions.
+    `public_key`, `private_key` are in the format used for signing transactions.
 
-       Args:
-           powers: A list of intergers representing the voting power to
-                   assign to the corresponding validators.
+    Args:
+        powers: A list of intergers representing the voting power to
+                assign to the corresponding validators.
     """
     validators = []
     for power in powers:
         kp = crypto.generate_key_pair()
-        validators.append({
-            'storage': {
-                'public_key': {
-                    'value': key_to_base64(base58.b58decode(kp.public_key).hex()),
-                    'type': 'ed25519-base64',
+        validators.append(
+            {
+                "storage": {
+                    "public_key": {
+                        "value": key_to_base64(base58.b58decode(kp.public_key).hex()),
+                        "type": "ed25519-base64",
+                    },
+                    "voting_power": power,
                 },
-                'voting_power': power,
-            },
-            'election': {
-                'node_id': f'node-{random.choice(range(100))}',
-                'power': power,
-                'public_key': {
-                    'value': base64.b16encode(base58.b58decode(kp.public_key)).decode('utf-8'),
-                    'type': 'ed25519-base16',
+                "election": {
+                    "node_id": f"node-{random.choice(range(100))}",
+                    "power": power,
+                    "public_key": {
+                        "value": base64.b16encode(base58.b58decode(kp.public_key)).decode("utf-8"),
+                        "type": "ed25519-base16",
+                    },
                 },
-            },
-            'public_key': kp.public_key,
-            'private_key': kp.private_key,
-        })
+                "public_key": kp.public_key,
+                "private_key": kp.private_key,
+            }
+        )
     return validators
 
 # NOTE: This works for some but not for all test cases check if this or code base needs fix
 def generate_election(b, cls, public_key, private_key, asset_data, voter_keys):
-    voters = cls.recipients(b)
-    election = cls.generate([public_key],
-                            voters,
-                            asset_data,
-                            None).sign([private_key])
+    voters = b.get_recipients_list()
+    election = cls.generate([public_key], voters, asset_data, None).sign([private_key])
 
-    votes = [Vote.generate([election.to_inputs()[i]],
-                           [([Election.to_public_key(election.id)], power)],
-                           election.id) for i, (_, power) in enumerate(voters)]
+    votes = [
+        Vote.generate([election.to_inputs()[i]], [([election_id_to_public_key(election.id)], power)], election.id)
+        for i, (_, power) in enumerate(voters)
+    ]
     for key, v in zip(voter_keys, votes):
         v.sign([key])
 

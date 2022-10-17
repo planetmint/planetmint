@@ -4,8 +4,8 @@
 # Code is Apache-2.0 and docs are CC-BY-4.0
 
 import multiprocessing as mp
-from collections import defaultdict
 
+from collections import defaultdict
 from planetmint import App
 from planetmint.lib import Planetmint
 from planetmint.tendermint_utils import decode_transaction
@@ -39,8 +39,8 @@ class ParallelValidationApp(App):
         return super().end_block(request_end_block)
 
 
-RESET = 'reset'
-EXIT = 'exit'
+RESET = "reset"
+EXIT = "exit"
 
 
 class ParallelValidator:
@@ -64,7 +64,7 @@ class ParallelValidator:
 
     def validate(self, raw_transaction):
         dict_transaction = decode_transaction(raw_transaction)
-        index = int(dict_transaction['id'], 16) % self.number_of_workers
+        index = int(dict_transaction["id"], 16) % self.number_of_workers
         self.routing_queues[index].put((self.transaction_index, dict_transaction))
         self.transaction_index += 1
 
@@ -106,13 +106,13 @@ class ValidationWorker:
     def validate(self, dict_transaction):
         # TODO: this will only work for now, no multiasset support => needs to be refactored for COMPOSE/DECOMPOSE
         try:
-            asset_id = dict_transaction['assets'][0]['id']
+            asset_id = dict_transaction["assets"][0]["id"]
         except KeyError:
-            asset_id = dict_transaction['id']
+            asset_id = dict_transaction["id"]
+        except TypeError:
+            asset_id = dict_transaction["id"]
 
-        transaction = self.planetmint.is_valid_transaction(
-                dict_transaction,
-                self.validated_transactions[asset_id])
+        transaction = self.planetmint.is_valid_transaction(dict_transaction, self.validated_transactions[asset_id])
 
         if transaction:
             self.validated_transactions[asset_id].append(transaction)

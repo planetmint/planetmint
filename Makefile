@@ -47,6 +47,7 @@ HELP := python -c "$$PRINT_HELP_PYSCRIPT"
 ECHO := /usr/bin/env echo
 
 IS_DOCKER_COMPOSE_INSTALLED := $(shell command -v docker-compose 2> /dev/null)
+IS_BLACK_INSTALLED := $(shell command -v black 2> /dev/null)
 
 ################
 # Main targets #
@@ -56,10 +57,10 @@ help: ## Show this help
 	@$(HELP) < $(MAKEFILE_LIST)
 
 run: check-deps ## Run Planetmint from source (stop it with ctrl+c)
-	# although planetmint has tendermint and mongodb in depends_on,
+	# although planetmint has tendermint and tarantool in depends_on,
 	# launch them first otherwise tendermint will get stuck upon sending yet another log
 	# due to some docker-compose issue; does not happen when containers are run as daemons
-	@$(DC) up --no-deps mongodb tendermint planetmint
+	@$(DC) up --no-deps tarantool tendermint planetmint
 
 start: check-deps ## Run Planetmint from source and daemonize it (stop with `make stop`)
 	@$(DC) up -d planetmint
@@ -70,8 +71,11 @@ stop: check-deps ## Stop Planetmint
 logs: check-deps ## Attach to the logs
 	@$(DC) logs -f planetmint
 
-lint: check-deps ## Lint the project
-	@$(DC) up lint
+lint: check-py-deps ## Lint the project
+	black --check -l 119 .
+
+format: check-py-deps ## Format the project
+	black -l 119 .
 
 test: check-deps test-unit test-acceptance ## Run unit and acceptance tests
 
@@ -132,3 +136,12 @@ ifndef IS_DOCKER_COMPOSE_INSTALLED
 	@$(ECHO)
 	@$(DC) # docker-compose is not installed, so we call it to generate an error and exit
 endif
+
+check-py-deps:
+ifndef IS_BLACK_INSTALLED
+	@$(ECHO) "Error: black is not installed"
+	@$(ECHO)
+	@$(ECHO) "You need to activate your virtual environment and install the test dependencies"
+	black # black is not installed, so we call it to generate an error and exit
+endif
+

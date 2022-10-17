@@ -22,9 +22,9 @@ class StripContentTypeMiddleware:
     def __call__(self, environ, start_response):
         """Run the middleware and then call the original WSGI application."""
 
-        if environ['REQUEST_METHOD'] == 'GET':
+        if environ["REQUEST_METHOD"] == "GET":
             try:
-                del environ['CONTENT_TYPE']
+                del environ["CONTENT_TYPE"]
             except KeyError:
                 pass
             else:

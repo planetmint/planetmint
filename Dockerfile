@@ -7,6 +7,7 @@ RUN apt-get -qq update \
     && apt-get -y upgrade \
     && apt-get install -y jq vim zsh build-essential cmake\
     && pip install . \
+    && pip install pynacl==1.4.0 base58==2.1.1 pyasn1==0.4.8 zenroom==2.1.0.dev1655293214 cryptography==3.4.7\
     && apt-get autoremove \
     && apt-get clean
 

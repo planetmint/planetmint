@@ -18,27 +18,22 @@ from .helper.hosts import Hosts
 
 
 def prepare_condition_details(condition: ThresholdSha256):
-    condition_details = {
-        'subconditions': [],
-        'threshold': condition.threshold,
-        'type': condition.TYPE_NAME
-    }
+    condition_details = {"subconditions": [], "threshold": condition.threshold, "type": condition.TYPE_NAME}
 
     for s in condition.subconditions:
-        if (s['type'] == 'fulfillment' and s['body'].TYPE_NAME == 'ed25519-sha-256'):
-            condition_details['subconditions'].append({
-                'type': s['body'].TYPE_NAME,
-                'public_key': base58.b58encode(s['body'].public_key).decode()
-            })
+        if s["type"] == "fulfillment" and s["body"].TYPE_NAME == "ed25519-sha-256":
+            condition_details["subconditions"].append(
+                {"type": s["body"].TYPE_NAME, "public_key": base58.b58encode(s["body"].public_key).decode()}
+            )
         else:
-            condition_details['subconditions'].append(prepare_condition_details(s['body']))
+            condition_details["subconditions"].append(prepare_condition_details(s["body"]))
 
     return condition_details
 
 
 def test_threshold():
     # Setup connection to test nodes
-    hosts = Hosts('/shared/hostnames')
+    hosts = Hosts("/shared/hostnames")
     pm = hosts.get_connection()
 
     # Generate Keypars for Alice, Bob an Carol!
@@ -49,13 +44,7 @@ def test_threshold():
     # high rents anymore. Bob suggests to get a dish washer for the
     # kitchen. Alice agrees and here they go, creating the asset for their
     # dish washer.
-    dw_asset = [{
-        'data': {
-            'dish washer': {
-                'serial_number': 1337
-            }
-        }
-    }]
+    dw_asset = [{"data": {"dish washer": {"serial_number": 1337}}}]
 
     # Create subfulfillments
     alice_ed25519 = Ed25519Sha256(public_key=base58.b58decode(alice.public_key))
@@ -74,37 +63,37 @@ def test_threshold():
 
     # Assemble output and input for the handcrafted tx
     output = {
-        'amount': '1',
-        'condition': {
-            'details': condition_details,
-            'uri': condition_uri,
+        "amount": "1",
+        "condition": {
+            "details": condition_details,
+            "uri": condition_uri,
         },
-        'public_keys': (alice.public_key, bob.public_key, carol.public_key),
+        "public_keys": (alice.public_key, bob.public_key, carol.public_key),
     }
 
     # The yet to be fulfilled input:
     input_ = {
-        'fulfillment': None,
-        'fulfills': None,
-        'owners_before': (alice.public_key, bob.public_key),
+        "fulfillment": None,
+        "fulfills": None,
+        "owners_before": (alice.public_key, bob.public_key),
     }
 
     # Assemble the handcrafted transaction
     handcrafted_dw_tx = {
-        'operation': 'CREATE',
-        'assets': dw_asset,
-        'metadata': None,
-        'outputs': (output,),
-        'inputs': (input_,),
-        'version': '2.0',
-        'id': None,
+        "operation": "CREATE",
+        "asset": dw_asset,
+        "metadata": None,
+        "outputs": (output,),
+        "inputs": (input_,),
+        "version": "2.0",
+        "id": None,
     }
 
     # Create sha3-256 of message to sign
     message = json.dumps(
         handcrafted_dw_tx,
         sort_keys=True,
-        separators=(',', ':'),
+        separators=(",", ":"),
         ensure_ascii=False,
     )
     message = sha3.sha3_256(message.encode())
@@ -121,19 +110,19 @@ def test_threshold():
 
     fulfillment_uri = fulfillment_threshold.serialize_uri()
 
-    handcrafted_dw_tx['inputs'][0]['fulfillment'] = fulfillment_uri
+    handcrafted_dw_tx["inputs"][0]["fulfillment"] = fulfillment_uri
 
     # Create tx_id for handcrafted_dw_tx and send tx commit
     json_str_tx = json.dumps(
         handcrafted_dw_tx,
         sort_keys=True,
-        separators=(',', ':'),
+        separators=(",", ":"),
         ensure_ascii=False,
     )
 
     dw_creation_txid = sha3.sha3_256(json_str_tx.encode()).hexdigest()
 
-    handcrafted_dw_tx['id'] = dw_creation_txid
+    handcrafted_dw_tx["id"] = dw_creation_txid
 
     pm.transactions.send_commit(handcrafted_dw_tx)
 
@@ -144,18 +133,12 @@ def test_threshold():
 
 
 def test_weighted_threshold():
-    hosts = Hosts('/shared/hostnames')
+    hosts = Hosts("/shared/hostnames")
     pm = hosts.get_connection()
 
     alice, bob, carol = generate_keypair(), generate_keypair(), generate_keypair()
 
-    assets = [{
-        'data': {
-            'trashcan': {
-                'animals': ['racoon_1', 'racoon_2']
-            }
-        }
-    }]
+    assets = [{"data": {"trashcan": {"animals": ["racoon_1", "racoon_2"]}}}]
 
     alice_ed25519 = Ed25519Sha256(public_key=base58.b58decode(alice.public_key))
     bob_ed25519 = Ed25519Sha256(public_key=base58.b58decode(bob.public_key))
@@ -175,37 +158,37 @@ def test_weighted_threshold():
 
     # Assemble output and input for the handcrafted tx
     output = {
-        'amount': '1',
-        'condition': {
-            'details': condition_details,
-            'uri': condition_uri,
+        "amount": "1",
+        "condition": {
+            "details": condition_details,
+            "uri": condition_uri,
         },
-        'public_keys': (alice.public_key, bob.public_key, carol.public_key),
+        "public_keys": (alice.public_key, bob.public_key, carol.public_key),
     }
 
     # The yet to be fulfilled input:
     input_ = {
-        'fulfillment': None,
-        'fulfills': None,
-        'owners_before': (alice.public_key, bob.public_key),
+        "fulfillment": None,
+        "fulfills": None,
+        "owners_before": (alice.public_key, bob.public_key),
     }
 
     # Assemble the handcrafted transaction
     handcrafted_tx = {
-        'operation': 'CREATE',
-        'assets': assets,
-        'metadata': None,
-        'outputs': (output,),
-        'inputs': (input_,),
-        'version': '2.0',
-        'id': None,
+        "operation": "CREATE",
+        "asset": assets,
+        "metadata": None,
+        "outputs": (output,),
+        "inputs": (input_,),
+        "version": "2.0",
+        "id": None,
     }
 
     # Create sha3-256 of message to sign
     message = json.dumps(
         handcrafted_tx,
         sort_keys=True,
-        separators=(',', ':'),
+        separators=(",", ":"),
         ensure_ascii=False,
     )
     message = sha3.sha3_256(message.encode())
@@ -224,19 +207,19 @@ def test_weighted_threshold():
 
     fulfillment_uri = fulfillment_threshold.serialize_uri()
 
-    handcrafted_tx['inputs'][0]['fulfillment'] = fulfillment_uri
+    handcrafted_tx["inputs"][0]["fulfillment"] = fulfillment_uri
 
     # Create tx_id for handcrafted_dw_tx and send tx commit
     json_str_tx = json.dumps(
         handcrafted_tx,
         sort_keys=True,
-        separators=(',', ':'),
+        separators=(",", ":"),
         ensure_ascii=False,
     )
 
     creation_tx_id = sha3.sha3_256(json_str_tx.encode()).hexdigest()
 
-    handcrafted_tx['id'] = creation_tx_id
+    handcrafted_tx["id"] = creation_tx_id
 
     pm.transactions.send_commit(handcrafted_tx)
 
@@ -254,50 +237,50 @@ def test_weighted_threshold():
 
     # Assemble output and input for the handcrafted tx
     transfer_output = {
-        'amount': '1',
-        'condition': {
-            'details': {
-                'type': alice_transfer_ed25519.TYPE_NAME,
-                'public_key': base58.b58encode(alice_transfer_ed25519.public_key).decode()
+        "amount": "1",
+        "condition": {
+            "details": {
+                "type": alice_transfer_ed25519.TYPE_NAME,
+                "public_key": base58.b58encode(alice_transfer_ed25519.public_key).decode(),
             },
-            'uri': transfer_condition_uri,
+            "uri": transfer_condition_uri,
         },
-        'public_keys': (alice.public_key,),
+        "public_keys": (alice.public_key,),
     }
 
     # The yet to be fulfilled input:
     transfer_input_ = {
-        'fulfillment': None,
-        'fulfills': {
-            'transaction_id': creation_tx_id,
-            'output_index': 0
-        },
-        'owners_before': (alice.public_key, bob.public_key, carol.public_key),
+        "fulfillment": None,
+        "fulfills": {"transaction_id": creation_tx_id, "output_index": 0},
+        "owners_before": (alice.public_key, bob.public_key, carol.public_key),
     }
 
     # Assemble the handcrafted transaction
     handcrafted_transfer_tx = {
-        'operation': 'TRANSFER',
-        'assets': [{'id': creation_tx_id}],
-        'metadata': None,
-        'outputs': (transfer_output,),
-        'inputs': (transfer_input_,),
-        'version': '2.0',
-        'id': None,
+        "operation": "TRANSFER",
+        "assets": [{"id": creation_tx_id}],
+        "metadata": None,
+        "outputs": (transfer_output,),
+        "inputs": (transfer_input_,),
+        "version": "2.0",
+        "id": None,
     }
 
     # Create sha3-256 of message to sign
     message = json.dumps(
         handcrafted_transfer_tx,
         sort_keys=True,
-        separators=(',', ':'),
+        separators=(",", ":"),
         ensure_ascii=False,
     )
     message = sha3.sha3_256(message.encode())
 
-    message.update('{}{}'.format(
-        handcrafted_transfer_tx['inputs'][0]['fulfills']['transaction_id'],
-        handcrafted_transfer_tx['inputs'][0]['fulfills']['output_index']).encode())
+    message.update(
+        "{}{}".format(
+            handcrafted_transfer_tx["inputs"][0]["fulfills"]["transaction_id"],
+            handcrafted_transfer_tx["inputs"][0]["fulfills"]["output_index"],
+        ).encode()
+    )
 
     # Sign message with Alice's und Bob's private key
     bob_transfer_ed25519.sign(message.digest(), base58.b58decode(bob.private_key))
@@ -314,19 +297,19 @@ def test_weighted_threshold():
 
     fulfillment_uri = fulfillment_threshold.serialize_uri()
 
-    handcrafted_transfer_tx['inputs'][0]['fulfillment'] = fulfillment_uri
+    handcrafted_transfer_tx["inputs"][0]["fulfillment"] = fulfillment_uri
 
     # Create tx_id for handcrafted_dw_tx and send tx commit
     json_str_tx = json.dumps(
         handcrafted_transfer_tx,
         sort_keys=True,
-        separators=(',', ':'),
+        separators=(",", ":"),
         ensure_ascii=False,
     )
 
     transfer_tx_id = sha3.sha3_256(json_str_tx.encode()).hexdigest()
 
-    handcrafted_transfer_tx['id'] = transfer_tx_id
+    handcrafted_transfer_tx["id"] = transfer_tx_id
 
     pm.transactions.send_commit(handcrafted_transfer_tx)
 

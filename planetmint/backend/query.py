@@ -6,12 +6,12 @@
 """Query interfaces for backends."""
 
 from functools import singledispatch
-
 from planetmint.backend.exceptions import OperationError
 
 
+# FIXME ADD HERE HINT FOR RETURNING TYPE
 @singledispatch
-def store_asset(connection, asset):
+def store_asset(asset: dict, connection):
     """Write an asset to the asset table.
 
     Args:
@@ -25,14 +25,14 @@ def store_asset(connection, asset):
 
 
 @singledispatch
-def store_assets(connection, assets):
+def store_assets(assets: list, connection):
     """Write a list of assets to the assets table.
+    backend
+        Args:
+            assets (list): a list of assets to write.
 
-    Args:
-        assets (list): a list of assets to write.
-
-    Returns:
-        The database response.
+        Returns:
+            The database response.
     """
 
     raise NotImplementedError
@@ -100,18 +100,6 @@ def get_asset(connection, asset_id):
 
     raise NotImplementedError
 
-@singledispatch
-def get_assets(connection, asset_ids):
-    """Get assets from the assets table.
-
-    Args:
-        asset_ids (list): list of asset ids to fetch
-
-    Returns:
-        The result of the operation.
-    """
-
-    raise NotImplementedError
 
 @singledispatch
 def get_spent(connection, transaction_id, condition_id):
@@ -203,7 +191,19 @@ def get_metadata(connection, transaction_ids):
 
 
 @singledispatch
-def get_txids_filtered(connection, asset_ids, operation=None):
+def get_assets(connection, asset_ids) -> list:
+    """Get a list of assets from the assets table.
+    Args:
+        asset_ids (list): a list of ids for the assets to be retrieved from
+        the database.
+    Returns:
+        assets (list): the list of returned assets.
+    """
+    raise NotImplementedError
+
+
+@singledispatch
+def get_txids_filtered(connection, asset_id, operation=None):
     """Return all transactions for a particular asset id and optional operation.
 
     Args:
@@ -215,8 +215,17 @@ def get_txids_filtered(connection, asset_ids, operation=None):
 
 
 @singledispatch
-def text_search(conn, search, *, language='english', case_sensitive=False,
-                diacritic_sensitive=False, text_score=False, limit=0, table=None):
+def text_search(
+    conn,
+    search,
+    *,
+    language="english",
+    case_sensitive=False,
+    diacritic_sensitive=False,
+    text_score=False,
+    limit=0,
+    table=None
+):
     """Return all the assets that match the text search.
 
     The results are sorted by text score.
@@ -243,8 +252,7 @@ def text_search(conn, search, *, language='english', case_sensitive=False,
         OperationError: If the backend does not support text search
     """
 
-    raise OperationError('This query is only supported when running '
-                         'Planetmint with MongoDB as the backend.')
+    raise OperationError("This query is only supported when running " "Planetmint with MongoDB as the backend.")
 
 
 @singledispatch
@@ -384,8 +392,7 @@ def get_validator_set(conn, height):
 
 @singledispatch
 def get_election(conn, election_id):
-    """Return the election record
-    """
+    """Return the election record"""
 
     raise NotImplementedError
 
@@ -427,4 +434,10 @@ def get_latest_abci_chain(conn):
     """Returns the ABCI chain stored at the biggest height, if any,
     None otherwise.
     """
+    raise NotImplementedError
+
+
+@singledispatch
+def _group_transaction_by_ids(txids: list, connection):
+    """Returns the transactions object (JSON TYPE), from list of ids."""
     raise NotImplementedError

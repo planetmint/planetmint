@@ -5,11 +5,11 @@
 
 
 def test_settings():
-    import planetmint
+    from planetmint.config import Config
     from planetmint.web import server
 
-    s = server.create_server(planetmint.config['server'])
+    s = server.create_server(Config().get()["server"])
 
     # for whatever reason the value is wrapped in a list
     # needs further investigation
-    assert s.cfg.bind[0] == planetmint.config['server']['bind']
+    assert s.cfg.bind[0] == Config().get()["server"]["bind"]

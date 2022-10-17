@@ -3,103 +3,110 @@
 # SPDX-License-Identifier: (Apache-2.0 AND CC-BY-4.0)
 # Code is Apache-2.0 and docs are CC-BY-4.0
 
+import tarantool
 import logging
-from importlib import import_module
-from itertools import repeat
 
-import planetmint
+from itertools import repeat
+from importlib import import_module
+from transactions.common.exceptions import ConfigurationError
+from planetmint.config import Config
 from planetmint.backend.exceptions import ConnectionError
-from planetmint.backend.utils import get_planetmint_config_value, get_planetmint_config_value_or_key_error
-from planetmint.transactions.common.exceptions import ConfigurationError
 
 BACKENDS = {
-    'localmongodb': 'planetmint.backend.localmongodb.connection.LocalMongoDBConnection',
+    "tarantool_db": "planetmint.backend.tarantool.connection.TarantoolDBConnection",
+    "localmongodb": "planetmint.backend.localmongodb.connection.LocalMongoDBConnection",
 }
 
 logger = logging.getLogger(__name__)
 
 
-def connect(backend=None, host=None, port=None, name=None, max_tries=None,
-            connection_timeout=None, replicaset=None, ssl=None, login=None, password=None,
-            ca_cert=None, certfile=None, keyfile=None, keyfile_passphrase=None,
-            crlfile=None):
-    """Create a new connection to the database backend.
-
-    All arguments default to the current configuration's values if not
-    given.
-
-    Args:
-        backend (str): the name of the backend to use.
-        host (str): the host to connect to.
-        port (int): the port to connect to.
-        name (str): the name of the database to use.
-        replicaset (str): the name of the replica set (only relevant for
-                          MongoDB connections).
-
-    Returns:
-        An instance of :class:`~planetmint.backend.connection.Connection`
-        based on the given (or defaulted) :attr:`backend`.
-
-    Raises:
-        :exc:`~ConnectionError`: If the connection to the database fails.
-        :exc:`~ConfigurationError`: If the given (or defaulted) :attr:`backend`
-            is not supported or could not be loaded.
-        :exc:`~AuthenticationError`: If there is a OperationFailure due to
-            Authentication failure after connecting to the database.
-    """
-
-    backend = backend or get_planetmint_config_value_or_key_error('backend')
-    host = host or get_planetmint_config_value_or_key_error('host')
-    port = port or get_planetmint_config_value_or_key_error('port')
-    dbname = name or get_planetmint_config_value_or_key_error('name')
-    # Not sure how to handle this here. This setting is only relevant for
-    # mongodb.
-    # I added **kwargs for both RethinkDBConnection and MongoDBConnection
-    # to handle these these additional args. In case of RethinkDBConnection
-    # it just does not do anything with it.
-    #
-    # UPD: RethinkDBConnection is not here anymore cause we no longer support RethinkDB.
-    # The problem described above might be reconsidered next time we introduce a backend,
-    # if it ever happens.
-    replicaset = replicaset or get_planetmint_config_value('replicaset')
-    ssl = ssl if ssl is not None else get_planetmint_config_value('ssl', False)
-    login = login or get_planetmint_config_value('login')
-    password = password or get_planetmint_config_value('password')
-    ca_cert = ca_cert or get_planetmint_config_value('ca_cert')
-    certfile = certfile or get_planetmint_config_value('certfile')
-    keyfile = keyfile or get_planetmint_config_value('keyfile')
-    keyfile_passphrase = keyfile_passphrase or get_planetmint_config_value('keyfile_passphrase', None)
-    crlfile = crlfile or get_planetmint_config_value('crlfile')
-
+def connect(
+    host: str = None, port: int = None, login: str = None, password: str = None, backend: str = None, **kwargs
+):
     try:
-        module_name, _, class_name = BACKENDS[backend].rpartition('.')
-        Class = getattr(import_module(module_name), class_name)
-    except KeyError:
-        raise ConfigurationError('Backend `{}` is not supported. '
-                                 'Planetmint currently supports {}'.format(backend, BACKENDS.keys()))
-    except (ImportError, AttributeError) as exc:
-        raise ConfigurationError('Error loading backend `{}`'.format(backend)) from exc
+        backend = backend
+        if not backend and kwargs and kwargs.get("backend"):
+            backend = kwargs["backend"]
 
-    logger.debug('Connection: {}'.format(Class))
-    return Class(host=host, port=port, dbname=dbname,
-                 max_tries=max_tries, connection_timeout=connection_timeout,
-                 replicaset=replicaset, ssl=ssl, login=login, password=password,
-                 ca_cert=ca_cert, certfile=certfile, keyfile=keyfile,
-                 keyfile_passphrase=keyfile_passphrase, crlfile=crlfile)
+        if backend and backend != Config().get()["database"]["backend"]:
+            Config().init_config(backend)
+        else:
+            backend = Config().get()["database"]["backend"]
+    except KeyError:
+        logger.info("Backend {} not supported".format(backend))
+        raise ConfigurationError
+
+    host = host or Config().get()["database"]["host"] if not kwargs.get("host") else kwargs["host"]
+    port = port or Config().get()["database"]["port"] if not kwargs.get("port") else kwargs["port"]
+    login = login or Config().get()["database"]["login"] if not kwargs.get("login") else kwargs["login"]
+    password = password or Config().get()["database"]["password"]
+    try:
+        if backend == "tarantool_db":
+            modulepath, _, class_name = BACKENDS[backend].rpartition(".")
+            Class = getattr(import_module(modulepath), class_name)
+            return Class(host=host, port=port, user=login, password=password, kwargs=kwargs)
+        elif backend == "localmongodb":
+            modulepath, _, class_name = BACKENDS[backend].rpartition(".")
+            Class = getattr(import_module(modulepath), class_name)
+            dbname = _kwargs_parser(key="name", kwargs=kwargs) or Config().get()["database"]["name"]
+            replicaset = _kwargs_parser(key="replicaset", kwargs=kwargs) or Config().get()["database"]["replicaset"]
+            ssl = _kwargs_parser(key="ssl", kwargs=kwargs) or Config().get()["database"]["ssl"]
+            login = (
+                login or Config().get()["database"]["login"]
+                if _kwargs_parser(key="login", kwargs=kwargs) is None
+                else _kwargs_parser(key="login", kwargs=kwargs)  # noqa: E501
+            )
+            password = (
+                password or Config().get()["database"]["password"]
+                if _kwargs_parser(key="password", kwargs=kwargs) is None
+                else _kwargs_parser(key="password", kwargs=kwargs)  # noqa: E501
+            )
+            ca_cert = _kwargs_parser(key="ca_cert", kwargs=kwargs) or Config().get()["database"]["ca_cert"]
+            certfile = _kwargs_parser(key="certfile", kwargs=kwargs) or Config().get()["database"]["certfile"]
+            keyfile = _kwargs_parser(key="keyfile", kwargs=kwargs) or Config().get()["database"]["keyfile"]
+            keyfile_passphrase = (
+                _kwargs_parser(key="keyfile_passphrase", kwargs=kwargs)
+                or Config().get()["database"]["keyfile_passphrase"]
+            )
+            crlfile = _kwargs_parser(key="crlfile", kwargs=kwargs) or Config().get()["database"]["crlfile"]
+            max_tries = _kwargs_parser(key="max_tries", kwargs=kwargs)
+            connection_timeout = _kwargs_parser(key="connection_timeout", kwargs=kwargs)
+
+            return Class(
+                host=host,
+                port=port,
+                dbname=dbname,
+                max_tries=max_tries,
+                connection_timeout=connection_timeout,
+                replicaset=replicaset,
+                ssl=ssl,
+                login=login,
+                password=password,
+                ca_cert=ca_cert,
+                certfile=certfile,
+                keyfile=keyfile,
+                keyfile_passphrase=keyfile_passphrase,
+                crlfile=crlfile,
+            )
+    except tarantool.error.NetworkError as network_err:
+        print(f"Host {host}:{port} can't be reached.\n{network_err}")
+        raise network_err
+
+
+def _kwargs_parser(key, kwargs):
+    if kwargs.get(key):
+        return kwargs[key]
+    return None
 
 
 class Connection:
     """Connection class interface.
-
     All backend implementations should provide a connection class that inherits
     from and implements this class.
     """
 
-    def __init__(self, host=None, port=None, dbname=None,
-                 connection_timeout=None, max_tries=None,
-                 **kwargs):
+    def __init__(self, host=None, port=None, dbname=None, connection_timeout=None, max_tries=None, **kwargs):
         """Create a new :class:`~.Connection` instance.
-
         Args:
             host (str): the host to connect to.
             port (int): the port to connect to.
@@ -113,14 +120,15 @@ class Connection:
                 configuration's ``database`` settings
         """
 
-        dbconf = planetmint.config['database']
+        dbconf = Config().get()["database"]
 
-        self.host = host or dbconf['host']
-        self.port = port or dbconf['port']
-        self.dbname = dbname or dbconf['name']
-        self.connection_timeout = connection_timeout if connection_timeout is not None \
-            else dbconf['connection_timeout']
-        self.max_tries = max_tries if max_tries is not None else dbconf['max_tries']
+        self.host = host or dbconf["host"]
+        self.port = port or dbconf["port"]
+        self.dbname = dbname or dbconf["name"]
+        self.connection_timeout = (
+            connection_timeout if connection_timeout is not None else dbconf["connection_timeout"]
+        )
+        self.max_tries = max_tries if max_tries is not None else dbconf["max_tries"]
         self.max_tries_counter = range(self.max_tries) if self.max_tries != 0 else repeat(0)
         self._conn = None
 
@@ -132,7 +140,6 @@ class Connection:
 
     def run(self, query):
         """Run a query.
-
         Args:
             query: the query to run
         Raises:
@@ -148,7 +155,6 @@ class Connection:
 
     def connect(self):
         """Try to connect to the database.
-
         Raises:
             :exc:`~ConnectionError`: If the connection to the database
                 fails.
@@ -160,11 +166,16 @@ class Connection:
             try:
                 self._conn = self._connect()
             except ConnectionError as exc:
-                logger.warning('Attempt %s/%s. Connection to %s:%s failed after %sms.',
-                               attempt, self.max_tries if self.max_tries != 0 else '∞',
-                               self.host, self.port, self.connection_timeout)
+                logger.warning(
+                    "Attempt %s/%s. Connection to %s:%s failed after %sms.",
+                    attempt,
+                    self.max_tries if self.max_tries != 0 else "∞",
+                    self.host,
+                    self.port,
+                    self.connection_timeout,
+                )
                 if attempt == self.max_tries:
-                    logger.critical('Cannot connect to the Database. Giving up.')
+                    logger.critical("Cannot connect to the Database. Giving up.")
                     raise ConnectionError() from exc
             else:
                 break

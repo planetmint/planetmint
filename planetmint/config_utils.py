@@ -21,27 +21,24 @@ import copy
 import json
 import logging
 import collections.abc
+
 from functools import lru_cache
-
 from pkg_resources import iter_entry_points, ResolutionError
-
-from planetmint.transactions.common import exceptions
-
-import planetmint
-
+from planetmint.config import Config
+from transactions.common import exceptions
 from planetmint.validation import BaseValidationRules
 
 # TODO: move this to a proper configuration file for logging
-logging.getLogger('requests').setLevel(logging.WARNING)
+logging.getLogger("requests").setLevel(logging.WARNING)
 logger = logging.getLogger(__name__)
 
 CONFIG_DEFAULT_PATH = os.environ.setdefault(
-    'PLANETMINT_CONFIG_PATH',
-    os.path.join(os.path.expanduser('~'), '.planetmint'),
+    "PLANETMINT_CONFIG_PATH",
+    os.path.join(os.path.expanduser("~"), ".planetmint"),
 )
 
-CONFIG_PREFIX = 'PLANETMINT'
-CONFIG_SEP = '_'
+CONFIG_PREFIX = "PLANETMINT"
+CONFIG_SEP = "_"
 
 
 def map_leafs(func, mapping):
@@ -99,21 +96,21 @@ def file_config(filename=None):
         dict: The config values in the specified config file (or the
               file at CONFIG_DEFAULT_PATH, if filename == None)
     """
-    logger.debug('On entry into file_config(), filename = {}'.format(filename))
+    logger.debug("On entry into file_config(), filename = {}".format(filename))
 
     if filename is None:
         filename = CONFIG_DEFAULT_PATH
 
-    logger.debug('file_config() will try to open `{}`'.format(filename))
+    logger.debug("file_config() will try to open `{}`".format(filename))
     with open(filename) as f:
         try:
             config = json.load(f)
         except ValueError as err:
             raise exceptions.ConfigurationError(
-                'Failed to parse the JSON configuration from `{}`, {}'.format(filename, err)
+                "Failed to parse the JSON configuration from `{}`, {}".format(filename, err)
             )
 
-        logger.info('Configuration loaded from `{}`'.format(filename))
+        logger.info("Configuration loaded from `{}`".format(filename))
 
     return config
 
@@ -139,7 +136,7 @@ def env_config(config):
     return map_leafs(load_from_env, config)
 
 
-def update_types(config, reference, list_sep=':'):
+def update_types(config, reference, list_sep=":"):
     """Return a new configuration where all the values types
     are aligned with the ones in the default configuration
     """
@@ -192,10 +189,11 @@ def set_config(config):
         Any previous changes made to ``planetmint.config`` will be lost.
     """
     # Deep copy the default config into planetmint.config
-    planetmint.config = copy.deepcopy(planetmint._config)
+    _config = Config().get()
     # Update the default config with whatever is in the passed config
-    update(planetmint.config, update_types(config, planetmint.config))
-    planetmint.config['CONFIGURED'] = True
+    update(_config, update_types(config, _config))
+    _config["CONFIGURED"] = True
+    Config().set(_config)
 
 
 def update_config(config):
@@ -207,9 +205,11 @@ def update_config(config):
                        to the default config
     """
 
+    _config = Config().get()
     # Update the default config with whatever is in the passed config
-    update(planetmint.config, update_types(config, planetmint.config))
-    planetmint.config['CONFIGURED'] = True
+    update(_config, update_types(config, _config))
+    _config["CONFIGURED"] = True
+    Config().set(_config)
 
 
 def write_config(config, filename=None):
@@ -223,12 +223,12 @@ def write_config(config, filename=None):
     if not filename:
         filename = CONFIG_DEFAULT_PATH
 
-    with open(filename, 'w') as f:
+    with open(filename, "w") as f:
         json.dump(config, f, indent=4)
 
 
 def is_configured():
-    return bool(planetmint.config.get('CONFIGURED'))
+    return bool(Config().get().get("CONFIGURED"))
 
 
 def autoconfigure(filename=None, config=None, force=False):
@@ -236,11 +236,11 @@ def autoconfigure(filename=None, config=None, force=False):
     been initialized.
     """
     if not force and is_configured():
-        logger.debug('System already configured, skipping autoconfiguration')
+        logger.debug("System already configured, skipping autoconfiguration")
         return
 
     # start with the current configuration
-    newconfig = planetmint.config
+    newconfig = Config().get()
 
     # update configuration from file
     try:
@@ -249,7 +249,7 @@ def autoconfigure(filename=None, config=None, force=False):
         if filename:
             raise
         else:
-            logger.info('Cannot find config file `%s`.' % e.filename)
+            logger.info("Cannot find config file `%s`." % e.filename)
 
     # override configuration with env variables
     newconfig = env_config(newconfig)
@@ -277,20 +277,20 @@ def load_validation_plugin(name=None):
     #       We should probably support Requirements specs in the config, e.g.
     #       validation_plugin: 'my-plugin-package==0.0.1;default'
     plugin = None
-    for entry_point in iter_entry_points('planetmint.validation', name):
+    for entry_point in iter_entry_points("planetmint.validation", name):
         plugin = entry_point.load()
 
     # No matching entry_point found
     if not plugin:
-        raise ResolutionError(
-            'No plugin found in group `planetmint.validation` with name `{}`'.
-            format(name))
+        raise ResolutionError("No plugin found in group `planetmint.validation` with name `{}`".format(name))
 
     # Is this strictness desireable?
     # It will probably reduce developer headaches in the wild.
     if not issubclass(plugin, (BaseValidationRules,)):
-        raise TypeError('object of type "{}" does not implement `planetmint.'
-                        'validation.BaseValidationRules`'.format(type(plugin)))
+        raise TypeError(
+            'object of type "{}" does not implement `planetmint.'
+            "validation.BaseValidationRules`".format(type(plugin))
+        )
 
     return plugin
 
@@ -302,7 +302,7 @@ def load_events_plugins(names=None):
         return plugins
 
     for name in names:
-        for entry_point in iter_entry_points('planetmint.events', name):
+        for entry_point in iter_entry_points("planetmint.events", name):
             plugins.append((name, entry_point.load()))
 
     return plugins

@@ -15,19 +15,19 @@ def edit_genesis() -> None:
     for file_name in file_names:
         file = open(file_name)
         genesis = json.load(file)
-        validators.extend(genesis['validators'])
+        validators.extend(genesis["validators"])
         file.close()
 
     genesis_file = open(file_names[0])
     genesis_json = json.load(genesis_file)
-    genesis_json['validators'] = validators
+    genesis_json["validators"] = validators
     genesis_file.close()
 
-    with open('/shared/genesis.json', 'w') as f:
+    with open("/shared/genesis.json", "w") as f:
         json.dump(genesis_json, f, indent=True)
 
     return None
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     edit_genesis()

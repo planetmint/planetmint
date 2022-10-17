@@ -5,9 +5,9 @@
 
 import pytest
 
-from planetmint.transactions.common.crypto import generate_key_pair
-from planetmint.transactions.types.assets.create import Create
-from planetmint.transactions.types.assets.transfer import Transfer
+from transactions.common.crypto import generate_key_pair
+from transactions.types.assets.create import Create
+from transactions.types.assets.transfer import Transfer
 
 pytestmark = pytest.mark.tendermint
 
@@ -17,10 +17,7 @@ def generate_create_and_transfer(keypair=None):
         keypair = generate_key_pair()
     priv_key, pub_key = keypair
     create_tx = Create.generate([pub_key], [([pub_key], 10)]).sign([priv_key])
-    transfer_tx = Transfer.generate(
-            create_tx.to_inputs(),
-            [([pub_key], 10)],
-            asset_ids=[create_tx.id]).sign([priv_key])
+    transfer_tx = Transfer.generate(create_tx.to_inputs(), [([pub_key], 10)], asset_ids=[create_tx.id]).sign([priv_key])
     return create_tx, transfer_tx
 
 
@@ -30,10 +27,9 @@ def test_validation_worker_process_multiple_transactions(b):
 
     keypair = generate_key_pair()
     create_tx, transfer_tx = generate_create_and_transfer(keypair)
-    double_spend = Transfer.generate(
-            create_tx.to_inputs(),
-            [([keypair.public_key], 10)],
-            asset_ids=[create_tx.id]).sign([keypair.private_key])
+    double_spend = Transfer.generate(create_tx.to_inputs(), [([keypair.public_key], 10)], asset_ids=[create_tx.id]).sign(
+        [keypair.private_key]
+    )
 
     in_queue, results_queue = mp.Queue(), mp.Queue()
     vw = ValidationWorker(in_queue, results_queue)
@@ -86,17 +82,15 @@ def test_parallel_validator_routes_transactions_correctly(b, monkeypatch):
     # Validate is now a passthrough, and every time it is called it will emit
     # the PID of its worker to the designated queue.
     def validate(self, dict_transaction):
-        validation_called_by.put((os.getpid(), dict_transaction['id']))
+        validation_called_by.put((os.getpid(), dict_transaction["id"]))
         return dict_transaction
 
-    monkeypatch.setattr(
-        'planetmint.parallel_validation.ValidationWorker.validate',
-        validate)
+    monkeypatch.setattr("planetmint.parallel_validation.ValidationWorker.validate", validate)
 
     # Transaction routing uses the `id` of the transaction. This test strips
     # down a transaction to just its `id`. We have two workers, so even ids
     # will be processed by one worker, odd ids by the other.
-    transactions = [{'id': '0'}, {'id': '1'}, {'id': '2'}, {'id': '3'}]
+    transactions = [{"id": "0"}, {"id": "1"}, {"id": "2"}, {"id": "3"}]
 
     pv = ParallelValidator(number_of_workers=2)
     pv.start()
@@ -109,7 +103,7 @@ def test_parallel_validator_routes_transactions_correctly(b, monkeypatch):
     for _ in range(2):
         # First, we push the transactions to the parallel validator instance
         for transaction in transactions:
-            pv.validate(dumps(transaction).encode('utf8'))
+            pv.validate(dumps(transaction).encode("utf8"))
 
         assert pv.result(timeout=1) == transactions
 
@@ -128,7 +122,8 @@ def test_parallel_validator_routes_transactions_correctly(b, monkeypatch):
             # route for odd transactions. Since we don't know which worker
             # processed what, we test that the transactions processed by a
             # worker are all even or all odd.
-            assert (all(filter(lambda x: int(x) % 2 == 0, transaction_ids)) or
-                    all(filter(lambda x: int(x) % 2 == 1, transaction_ids)))
+            assert all(filter(lambda x: int(x) % 2 == 0, transaction_ids)) or all(
+                filter(lambda x: int(x) % 2 == 1, transaction_ids)
+            )
 
     pv.stop()

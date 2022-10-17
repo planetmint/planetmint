@@ -18,13 +18,11 @@ so show the latest GitHub release instead.
 
 # Planetmint Server
 
-Planetmint is the blockchain database. This repository is for _BigchainDB Server_.
+Planetmint is the blockchain database. This repository is for _Planetmint Server_.
 
 ## The Basics
 
-* [Try the Quickstart](https://docs.planetmint.com/projects/server/en/latest/quickstart.html)
-* [Read the Planetmint 2.0 whitepaper](https://www.planetmint.com/whitepaper/)
-* [Check out the _Hitchiker's Guide to BigchainDB_](https://www.planetmint.com/developers/guide/)
+* [Try the Quickstart](https://docs.planetmint.io/en/latest/introduction/index.html#quickstart)
 
 ## Run and Test Planetmint Server from the `master` Branch
 
@@ -55,15 +53,11 @@ To view all commands available, run `make`.
 
 ## Links for Everyone
 
-* [Planetmint.com](https://www.planetmint.com/) - the main Planetmint website, including newsletter signup
-* [Roadmap](https://github.com/planetmint/org/blob/master/ROADMAP.md)
-* [Blog](https://medium.com/the-planetmint-blog)
-* [Twitter](https://twitter.com/Planetmint)
+* [Planetmint.io](https://www.planetmint.io/) - the main Planetmint website, including newsletter signup
 
 ## Links for Developers
 
-* [All Planetmint Documentation](https://docs.planetmint.com/en/latest/)
-* [Planetmint Server Documentation](https://docs.planetmint.com/projects/server/en/latest/index.html)
+* [All Planetmint Documentation](https://docs.planetmint.io/en/latest/)
 * [CONTRIBUTING.md](.github/CONTRIBUTING.md) - how to contribute
 * [Community guidelines](CODE_OF_CONDUCT.md)
 * [Open issues](https://github.com/planetmint/planetmint/issues)
@@ -73,5 +67,3 @@ To view all commands available, run `make`.
 ## Legal
 
 * [Licenses](LICENSES.md) - open source & open content
-* [Imprint](https://www.planetmint.com/imprint/)
-* [Contact Us](https://www.planetmint.com/contact/)
