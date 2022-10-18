@@ -27,7 +27,7 @@ def test_validate_transfer_asset_id_mismatch(b, signed_create_tx, user_pk, user_
     from transactions.common.exceptions import AssetIdMismatch
 
     tx_transfer = Transfer.generate(signed_create_tx.to_inputs(), [([user_pk], 1)], [signed_create_tx.id])
-    tx_transfer.asset["id"] = "a" * 64
+    tx_transfer.assets[0]["id"] = "a" * 64
     tx_transfer_signed = tx_transfer.sign([user_sk])
 
     b.store_bulk_transactions([signed_create_tx])
@@ -40,7 +40,7 @@ def test_get_asset_id_create_transaction(alice, user_pk):
     from transactions.common.transaction import Transaction
 
     tx_create = Create.generate([alice.public_key], [([user_pk], 1)])
-    assert Transaction.get_asset_ids(tx_create)[0] == tx_create.id
+    assert Transaction.get_asset_id(tx_create) == tx_create.id
 
 
 def test_get_asset_id_transfer_transaction(b, signed_create_tx, user_pk):

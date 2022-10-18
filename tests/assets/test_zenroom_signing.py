@@ -54,7 +54,7 @@ metadata = {"units": 300, "type": "KG"}
 def test_zenroom_signing():
 
     biolabs = generate_key_pair()
-    version = "2.0"
+    version = "3.0"
 
     alice = json.loads(zencode_exec(GENERATE_KEYPAIR).output)["keyring"]
     bob = json.loads(zencode_exec(GENERATE_KEYPAIR).output)["keyring"]
@@ -101,7 +101,7 @@ def test_zenroom_signing():
     metadata = {"result": {"output": ["ok"]}}
     token_creation_tx = {
         "operation": "CREATE",
-        "asset": {"data": multihash(marshal({"test": "my asset"}))},
+        "assets": [{"data": multihash(marshal({"test": "my asset"}))}],
         "metadata": multihash(marshal(metadata)),
         "script": script_,
         "outputs": [
