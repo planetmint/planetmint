@@ -251,13 +251,14 @@ class Planetmint(object):
         transaction = backend.query.get_transaction(self.connection, transaction_id)
         if transaction:
             # TODO: get_assets is used with transaction_id this will not work with the asset change
-            assets = backend.query.get_assets(self.connection, [transaction_id])
+            # assets = backend.query.get_assets(self.connection, [transaction_id])
             metadata = backend.query.get_metadata(self.connection, [transaction_id])
             # NOTE: assets must not be replaced for transfer transactions
             # TODO: check if this holds true for other tx types, some test cases connected to election and voting are still failing
             # NOTE: assets should be appended for all txs that define new assets otherwise the ids are already stored in tx
-            if transaction["operation"] != "TRANSFER" and transaction["operation"] != "VOTE" and assets:
-                transaction["assets"] = list(assets)
+            # if transaction["operation"] != "TRANSFER" and transaction["operation"] != "VOTE" and assets:
+                # transaction["assets"] = list(assets)
+                # transaction["assets"] = [asset[0] for asset in assets]
 
             if "metadata" not in transaction:
                 metadata = metadata[0] if metadata else None
@@ -318,8 +319,8 @@ class Planetmint(object):
         if len(transactions) + len(current_spent_transactions) > 1:
             raise DoubleSpend('tx "{}" spends inputs twice'.format(txid))
         elif transactions:
-            transaction = backend.query.get_transactions(self.connection, [transactions[0]["id"]])
-            transaction = Transaction.from_dict(transaction[0], False)
+            transaction = backend.query.get_transaction(self.connection, transactions[0]["id"])
+            transaction = Transaction.from_dict(transaction, False)
         elif current_spent_transactions:
             transaction = current_spent_transactions[0]
 
@@ -433,7 +434,7 @@ class Planetmint(object):
 
         # validate asset id
         asset_id = tx.get_asset_id(input_txs)
-        if asset_id != tx.asset["id"]:
+        if asset_id != tx.assets[0]["id"]:
             raise AssetIdMismatch(("The asset id of the input does not" " match the asset id of the" " transaction"))
 
         if not tx.inputs_valid(input_conditions):
@@ -679,7 +680,7 @@ class Planetmint(object):
         current_validators = self.get_validators_dict()
 
         # NOTE: change more than 1/3 of the current power is not allowed
-        if transaction.asset["data"]["power"] >= (1 / 3) * sum(current_validators.values()):
+        if transaction.assets[0]["data"]["power"] >= (1 / 3) * sum(current_validators.values()):
             raise InvalidPowerChange("`power` change must be less than 1/3 of total power")
 
     def get_election_status(self, transaction):
@@ -735,7 +736,7 @@ class Planetmint(object):
         return recipients
 
     def show_election_status(self, transaction):
-        data = transaction.asset["data"]
+        data = transaction.assets[0]["data"]
         if "public_key" in data.keys():
             data["public_key"] = public_key_to_base64(data["public_key"]["value"])
         response = ""
@@ -817,7 +818,7 @@ class Planetmint(object):
             if not isinstance(tx, Vote):
                 continue
 
-            election_id = tx.asset["id"]
+            election_id = tx.assets[0]["id"]
             if election_id not in elections:
                 elections[election_id] = []
             elections[election_id].append(tx)
@@ -951,7 +952,7 @@ class Planetmint(object):
         if election.operation == CHAIN_MIGRATION_ELECTION:
             self.migrate_abci_chain()
         if election.operation == VALIDATOR_ELECTION:
-            validator_updates = [election.asset["data"]]
+            validator_updates = [election.assets[0]["data"]]
             curr_validator_set = self.get_validators(new_height)
             updated_validator_set = new_validator_set(curr_validator_set, validator_updates)
 
@@ -959,7 +960,7 @@ class Planetmint(object):
 
             # TODO change to `new_height + 2` when upgrading to Tendermint 0.24.0.
             self.store_validator_set(new_height + 1, updated_validator_set)
-            return encode_validator(election.asset["data"])
+            return encode_validator(election.assets[0]["data"])
 
 
 Block = namedtuple("Block", ("app_hash", "height", "transactions"))

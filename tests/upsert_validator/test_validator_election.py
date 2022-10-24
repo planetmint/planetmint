@@ -32,7 +32,7 @@ def test_upsert_validator_invalid_election_public_key(b_mock, new_validator, nod
     from transactions.common.exceptions import InvalidPublicKey
 
     for iv in ["ed25519-base32", "ed25519-base64"]:
-        new_validator["public_key"]["type"] = iv
+        new_validator[0]["data"]["public_key"]["type"] = iv
         voters = b_mock.get_recipients_list()
 
         with pytest.raises(InvalidPublicKey):
@@ -41,7 +41,7 @@ def test_upsert_validator_invalid_election_public_key(b_mock, new_validator, nod
 
 def test_upsert_validator_invalid_power_election(b_mock, new_validator, node_key):
     voters = b_mock.get_recipients_list()
-    new_validator["power"] = 30
+    new_validator[0]["data"]["power"] = 30
 
     election = ValidatorElection.generate([node_key.public_key], voters, new_validator, None).sign(
         [node_key.private_key]

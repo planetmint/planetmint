@@ -56,11 +56,11 @@ def test_get_assets_limit_tendermint(client, b, alice):
     b.store_bulk_transactions([tx2])
 
     # test that both assets are returned without limit
-    res = client.get(ASSETS_ENDPOINT + "?search=" + asset1["data"])
+    res = client.get(ASSETS_ENDPOINT + "?search=" + assets1[0]["data"])
     assert res.status_code == 200
     assert len(res.json) == 1
 
     # test that only one asset is returned when using limit=1
-    res = client.get(ASSETS_ENDPOINT + "?search=" + asset1["data"] + "&limit=1")
+    res = client.get(ASSETS_ENDPOINT + "?search=" + assets1[0]["data"] + "&limit=1")
     assert res.status_code == 200
     assert len(res.json) == 1

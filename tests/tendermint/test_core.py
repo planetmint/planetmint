@@ -318,7 +318,7 @@ def test_end_block_return_validator_updates(b, init_chain_request):
     voter_keys = [v["private_key"] for v in validators]
 
     election, votes = generate_election(
-        b, ValidatorElection, public_key, private_key, new_validator["election"], voter_keys
+        b, ValidatorElection, public_key, private_key, [{"data": new_validator["election"]}], voter_keys
     )
     b.store_block(Block(height=1, transactions=[election.id], app_hash="")._asdict())
     b.store_bulk_transactions([election])
@@ -379,14 +379,14 @@ def test_rollback_pre_commit_state_after_crash(b):
     private_key = validators[0]["private_key"]
     voter_keys = [v["private_key"] for v in validators]
 
-    migration_election, votes = generate_election(b, ChainMigrationElection, public_key, private_key, {}, voter_keys)
+    migration_election, votes = generate_election(b, ChainMigrationElection, public_key, private_key, [{"data": {}}], voter_keys)
 
     total_votes = votes
     txs = [migration_election, *votes]
 
     new_validator = generate_validators([1])[0]
     validator_election, votes = generate_election(
-        b, ValidatorElection, public_key, private_key, new_validator["election"], voter_keys
+        b, ValidatorElection, public_key, private_key, [{"data": new_validator["election"]}], voter_keys
     )
 
     total_votes += votes

@@ -229,7 +229,7 @@ def test_store_bulk_transaction(mocker, b, signed_create_tx, signed_transfer_tx,
     if isinstance(b.connection, TarantoolDBConnection):
         mocked_store_assets.assert_called_once_with(
             b.connection,  # signed_create_tx.asset['data'] this was before
-            [(signed_create_tx.asset, signed_create_tx.id, signed_create_tx.id)],
+            [(signed_create_tx.assets[0], signed_create_tx.id, signed_create_tx.id)],
         )
     else:
         mocked_store_assets.assert_called_once_with(

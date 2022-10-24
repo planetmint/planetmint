@@ -30,7 +30,7 @@ def test_upsert_validator_valid_election_vote(b_mock, valid_upsert_validator_ele
 
     election_pub_key = election_id_to_public_key(valid_upsert_validator_election.id)
 
-    vote = Vote.generate([input0], [([election_pub_key], votes)], election_id=valid_upsert_validator_election.id).sign(
+    vote = Vote.generate([input0], [([election_pub_key], votes)], election_ids=[valid_upsert_validator_election.id]).sign(
         [key0.private_key]
     )
     assert b_mock.validate_transaction(vote)
@@ -50,7 +50,7 @@ def test_upsert_validator_valid_non_election_vote(b_mock, valid_upsert_validator
     # Ensure that threshold conditions are now allowed
     with pytest.raises(ValidationError):
         Vote.generate(
-            [input0], [([election_pub_key, key0.public_key], votes)], election_id=valid_upsert_validator_election.id
+            [input0], [([election_pub_key, key0.public_key], votes)], election_ids=[valid_upsert_validator_election.id]
         ).sign([key0.private_key])
 
 
@@ -68,7 +68,7 @@ def test_upsert_validator_delegate_election_vote(b_mock, valid_upsert_validator_
     delegate_vote = Vote.generate(
         [input0],
         [([alice.public_key], 3), ([key0.public_key], votes - 3)],
-        election_id=valid_upsert_validator_election.id,
+        election_ids=[valid_upsert_validator_election.id],
     ).sign([key0.private_key])
 
     assert b_mock.validate_transaction(delegate_vote)
@@ -78,13 +78,13 @@ def test_upsert_validator_delegate_election_vote(b_mock, valid_upsert_validator_
 
     alice_votes = delegate_vote.to_inputs()[0]
     alice_casted_vote = Vote.generate(
-        [alice_votes], [([election_pub_key], 3)], election_id=valid_upsert_validator_election.id
+        [alice_votes], [([election_pub_key], 3)], election_ids=[valid_upsert_validator_election.id]
     ).sign([alice.private_key])
     assert b_mock.validate_transaction(alice_casted_vote)
 
     key0_votes = delegate_vote.to_inputs()[1]
     key0_casted_vote = Vote.generate(
-        [key0_votes], [([election_pub_key], votes - 3)], election_id=valid_upsert_validator_election.id
+        [key0_votes], [([election_pub_key], votes - 3)], election_ids=[valid_upsert_validator_election.id]
     ).sign([key0.private_key])
     assert b_mock.validate_transaction(key0_casted_vote)
 
@@ -101,7 +101,7 @@ def test_upsert_validator_invalid_election_vote(b_mock, valid_upsert_validator_e
     election_pub_key = election_id_to_public_key(valid_upsert_validator_election.id)
 
     vote = Vote.generate(
-        [input0], [([election_pub_key], votes + 1)], election_id=valid_upsert_validator_election.id
+        [input0], [([election_pub_key], votes + 1)], election_ids=[valid_upsert_validator_election.id]
     ).sign([key0.private_key])
 
     with pytest.raises(AmountError):
@@ -123,7 +123,7 @@ def test_valid_election_votes_received(b_mock, valid_upsert_validator_election, 
     delegate_vote = Vote.generate(
         [input0],
         [([alice.public_key], 4), ([key0.public_key], votes - 4)],
-        election_id=valid_upsert_validator_election.id,
+        election_ids=[valid_upsert_validator_election.id],
     ).sign([key0.private_key])
     b_mock.store_bulk_transactions([delegate_vote])
     assert b_mock.get_commited_votes(valid_upsert_validator_election) == 0
@@ -135,7 +135,7 @@ def test_valid_election_votes_received(b_mock, valid_upsert_validator_election, 
     alice_casted_vote = Vote.generate(
         [alice_votes],
         [([election_public_key], 2), ([alice.public_key], 2)],
-        election_id=valid_upsert_validator_election.id,
+        election_ids=[valid_upsert_validator_election.id],
     ).sign([alice.private_key])
 
     assert b_mock.validate_transaction(alice_casted_vote)
@@ -145,7 +145,7 @@ def test_valid_election_votes_received(b_mock, valid_upsert_validator_election, 
     assert b_mock.get_commited_votes(valid_upsert_validator_election) == 2
 
     key0_casted_vote = Vote.generate(
-        [key0_votes], [([election_public_key], votes - 4)], election_id=valid_upsert_validator_election.id
+        [key0_votes], [([election_public_key], votes - 4)], election_ids=[valid_upsert_validator_election.id]
     ).sign([key0.private_key])
 
     assert b_mock.validate_transaction(key0_casted_vote)
@@ -230,11 +230,13 @@ def test_upsert_validator(b, node_key, node_keys, ed25519_node_keys):
     power = 1
     public_key = "9B3119650DF82B9A5D8A12E38953EA47475C09F0C48A4E6A0ECE182944B24403"
     public_key64 = public_key_to_base64(public_key)
-    new_validator = {
-        "public_key": {"value": public_key, "type": "ed25519-base16"},
-        "node_id": "some_node_id",
-        "power": power,
-    }
+    new_validator = [{
+        "data": {
+            "public_key": {"value": public_key, "type": "ed25519-base16"},
+            "node_id": "some_node_id",
+            "power": power,
+        }
+    }]
 
     voters = b.get_recipients_list()
     election = ValidatorElection.generate([node_key.public_key], voters, new_validator, None).sign(
@@ -270,11 +272,13 @@ def test_get_validator_update(b, node_keys, node_key, ed25519_node_keys):
     power = 1
     public_key = "9B3119650DF82B9A5D8A12E38953EA47475C09F0C48A4E6A0ECE182944B24403"
     public_key64 = public_key_to_base64(public_key)
-    new_validator = {
-        "public_key": {"value": public_key, "type": "ed25519-base16"},
-        "node_id": "some_node_id",
-        "power": power,
-    }
+    new_validator = [{
+        "data": {
+            "public_key": {"value": public_key, "type": "ed25519-base16"},
+            "node_id": "some_node_id",
+            "power": power,
+        }
+    }]
     voters = b.get_recipients_list()
     election = ValidatorElection.generate([node_key.public_key], voters, new_validator).sign([node_key.private_key])
     # store election
@@ -298,11 +302,13 @@ def test_get_validator_update(b, node_keys, node_key, ed25519_node_keys):
 
     # remove validator
     power = 0
-    new_validator = {
-        "public_key": {"value": public_key, "type": "ed25519-base16"},
-        "node_id": "some_node_id",
-        "power": power,
-    }
+    new_validator = [{
+        "data":{ 
+            "public_key": {"value": public_key, "type": "ed25519-base16"},
+            "node_id": "some_node_id",
+            "power": power,
+        }
+    }]
     voters = b.get_recipients_list()
     election = ValidatorElection.generate([node_key.public_key], voters, new_validator).sign([node_key.private_key])
     # store election

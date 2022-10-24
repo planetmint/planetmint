@@ -515,7 +515,7 @@ def test_chain_migration_election_show_shows_inconclusive(b):
     private_key = validators[0]["private_key"]
     voter_keys = [v["private_key"] for v in validators]
 
-    election, votes = generate_election(b, ChainMigrationElection, public_key, private_key, {}, voter_keys)
+    election, votes = generate_election(b, ChainMigrationElection, public_key, private_key, [{"data": {}}], voter_keys)
 
     assert not run_election_show(Namespace(election_id=election.id), b)
 
@@ -544,7 +544,7 @@ def test_chain_migration_election_show_shows_concluded(b):
     private_key = validators[0]["private_key"]
     voter_keys = [v["private_key"] for v in validators]
 
-    election, votes = generate_election(b, ChainMigrationElection, public_key, private_key, {}, voter_keys)
+    election, votes = generate_election(b, ChainMigrationElection, public_key, private_key, [{"data": {}}], voter_keys)
 
     assert not run_election_show(Namespace(election_id=election.id), b)
 

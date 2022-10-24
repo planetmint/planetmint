@@ -41,7 +41,7 @@ def _group_transaction_by_ids(connection, txids: list):
             "inputs": _txinputs,
             "outputs": _txoutputs,
             "keys": _txkeys,
-            "asset": _txassets,
+            "assets": _txassets,
             "metadata": _txmeta,
             "script": _txscript,
         }
@@ -238,7 +238,7 @@ def text_search(conn, search, table="assets", limit=0):
     if len(res[0]):  # NEEDS BEAUTIFICATION
         if table == "assets":
             for result in res[0]:
-                to_return.append({"data": json.loads(result[0])["data"], "id": result[1]})
+                to_return.append({"data": json.loads(result[0])[0]["data"], "id": result[1]})
         else:
             for result in res[0]:
                 to_return.append({"metadata": json.loads(result[1]), "id": result[0]})

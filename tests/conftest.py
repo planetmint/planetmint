@@ -709,7 +709,7 @@ def new_validator():
     power = 1
     node_id = "fake_node_id"
 
-    return {"public_key": {"value": public_key, "type": "ed25519-base16"}, "power": power, "node_id": node_id}
+    return [{"data": {"public_key": {"value": public_key, "type": "ed25519-base16"}, "power": power, "node_id": node_id}}]
 
 
 @pytest.fixture

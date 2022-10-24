@@ -135,7 +135,7 @@ class TestTransactionValidation(object):
         sk, pk = generate_key_pair()
         tx = Create.generate([pk], [([user_pk], 1)])
         tx.operation = "TRANSFER"
-        tx.asset = {"id": input_transaction.id}
+        tx.assets = [{"id": input_transaction.id}]
         tx.inputs[0].fulfills = input_tx
 
         with pytest.raises(InvalidSignature):
@@ -476,10 +476,10 @@ def test_transaction_unicode(b, alice):
 
     # http://www.fileformat.info/info/unicode/char/1f37a/index.htm
 
-    beer_python = {"data": multihash(marshal({"beer": "\N{BEER MUG}"}))}
+    beer_python = [{"data": multihash(marshal({"beer": "\N{BEER MUG}"}))}]
     beer_json = {"data": multihash(marshal({"beer": "\N{BEER MUG}"}))}
 
-    tx = (Create.generate([alice.public_key], [([alice.public_key], 100)], asset=beer_python)).sign(
+    tx = (Create.generate([alice.public_key], [([alice.public_key], 100)], assets=beer_python)).sign(
         [alice.private_key]
     )
 

@@ -13,11 +13,11 @@ register_query = module_dispatch_registrar(convert)
 
 
 @register_query(TarantoolDBConnection)
-def prepare_asset(connection, transaction_type, transaction_id, filter_operation, asset):
+def prepare_asset(connection, transaction_type, transaction_id, filter_operation, assets):
     asset_id = transaction_id
     if transaction_type not in filter_operation:
-        asset_id = asset["id"]
-    return tuple([asset, transaction_id, asset_id])
+        asset_id = assets[0]["id"]
+    return tuple([assets, transaction_id, asset_id])
 
 
 @register_query(TarantoolDBConnection)

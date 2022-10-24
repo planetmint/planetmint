@@ -153,11 +153,13 @@ def run_election_new_upsert_validator(args, planet):
     :return: election_id or `False` in case of failure
     """
 
-    new_validator = {
-        "public_key": {"value": public_key_from_base64(args.public_key), "type": "ed25519-base16"},
-        "power": args.power,
-        "node_id": args.node_id,
-    }
+    new_validator = [{
+        "data": {
+            "public_key": {"value": public_key_from_base64(args.public_key), "type": "ed25519-base16"},
+            "power": args.power,
+            "node_id": args.node_id,
+        }
+    }]
 
     return create_new_election(args.sk, planet, ValidatorElection, new_validator)
 
@@ -173,7 +175,7 @@ def run_election_new_chain_migration(args, planet):
     :return: election_id or `False` in case of failure
     """
 
-    return create_new_election(args.sk, planet, ChainMigrationElection, {})
+    return create_new_election(args.sk, planet, ChainMigrationElection, [{"data": {}}])
 
 
 def run_election_approve(args, planet):
@@ -199,7 +201,7 @@ def run_election_approve(args, planet):
 
     inputs = [i for i in tx.to_inputs() if key.public_key in i.owners_before]
     election_pub_key = election_id_to_public_key(tx.id)
-    approval = Vote.generate(inputs, [([election_pub_key], voting_power)], tx.id).sign([key.private_key])
+    approval = Vote.generate(inputs, [([election_pub_key], voting_power)], [tx.id]).sign([key.private_key])
     planet.validate_transaction(approval)
 
     resp = planet.write_transaction(approval, BROADCAST_TX_COMMIT)

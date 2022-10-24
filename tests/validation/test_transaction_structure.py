@@ -246,7 +246,7 @@ def test_unsupported_condition_type():
 
 
 def test_validate_version(b, create_tx, alice):
-    create_tx.version = "2.0"
+    create_tx.version = "3.0"
     create_tx.sign([alice.private_key])
     validate(create_tx)
 
