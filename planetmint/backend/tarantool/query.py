@@ -71,8 +71,8 @@ def store_transactions(connection, signed_transactions: list):
         if txtuples["metadata"] is not None:
             connection.run(connection.space("meta_data").insert(txtuples["metadata"]), only_data=False)
 
-        if txtuples["asset"] is not None:
-            connection.run(connection.space("assets").insert(txtuples["asset"]), only_data=False)
+        if txtuples["assets"] is not None:
+            connection.run(connection.space("assets").insert(txtuples["assets"]), only_data=False)
 
         if txtuples["script"] is not None:
             connection.run(connection.space("scripts").insert(txtuples["script"]), only_data=False)

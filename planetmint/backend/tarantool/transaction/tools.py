@@ -43,7 +43,7 @@ class TransactionDecompose:
             "keys": [],
             "script": None,
             "metadata": None,
-            "asset": None,
+            "assets": None,
         }
 
     def get_map(self, dictionary: dict = None):
@@ -68,7 +68,7 @@ class TransactionDecompose:
         _asset = self._transaction.get("assets")
         if _asset is None:
             return
-        asset_id = _asset["id"] if _asset.get("id") is not None else self._transaction["id"]
+        asset_id = _asset[0]["id"] if _asset[0].get("id") is not None else self._transaction["id"]
         self._tuple_transaction["assets"] = (json.dumps(_asset), self._transaction["id"], asset_id)
 
     def __prepare_inputs(self):
