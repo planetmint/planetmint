@@ -192,22 +192,22 @@ def store_block(connection, block: dict):
 
 @register_query(TarantoolDBConnection)
 def get_txids_filtered(
-    connection, asset_id: str, operation: str = None, last_tx: any = None
+    connection, asset_ids: list[str], operation: str = None, last_tx: any = None
 ):  # TODO here is used 'OR' operator
     actions = {
-        "CREATE": {"sets": ["CREATE", asset_id], "index": "transaction_search"},
+        "CREATE": {"sets": ["CREATE", asset_ids], "index": "transaction_search"},
         # 1 - operation, 2 - id (only in transactions) +
-        "TRANSFER": {"sets": ["TRANSFER", asset_id], "index": "transaction_search"},
+        "TRANSFER": {"sets": ["TRANSFER", asset_ids], "index": "transaction_search"},
         # 1 - operation, 2 - asset.id (linked mode) + OPERATOR OR
-        None: {"sets": [asset_id, asset_id]},
+        None: {"sets": [asset_ids, asset_ids]},
     }[operation]
     _transactions = []
     if actions["sets"][0] == "CREATE":  # +
         _transactions = connection.run(
-            connection.space("transactions").select([operation, asset_id], index=actions["index"])
+            connection.space("transactions").select([operation, asset_ids[0]], index=actions["index"])
         )
     elif actions["sets"][0] == "TRANSFER":  # +
-        _assets = connection.run(connection.space("assets").select([asset_id], index="only_asset_search"))
+        _assets = connection.run(connection.space("assets").select(asset_ids, index="only_asset_search"))
 
         for asset in _assets:
             _txid = asset[1]
@@ -217,8 +217,8 @@ def get_txids_filtered(
             if len(_tmp_transactions) != 0:
                 _transactions.extend(_tmp_transactions)
     else:
-        _tx_ids = connection.run(connection.space("transactions").select([asset_id], index="id_search"))
-        _assets_ids = connection.run(connection.space("assets").select([asset_id], index="only_asset_search"))
+        _tx_ids = connection.run(connection.space("transactions").select(asset_ids, index="id_search"))
+        _assets_ids = connection.run(connection.space("assets").select(asset_ids, index="only_asset_search"))
         return tuple(set([sublist[1] for sublist in _assets_ids] + [sublist[0] for sublist in _tx_ids]))
 
     if last_tx:

@@ -28,15 +28,15 @@ def test_get_txids_filtered(signed_create_tx, signed_transfer_tx, db_conn):
     asset_id = Transaction.get_asset_id([signed_create_tx, signed_transfer_tx])
 
     # Test get by just asset id
-    txids = set(query.get_txids_filtered(connection=db_conn, asset_id=asset_id))
+    txids = set(query.get_txids_filtered(connection=db_conn, asset_ids=[asset_id]))
     assert txids == {signed_create_tx.id, signed_transfer_tx.id}
 
     # Test get by asset and CREATE
-    txids = set(query.get_txids_filtered(connection=db_conn, asset_id=asset_id, operation=Transaction.CREATE))
+    txids = set(query.get_txids_filtered(connection=db_conn, asset_ids=[asset_id], operation=Transaction.CREATE))
     assert txids == {signed_create_tx.id}
 
     # Test get by asset and TRANSFER
-    txids = set(query.get_txids_filtered(connection=db_conn, asset_id=asset_id, operation=Transaction.TRANSFER))
+    txids = set(query.get_txids_filtered(connection=db_conn, asset_ids=[asset_id], operation=Transaction.TRANSFER))
     assert txids == {signed_transfer_tx.id}
 
 

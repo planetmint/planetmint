@@ -37,8 +37,8 @@ def test_eventify_block_works_with_any_transaction():
     block = {"height": 1, "transactions": [tx, tx_transfer]}
 
     expected_events = [
-        {"height": 1, "asset_id": tx.id, "transaction_id": tx.id},
-        {"height": 1, "asset_id": tx_transfer.assets[0]["id"], "transaction_id": tx_transfer.id},
+        {"height": 1, "asset_ids": [tx.id], "transaction_id": tx.id},
+        {"height": 1, "asset_ids": [tx_transfer.assets[0]["id"]], "transaction_id": tx_transfer.id},
     ]
 
     for event, expected in zip(Dispatcher.eventify_block(block), expected_events):
@@ -192,7 +192,7 @@ async def test_websocket_transaction_event(aiohttp_client, event_loop):
         json_result = json.loads(result.data)
         assert json_result["transaction_id"] == tx.id
         # Since the transactions are all CREATEs, asset id == transaction id
-        assert json_result["asset_id"] == tx.id
+        assert json_result["asset_ids"] == [tx.id]
         assert json_result["height"] == block["height"]
 
     await tx_source.put(events.POISON_PILL)

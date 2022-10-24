@@ -397,13 +397,13 @@ def test_transactions_get_list_good(client):
             ["last_tx", None],
             ["operation", None],
         ]
-        url = TX_ENDPOINT + "?asset_id=" + ','.join(asset_ids) + "&operation=CREATE"
+        url = TX_ENDPOINT + "?asset_ids=" + ','.join(asset_ids) + "&operation=CREATE"
         assert client.get(url).json == [
             ["asset_ids", asset_ids],
             ["last_tx", None],
             ["operation", "CREATE"],
         ]
-        url = TX_ENDPOINT + "?asset_id=" + ','.join(asset_ids) + "&last_tx=true"
+        url = TX_ENDPOINT + "?asset_ids=" + ','.join(asset_ids) + "&last_tx=true"
         assert client.get(url).json == [
             ["asset_ids", asset_ids],
             ["last_tx", True],
