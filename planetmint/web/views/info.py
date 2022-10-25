@@ -6,8 +6,8 @@
 """API Index endpoint"""
 
 import flask
-from flask_restful import Resource
 
+from flask_restful import Resource
 from planetmint.web.views.base import base_ws_uri
 from planetmint import version
 from planetmint.web.websocket_server import EVENTS_ENDPOINT, EVENTS_ENDPOINT_BLOCKS

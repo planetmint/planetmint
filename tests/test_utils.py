@@ -4,9 +4,9 @@
 # Code is Apache-2.0 and docs are CC-BY-4.0
 
 import queue
-from unittest.mock import patch, call
-
 import pytest
+
+from unittest.mock import patch, call
 
 
 @pytest.fixture

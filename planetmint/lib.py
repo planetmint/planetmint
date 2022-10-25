@@ -14,19 +14,44 @@ from planetmint.backend.connection import Connection
 
 import rapidjson
 from hashlib import sha3_256
+import json
+import rapidjson
 import requests
-
 import planetmint
+
+from collections import namedtuple, OrderedDict
+from uuid import uuid4
+from hashlib import sha3_256
+from transactions import Transaction, Vote
+from transactions.common.crypto import public_key_from_ed25519_key
+from transactions.common.exceptions import (
+    SchemaValidationError,
+    ValidationError,
+    DuplicateTransaction,
+    InvalidSignature,
+    DoubleSpend,
+    InputDoesNotExist,
+    AssetIdMismatch,
+    AmountError,
+    MultipleInputsError,
+    InvalidProposer,
+    UnequalValidatorSet,
+    InvalidPowerChange,
+)
+from transactions.common.transaction import VALIDATOR_ELECTION, CHAIN_MIGRATION_ELECTION
+from transactions.common.transaction_mode_types import BROADCAST_TX_COMMIT, BROADCAST_TX_ASYNC, BROADCAST_TX_SYNC
+from transactions.types.elections.election import Election
+from transactions.types.elections.validator_utils import election_id_to_public_key
 from planetmint.config import Config
 from planetmint import backend, config_utils, fastquery
-from planetmint.transactions.common.transaction import Transaction
-from planetmint.transactions.common.exceptions import SchemaValidationError, ValidationError, DoubleSpend
-from planetmint.transactions.common.transaction_mode_types import (
-    BROADCAST_TX_COMMIT,
-    BROADCAST_TX_ASYNC,
-    BROADCAST_TX_SYNC,
+from planetmint.tendermint_utils import (
+    encode_transaction,
+    merkleroot,
+    key_from_base64,
+    public_key_to_base64,
+    encode_validator,
+    new_validator_set,
 )
-from planetmint.tendermint_utils import encode_transaction, merkleroot
 from planetmint import exceptions as core_exceptions
 from planetmint.validation import BaseValidationRules
 
@@ -333,7 +358,7 @@ class Planetmint(object):
 
         if block:
             transactions = backend.query.get_transactions(self.connection, block["transactions"])
-            result["transactions"] = [t.to_dict() for t in Transaction.from_db(self, transactions)]
+            result["transactions"] = [t.to_dict() for t in self.tx_from_db(transactions)]
 
         return result
 
@@ -370,7 +395,63 @@ class Planetmint(object):
             except ValidationError as e:
                 logger.warning("Invalid transaction (%s): %s", type(e).__name__, e)
                 return False
-        return transaction.validate(self, current_transactions)
+
+        if transaction.operation == Transaction.CREATE:
+            duplicates = any(txn for txn in current_transactions if txn.id == transaction.id)
+            if self.is_committed(transaction.id) or duplicates:
+                raise DuplicateTransaction("transaction `{}` already exists".format(transaction.id))
+        elif transaction.operation in [Transaction.TRANSFER, Transaction.VOTE]:
+            self.validate_transfer_inputs(transaction, current_transactions)
+
+        return transaction
+
+    def validate_transfer_inputs(self, tx, current_transactions=[]):
+        # store the inputs so that we can check if the asset ids match
+        input_txs = []
+        input_conditions = []
+        for input_ in tx.inputs:
+            input_txid = input_.fulfills.txid
+            input_tx = self.get_transaction(input_txid)
+            if input_tx is None:
+                for ctxn in current_transactions:
+                    if ctxn.id == input_txid:
+                        input_tx = ctxn
+
+            if input_tx is None:
+                raise InputDoesNotExist("input `{}` doesn't exist".format(input_txid))
+
+            spent = self.get_spent(input_txid, input_.fulfills.output, current_transactions)
+            if spent:
+                raise DoubleSpend("input `{}` was already spent".format(input_txid))
+
+            output = input_tx.outputs[input_.fulfills.output]
+            input_conditions.append(output)
+            input_txs.append(input_tx)
+
+        # Validate that all inputs are distinct
+        links = [i.fulfills.to_uri() for i in tx.inputs]
+        if len(links) != len(set(links)):
+            raise DoubleSpend('tx "{}" spends inputs twice'.format(tx.id))
+
+        # validate asset id
+        asset_id = tx.get_asset_id(input_txs)
+        if asset_id != tx.asset["id"]:
+            raise AssetIdMismatch(("The asset id of the input does not" " match the asset id of the" " transaction"))
+
+        if not tx.inputs_valid(input_conditions):
+            raise InvalidSignature("Transaction signature is invalid.")
+
+        input_amount = sum([input_condition.amount for input_condition in input_conditions])
+        output_amount = sum([output_condition.amount for output_condition in tx.outputs])
+
+        if output_amount != input_amount:
+            raise AmountError(
+                (
+                    "The amount used in the inputs `{}`" " needs to be same as the amount used" " in the outputs `{}`"
+                ).format(input_amount, output_amount)
+            )
+
+        return True
 
     def is_valid_transaction(self, tx, current_transactions=[]):
         # NOTE: the function returns the Transaction object in case
@@ -421,11 +502,11 @@ class Planetmint(object):
     def fastquery(self):
         return fastquery.FastQuery(self.connection)
 
-    def get_validator_change(self, height=None):
+    def get_validator_set(self, height=None):
         return backend.query.get_validator_set(self.connection, height)
 
     def get_validators(self, height=None):
-        result = self.get_validator_change(height)
+        result = self.get_validator_set(height)
         return [] if result is None else result["validators"]
 
     def get_election(self, election_id):
@@ -488,6 +569,399 @@ class Planetmint(object):
 
     def delete_elections(self, height):
         return backend.query.delete_elections(self.connection, height)
+
+    def tx_from_db(self, tx_dict_list):
+        """Helper method that reconstructs a transaction dict that was returned
+        from the database. It checks what asset_id to retrieve, retrieves the
+        asset from the asset table and reconstructs the transaction.
+
+        Args:
+            tx_dict_list (:list:`dict` or :obj:`dict`): The transaction dict or
+                list of transaction dict as returned from the database.
+
+        Returns:
+            :class:`~Transaction`
+
+        """
+        return_list = True
+        if isinstance(tx_dict_list, dict):
+            tx_dict_list = [tx_dict_list]
+            return_list = False
+
+        tx_map = {}
+        tx_ids = []
+        for tx in tx_dict_list:
+            tx.update({"metadata": None})
+            tx_map[tx["id"]] = tx
+            tx_ids.append(tx["id"])
+
+        assets = list(self.get_assets(tx_ids))
+        for asset in assets:
+            if asset is not None:
+                # This is tarantool specific behaviour needs to be addressed
+                tx = tx_map[asset[1]]
+                tx["asset"] = asset[0]
+
+        tx_ids = list(tx_map.keys())
+        metadata_list = list(self.get_metadata(tx_ids))
+        for metadata in metadata_list:
+            if "id" in metadata:
+                tx = tx_map[metadata["id"]]
+                tx.update({"metadata": metadata.get("metadata")})
+
+        if return_list:
+            tx_list = []
+            for tx_id, tx in tx_map.items():
+                tx_list.append(Transaction.from_dict(tx))
+            return tx_list
+        else:
+            tx = list(tx_map.values())[0]
+            return Transaction.from_dict(tx)
+
+    # NOTE: moved here from Election needs to be placed somewhere else
+    def get_validators_dict(self, height=None):
+        """Return a dictionary of validators with key as `public_key` and
+        value as the `voting_power`
+        """
+        validators = {}
+        for validator in self.get_validators(height):
+            # NOTE: we assume that Tendermint encodes public key in base64
+            public_key = public_key_from_ed25519_key(key_from_base64(validator["public_key"]["value"]))
+            validators[public_key] = validator["voting_power"]
+
+        return validators
+
+    def validate_election(self, transaction, current_transactions=[]):  # TODO: move somewhere else
+        """Validate election transaction
+
+        NOTE:
+        * A valid election is initiated by an existing validator.
+
+        * A valid election is one where voters are validators and votes are
+          allocated according to the voting power of each validator node.
+
+        Args:
+            :param planet: (Planetmint) an instantiated planetmint.lib.Planetmint object.
+            :param current_transactions: (list) A list of transactions to be validated along with the election
+
+        Returns:
+            Election: a Election object or an object of the derived Election subclass.
+
+        Raises:
+            ValidationError: If the election is invalid
+        """
+
+        duplicates = any(txn for txn in current_transactions if txn.id == transaction.id)
+        if self.is_committed(transaction.id) or duplicates:
+            raise DuplicateTransaction("transaction `{}` already exists".format(transaction.id))
+
+        current_validators = self.get_validators_dict()
+
+        # NOTE: Proposer should be a single node
+        if len(transaction.inputs) != 1 or len(transaction.inputs[0].owners_before) != 1:
+            raise MultipleInputsError("`tx_signers` must be a list instance of length one")
+
+        # NOTE: Check if the proposer is a validator.
+        [election_initiator_node_pub_key] = transaction.inputs[0].owners_before
+        if election_initiator_node_pub_key not in current_validators.keys():
+            raise InvalidProposer("Public key is not a part of the validator set")
+
+        # NOTE: Check if all validators have been assigned votes equal to their voting power
+        if not self.is_same_topology(current_validators, transaction.outputs):
+            raise UnequalValidatorSet("Validator set much be exactly same to the outputs of election")
+
+        if transaction.operation == VALIDATOR_ELECTION:
+            self.validate_validator_election(transaction)
+
+        return transaction
+
+    def validate_validator_election(self, transaction):  # TODO: move somewhere else
+        """For more details refer BEP-21: https://github.com/planetmint/BEPs/tree/master/21"""
+
+        current_validators = self.get_validators_dict()
+
+        # NOTE: change more than 1/3 of the current power is not allowed
+        if transaction.asset["data"]["power"] >= (1 / 3) * sum(current_validators.values()):
+            raise InvalidPowerChange("`power` change must be less than 1/3 of total power")
+
+    def get_election_status(self, transaction):
+        election = self.get_election(transaction.id)
+        if election and election["is_concluded"]:
+            return Election.CONCLUDED
+
+        return Election.INCONCLUSIVE if self.has_validator_set_changed(transaction) else Election.ONGOING
+
+    def has_validator_set_changed(self, transaction):  # TODO: move somewhere else
+        latest_change = self.get_validator_change()
+        if latest_change is None:
+            return False
+
+        latest_change_height = latest_change["height"]
+
+        election = self.get_election(transaction.id)
+
+        return latest_change_height > election["height"]
+
+    def get_validator_change(self):  # TODO: move somewhere else
+        """Return the validator set from the most recent approved block
+
+        :return: {
+            'height': <block_height>,
+            'validators': <validator_set>
+        }
+        """
+        latest_block = self.get_latest_block()
+        if latest_block is None:
+            return None
+        return self.get_validator_set(latest_block["height"])
+
+    def get_validator_dict(self, height=None):
+        """Return a dictionary of validators with key as `public_key` and
+        value as the `voting_power`
+        """
+        validators = {}
+        for validator in self.get_validators(height):
+            # NOTE: we assume that Tendermint encodes public key in base64
+            public_key = public_key_from_ed25519_key(key_from_base64(validator["public_key"]["value"]))
+            validators[public_key] = validator["voting_power"]
+
+        return validators
+
+    def get_recipients_list(self):
+        """Convert validator dictionary to a recipient list for `Transaction`"""
+
+        recipients = []
+        for public_key, voting_power in self.get_validator_dict().items():
+            recipients.append(([public_key], voting_power))
+
+        return recipients
+
+    def show_election_status(self, transaction):
+        data = transaction.asset["data"]
+        if "public_key" in data.keys():
+            data["public_key"] = public_key_to_base64(data["public_key"]["value"])
+        response = ""
+        for k, v in data.items():
+            if k != "seed":
+                response += f"{k}={v}\n"
+        response += f"status={self.get_election_status(transaction)}"
+
+        if transaction.operation == CHAIN_MIGRATION_ELECTION:
+            response = self.append_chain_migration_status(response)
+
+        return response
+
+    def append_chain_migration_status(self, status):
+        chain = self.get_latest_abci_chain()
+        if chain is None or chain["is_synced"]:
+            return status
+
+        status += f'\nchain_id={chain["chain_id"]}'
+        block = self.get_latest_block()
+        status += f'\napp_hash={block["app_hash"]}'
+        validators = [
+            {
+                "pub_key": {
+                    "type": "tendermint/PubKeyEd25519",
+                    "value": k,
+                },
+                "power": v,
+            }
+            for k, v in self.get_validator_dict().items()
+        ]
+        status += f"\nvalidators={json.dumps(validators, indent=4)}"
+        return status
+
+    def is_same_topology(cls, current_topology, election_topology):
+        voters = {}
+        for voter in election_topology:
+            if len(voter.public_keys) > 1:
+                return False
+
+            [public_key] = voter.public_keys
+            voting_power = voter.amount
+            voters[public_key] = voting_power
+
+        # Check whether the voters and their votes is same to that of the
+        # validators and their voting power in the network
+        return current_topology == voters
+
+    def count_votes(self, election_pk, transactions, getter=getattr):
+        votes = 0
+        for txn in transactions:
+            if getter(txn, "operation") == Vote.OPERATION:
+                for output in getter(txn, "outputs"):
+                    # NOTE: We enforce that a valid vote to election id will have only
+                    # election_pk in the output public keys, including any other public key
+                    # along with election_pk will lead to vote being not considered valid.
+                    if len(getter(output, "public_keys")) == 1 and [election_pk] == getter(output, "public_keys"):
+                        votes = votes + int(getter(output, "amount"))
+        return votes
+
+    def get_commited_votes(self, transaction, election_pk=None):  # TODO: move somewhere else
+        if election_pk is None:
+            election_pk = election_id_to_public_key(transaction.id)
+        txns = list(backend.query.get_asset_tokens_for_public_key(self.connection, transaction.id, election_pk))
+        return self.count_votes(election_pk, txns, dict.get)
+
+    def _get_initiated_elections(self, height, txns):  # TODO: move somewhere else
+        elections = []
+        for tx in txns:
+            if not isinstance(tx, Election):
+                continue
+
+            elections.append({"election_id": tx.id, "height": height, "is_concluded": False})
+        return elections
+
+    def _get_votes(self, txns):  # TODO: move somewhere else
+        elections = OrderedDict()
+        for tx in txns:
+            if not isinstance(tx, Vote):
+                continue
+
+            election_id = tx.asset["id"]
+            if election_id not in elections:
+                elections[election_id] = []
+            elections[election_id].append(tx)
+        return elections
+
+    def process_block(self, new_height, txns):  # TODO: move somewhere else
+        """Looks for election and vote transactions inside the block, records
+        and processes elections.
+
+        Every election is recorded in the database.
+
+        Every vote has a chance to conclude the corresponding election. When
+        an election is concluded, the corresponding database record is
+        marked as such.
+
+        Elections and votes are processed in the order in which they
+        appear in the block. Elections are concluded in the order of
+        appearance of their first votes in the block.
+
+        For every election concluded in the block, calls its `on_approval`
+        method. The returned value of the last `on_approval`, if any,
+        is a validator set update to be applied in one of the following blocks.
+
+        `on_approval` methods are implemented by elections of particular type.
+        The method may contain side effects but should be idempotent. To account
+        for other concluded elections, if it requires so, the method should
+        rely on the database state.
+        """
+        # elections initiated in this block
+        initiated_elections = self._get_initiated_elections(new_height, txns)
+
+        if initiated_elections:
+            self.store_elections(initiated_elections)
+
+        # elections voted for in this block and their votes
+        elections = self._get_votes(txns)
+
+        validator_update = None
+        for election_id, votes in elections.items():
+            election = self.get_transaction(election_id)
+            if election is None:
+                continue
+
+            if not self.has_election_concluded(election, votes):
+                continue
+
+            validator_update = self.approve_election(election, new_height)
+            self.store_election(election.id, new_height, is_concluded=True)
+
+        return [validator_update] if validator_update else []
+
+    def has_election_concluded(self, transaction, current_votes=[]):  # TODO: move somewhere else
+        """Check if the election can be concluded or not.
+
+        * Elections can only be concluded if the validator set has not changed
+          since the election was initiated.
+        * Elections can be concluded only if the current votes form a supermajority.
+
+        Custom elections may override this function and introduce additional checks.
+        """
+        if self.has_validator_set_changed(transaction):
+            return False
+
+        if transaction.operation == VALIDATOR_ELECTION:
+            if not self.has_validator_election_concluded():
+                return False
+
+        if transaction.operation == CHAIN_MIGRATION_ELECTION:
+            if not self.has_chain_migration_concluded():
+                return False
+
+        election_pk = election_id_to_public_key(transaction.id)
+        votes_committed = self.get_commited_votes(transaction, election_pk)
+        votes_current = self.count_votes(election_pk, current_votes)
+
+        total_votes = sum(output.amount for output in transaction.outputs)
+        if (votes_committed < (2 / 3) * total_votes) and (votes_committed + votes_current >= (2 / 3) * total_votes):
+            return True
+
+        return False
+
+    def has_validator_election_concluded(self):  # TODO: move somewhere else
+        latest_block = self.get_latest_block()
+        if latest_block is not None:
+            latest_block_height = latest_block["height"]
+            latest_validator_change = self.get_validator_set()["height"]
+
+            # TODO change to `latest_block_height + 3` when upgrading to Tendermint 0.24.0.
+            if latest_validator_change == latest_block_height + 2:
+                # do not conclude the election if there is a change assigned already
+                return False
+
+        return True
+
+    def has_chain_migration_concluded(self):  # TODO: move somewhere else
+        chain = self.get_latest_abci_chain()
+        if chain is not None and not chain["is_synced"]:
+            # do not conclude the migration election if
+            # there is another migration in progress
+            return False
+
+        return True
+
+    def rollback_election(self, new_height, txn_ids):  # TODO: move somewhere else
+        """Looks for election and vote transactions inside the block and
+        cleans up the database artifacts possibly created in `process_blocks`.
+
+        Part of the `end_block`/`commit` crash recovery.
+        """
+
+        # delete election records for elections initiated at this height and
+        # elections concluded at this height
+        self.delete_elections(new_height)
+
+        txns = [self.get_transaction(tx_id) for tx_id in txn_ids]
+
+        elections = self._get_votes(txns)
+        for election_id in elections:
+            election = self.get_transaction(election_id)
+            if election.operation == VALIDATOR_ELECTION:
+                # TODO change to `new_height + 2` when upgrading to Tendermint 0.24.0.
+                self.delete_validator_set(new_height + 1)
+            if election.operation == CHAIN_MIGRATION_ELECTION:
+                self.delete_abci_chain(new_height)
+
+    def approve_election(self, election, new_height):
+        """Override to update the database state according to the
+        election rules. Consider the current database state to account for
+        other concluded elections, if required.
+        """
+        if election.operation == CHAIN_MIGRATION_ELECTION:
+            self.migrate_abci_chain()
+        if election.operation == VALIDATOR_ELECTION:
+            validator_updates = [election.asset["data"]]
+            curr_validator_set = self.get_validators(new_height)
+            updated_validator_set = new_validator_set(curr_validator_set, validator_updates)
+
+            updated_validator_set = [v for v in updated_validator_set if v["voting_power"] > 0]
+
+            # TODO change to `new_height + 2` when upgrading to Tendermint 0.24.0.
+            self.store_validator_set(new_height + 1, updated_validator_set)
+            return encode_validator(election.asset["data"])
 
 
 Block = namedtuple("Block", ("app_hash", "height", "transactions"))

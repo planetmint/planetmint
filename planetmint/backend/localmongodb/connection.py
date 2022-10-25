@@ -9,7 +9,7 @@ import pymongo
 
 from planetmint.config import Config
 from planetmint.backend.exceptions import DuplicateKeyError, OperationError, ConnectionError
-from planetmint.transactions.common.exceptions import ConfigurationError
+from transactions.common.exceptions import ConfigurationError
 from planetmint.utils import Lazy
 from planetmint.backend.connection import DBConnection, _kwargs_parser
 

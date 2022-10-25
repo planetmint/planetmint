@@ -3,13 +3,9 @@
 # SPDX-License-Identifier: (Apache-2.0 AND CC-BY-4.0)
 # Code is Apache-2.0 and docs are CC-BY-4.0
 
-import planetmint
-import logging
-
-from planetmint.transactions.common.exceptions import ConfigurationError
+from transactions.common.exceptions import ConfigurationError
 from logging.config import dictConfig as set_logging_config
 from planetmint.config import Config, DEFAULT_LOGGING_CONFIG
-import os
 
 
 def _normalize_log_level(level):

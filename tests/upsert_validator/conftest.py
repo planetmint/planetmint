@@ -2,24 +2,24 @@
 # Planetmint and IPDB software contributors.
 # SPDX-License-Identifier: (Apache-2.0 AND CC-BY-4.0)
 # Code is Apache-2.0 and docs are CC-BY-4.0
-from unittest.mock import patch
 
 import pytest
 
+from unittest.mock import patch
 from planetmint.backend import query
-from planetmint.upsert_validator import ValidatorElection
+from transactions.types.elections.validator_election import ValidatorElection
 
 
 @pytest.fixture
 def valid_upsert_validator_election_b(b, node_key, new_validator):
-    voters = ValidatorElection.recipients(b)
+    voters = b.get_recipients_list()
     return ValidatorElection.generate([node_key.public_key], voters, new_validator, None).sign([node_key.private_key])
 
 
 @pytest.fixture
-@patch("planetmint.transactions.types.elections.election.uuid4", lambda: "mock_uuid4")
+@patch("transactions.types.elections.election.uuid4", lambda: "mock_uuid4")
 def fixed_seed_election(b_mock, node_key, new_validator):
-    voters = ValidatorElection.recipients(b_mock)
+    voters = b_mock.get_recipients_list()
     return ValidatorElection.generate([node_key.public_key], voters, new_validator, None).sign([node_key.private_key])
 
 

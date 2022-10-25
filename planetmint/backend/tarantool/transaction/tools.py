@@ -1,7 +1,8 @@
-from secrets import token_hex
 import copy
 import json
-from planetmint.transactions.common.memoize import HDict
+
+from secrets import token_hex
+from transactions.common.memoize import HDict
 
 
 def get_items(_list):

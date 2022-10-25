@@ -21,11 +21,11 @@ import copy
 import json
 import logging
 import collections.abc
+
 from functools import lru_cache
 from pkg_resources import iter_entry_points, ResolutionError
-
 from planetmint.config import Config
-from planetmint.transactions.common import exceptions
+from transactions.common import exceptions
 from planetmint.validation import BaseValidationRules
 
 # TODO: move this to a proper configuration file for logging

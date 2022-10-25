@@ -4,18 +4,16 @@
 # Code is Apache-2.0 and docs are CC-BY-4.0
 
 """Query implementation for Tarantool"""
+import json
+
 from secrets import token_hex
 from hashlib import sha256
 from operator import itemgetter
-import json
-
 from tarantool.error import DatabaseError
-
 from planetmint.backend import query
 from planetmint.backend.utils import module_dispatch_registrar
 from planetmint.backend.tarantool.connection import TarantoolDBConnection
 from planetmint.backend.tarantool.transaction.tools import TransactionCompose, TransactionDecompose
-from json import dumps, loads
 
 
 register_query = module_dispatch_registrar(query)
@@ -325,7 +323,7 @@ def store_unspent_outputs(connection, *unspent_outputs: list):
     if unspent_outputs:
         for utxo in unspent_outputs:
             output = connection.run(
-                connection.space("utxos").insert((utxo["transaction_id"], utxo["output_index"], dumps(utxo)))
+                connection.space("utxos").insert((utxo["transaction_id"], utxo["output_index"], json.dumps(utxo)))
             )
             result.append(output)
     return result
@@ -344,7 +342,7 @@ def delete_unspent_outputs(connection, *unspent_outputs: list):
 @register_query(TarantoolDBConnection)
 def get_unspent_outputs(connection, query=None):  # for now we don't have implementation for 'query'.
     _utxos = connection.run(connection.space("utxos").select([]))
-    return [loads(utx[2]) for utx in _utxos]
+    return [json.loads(utx[2]) for utx in _utxos]
 
 
 @register_query(TarantoolDBConnection)
@@ -459,7 +457,7 @@ def get_asset_tokens_for_public_key(
 
 @register_query(TarantoolDBConnection)
 def store_abci_chain(connection, height: int, chain_id: str, is_synced: bool = True):
-    hash_id_primarykey = sha256(dumps(obj={"height": height}).encode()).hexdigest()
+    hash_id_primarykey = sha256(json.dumps(obj={"height": height}).encode()).hexdigest()
     connection.run(
         connection.space("abci_chains").upsert(
             (height, is_synced, chain_id, hash_id_primarykey),
@@ -471,7 +469,7 @@ def store_abci_chain(connection, height: int, chain_id: str, is_synced: bool = T
 
 @register_query(TarantoolDBConnection)
 def delete_abci_chain(connection, height: int):
-    hash_id_primarykey = sha256(dumps(obj={"height": height}).encode()).hexdigest()
+    hash_id_primarykey = sha256(json.dumps(obj={"height": height}).encode()).hexdigest()
     connection.run(connection.space("abci_chains").delete(hash_id_primarykey), only_data=False)
 
 

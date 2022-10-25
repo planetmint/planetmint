@@ -3,9 +3,9 @@
 # SPDX-License-Identifier: (Apache-2.0 AND CC-BY-4.0)
 # Code is Apache-2.0 and docs are CC-BY-4.0
 
-from argparse import Namespace
 import pytest
 
+from argparse import Namespace
 from planetmint.config import Config
 
 
@@ -39,7 +39,7 @@ def mock_processes_start(monkeypatch):
 
 @pytest.fixture
 def mock_generate_key_pair(monkeypatch):
-    monkeypatch.setattr("planetmint.transactions.common.crypto.generate_key_pair", lambda: ("privkey", "pubkey"))
+    monkeypatch.setattr("transactions.common.crypto.generate_key_pair", lambda: ("privkey", "pubkey"))
 
 
 @pytest.fixture

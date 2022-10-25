@@ -12,9 +12,9 @@ import builtins
 import functools
 import multiprocessing as mp
 import sys
-
 import planetmint
 import planetmint.config_utils
+
 from planetmint.version import __version__
 
 

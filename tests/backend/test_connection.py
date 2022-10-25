@@ -7,10 +7,11 @@ import pytest
 
 
 def test_get_connection_raises_a_configuration_error(monkeypatch):
-    from planetmint.transactions.common.exceptions import ConfigurationError, ConnectionError
     from planetmint.backend.connection import Connection
     from planetmint.backend.localmongodb.connection import LocalMongoDBConnection
     from planetmint.backend.tarantool.connection import TarantoolDBConnection
+    from transactions.common.exceptions import ConfigurationError
+    
 
     with pytest.raises(ConnectionError):
         LocalMongoDBConnection("localhost", "1337", "mydb", "password")

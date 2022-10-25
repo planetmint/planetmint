@@ -5,7 +5,7 @@
 
 from planetmint.utils import condition_details_has_owner
 from planetmint.backend import query
-from planetmint.transactions.common.transaction import TransactionLink
+from transactions.common.transaction import TransactionLink
 
 
 class FastQuery:

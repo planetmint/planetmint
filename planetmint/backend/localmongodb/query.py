@@ -13,7 +13,7 @@ from planetmint import backend
 from planetmint.backend.exceptions import DuplicateKeyError
 from planetmint.backend.utils import module_dispatch_registrar
 from planetmint.backend.localmongodb.connection import LocalMongoDBConnection
-from planetmint.transactions.common.transaction import Transaction
+from transactions.common.transaction import Transaction
 
 register_query = module_dispatch_registrar(backend.query)
 

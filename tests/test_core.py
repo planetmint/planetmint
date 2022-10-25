@@ -3,29 +3,25 @@
 # SPDX-License-Identifier: (Apache-2.0 AND CC-BY-4.0)
 # Code is Apache-2.0 and docs are CC-BY-4.0
 
-import json
 import pytest
-import random
 
-from tendermint.abci import types_pb2 as types
-from tendermint.crypto import keys_pb2
-
-from planetmint import App
-from planetmint.backend import query
-from planetmint.transactions.common.crypto import generate_key_pair
-from planetmint.core import OkCode, CodeTypeError, rollback
-from planetmint.transactions.types.elections.election import Election
-from planetmint.lib import Block
-from planetmint.transactions.types.elections.chain_migration_election import ChainMigrationElection
-from planetmint.upsert_validator.validator_election import ValidatorElection
-from planetmint.backend.exceptions import ConnectionError
-from planetmint.upsert_validator.validator_utils import new_validator_set
-from planetmint.tendermint_utils import public_key_to_base64
+#from tendermint.abci import types_pb2 as types
+#from tendermint.crypto import keys_pb2
+#
+#from planetmint import App
+#from planetmint.backend import query
+#from planetmint.transactions.common.crypto import generate_key_pair
+#from planetmint.core import OkCode, CodeTypeError, rollback
+#from planetmint.transactions.types.elections.election import Election
+#from planetmint.lib import Block
+#from planetmint.transactions.types.elections.chain_migration_election import ChainMigrationElection
+#from planetmint.upsert_validator.validator_election import ValidatorElection
+#from planetmint.backend.exceptions import ConnectionError
+#from planetmint.upsert_validator.validator_utils import new_validator_set
+#from planetmint.tendermint_utils import public_key_to_base64
 from planetmint.version import __tm_supported_versions__
-from planetmint.transactions.types.assets.create import Create
-from planetmint.transactions.types.assets.transfer import Transfer
-
-from tests.utils import generate_election, generate_validators
+from transactions.types.assets.create import Create
+from transactions.types.assets.transfer import Transfer
 
 
 @pytest.fixture
@@ -58,7 +54,7 @@ def config(request, monkeypatch):
 
 def test_bigchain_class_initialization_with_parameters():
     from planetmint.backend.localmongodb.connection import LocalMongoDBConnection
-    from planetmint.transactions.common.exceptions import ConfigurationError
+    from transactions.common.exceptions import ConfigurationError
 
     init_db_kwargs = {
         "backend": "localmongodb",
@@ -86,7 +82,7 @@ def test_get_spent_issue_1271(b, alice, bob, carol):
         [carol.public_key],
         [([carol.public_key], 8)],
     ).sign([carol.private_key])
-    assert tx_1.validate(b)
+    assert b.validate_transaction(tx_1)
     b.store_bulk_transactions([tx_1])
 
     tx_2 = Transfer.generate(
@@ -94,7 +90,7 @@ def test_get_spent_issue_1271(b, alice, bob, carol):
         [([bob.public_key], 2), ([alice.public_key], 2), ([carol.public_key], 4)],
         asset_id=tx_1.id,
     ).sign([carol.private_key])
-    assert tx_2.validate(b)
+    assert b.validate_transaction(tx_2)
     b.store_bulk_transactions([tx_2])
 
     tx_3 = Transfer.generate(
@@ -102,7 +98,7 @@ def test_get_spent_issue_1271(b, alice, bob, carol):
         [([alice.public_key], 1), ([carol.public_key], 3)],
         asset_id=tx_1.id,
     ).sign([carol.private_key])
-    assert tx_3.validate(b)
+    assert b.validate_transaction(tx_3)
     b.store_bulk_transactions([tx_3])
 
     tx_4 = Transfer.generate(
@@ -110,7 +106,7 @@ def test_get_spent_issue_1271(b, alice, bob, carol):
         [([bob.public_key], 3)],
         asset_id=tx_1.id,
     ).sign([alice.private_key])
-    assert tx_4.validate(b)
+    assert b.validate_transaction(tx_4)
     b.store_bulk_transactions([tx_4])
 
     tx_5 = Transfer.generate(
@@ -118,7 +114,7 @@ def test_get_spent_issue_1271(b, alice, bob, carol):
         [([alice.public_key], 2)],
         asset_id=tx_1.id,
     ).sign([bob.private_key])
-    assert tx_5.validate(b)
+    assert b.validate_transaction(tx_5)
 
     b.store_bulk_transactions([tx_5])
     assert b.get_spent(tx_2.id, 0) == tx_5

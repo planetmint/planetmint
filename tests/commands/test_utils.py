@@ -4,10 +4,10 @@
 # Code is Apache-2.0 and docs are CC-BY-4.0
 
 import argparse
-from argparse import Namespace
 import logging
-
 import pytest
+
+from argparse import Namespace
 from planetmint.config import Config
 from unittest.mock import patch
 
