@@ -35,23 +35,25 @@ def test_asset_is_separated_from_transaciton(b):
     alice = generate_key_pair()
     bob = generate_key_pair()
 
-    assets = [{
-        "data": multihash(
-            marshal(
-                {
-                    "Never gonna": [
-                        "give you up",
-                        "let you down",
-                        "run around" "desert you",
-                        "make you cry",
-                        "say goodbye",
-                        "tell a lie",
-                        "hurt you",
-                    ]
-                }
+    assets = [
+        {
+            "data": multihash(
+                marshal(
+                    {
+                        "Never gonna": [
+                            "give you up",
+                            "let you down",
+                            "run around" "desert you",
+                            "make you cry",
+                            "say goodbye",
+                            "tell a lie",
+                            "hurt you",
+                        ]
+                    }
+                )
             )
-        )
-    }]
+        }
+    ]
 
     tx = Create.generate([alice.public_key], [([bob.public_key], 1)], metadata=None, assets=assets).sign(
         [alice.private_key]
@@ -94,7 +96,9 @@ def test_validation_error(b):
     from transactions.common.crypto import generate_key_pair
 
     alice = generate_key_pair()
-    tx = Create.generate([alice.public_key], [([alice.public_key], 1)], assets=None).sign([alice.private_key]).to_dict()
+    tx = (
+        Create.generate([alice.public_key], [([alice.public_key], 1)], assets=None).sign([alice.private_key]).to_dict()
+    )
 
     tx["metadata"] = ""
     assert not b.validate_transaction(tx)
@@ -106,7 +110,9 @@ def test_write_and_post_transaction(mock_post, b):
     from planetmint.tendermint_utils import encode_transaction
 
     alice = generate_key_pair()
-    tx = Create.generate([alice.public_key], [([alice.public_key], 1)], assets=None).sign([alice.private_key]).to_dict()
+    tx = (
+        Create.generate([alice.public_key], [([alice.public_key], 1)], assets=None).sign([alice.private_key]).to_dict()
+    )
 
     tx = b.validate_transaction(tx)
     b.write_transaction(tx, BROADCAST_TX_ASYNC)
@@ -124,7 +130,9 @@ def test_post_transaction_valid_modes(mock_post, b, mode):
     from transactions.common.crypto import generate_key_pair
 
     alice = generate_key_pair()
-    tx = Create.generate([alice.public_key], [([alice.public_key], 1)], assets=None).sign([alice.private_key]).to_dict()
+    tx = (
+        Create.generate([alice.public_key], [([alice.public_key], 1)], assets=None).sign([alice.private_key]).to_dict()
+    )
     tx = b.validate_transaction(tx)
     b.write_transaction(tx, mode)
 
@@ -137,7 +145,9 @@ def test_post_transaction_invalid_mode(b):
     from transactions.common.exceptions import ValidationError
 
     alice = generate_key_pair()
-    tx = Create.generate([alice.public_key], [([alice.public_key], 1)], assets=None).sign([alice.private_key]).to_dict()
+    tx = (
+        Create.generate([alice.public_key], [([alice.public_key], 1)], assets=None).sign([alice.private_key]).to_dict()
+    )
     tx = b.validate_transaction(tx)
     with pytest.raises(ValidationError):
         b.write_transaction(tx, "nope")
@@ -175,7 +185,13 @@ def test_store_transaction(mocker, b, signed_create_tx, signed_transfer_tx, db_c
         assert utxo["output_index"] == 0
         mocked_store_asset.assert_called_once_with(
             b.connection,
-            [{"data": signed_create_tx.assets[0]["data"], "tx_id": signed_create_tx.id, "asset_ids": [signed_create_tx.id]}],
+            [
+                {
+                    "data": signed_create_tx.assets[0]["data"],
+                    "tx_id": signed_create_tx.id,
+                    "asset_ids": [signed_create_tx.id],
+                }
+            ],
         )
     else:
         mocked_store_asset.assert_called_once_with(
@@ -410,7 +426,9 @@ def test_get_spent_transaction_critical_double_spend(b, alice, bob, carol):
 
     tx = Create.generate([alice.public_key], [([alice.public_key], 1)], assets=assets).sign([alice.private_key])
 
-    tx_transfer = Transfer.generate(tx.to_inputs(), [([bob.public_key], 1)], asset_ids=[tx.id]).sign([alice.private_key])
+    tx_transfer = Transfer.generate(tx.to_inputs(), [([bob.public_key], 1)], asset_ids=[tx.id]).sign(
+        [alice.private_key]
+    )
 
     double_spend = Transfer.generate(tx.to_inputs(), [([carol.public_key], 1)], asset_ids=[tx.id]).sign(
         [alice.private_key]
@@ -447,8 +465,12 @@ def test_validation_with_transaction_buffer(b):
     priv_key, pub_key = generate_key_pair()
 
     create_tx = Create.generate([pub_key], [([pub_key], 10)]).sign([priv_key])
-    transfer_tx = Transfer.generate(create_tx.to_inputs(), [([pub_key], 10)], asset_ids=[create_tx.id]).sign([priv_key])
-    double_spend = Transfer.generate(create_tx.to_inputs(), [([pub_key], 10)], asset_ids=[create_tx.id]).sign([priv_key])
+    transfer_tx = Transfer.generate(create_tx.to_inputs(), [([pub_key], 10)], asset_ids=[create_tx.id]).sign(
+        [priv_key]
+    )
+    double_spend = Transfer.generate(create_tx.to_inputs(), [([pub_key], 10)], asset_ids=[create_tx.id]).sign(
+        [priv_key]
+    )
 
     assert b.is_valid_transaction(create_tx)
     assert b.is_valid_transaction(transfer_tx, [create_tx])

@@ -69,6 +69,7 @@ def get_asset(conn, asset_id):
     except IndexError:
         pass
 
+
 # TODO: pass filter/projection in function call this is not the expected behaviour for a function called get_assets
 @register_query(LocalMongoDBConnection)
 def get_assets(conn, asset_ids):

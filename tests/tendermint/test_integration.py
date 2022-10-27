@@ -117,7 +117,9 @@ def test_post_transaction_responses(tendermint_ws_url, b):
     code, message = b.write_transaction(tx, BROADCAST_TX_COMMIT)
     assert code == 202
 
-    tx_transfer = Transfer.generate(tx.to_inputs(), [([bob.public_key], 1)], asset_ids=[tx.id]).sign([alice.private_key])
+    tx_transfer = Transfer.generate(tx.to_inputs(), [([bob.public_key], 1)], asset_ids=[tx.id]).sign(
+        [alice.private_key]
+    )
 
     code, message = b.write_transaction(tx_transfer, BROADCAST_TX_COMMIT)
     assert code == 202

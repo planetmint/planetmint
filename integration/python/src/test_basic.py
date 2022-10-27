@@ -21,12 +21,14 @@ def test_basic():
     alice = generate_keypair()
 
     # create a digital asset for Alice
-    game_boy_token = [{
-        "data": {
-            "hash": "0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF",
-            "storageID": "0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF",
-        },
-    }]
+    game_boy_token = [
+        {
+            "data": {
+                "hash": "0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF",
+                "storageID": "0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF",
+            },
+        }
+    ]
 
     # prepare the transaction with the digital asset and issue 10 tokens to bob
     prepared_creation_tx = pm_alpha.transactions.prepare(
@@ -37,7 +39,8 @@ def test_basic():
         },
         signers=alice.public_key,
         recipients=[([alice.public_key], 10)],
-        assets=game_boy_token)
+        assets=game_boy_token,
+    )
 
     # fulfill and send the transaction
     fulfilled_creation_tx = pm_alpha.transactions.fulfill(prepared_creation_tx, private_keys=alice.private_key)

@@ -287,7 +287,9 @@ def test_deliver_transfer_tx__double_spend_fails(b, init_chain_request):
     result = app.deliver_tx(encode_tx_to_bytes(tx))
     assert result.code == OkCode
 
-    tx_transfer = Transfer.generate(tx.to_inputs(), [([bob.public_key], 1)], asset_ids=[tx.id]).sign([alice.private_key])
+    tx_transfer = Transfer.generate(tx.to_inputs(), [([bob.public_key], 1)], asset_ids=[tx.id]).sign(
+        [alice.private_key]
+    )
 
     result = app.deliver_tx(encode_tx_to_bytes(tx_transfer))
     assert result.code == OkCode
@@ -337,7 +339,9 @@ def test_store_pre_commit_state_in_end_block(b, alice, init_chain_request):
     from planetmint.backend import query
 
     tx = Create.generate(
-        [alice.public_key], [([alice.public_key], 1)], assets=[{"data": "QmaozNR7DZHQK1ZcU9p7QdrshMvXqWK6gpu5rmrkPdT3L4"}]
+        [alice.public_key],
+        [([alice.public_key], 1)],
+        assets=[{"data": "QmaozNR7DZHQK1ZcU9p7QdrshMvXqWK6gpu5rmrkPdT3L4"}],
     ).sign([alice.private_key])
 
     app = App(b)
@@ -379,7 +383,9 @@ def test_rollback_pre_commit_state_after_crash(b):
     private_key = validators[0]["private_key"]
     voter_keys = [v["private_key"] for v in validators]
 
-    migration_election, votes = generate_election(b, ChainMigrationElection, public_key, private_key, [{"data": {}}], voter_keys)
+    migration_election, votes = generate_election(
+        b, ChainMigrationElection, public_key, private_key, [{"data": {}}], voter_keys
+    )
 
     total_votes = votes
     txs = [migration_election, *votes]

@@ -30,9 +30,9 @@ def test_upsert_validator_valid_election_vote(b_mock, valid_upsert_validator_ele
 
     election_pub_key = election_id_to_public_key(valid_upsert_validator_election.id)
 
-    vote = Vote.generate([input0], [([election_pub_key], votes)], election_ids=[valid_upsert_validator_election.id]).sign(
-        [key0.private_key]
-    )
+    vote = Vote.generate(
+        [input0], [([election_pub_key], votes)], election_ids=[valid_upsert_validator_election.id]
+    ).sign([key0.private_key])
     assert b_mock.validate_transaction(vote)
 
 
@@ -230,13 +230,15 @@ def test_upsert_validator(b, node_key, node_keys, ed25519_node_keys):
     power = 1
     public_key = "9B3119650DF82B9A5D8A12E38953EA47475C09F0C48A4E6A0ECE182944B24403"
     public_key64 = public_key_to_base64(public_key)
-    new_validator = [{
-        "data": {
-            "public_key": {"value": public_key, "type": "ed25519-base16"},
-            "node_id": "some_node_id",
-            "power": power,
+    new_validator = [
+        {
+            "data": {
+                "public_key": {"value": public_key, "type": "ed25519-base16"},
+                "node_id": "some_node_id",
+                "power": power,
+            }
         }
-    }]
+    ]
 
     voters = b.get_recipients_list()
     election = ValidatorElection.generate([node_key.public_key], voters, new_validator, None).sign(
@@ -272,13 +274,15 @@ def test_get_validator_update(b, node_keys, node_key, ed25519_node_keys):
     power = 1
     public_key = "9B3119650DF82B9A5D8A12E38953EA47475C09F0C48A4E6A0ECE182944B24403"
     public_key64 = public_key_to_base64(public_key)
-    new_validator = [{
-        "data": {
-            "public_key": {"value": public_key, "type": "ed25519-base16"},
-            "node_id": "some_node_id",
-            "power": power,
+    new_validator = [
+        {
+            "data": {
+                "public_key": {"value": public_key, "type": "ed25519-base16"},
+                "node_id": "some_node_id",
+                "power": power,
+            }
         }
-    }]
+    ]
     voters = b.get_recipients_list()
     election = ValidatorElection.generate([node_key.public_key], voters, new_validator).sign([node_key.private_key])
     # store election
@@ -302,13 +306,15 @@ def test_get_validator_update(b, node_keys, node_key, ed25519_node_keys):
 
     # remove validator
     power = 0
-    new_validator = [{
-        "data":{ 
-            "public_key": {"value": public_key, "type": "ed25519-base16"},
-            "node_id": "some_node_id",
-            "power": power,
+    new_validator = [
+        {
+            "data": {
+                "public_key": {"value": public_key, "type": "ed25519-base16"},
+                "node_id": "some_node_id",
+                "power": power,
+            }
         }
-    }]
+    ]
     voters = b.get_recipients_list()
     election = ValidatorElection.generate([node_key.public_key], voters, new_validator).sign([node_key.private_key])
     # store election

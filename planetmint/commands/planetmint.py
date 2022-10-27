@@ -153,13 +153,15 @@ def run_election_new_upsert_validator(args, planet):
     :return: election_id or `False` in case of failure
     """
 
-    new_validator = [{
-        "data": {
-            "public_key": {"value": public_key_from_base64(args.public_key), "type": "ed25519-base16"},
-            "power": args.power,
-            "node_id": args.node_id,
+    new_validator = [
+        {
+            "data": {
+                "public_key": {"value": public_key_from_base64(args.public_key), "type": "ed25519-base16"},
+                "power": args.power,
+                "node_id": args.node_id,
+            }
         }
-    }]
+    ]
 
     return create_new_election(args.sk, planet, ValidatorElection, new_validator)
 

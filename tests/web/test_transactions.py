@@ -365,7 +365,9 @@ def test_post_wrong_asset_division_transfer_returns_400(b, client, user_pk):
     res = client.post(TX_ENDPOINT + "?mode=commit", data=json.dumps(create_tx.to_dict()))
     assert res.status_code == 202
 
-    transfer_tx = Transfer.generate(create_tx.to_inputs(), [([pub_key], 20)], asset_ids=[create_tx.id]).sign(  # 20 > 10
+    transfer_tx = Transfer.generate(
+        create_tx.to_inputs(), [([pub_key], 20)], asset_ids=[create_tx.id]
+    ).sign(  # 20 > 10
         [priv_key]
     )
     res = client.post(TX_ENDPOINT + "?mode=commit", data=json.dumps(transfer_tx.to_dict()))
@@ -391,19 +393,19 @@ def test_transactions_get_list_good(client):
     asset_ids = ["1" * 64]
 
     with patch("planetmint.Planetmint.get_transactions_filtered", get_txs_patched):
-        url = TX_ENDPOINT + "?asset_ids=" + ','.join(asset_ids)
+        url = TX_ENDPOINT + "?asset_ids=" + ",".join(asset_ids)
         assert client.get(url).json == [
             ["asset_ids", asset_ids],
             ["last_tx", None],
             ["operation", None],
         ]
-        url = TX_ENDPOINT + "?asset_ids=" + ','.join(asset_ids) + "&operation=CREATE"
+        url = TX_ENDPOINT + "?asset_ids=" + ",".join(asset_ids) + "&operation=CREATE"
         assert client.get(url).json == [
             ["asset_ids", asset_ids],
             ["last_tx", None],
             ["operation", "CREATE"],
         ]
-        url = TX_ENDPOINT + "?asset_ids=" + ','.join(asset_ids) + "&last_tx=true"
+        url = TX_ENDPOINT + "?asset_ids=" + ",".join(asset_ids) + "&last_tx=true"
         assert client.get(url).json == [
             ["asset_ids", asset_ids],
             ["last_tx", True],

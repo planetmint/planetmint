@@ -18,6 +18,7 @@ def test_asset_transfer(b, signed_create_tx, user_pk, user_sk):
     assert b.validate_transaction(tx_transfer_signed) == tx_transfer_signed
     assert tx_transfer_signed.assets[0]["id"] == signed_create_tx.id
 
+
 # NOTE: TO BE REMOVED BECAUSE V3.0 ALLOWS FOR MULTIPLE ASSETS THEREFOR MULTIPLE ASSET IDS
 # def test_validate_transfer_asset_id_mismatch(b, signed_create_tx, user_pk, user_sk):
 #     from planetmint.transactions.common.exceptions import AssetIdMismatch

@@ -48,16 +48,18 @@ def test_divisible_assets():
     # the description, Bob and Alice agree that each token can be used to ride
     # the bike for one hour.
 
-    bike_token = [{
-        "data": multihash(
-            marshal(
-                {
-                    "token_for": {"bike": {"serial_number": 420420}},
-                    "description": "Time share token. Each token equals one hour of riding.",
-                }
-            )
-        ),
-    }]
+    bike_token = [
+        {
+            "data": multihash(
+                marshal(
+                    {
+                        "token_for": {"bike": {"serial_number": 420420}},
+                        "description": "Time share token. Each token equals one hour of riding.",
+                    }
+                )
+            ),
+        }
+    ]
 
     # She prepares a `CREATE` transaction and issues 10 tokens.
     # Here, Alice defines in a tuple that she wants to assign

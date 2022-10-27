@@ -250,15 +250,12 @@ class Planetmint(object):
     def get_transaction(self, transaction_id):
         transaction = backend.query.get_transaction(self.connection, transaction_id)
         if transaction:
-            # TODO: get_assets is used with transaction_id this will not work with the asset change
-            # assets = backend.query.get_assets(self.connection, [transaction_id])
+            assets = backend.query.get_assets(self.connection, [transaction_id])
             metadata = backend.query.get_metadata(self.connection, [transaction_id])
             # NOTE: assets must not be replaced for transfer transactions
-            # TODO: check if this holds true for other tx types, some test cases connected to election and voting are still failing
             # NOTE: assets should be appended for all txs that define new assets otherwise the ids are already stored in tx
-            # if transaction["operation"] != "TRANSFER" and transaction["operation"] != "VOTE" and assets:
-                # transaction["assets"] = list(assets)
-                # transaction["assets"] = [asset[0] for asset in assets]
+            if transaction["operation"] != "TRANSFER" and transaction["operation"] != "VOTE" and assets:
+                transaction["assets"] = assets[0][0]
 
             if "metadata" not in transaction:
                 metadata = metadata[0] if metadata else None
