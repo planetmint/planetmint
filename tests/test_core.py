@@ -5,23 +5,10 @@
 
 import pytest
 
-# from tendermint.abci import types_pb2 as types
-# from tendermint.crypto import keys_pb2
-#
-# from planetmint import App
-# from planetmint.backend import query
-# from planetmint.transactions.common.crypto import generate_key_pair
-# from planetmint.core import OkCode, CodeTypeError, rollback
-# from planetmint.transactions.types.elections.election import Election
-# from planetmint.lib import Block
-# from planetmint.transactions.types.elections.chain_migration_election import ChainMigrationElection
-# from planetmint.upsert_validator.validator_election import ValidatorElection
-# from planetmint.backend.exceptions import ConnectionError
-# from planetmint.upsert_validator.validator_utils import new_validator_set
-# from planetmint.tendermint_utils import public_key_to_base64
 from planetmint.version import __tm_supported_versions__
 from transactions.types.assets.create import Create
 from transactions.types.assets.transfer import Transfer
+from transactions.common.exceptions import ConfigurationError
 
 
 @pytest.fixture
@@ -42,7 +29,7 @@ def config(request, monkeypatch):
             "name": "bigchain",
         },
         "tendermint": {
-            "host": "localhost",
+            "host": "tendermint",
             "port": 26657,
         },
         "CONFIGURED": True,
@@ -54,7 +41,6 @@ def config(request, monkeypatch):
 
 def test_bigchain_class_initialization_with_parameters():
     from planetmint.backend.localmongodb.connection import LocalMongoDBConnection
-    from transactions.common.exceptions import ConfigurationError
 
     init_db_kwargs = {
         "backend": "localmongodb",
@@ -78,6 +64,9 @@ def test_bigchain_class_default_initialization(config):
 
 @pytest.mark.bdb
 def test_get_spent_issue_1271(b, alice, bob, carol):
+    from planetmint import Planetmint
+    planet = Planetmint()
+    print( f" CONNECTION HOST : {planet.connection.host}")
     tx_1 = Create.generate(
         [carol.public_key],
         [([carol.public_key], 8)],
