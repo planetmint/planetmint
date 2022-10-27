@@ -5,7 +5,7 @@ import os
 # from planetmint.log import DEFAULT_LOGGING_CONFIG as log_config
 from planetmint.version import __version__  # noqa
 from decouple import config
- 
+
 
 class Singleton(type):
     _instances = {}
@@ -27,7 +27,7 @@ class Config(metaclass=Singleton):
         # _base_database_localmongodb.keys() because dicts are unordered.
         # I tried to configure
         self.log_config = DEFAULT_LOGGING_CONFIG
-        db = config('PLANETMINT_DATABASE_BACKEND', default="tarantool_db")
+        db = config("PLANETMINT_DATABASE_BACKEND", default="tarantool_db")
         self.__private_database_keys_map = {  # TODO Check if it is working after removing 'name' field
             "tarantool_db": ("host", "port"),
             "localmongodb": ("host", "port", "name"),

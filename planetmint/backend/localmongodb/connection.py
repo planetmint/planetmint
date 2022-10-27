@@ -42,7 +42,9 @@ class LocalMongoDBConnection(DBConnection):
         )
         self.crlfile = _kwargs_parser(key="crlfile", kwargs=kwargs) or dbconf["crlfile"]
         self.max_tries = _kwargs_parser(key="max_tries", kwargs=kwargs)
-        self.connection_timeout = _kwargs_parser(key="connection_timeout", kwargs=kwargs) or dbconf["connection_timeout"]
+        self.connection_timeout = (
+            _kwargs_parser(key="connection_timeout", kwargs=kwargs) or dbconf["connection_timeout"]
+        )
         self.__conn = None
         self.connect()
 

@@ -65,8 +65,9 @@ def test_bigchain_class_default_initialization(config):
 @pytest.mark.bdb
 def test_get_spent_issue_1271(b, alice, bob, carol):
     from planetmint import Planetmint
+
     planet = Planetmint()
-    print( f" CONNECTION HOST : {planet.connection.host}")
+    print(f" CONNECTION HOST : {planet.connection.host}")
     tx_1 = Create.generate(
         [carol.public_key],
         [([carol.public_key], 8)],
