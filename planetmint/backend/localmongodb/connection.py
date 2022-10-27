@@ -42,7 +42,7 @@ class LocalMongoDBConnection(DBConnection):
         )
         self.crlfile = _kwargs_parser(key="crlfile", kwargs=kwargs) or dbconf["crlfile"]
         self.max_tries = _kwargs_parser(key="max_tries", kwargs=kwargs)
-        self.connection_timeout = _kwargs_parser(key="connection_timeout", kwargs=kwargs)
+        self.connection_timeout = _kwargs_parser(key="connection_timeout", kwargs=kwargs) or dbconf["connection_timeout"]
         self.__conn = None
         self.connect()
 
@@ -93,7 +93,7 @@ class LocalMongoDBConnection(DBConnection):
                 connecting to the database.
         """
         if self.__conn:
-            return self._conn
+            return self.__conn
         try:
             # FYI: the connection process might raise a
             # `ServerSelectionTimeoutError`, that is a subclass of

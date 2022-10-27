@@ -63,7 +63,7 @@ INDEXES = {
 def create_database(conn, dbname):
     logger.info("Create database `%s`.", dbname)
     # TODO: read and write concerns can be declared here
-    conn.conn.get_database(dbname)
+    conn.connect().get_database(dbname)
 
 
 @register_schema(LocalMongoDBConnection)
@@ -73,7 +73,7 @@ def create_tables(conn, dbname):
         # TODO: read and write concerns can be declared here
         try:
             logger.info(f"Create `{table_name}` table.")
-            conn.conn[dbname].create_collection(table_name)
+            conn.connect()[dbname].create_collection(table_name)
         except CollectionInvalid:
             logger.info(f"Collection {table_name} already exists.")
         create_indexes(conn, dbname, table_name, INDEXES[table_name])
@@ -82,9 +82,9 @@ def create_tables(conn, dbname):
 def create_indexes(conn, dbname, collection, indexes):
     logger.info(f"Ensure secondary indexes for `{collection}`.")
     for fields, kwargs in indexes:
-        conn.conn[dbname][collection].create_index(fields, **kwargs)
+        conn.connect()[dbname][collection].create_index(fields, **kwargs)
 
 
 @register_schema(LocalMongoDBConnection)
 def drop_database(conn, dbname):
-    conn.conn.drop_database(dbname)
+    conn.connect().drop_database(dbname)

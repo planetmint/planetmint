@@ -47,10 +47,10 @@ jobs:
     strategy:
       matrix:
         include:
-          - db: "MongoDB with ABCI"
-            host: "mongodb"
-            port: 27017
-            abci: "enabled"
+          #- db: "MongoDB with ABCI"
+          #  host: "mongodb"
+          #  port: 27017
+          #  abci: "enabled"
           - db: "Tarantool with ABCI"
             host: "tarantool"
             port: 3303
@@ -80,9 +80,9 @@ jobs:
     strategy:
       matrix:
         include:
-          - db: "MongoDB without ABCI"
-            host: "mongodb"
-            port: 27017
+          #- db: "MongoDB without ABCI"
+          #  host: "mongodb"
+          #  port: 27017
           - db: "Tarantool without ABCI"
             host: "tarantool"
             port: 3303
