@@ -39,6 +39,7 @@ def config(request, monkeypatch):
     monkeypatch.setattr("planetmint.config", config)
     return config
 
+
 def test_bigchain_class_default_initialization(config):
     from planetmint import Planetmint
     from planetmint.validation import BaseValidationRules

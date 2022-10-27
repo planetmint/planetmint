@@ -13,11 +13,11 @@ def test_get_connection_raises_a_configuration_error(monkeypatch):
     with pytest.raises(ConnectionError):
         TarantoolDBConnection("localhost", "1337", "mydb", "password")
 
+
 @pytest.mark.skip(reason="we currently do not suppport mongodb.")
 def test_get_connection_raises_a_configuration_error_mongodb(monkeypatch):
     from planetmint.backend.localmongodb.connection import LocalMongoDBConnection
     from transactions.common.exceptions import ConfigurationError
 
     with pytest.raises(ConnectionError):
-       conn = LocalMongoDBConnection("localhost", "1337", "mydb", "password")
-
+        conn = LocalMongoDBConnection("localhost", "1337", "mydb", "password")
