@@ -9,6 +9,7 @@ from planetmint.version import __tm_supported_versions__
 from transactions.types.assets.create import Create
 from transactions.types.assets.transfer import Transfer
 from transactions.common.exceptions import ConfigurationError
+from planetmint.backend.connection import Connection, ConnectionError
 
 
 @pytest.fixture
@@ -38,20 +39,6 @@ def config(request, monkeypatch):
     monkeypatch.setattr("planetmint.config", config)
     return config
 
-
-def test_bigchain_class_initialization_with_parameters():
-    from planetmint.backend.localmongodb.connection import LocalMongoDBConnection
-
-    init_db_kwargs = {
-        "backend": "localmongodb",
-        "host": "this_is_the_db_host",
-        "port": 12345,
-        "name": "this_is_the_db_name",
-    }
-    with pytest.raises(ConfigurationError):
-        LocalMongoDBConnection(**init_db_kwargs)
-
-
 def test_bigchain_class_default_initialization(config):
     from planetmint import Planetmint
     from planetmint.validation import BaseValidationRules
@@ -65,7 +52,8 @@ def test_bigchain_class_default_initialization(config):
 @pytest.mark.bdb
 def test_get_spent_issue_1271(b, alice, bob, carol):
     from planetmint import Planetmint
-
+    connection = Connection()
+    del connection
     planet = Planetmint()
     print(f" CONNECTION HOST : {planet.connection.host}")
     tx_1 = Create.generate(
