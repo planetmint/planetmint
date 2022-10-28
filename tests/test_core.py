@@ -39,7 +39,6 @@ def config(request, monkeypatch):
     monkeypatch.setattr("planetmint.config", config)
     return config
 
-
 def test_bigchain_class_default_initialization(config):
     from planetmint import Planetmint
     from planetmint.validation import BaseValidationRules
@@ -52,7 +51,7 @@ def test_bigchain_class_default_initialization(config):
 
 @pytest.mark.bdb
 def test_get_spent_issue_1271(b, alice, bob, carol):
-
+    b.connection.close()
     tx_1 = Create.generate(
         [carol.public_key],
         [([carol.public_key], 8)],
