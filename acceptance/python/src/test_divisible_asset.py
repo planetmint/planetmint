@@ -48,22 +48,24 @@ def test_divisible_assets():
     # the description, Bob and Alice agree that each token can be used to ride
     # the bike for one hour.
 
-    bike_token = {
-        "data": multihash(
-            marshal(
-                {
-                    "token_for": {"bike": {"serial_number": 420420}},
-                    "description": "Time share token. Each token equals one hour of riding.",
-                }
-            )
-        ),
-    }
+    bike_token = [
+        {
+            "data": multihash(
+                marshal(
+                    {
+                        "token_for": {"bike": {"serial_number": 420420}},
+                        "description": "Time share token. Each token equals one hour of riding.",
+                    }
+                )
+            ),
+        }
+    ]
 
     # She prepares a `CREATE` transaction and issues 10 tokens.
     # Here, Alice defines in a tuple that she wants to assign
     # these 10 tokens to Bob.
     prepared_token_tx = bdb.transactions.prepare(
-        operation="CREATE", signers=alice.public_key, recipients=[([bob.public_key], 10)], asset=bike_token
+        operation="CREATE", signers=alice.public_key, recipients=[([bob.public_key], 10)], assets=bike_token
     )
 
     # She fulfills and sends the transaction.
@@ -86,7 +88,7 @@ def test_divisible_assets():
     # To use the bike he has to send the tokens back to Alice.
     # To learn about the details of transferring a transaction check out
     # [test_basic.py](./test_basic.html)
-    transfer_asset = {"id": bike_token_id}
+    transfer_assets = [{"id": bike_token_id}]
 
     output_index = 0
     output = fulfilled_token_tx["outputs"][output_index]
@@ -100,7 +102,7 @@ def test_divisible_assets():
     # amount he wants to use to Alice.
     prepared_transfer_tx = bdb.transactions.prepare(
         operation="TRANSFER",
-        asset=transfer_asset,
+        asset=transfer_assets,
         inputs=transfer_input,
         recipients=[([alice.public_key], 3), ([bob.public_key], 7)],
     )
@@ -124,7 +126,7 @@ def test_divisible_assets():
     # Now he wants to ride for 8 hours, that's a lot Bob!
     # He prepares the transaction again.
 
-    transfer_asset = {"id": bike_token_id}
+    transfer_asset = [{"id": bike_token_id}]
     # This time we need an `output_index` of 1, since we have two outputs
     # in the `fulfilled_transfer_tx` we created before. The first output with
     # index 0 is for Alice and the second output is for Bob.
@@ -143,7 +145,7 @@ def test_divisible_assets():
     # This time Bob only provides Alice in the `recipients` because he wants
     # to spend all his tokens
     prepared_transfer_tx = bdb.transactions.prepare(
-        operation="TRANSFER", asset=transfer_asset, inputs=transfer_input, recipients=[([alice.public_key], 8)]
+        operation="TRANSFER", assets=transfer_assets, inputs=transfer_input, recipients=[([alice.public_key], 8)]
     )
 
     fulfilled_transfer_tx = bdb.transactions.fulfill(prepared_transfer_tx, private_keys=bob.private_key)

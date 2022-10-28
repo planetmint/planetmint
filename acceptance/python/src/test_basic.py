@@ -42,10 +42,10 @@ def test_basic():
     # ## Alice registers her bike in Planetmint
     # Alice has a nice bike, and here she creates the "digital twin"
     # of her bike.
-    bike = {"data": multihash(marshal({"bicycle": {"serial_number": 420420}}))}
+    bike = [{"data": multihash(marshal({"bicycle": {"serial_number": 420420}}))}]
 
     # She prepares a `CREATE` transaction...
-    prepared_creation_tx = bdb.transactions.prepare(operation="CREATE", signers=alice.public_key, asset=bike)
+    prepared_creation_tx = bdb.transactions.prepare(operation="CREATE", signers=alice.public_key, assets=bike)
 
     # ... and she fulfills it with her private key.
     fulfilled_creation_tx = bdb.transactions.fulfill(prepared_creation_tx, private_keys=alice.private_key)
@@ -71,7 +71,7 @@ def test_basic():
 
     # A `TRANSFER` transaction contains a pointer to the original asset. The original asset
     # is identified by the `id` of the `CREATE` transaction that defined it.
-    transfer_asset = {"id": bike_id}
+    transfer_assets = [{"id": bike_id}]
 
     # Alice wants to spend the one and only output available, the one with index `0`.
     output_index = 0
@@ -91,7 +91,7 @@ def test_basic():
 
     # Now that all the elements are set, she creates the actual transaction...
     prepared_transfer_tx = bdb.transactions.prepare(
-        operation="TRANSFER", asset=transfer_asset, inputs=transfer_input, recipients=bob.public_key
+        operation="TRANSFER", assets=transfer_assets, inputs=transfer_input, recipients=bob.public_key
     )
 
     # ... and signs it with her private key.

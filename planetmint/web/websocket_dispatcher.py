@@ -57,11 +57,11 @@ class Dispatcher:
     @staticmethod
     def eventify_block(block):
         for tx in block["transactions"]:
-            if tx.asset:
-                asset_id = tx.asset.get("id", tx.id)
+            if tx.assets:
+                asset_ids = [asset.get("id", tx.id) for asset in tx.assets]
             else:
-                asset_id = tx.id
-            yield {"height": block["height"], "asset_id": asset_id, "transaction_id": tx.id}
+                asset_ids = [tx.id]
+            yield {"height": block["height"], "asset_ids": asset_ids, "transaction_id": tx.id}
 
     async def publish(self):
         """Publish new events to the subscribers."""

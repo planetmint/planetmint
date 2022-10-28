@@ -108,24 +108,24 @@ def test_transfer_asset_schema(user_sk, signed_transfer_tx):
     tx = signed_transfer_tx.to_dict()
     validate(tx)
     tx["id"] = None
-    tx["asset"]["data"] = {}
+    tx["assets"][0]["data"] = {}
     tx = Transaction.from_dict(tx).sign([user_sk]).to_dict()
     validate_raises(tx)
     tx["id"] = None
-    del tx["asset"]["data"]
-    tx["asset"]["id"] = "b" * 63
+    del tx["assets"][0]["data"]
+    tx["assets"][0]["id"] = "b" * 63
     tx = Transaction.from_dict(tx).sign([user_sk]).to_dict()
     validate_raises(tx)
 
 
 def test_create_tx_no_asset_id(b, create_tx, alice):
-    create_tx.asset["id"] = "b" * 64
+    create_tx.assets[0]["id"] = "b" * 64
     signed_tx = create_tx.sign([alice.private_key])
     validate_raises(signed_tx)
 
 
 def test_create_tx_asset_type(b, create_tx, alice):
-    create_tx.asset["data"] = multihash(marshal({"a": ""}))
+    create_tx.assets[0]["data"] = multihash(marshal({"a": ""}))
     signed_tx = create_tx.sign([alice.private_key])
     validate(signed_tx)
     # validate_raises(signed_tx)
@@ -133,7 +133,7 @@ def test_create_tx_asset_type(b, create_tx, alice):
 
 def test_create_tx_no_asset_data(b, create_tx, alice):
     tx_body = create_tx.to_dict()
-    del tx_body["asset"]["data"]
+    del tx_body["assets"][0]["data"]
     tx_serialized = json.dumps(tx_body, skipkeys=False, sort_keys=True, separators=(",", ":"))
     tx_body["id"] = sha3.sha3_256(tx_serialized.encode()).hexdigest()
     validate_raises(tx_body)
@@ -246,7 +246,7 @@ def test_unsupported_condition_type():
 
 
 def test_validate_version(b, create_tx, alice):
-    create_tx.version = "2.0"
+    create_tx.version = "3.0"
     create_tx.sign([alice.private_key])
     validate(create_tx)
 

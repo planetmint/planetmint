@@ -105,7 +105,7 @@ def test_zenroom_signing(
 
     token_creation_tx = {
         "operation": "CREATE",
-        "asset": {"data": multihash(marshal({"test": "my asset"}))},
+        "assets": [{"data": multihash(marshal({"test": "my asset"}))}],
         "metadata": multihash(marshal(metadata)),
         "script": script_,
         "outputs": [

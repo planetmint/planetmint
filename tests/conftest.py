@@ -282,8 +282,8 @@ def create_tx(alice, user_pk):
     from transactions.types.assets.create import Create
 
     name = f"I am created by the create_tx fixture. My random identifier is {random.random()}."
-    asset = {"data": multihash(marshal({"name": name}))}
-    return Create.generate([alice.public_key], [([user_pk], 1)], asset=asset)
+    assets = [{"data": multihash(marshal({"name": name}))}]
+    return Create.generate([alice.public_key], [([user_pk], 1)], assets=assets)
 
 
 @pytest.fixture
@@ -303,7 +303,7 @@ def signed_transfer_tx(signed_create_tx, user_pk, user_sk):
     from transactions.types.assets.transfer import Transfer
 
     inputs = signed_create_tx.to_inputs()
-    tx = Transfer.generate(inputs, [([user_pk], 1)], asset_id=signed_create_tx.id)
+    tx = Transfer.generate(inputs, [([user_pk], 1)], asset_ids=[signed_create_tx.id])
     return tx.sign([user_sk])
 
 
@@ -312,7 +312,7 @@ def double_spend_tx(signed_create_tx, carol_pubkey, user_sk):
     from transactions.types.assets.transfer import Transfer
 
     inputs = signed_create_tx.to_inputs()
-    tx = Transfer.generate(inputs, [([carol_pubkey], 1)], asset_id=signed_create_tx.id)
+    tx = Transfer.generate(inputs, [([carol_pubkey], 1)], asset_ids=[signed_create_tx.id])
     return tx.sign([user_sk])
 
 
@@ -709,7 +709,9 @@ def new_validator():
     power = 1
     node_id = "fake_node_id"
 
-    return {"public_key": {"value": public_key, "type": "ed25519-base16"}, "power": power, "node_id": node_id}
+    return [
+        {"data": {"public_key": {"value": public_key, "type": "ed25519-base16"}, "power": power, "node_id": node_id}}
+    ]
 
 
 @pytest.fixture

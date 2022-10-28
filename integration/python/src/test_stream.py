@@ -90,7 +90,7 @@ def test_stream():
     for _ in range(10):
         tx = pm.transactions.fulfill(
             pm.transactions.prepare(
-                operation="CREATE", signers=alice.public_key, asset={"data": {"uuid": str(uuid4())}}
+                operation="CREATE", signers=alice.public_key, assets=[{"data": {"uuid": str(uuid4())}}]
             ),
             private_keys=alice.private_key,
         )

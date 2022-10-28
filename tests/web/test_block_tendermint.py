@@ -18,7 +18,7 @@ def test_get_block_endpoint(b, client, alice):
     import copy
 
     tx = Create.generate(
-        [alice.public_key], [([alice.public_key], 1)], asset={"data": multihash(marshal({"cycle": "hero"}))}
+        [alice.public_key], [([alice.public_key], 1)], assets=[{"data": multihash(marshal({"cycle": "hero"}))}]
     )
     tx = tx.sign([alice.private_key])
 
@@ -51,7 +51,7 @@ def test_get_block_returns_404_if_not_found(client):
 @pytest.mark.bdb
 def test_get_block_containing_transaction(b, client, alice):
     tx = Create.generate(
-        [alice.public_key], [([alice.public_key], 1)], asset={"data": multihash(marshal({"cycle": "hero"}))}
+        [alice.public_key], [([alice.public_key], 1)], assets=[{"data": multihash(marshal({"cycle": "hero"}))}]
     )
     tx = tx.sign([alice.private_key])
     b.store_bulk_transactions([tx])

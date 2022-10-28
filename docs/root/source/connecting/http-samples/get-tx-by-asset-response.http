@@ -2,16 +2,18 @@ HTTP/1.1 200 OK
 Content-Type: application/json
 
 [{
-  "asset": {
-    "id": "e4ebc02324e10925226bf2143363c1a28481ee38f70a9245a5a76df5f4380a7a"
-  },
-  "id": "b3f39407b3907587de26bedec93cd6b2c6958bca90f77349f1db9780f014bc1f",
+  "assets": [
+    {
+      "id": "61e1312b80705e0dabb948c9d78dae7f62d64832abda822b13d89c4a7305d4ac"
+    }
+  ],
+  "id": "b6e1ab3d48bbbbb0e40b952e70ec5d439b2745e0ba0c44b4ee877657e9ac33f0",
   "inputs": [
     {
-      "fulfillment": "pGSAIDE5i63cn4X8T8N1sZ2mGkJD5lNRnBM4PZgI_zvzbr-cgUCtt9Thk_enrynxclNFj8B76QvIFbvhyj_38wuy1vA-lncUb2Q7bwJvnmmufeXucyEBTZQ0xoI5dfjG3KeTsLkH",
+      "fulfillment": "pGSAIDE5i63cn4X8T8N1sZ2mGkJD5lNRnBM4PZgI_zvzbr-cgUA4BB4fxDXK3CQTbKpH5gTAN76NG-iopNuuDEfBbZ1Fl-ipNU46t8VCvK9ghm9Q53aFRW6DDiW5wcWXxY0sS4EJ",
       "fulfills": {
         "output_index": 0,
-        "transaction_id": "e4ebc02324e10925226bf2143363c1a28481ee38f70a9245a5a76df5f4380a7a"
+        "transaction_id": "61e1312b80705e0dabb948c9d78dae7f62d64832abda822b13d89c4a7305d4ac"
       },
       "owners_before": [
         "4K9sWUMFwTgaDGPfdynrbxWqWS6sWmKbZoTjxLtVUibD"
@@ -38,16 +40,18 @@ Content-Type: application/json
   "version": "2.0"
 },
 {
-  "asset": {
-    "id": "e4ebc02324e10925226bf2143363c1a28481ee38f70a9245a5a76df5f4380a7a"
-  },
-  "id": "95d99c245cd83af10f3c8ba6c32eda7cb668698b5aaaeec67be3faf915bb6b5d",
+  "assets": [
+    {
+      "id": "61e1312b80705e0dabb948c9d78dae7f62d64832abda822b13d89c4a7305d4ac"
+    }
+  ],
+  "id": "e43d3f93d90d22ef11c21607e3415bfcda4e0c7dd60412fbb55daf32978a3126",
   "inputs": [
     {
-      "fulfillment": "pGSAICw7Ul-c2lG6NFbHp3FbKRC7fivQcNGO7GS4wV3A-1QggUA2Z5Iw7YlMO0K9H_qcfGyepj6rqODxUZSysK_QS_tiZSlSdkXzCSLRCDO07EsyeBKEUUXpWHoBUv1lqJhFtjUK",
+      "fulfillment": "pGSAICw7Ul-c2lG6NFbHp3FbKRC7fivQcNGO7GS4wV3A-1QggUBjj_XTjB3yJdG8JMNKnkkHvcX_BTOkl-YacRD4yKqxUCeL-VTgbrLgi5a3gGxNJcTkZP1gF0nsby8cgV4xmOcB",
       "fulfills": {
         "output_index": 0,
-        "transaction_id": "b3f39407b3907587de26bedec93cd6b2c6958bca90f77349f1db9780f014bc1f"
+        "transaction_id": "b6e1ab3d48bbbbb0e40b952e70ec5d439b2745e0ba0c44b4ee877657e9ac33f0"
       },
       "owners_before": [
         "3yfQPHeWAa1MxTX9Zf9176QqcpcnWcanVZZbaHb8B3h9"

@@ -21,12 +21,14 @@ def test_basic():
     alice = generate_keypair()
 
     # create a digital asset for Alice
-    game_boy_token = {
-        "data": {
-            "hash": "0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF",
-            "storageID": "0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF",
-        },
-    }
+    game_boy_token = [
+        {
+            "data": {
+                "hash": "0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF",
+                "storageID": "0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF",
+            },
+        }
+    ]
 
     # prepare the transaction with the digital asset and issue 10 tokens to bob
     prepared_creation_tx = pm_alpha.transactions.prepare(
@@ -37,7 +39,7 @@ def test_basic():
         },
         signers=alice.public_key,
         recipients=[([alice.public_key], 10)],
-        asset=game_boy_token,
+        assets=game_boy_token,
     )
 
     # fulfill and send the transaction
@@ -52,19 +54,19 @@ def test_basic():
 
     # Transfer
     # create the output and inout for the transaction
-    transfer_asset = {"id": creation_tx_id}
+    transfer_assets = [{"id": creation_tx_id}]
     output_index = 0
     output = fulfilled_creation_tx["outputs"][output_index]
     transfer_input = {
         "fulfillment": output["condition"]["details"],
-        "fulfills": {"output_index": output_index, "transaction_id": transfer_asset["id"]},
+        "fulfills": {"output_index": output_index, "transaction_id": transfer_assets[0]["id"]},
         "owners_before": output["public_keys"],
     }
 
     # prepare the transaction and use 3 tokens
     prepared_transfer_tx = pm_alpha.transactions.prepare(
         operation="TRANSFER",
-        asset=transfer_asset,
+        asset=transfer_assets,
         inputs=transfer_input,
         metadata={
             "hash": "0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF",

@@ -94,7 +94,7 @@ def test_stream():
             bdb.transactions.prepare(
                 operation="CREATE",
                 signers=alice.public_key,
-                asset={"data": multihash(marshal({"uuid": str(uuid4())}))},
+                assets=[{"data": multihash(marshal({"uuid": str(uuid4())}))}],
             ),
             private_keys=alice.private_key,
         )

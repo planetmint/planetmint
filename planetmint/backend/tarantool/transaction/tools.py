@@ -43,7 +43,7 @@ class TransactionDecompose:
             "keys": [],
             "script": None,
             "metadata": None,
-            "asset": None,
+            "assets": None,
         }
 
     def get_map(self, dictionary: dict = None):
@@ -65,11 +65,11 @@ class TransactionDecompose:
         self._tuple_transaction["metadata"] = (self._transaction["id"], json.dumps(metadata))
 
     def __asset_check(self):
-        _asset = self._transaction.get("asset")
+        _asset = self._transaction.get("assets")
         if _asset is None:
             return
-        asset_id = _asset["id"] if _asset.get("id") is not None else self._transaction["id"]
-        self._tuple_transaction["asset"] = (json.dumps(_asset), self._transaction["id"], asset_id)
+        asset_id = _asset[0]["id"] if _asset[0].get("id") is not None else self._transaction["id"]
+        self._tuple_transaction["assets"] = (json.dumps(_asset), self._transaction["id"], asset_id)
 
     def __prepare_inputs(self):
         _inputs = []
@@ -167,7 +167,7 @@ class TransactionCompose:
         return self.db_results["transaction"][0]
 
     def _get_asset(self):
-        _asset = iter(self.db_results["asset"])
+        _asset = iter(self.db_results["assets"])
         _res_asset = next(iter(next(_asset, iter([]))), None)
         return json.loads(_res_asset)
 
@@ -215,7 +215,7 @@ class TransactionCompose:
     def convert_to_dict(self):
         transaction = {k: None for k in list(self._map.keys())}
         transaction["id"] = self._get_transaction_id()
-        transaction["asset"] = self._get_asset()
+        transaction["assets"] = self._get_asset()
         transaction["metadata"] = self._get_metadata()
         transaction["version"] = self._get_transaction_version()
         transaction["operation"] = self._get_transaction_operation()

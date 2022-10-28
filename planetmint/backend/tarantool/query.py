@@ -41,7 +41,7 @@ def _group_transaction_by_ids(connection, txids: list):
             "inputs": _txinputs,
             "outputs": _txoutputs,
             "keys": _txkeys,
-            "asset": _txassets,
+            "assets": _txassets,
             "metadata": _txmeta,
             "script": _txscript,
         }
@@ -71,8 +71,8 @@ def store_transactions(connection, signed_transactions: list):
         if txtuples["metadata"] is not None:
             connection.run(connection.space("meta_data").insert(txtuples["metadata"]), only_data=False)
 
-        if txtuples["asset"] is not None:
-            connection.run(connection.space("assets").insert(txtuples["asset"]), only_data=False)
+        if txtuples["assets"] is not None:
+            connection.run(connection.space("assets").insert(txtuples["assets"]), only_data=False)
 
         if txtuples["script"] is not None:
             connection.run(connection.space("scripts").insert(txtuples["script"]), only_data=False)
@@ -192,22 +192,22 @@ def store_block(connection, block: dict):
 
 @register_query(TarantoolDBConnection)
 def get_txids_filtered(
-    connection, asset_id: str, operation: str = None, last_tx: any = None
+    connection, asset_ids: list[str], operation: str = None, last_tx: any = None
 ):  # TODO here is used 'OR' operator
     actions = {
-        "CREATE": {"sets": ["CREATE", asset_id], "index": "transaction_search"},
+        "CREATE": {"sets": ["CREATE", asset_ids], "index": "transaction_search"},
         # 1 - operation, 2 - id (only in transactions) +
-        "TRANSFER": {"sets": ["TRANSFER", asset_id], "index": "transaction_search"},
+        "TRANSFER": {"sets": ["TRANSFER", asset_ids], "index": "transaction_search"},
         # 1 - operation, 2 - asset.id (linked mode) + OPERATOR OR
-        None: {"sets": [asset_id, asset_id]},
+        None: {"sets": [asset_ids, asset_ids]},
     }[operation]
     _transactions = []
     if actions["sets"][0] == "CREATE":  # +
         _transactions = connection.run(
-            connection.space("transactions").select([operation, asset_id], index=actions["index"])
+            connection.space("transactions").select([operation, asset_ids[0]], index=actions["index"])
         )
     elif actions["sets"][0] == "TRANSFER":  # +
-        _assets = connection.run(connection.space("assets").select([asset_id], index="only_asset_search"))
+        _assets = connection.run(connection.space("assets").select(asset_ids, index="only_asset_search"))
 
         for asset in _assets:
             _txid = asset[1]
@@ -217,8 +217,8 @@ def get_txids_filtered(
             if len(_tmp_transactions) != 0:
                 _transactions.extend(_tmp_transactions)
     else:
-        _tx_ids = connection.run(connection.space("transactions").select([asset_id], index="id_search"))
-        _assets_ids = connection.run(connection.space("assets").select([asset_id], index="only_asset_search"))
+        _tx_ids = connection.run(connection.space("transactions").select(asset_ids, index="id_search"))
+        _assets_ids = connection.run(connection.space("assets").select(asset_ids, index="only_asset_search"))
         return tuple(set([sublist[1] for sublist in _assets_ids] + [sublist[0] for sublist in _tx_ids]))
 
     if last_tx:
@@ -238,7 +238,7 @@ def text_search(conn, search, table="assets", limit=0):
     if len(res[0]):  # NEEDS BEAUTIFICATION
         if table == "assets":
             for result in res[0]:
-                to_return.append({"data": json.loads(result[0])["data"], "id": result[1]})
+                to_return.append({"data": json.loads(result[0])[0]["data"], "id": result[1]})
         else:
             for result in res[0]:
                 to_return.append({"metadata": json.loads(result[1]), "id": result[0]})

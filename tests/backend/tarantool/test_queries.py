@@ -28,15 +28,15 @@ def test_get_txids_filtered(signed_create_tx, signed_transfer_tx, db_conn):
     asset_id = Transaction.get_asset_id([signed_create_tx, signed_transfer_tx])
 
     # Test get by just asset id
-    txids = set(query.get_txids_filtered(connection=db_conn, asset_id=asset_id))
+    txids = set(query.get_txids_filtered(connection=db_conn, asset_ids=[asset_id]))
     assert txids == {signed_create_tx.id, signed_transfer_tx.id}
 
     # Test get by asset and CREATE
-    txids = set(query.get_txids_filtered(connection=db_conn, asset_id=asset_id, operation=Transaction.CREATE))
+    txids = set(query.get_txids_filtered(connection=db_conn, asset_ids=[asset_id], operation=Transaction.CREATE))
     assert txids == {signed_create_tx.id}
 
     # Test get by asset and TRANSFER
-    txids = set(query.get_txids_filtered(connection=db_conn, asset_id=asset_id, operation=Transaction.TRANSFER))
+    txids = set(query.get_txids_filtered(connection=db_conn, asset_ids=[asset_id], operation=Transaction.TRANSFER))
     assert txids == {signed_transfer_tx.id}
 
 
@@ -214,9 +214,9 @@ def test_get_spending_transactions(user_pk, user_sk, db_conn):
     tx1 = Create.generate([user_pk], out * 3)
     tx1.sign([user_sk])
     inputs = tx1.to_inputs()
-    tx2 = Transfer.generate([inputs[0]], out, tx1.id).sign([user_sk])
-    tx3 = Transfer.generate([inputs[1]], out, tx1.id).sign([user_sk])
-    tx4 = Transfer.generate([inputs[2]], out, tx1.id).sign([user_sk])
+    tx2 = Transfer.generate([inputs[0]], out, [tx1.id]).sign([user_sk])
+    tx3 = Transfer.generate([inputs[1]], out, [tx1.id]).sign([user_sk])
+    tx4 = Transfer.generate([inputs[2]], out, [tx1.id]).sign([user_sk])
     txns = [deepcopy(tx.to_dict()) for tx in [tx1, tx2, tx3, tx4]]
     query.store_transactions(signed_transactions=txns, connection=db_conn)
 
@@ -239,13 +239,13 @@ def test_get_spending_transactions_multiple_inputs(db_conn):
     tx1 = Create.generate([alice_pk], out).sign([alice_sk])
 
     inputs1 = tx1.to_inputs()
-    tx2 = Transfer.generate([inputs1[0]], [([alice_pk], 6), ([bob_pk], 3)], tx1.id).sign([alice_sk])
+    tx2 = Transfer.generate([inputs1[0]], [([alice_pk], 6), ([bob_pk], 3)], [tx1.id]).sign([alice_sk])
 
     inputs2 = tx2.to_inputs()
-    tx3 = Transfer.generate([inputs2[0]], [([bob_pk], 3), ([carol_pk], 3)], tx1.id).sign([alice_sk])
+    tx3 = Transfer.generate([inputs2[0]], [([bob_pk], 3), ([carol_pk], 3)], [tx1.id]).sign([alice_sk])
 
     inputs3 = tx3.to_inputs()
-    tx4 = Transfer.generate([inputs2[1], inputs3[0]], [([carol_pk], 6)], tx1.id).sign([bob_sk])
+    tx4 = Transfer.generate([inputs2[1], inputs3[0]], [([carol_pk], 6)], [tx1.id]).sign([bob_sk])
 
     txns = [deepcopy(tx.to_dict()) for tx in [tx1, tx2, tx3, tx4]]
     query.store_transactions(signed_transactions=txns, connection=db_conn)

@@ -30,15 +30,15 @@ def test_eventify_block_works_with_any_transaction():
     alice = generate_key_pair()
 
     tx = Create.generate([alice.public_key], [([alice.public_key], 1)]).sign([alice.private_key])
-    tx_transfer = Transfer.generate(tx.to_inputs(), [([alice.public_key], 1)], asset_id=tx.id).sign(
+    tx_transfer = Transfer.generate(tx.to_inputs(), [([alice.public_key], 1)], asset_ids=[tx.id]).sign(
         [alice.private_key]
     )
 
     block = {"height": 1, "transactions": [tx, tx_transfer]}
 
     expected_events = [
-        {"height": 1, "asset_id": tx.id, "transaction_id": tx.id},
-        {"height": 1, "asset_id": tx_transfer.asset["id"], "transaction_id": tx_transfer.id},
+        {"height": 1, "asset_ids": [tx.id], "transaction_id": tx.id},
+        {"height": 1, "asset_ids": [tx_transfer.assets[0]["id"]], "transaction_id": tx_transfer.id},
     ]
 
     for event, expected in zip(Dispatcher.eventify_block(block), expected_events):
@@ -52,7 +52,7 @@ def test_simplified_block_works():
     alice = generate_key_pair()
 
     tx = Create.generate([alice.public_key], [([alice.public_key], 1)]).sign([alice.private_key])
-    tx_transfer = Transfer.generate(tx.to_inputs(), [([alice.public_key], 1)], asset_id=tx.id).sign(
+    tx_transfer = Transfer.generate(tx.to_inputs(), [([alice.public_key], 1)], asset_ids=[tx.id]).sign(
         [alice.private_key]
     )
 
@@ -192,7 +192,7 @@ async def test_websocket_transaction_event(aiohttp_client, event_loop):
         json_result = json.loads(result.data)
         assert json_result["transaction_id"] == tx.id
         # Since the transactions are all CREATEs, asset id == transaction id
-        assert json_result["asset_id"] == tx.id
+        assert json_result["asset_ids"] == [tx.id]
         assert json_result["height"] == block["height"]
 
     await tx_source.put(events.POISON_PILL)
@@ -263,8 +263,8 @@ def test_integration_from_webapi_to_websocket(monkeypatch, client, loop):
 
     # Create a keypair and generate a new asset
     user_priv, user_pub = crypto.generate_key_pair()
-    asset = {"data": multihash(marshal({"random": random.random()}))}
-    tx = Create.generate([user_pub], [([user_pub], 1)], asset=asset)
+    assets = [{"data": multihash(marshal({"random": random.random()}))}]
+    tx = Create.generate([user_pub], [([user_pub], 1)], assets=assets)
     tx = tx.sign([user_priv])
     # Post the transaction to the Planetmint Web API
     client.post("/api/v1/transactions/", data=json.dumps(tx.to_dict()))

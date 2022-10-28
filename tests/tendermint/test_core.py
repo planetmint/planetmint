@@ -280,19 +280,21 @@ def test_deliver_transfer_tx__double_spend_fails(b, init_chain_request):
     bob = generate_key_pair()
     carly = generate_key_pair()
 
-    asset = {"data": "QmaozNR7DZHQK1ZcU9p7QdrshMvXqWK6gpu5rmrkPdT3L4"}
+    assets = [{"data": "QmaozNR7DZHQK1ZcU9p7QdrshMvXqWK6gpu5rmrkPdT3L4"}]
 
-    tx = Create.generate([alice.public_key], [([alice.public_key], 1)], asset=asset).sign([alice.private_key])
+    tx = Create.generate([alice.public_key], [([alice.public_key], 1)], assets=assets).sign([alice.private_key])
 
     result = app.deliver_tx(encode_tx_to_bytes(tx))
     assert result.code == OkCode
 
-    tx_transfer = Transfer.generate(tx.to_inputs(), [([bob.public_key], 1)], asset_id=tx.id).sign([alice.private_key])
+    tx_transfer = Transfer.generate(tx.to_inputs(), [([bob.public_key], 1)], asset_ids=[tx.id]).sign(
+        [alice.private_key]
+    )
 
     result = app.deliver_tx(encode_tx_to_bytes(tx_transfer))
     assert result.code == OkCode
 
-    double_spend = Transfer.generate(tx.to_inputs(), [([carly.public_key], 1)], asset_id=tx.id).sign(
+    double_spend = Transfer.generate(tx.to_inputs(), [([carly.public_key], 1)], asset_ids=[tx.id]).sign(
         [alice.private_key]
     )
 
@@ -318,7 +320,7 @@ def test_end_block_return_validator_updates(b, init_chain_request):
     voter_keys = [v["private_key"] for v in validators]
 
     election, votes = generate_election(
-        b, ValidatorElection, public_key, private_key, new_validator["election"], voter_keys
+        b, ValidatorElection, public_key, private_key, [{"data": new_validator["election"]}], voter_keys
     )
     b.store_block(Block(height=1, transactions=[election.id], app_hash="")._asdict())
     b.store_bulk_transactions([election])
@@ -337,7 +339,9 @@ def test_store_pre_commit_state_in_end_block(b, alice, init_chain_request):
     from planetmint.backend import query
 
     tx = Create.generate(
-        [alice.public_key], [([alice.public_key], 1)], asset={"data": "QmaozNR7DZHQK1ZcU9p7QdrshMvXqWK6gpu5rmrkPdT3L4"}
+        [alice.public_key],
+        [([alice.public_key], 1)],
+        assets=[{"data": "QmaozNR7DZHQK1ZcU9p7QdrshMvXqWK6gpu5rmrkPdT3L4"}],
     ).sign([alice.private_key])
 
     app = App(b)
@@ -379,14 +383,16 @@ def test_rollback_pre_commit_state_after_crash(b):
     private_key = validators[0]["private_key"]
     voter_keys = [v["private_key"] for v in validators]
 
-    migration_election, votes = generate_election(b, ChainMigrationElection, public_key, private_key, {}, voter_keys)
+    migration_election, votes = generate_election(
+        b, ChainMigrationElection, public_key, private_key, [{"data": {}}], voter_keys
+    )
 
     total_votes = votes
     txs = [migration_election, *votes]
 
     new_validator = generate_validators([1])[0]
     validator_election, votes = generate_election(
-        b, ValidatorElection, public_key, private_key, new_validator["election"], voter_keys
+        b, ValidatorElection, public_key, private_key, [{"data": new_validator["election"]}], voter_keys
     )
 
     total_votes += votes

@@ -162,8 +162,8 @@ def main():
 
     privkey = "CfdqtD7sS7FgkMoGPXw55MVGGFwQLAoHYTcBhZDtF99Z"
     pubkey = "4K9sWUMFwTgaDGPfdynrbxWqWS6sWmKbZoTjxLtVUibD"
-    asset = {"data": multihash(marshal({"msg": "Hello Planetmint!"}))}
-    tx = Create.generate([pubkey], [([pubkey], 1)], asset=asset, metadata=multihash(marshal({"sequence": 0})))
+    assets = [{"data": multihash(marshal({"msg": "Hello Planetmint!"}))}]
+    tx = Create.generate([pubkey], [([pubkey], 1)], assets=assets, metadata=multihash(marshal({"sequence": 0})))
     tx = tx.sign([privkey])
     ctx["tx"] = pretty_json(tx.to_dict())
     ctx["public_keys"] = tx.outputs[0].public_keys[0]
@@ -180,7 +180,7 @@ def main():
         owners_before=tx.outputs[cid].public_keys,
     )
     tx_transfer = Transfer.generate(
-        [input_], [([pubkey_transfer], 1)], asset_id=tx.id, metadata=multihash(marshal({"sequence": 1}))
+        [input_], [([pubkey_transfer], 1)], asset_ids=[tx.id], metadata=multihash(marshal({"sequence": 1}))
     )
     tx_transfer = tx_transfer.sign([privkey])
     ctx["tx_transfer"] = pretty_json(tx_transfer.to_dict())
@@ -197,7 +197,7 @@ def main():
         owners_before=tx_transfer.outputs[cid].public_keys,
     )
     tx_transfer_last = Transfer.generate(
-        [input_], [([pubkey_transfer_last], 1)], asset_id=tx.id, metadata=multihash(marshal({"sequence": 2}))
+        [input_], [([pubkey_transfer_last], 1)], asset_ids=[tx.id], metadata=multihash(marshal({"sequence": 2}))
     )
     tx_transfer_last = tx_transfer_last.sign([privkey_transfer])
     ctx["tx_transfer_last"] = pretty_json(tx_transfer_last.to_dict())

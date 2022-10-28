@@ -265,17 +265,16 @@ def test_run_recover(b, alice, bob):
     tx1 = Create.generate(
         [alice.public_key],
         [([alice.public_key], 1)],
-        asset={"data": "QmaozNR7DZHQK1ZcU9p7QdrshMvXqWK6gpu5rmrkPdT3L4"},
+        assets=[{"data": "QmaozNR7DZHQK1ZcU9p7QdrshMvXqWK6gpu5rmrkPdT3L4"}],
         metadata="QmaozNR7DZHQK1ZcU9p7QdrshMvXqWK6gpu5rmrkPdT3L4",
     ).sign([alice.private_key])
     tx2 = Create.generate(
         [bob.public_key],
         [([bob.public_key], 1)],
-        asset={"data": "QmaozNR7DZHQK1ZcU9p7QdrshMvXqWK6gpu5rmrkPdT3L4"},
+        assets=[{"data": "QmaozNR7DZHQK1ZcU9p7QdrshMvXqWK6gpu5rmrkPdT3L4"}],
         metadata="QmaozNR7DZHQK1ZcU9p7QdrshMvXqWK6gpu5rmrkPdT3L4",
     ).sign([bob.private_key])
-    print(tx1.id)
-    print(tx2.id)
+
     # store the transactions
     b.store_bulk_transactions([tx1, tx2])
 
@@ -515,7 +514,7 @@ def test_chain_migration_election_show_shows_inconclusive(b):
     private_key = validators[0]["private_key"]
     voter_keys = [v["private_key"] for v in validators]
 
-    election, votes = generate_election(b, ChainMigrationElection, public_key, private_key, {}, voter_keys)
+    election, votes = generate_election(b, ChainMigrationElection, public_key, private_key, [{"data": {}}], voter_keys)
 
     assert not run_election_show(Namespace(election_id=election.id), b)
 
@@ -544,7 +543,7 @@ def test_chain_migration_election_show_shows_concluded(b):
     private_key = validators[0]["private_key"]
     voter_keys = [v["private_key"] for v in validators]
 
-    election, votes = generate_election(b, ChainMigrationElection, public_key, private_key, {}, voter_keys)
+    election, votes = generate_election(b, ChainMigrationElection, public_key, private_key, [{"data": {}}], voter_keys)
 
     assert not run_election_show(Namespace(election_id=election.id), b)
 

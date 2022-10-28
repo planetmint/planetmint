@@ -5,13 +5,17 @@ Content-Type: application/json
   "height": 1,
   "transactions": [
     {
-      "asset": {
-        "data": "QmQP5C3PmhH9oB84n7YqSY4WVqmYatdoo1BdwhH4zmcwqM"
-      },
-      "id": "e4ebc02324e10925226bf2143363c1a28481ee38f70a9245a5a76df5f4380a7a",
+      "assets": [
+        {
+          "data": {
+            "msg": "Hello Planetmint!"
+          }
+        }
+      ],
+      "id": "61e1312b80705e0dabb948c9d78dae7f62d64832abda822b13d89c4a7305d4ac",
       "inputs": [
         {
-          "fulfillment": "pGSAIDE5i63cn4X8T8N1sZ2mGkJD5lNRnBM4PZgI_zvzbr-cgUDVDqtaQTYon0UJ-k2YEGfKfDWAwz9BnfBPkKvSHAgfU5O-1S8eY4mNjHAQConK47tnE7ksezmOrLL0_DR1Mm0P",
+          "fulfillment": "pGSAIDE5i63cn4X8T8N1sZ2mGkJD5lNRnBM4PZgI_zvzbr-cgUCWcUaLa2U-nkmZ6oYj14aeV6B4TJH2NvZ8k2ZTwcGiaiCGXDQT2dEPfMCFwM8lwSousafCu4c7EgVZ1GzUDjsN",
           "fulfills": null,
           "owners_before": [
             "4K9sWUMFwTgaDGPfdynrbxWqWS6sWmKbZoTjxLtVUibD"

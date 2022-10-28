@@ -39,12 +39,12 @@ def test_multiple_owners():
     # high rents anymore. Bob suggests to get a dish washer for the
     # kitchen. Alice agrees and here they go, creating the asset for their
     # dish washer.
-    dw_asset = {"data": {"dish washer": {"serial_number": 1337}}}
+    dw_asset = [{"data": {"dish washer": {"serial_number": 1337}}}]
 
     # They prepare a `CREATE` transaction. To have multiple owners, both
     # Bob and Alice need to be the recipients.
     prepared_dw_tx = pm_alpha.transactions.prepare(
-        operation="CREATE", signers=alice.public_key, recipients=(alice.public_key, bob.public_key), asset=dw_asset
+        operation="CREATE", signers=alice.public_key, recipients=(alice.public_key, bob.public_key), assets=dw_asset
     )
 
     # Now they both sign the transaction by providing their private keys.
@@ -77,7 +77,7 @@ def test_multiple_owners():
 
     # Alice and Bob prepare the transaction to transfer the dish washer to
     # Carol.
-    transfer_asset = {"id": dw_id}
+    transfer_assets = [{"id": dw_id}]
 
     output_index = 0
     output = fulfilled_dw_tx["outputs"][output_index]
@@ -89,7 +89,7 @@ def test_multiple_owners():
 
     # Now they create the transaction...
     prepared_transfer_tx = pm_alpha.transactions.prepare(
-        operation="TRANSFER", asset=transfer_asset, inputs=transfer_input, recipients=carol.public_key
+        operation="TRANSFER", assets=transfer_assets, inputs=transfer_input, recipients=carol.public_key
     )
 
     # ... and sign it with their private keys, then send it.

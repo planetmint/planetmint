@@ -137,14 +137,16 @@ def test_get_divisble_transactions_returns_500(b, client):
 
     mine([create_tx])
 
-    transfer_tx = Transfer.generate(create_tx.to_inputs(), [([alice_pub], 3), ([bob_pub], 1)], asset_id=create_tx.id)
+    transfer_tx = Transfer.generate(
+        create_tx.to_inputs(), [([alice_pub], 3), ([bob_pub], 1)], asset_ids=[create_tx.id]
+    )
     transfer_tx.sign([alice_priv])
 
     res = client.post(TX_ENDPOINT, data=json.dumps(transfer_tx.to_dict()))
     assert res.status_code == 202
     mine([transfer_tx])
 
-    transfer_tx_carly = Transfer.generate([transfer_tx.to_inputs()[1]], [([carly_pub], 1)], asset_id=create_tx.id)
+    transfer_tx_carly = Transfer.generate([transfer_tx.to_inputs()[1]], [([carly_pub], 1)], asset_ids=[create_tx.id])
     transfer_tx_carly.sign([bob_priv])
 
     res = client.post(TX_ENDPOINT, data=json.dumps(transfer_tx_carly.to_dict()))
@@ -153,7 +155,7 @@ def test_get_divisble_transactions_returns_500(b, client):
 
     asset_id = create_tx.id
 
-    url = TX_ENDPOINT + "?asset_id=" + asset_id
+    url = TX_ENDPOINT + "?asset_ids=" + asset_id
     assert client.get(url).status_code == 200
     assert len(client.get(url).json) == 3
 

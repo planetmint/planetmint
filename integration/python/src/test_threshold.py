@@ -44,7 +44,7 @@ def test_threshold():
     # high rents anymore. Bob suggests to get a dish washer for the
     # kitchen. Alice agrees and here they go, creating the asset for their
     # dish washer.
-    dw_asset = {"data": {"dish washer": {"serial_number": 1337}}}
+    dw_asset = [{"data": {"dish washer": {"serial_number": 1337}}}]
 
     # Create subfulfillments
     alice_ed25519 = Ed25519Sha256(public_key=base58.b58decode(alice.public_key))
@@ -138,7 +138,7 @@ def test_weighted_threshold():
 
     alice, bob, carol = generate_keypair(), generate_keypair(), generate_keypair()
 
-    asset = {"data": {"trashcan": {"animals": ["racoon_1", "racoon_2"]}}}
+    assets = [{"data": {"trashcan": {"animals": ["racoon_1", "racoon_2"]}}}]
 
     alice_ed25519 = Ed25519Sha256(public_key=base58.b58decode(alice.public_key))
     bob_ed25519 = Ed25519Sha256(public_key=base58.b58decode(bob.public_key))
@@ -176,7 +176,7 @@ def test_weighted_threshold():
     # Assemble the handcrafted transaction
     handcrafted_tx = {
         "operation": "CREATE",
-        "asset": asset,
+        "asset": assets,
         "metadata": None,
         "outputs": (output,),
         "inputs": (input_,),
@@ -258,7 +258,7 @@ def test_weighted_threshold():
     # Assemble the handcrafted transaction
     handcrafted_transfer_tx = {
         "operation": "TRANSFER",
-        "asset": {"id": creation_tx_id},
+        "assets": [{"id": creation_tx_id}],
         "metadata": None,
         "outputs": (transfer_output,),
         "inputs": (transfer_input_,),

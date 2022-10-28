@@ -57,7 +57,7 @@ def generate_block(planet):
     from transactions.common.crypto import generate_key_pair
 
     alice = generate_key_pair()
-    tx = Create.generate([alice.public_key], [([alice.public_key], 1)], asset=None).sign([alice.private_key])
+    tx = Create.generate([alice.public_key], [([alice.public_key], 1)], assets=None).sign([alice.private_key])
 
     code, message = planet.write_transaction(tx, BROADCAST_TX_COMMIT)
     assert code == 202
@@ -74,7 +74,9 @@ def to_inputs(election, i, ed25519_node_keys):
 def gen_vote(election, i, ed25519_node_keys):
     (input_i, votes_i, key_i) = to_inputs(election, i, ed25519_node_keys)
     election_pub_key = election_id_to_public_key(election.id)
-    return Vote.generate([input_i], [([election_pub_key], votes_i)], election_id=election.id).sign([key_i.private_key])
+    return Vote.generate([input_i], [([election_pub_key], votes_i)], election_ids=[election.id]).sign(
+        [key_i.private_key]
+    )
 
 
 def generate_validators(powers):
@@ -118,12 +120,13 @@ def generate_validators(powers):
     return validators
 
 
+# NOTE: This works for some but not for all test cases check if this or code base needs fix
 def generate_election(b, cls, public_key, private_key, asset_data, voter_keys):
     voters = b.get_recipients_list()
     election = cls.generate([public_key], voters, asset_data, None).sign([private_key])
 
     votes = [
-        Vote.generate([election.to_inputs()[i]], [([election_id_to_public_key(election.id)], power)], election.id)
+        Vote.generate([election.to_inputs()[i]], [([election_id_to_public_key(election.id)], power)], [election.id])
         for i, (_, power) in enumerate(voters)
     ]
     for key, v in zip(voter_keys, votes):
