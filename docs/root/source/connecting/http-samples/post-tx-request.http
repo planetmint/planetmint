@@ -3,15 +3,17 @@ Host: example.com
 Content-Type: application/json
 
 {
-  "asset": {
-    "data": {
-      "msg": "Hello Planetmint!"
+  "assets": [
+    {
+      "data": {
+        "msg": "Hello Planetmint!"
+      }
     }
-  },
-  "id": "6438c733f53dff60bdeded80e8c95126dd3a7ce8c1ee5d5591d030e61cde35d2",
+  ],
+  "id": "61e1312b80705e0dabb948c9d78dae7f62d64832abda822b13d89c4a7305d4ac",
   "inputs": [
     {
-      "fulfillment": "pGSAIDE5i63cn4X8T8N1sZ2mGkJD5lNRnBM4PZgI_zvzbr-cgUBcdRj6EnG3MPl47m3XPd1HNfe7q3WL4T6MewNNnat33UvzVnPHo_vossv57M7L064VwrYMLGp097H7IeHpDngK",
+      "fulfillment": "pGSAIDE5i63cn4X8T8N1sZ2mGkJD5lNRnBM4PZgI_zvzbr-cgUCWcUaLa2U-nkmZ6oYj14aeV6B4TJH2NvZ8k2ZTwcGiaiCGXDQT2dEPfMCFwM8lwSousafCu4c7EgVZ1GzUDjsN",
       "fulfills": null,
       "owners_before": [
         "4K9sWUMFwTgaDGPfdynrbxWqWS6sWmKbZoTjxLtVUibD"

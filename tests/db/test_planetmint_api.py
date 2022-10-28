@@ -26,9 +26,9 @@ class TestBigchainApi(object):
 
         b.store_bulk_transactions([tx])
 
-        transfer_tx = Transfer.generate(tx.to_inputs(), [([alice.public_key], 1)], asset_id=tx.id)
+        transfer_tx = Transfer.generate(tx.to_inputs(), [([alice.public_key], 1)], asset_ids=[tx.id])
         transfer_tx = transfer_tx.sign([alice.private_key])
-        transfer_tx2 = Transfer.generate(tx.to_inputs(), [([alice.public_key], 2)], asset_id=tx.id)
+        transfer_tx2 = Transfer.generate(tx.to_inputs(), [([alice.public_key], 2)], asset_ids=[tx.id])
         transfer_tx2 = transfer_tx2.sign([alice.private_key])
 
         with pytest.raises(DoubleSpend):
@@ -73,9 +73,9 @@ class TestBigchainApi(object):
         asset3 = {"data": multihash(marshal({"msg": "Planetmint 3"}))}
 
         # create the transactions
-        tx1 = Create.generate([alice.public_key], [([alice.public_key], 1)], asset=asset1).sign([alice.private_key])
-        tx2 = Create.generate([alice.public_key], [([alice.public_key], 1)], asset=asset2).sign([alice.private_key])
-        tx3 = Create.generate([alice.public_key], [([alice.public_key], 1)], asset=asset3).sign([alice.private_key])
+        tx1 = Create.generate([alice.public_key], [([alice.public_key], 1)], assets=[asset1]).sign([alice.private_key])
+        tx2 = Create.generate([alice.public_key], [([alice.public_key], 1)], assets=[asset2]).sign([alice.private_key])
+        tx3 = Create.generate([alice.public_key], [([alice.public_key], 1)], assets=[asset3]).sign([alice.private_key])
 
         # write the transactions to the DB
         b.store_bulk_transactions([tx1, tx2, tx3])
@@ -94,7 +94,7 @@ class TestBigchainApi(object):
         input = Input(
             Ed25519Sha256(public_key=b58decode(user_pk)), [user_pk], TransactionLink("somethingsomething", 0)
         )
-        tx = Transfer.generate([input], [([user_pk], 1)], asset_id="mock_asset_link")
+        tx = Transfer.generate([input], [([user_pk], 1)], asset_ids=["mock_asset_link"])
         with pytest.raises(InputDoesNotExist):
             b.validate_transaction(tx)
 
@@ -102,7 +102,7 @@ class TestBigchainApi(object):
 
         asset1 = {"data": "QmaozNR7DZHQK1ZcU9p7QdrshMvXqWK6gpu5rmrkPdT3L4"}
 
-        tx = Create.generate([alice.public_key], [([alice.public_key], 1)], asset=asset1).sign([alice.private_key])
+        tx = Create.generate([alice.public_key], [([alice.public_key], 1)], assets=[asset1]).sign([alice.private_key])
         b.store_bulk_transactions([tx])
 
         tx_from_db = b.get_transaction(tx.id)
@@ -110,7 +110,7 @@ class TestBigchainApi(object):
         before = tx.to_dict()
         after = tx_from_db.to_dict()
 
-        assert before["asset"]["data"] == after["asset"]["data"]
+        assert before["assets"][0]["data"] == after["assets"][0]["data"]
         before.pop("asset", None)
         after.pop("asset", None)
         assert before == after
@@ -135,7 +135,7 @@ class TestTransactionValidation(object):
         sk, pk = generate_key_pair()
         tx = Create.generate([pk], [([user_pk], 1)])
         tx.operation = "TRANSFER"
-        tx.asset = {"id": input_transaction.id}
+        tx.assets = [{"id": input_transaction.id}]
         tx.inputs[0].fulfills = input_tx
 
         with pytest.raises(InvalidSignature):
@@ -160,7 +160,7 @@ class TestMultipleInputs(object):
         tx_link = b.fastquery.get_outputs_by_public_key(user_pk).pop()
         input_tx = b.get_transaction(tx_link.txid)
         inputs = input_tx.to_inputs()
-        tx = Transfer.generate(inputs, [([user2_pk], 1)], asset_id=input_tx.id)
+        tx = Transfer.generate(inputs, [([user2_pk], 1)], asset_ids=[input_tx.id])
         tx = tx.sign([user_sk])
 
         # validate transaction
@@ -176,7 +176,7 @@ class TestMultipleInputs(object):
         tx_link = b.fastquery.get_outputs_by_public_key(user_pk).pop()
 
         input_tx = b.get_transaction(tx_link.txid)
-        tx = Transfer.generate(input_tx.to_inputs(), [([user2_pk, user3_pk], 1)], asset_id=input_tx.id)
+        tx = Transfer.generate(input_tx.to_inputs(), [([user2_pk, user3_pk], 1)], asset_ids=[input_tx.id])
         tx = tx.sign([user_sk])
 
         b.validate_transaction(tx)
@@ -198,7 +198,7 @@ class TestMultipleInputs(object):
         input_tx = b.get_transaction(owned_input.txid)
         inputs = input_tx.to_inputs()
 
-        transfer_tx = Transfer.generate(inputs, [([user3_pk], 1)], asset_id=input_tx.id)
+        transfer_tx = Transfer.generate(inputs, [([user3_pk], 1)], asset_ids=[input_tx.id])
         transfer_tx = transfer_tx.sign([user_sk, user2_sk])
 
         # validate transaction
@@ -222,7 +222,7 @@ class TestMultipleInputs(object):
         tx_link = b.fastquery.get_outputs_by_public_key(user_pk).pop()
         tx_input = b.get_transaction(tx_link.txid)
 
-        tx = Transfer.generate(tx_input.to_inputs(), [([user3_pk, user4_pk], 1)], asset_id=tx_input.id)
+        tx = Transfer.generate(tx_input.to_inputs(), [([user3_pk, user4_pk], 1)], asset_ids=[tx_input.id])
         tx = tx.sign([user_sk, user2_sk])
 
         b.validate_transaction(tx)
@@ -244,7 +244,7 @@ class TestMultipleInputs(object):
         assert owned_inputs_user1 == [TransactionLink(tx.id, 0)]
         assert owned_inputs_user2 == []
 
-        tx_transfer = Transfer.generate(tx.to_inputs(), [([user2_pk], 1)], asset_id=tx.id)
+        tx_transfer = Transfer.generate(tx.to_inputs(), [([user2_pk], 1)], asset_ids=[tx.id])
         tx_transfer = tx_transfer.sign([user_sk])
         b.store_bulk_transactions([tx_transfer])
 
@@ -275,7 +275,7 @@ class TestMultipleInputs(object):
 
         # transfer divisible asset divided in two outputs
         tx_transfer = Transfer.generate(
-            tx_create.to_inputs(), [([user2_pk], 1), ([user2_pk], 1)], asset_id=tx_create.id
+            tx_create.to_inputs(), [([user2_pk], 1), ([user2_pk], 1)], asset_ids=[tx_create.id]
         )
         tx_transfer_signed = tx_transfer.sign([user_sk])
         b.store_bulk_transactions([tx_transfer_signed])
@@ -304,7 +304,7 @@ class TestMultipleInputs(object):
         assert owned_inputs_user1 == owned_inputs_user2
         assert owned_inputs_user1 == expected_owned_inputs_user1
 
-        tx = Transfer.generate(tx.to_inputs(), [([user3_pk], 1)], asset_id=tx.id)
+        tx = Transfer.generate(tx.to_inputs(), [([user3_pk], 1)], asset_ids=[tx.id])
         tx = tx.sign([user_sk, user2_sk])
         b.store_bulk_transactions([tx])
 
@@ -332,7 +332,7 @@ class TestMultipleInputs(object):
         assert spent_inputs_user1 is None
 
         # create a transaction and send it
-        tx = Transfer.generate(tx.to_inputs(), [([user2_pk], 1)], asset_id=tx.id)
+        tx = Transfer.generate(tx.to_inputs(), [([user2_pk], 1)], asset_ids=[tx.id])
         tx = tx.sign([user_sk])
         b.store_bulk_transactions([tx])
 
@@ -358,7 +358,7 @@ class TestMultipleInputs(object):
 
         # transfer the first 2 inputs
         tx_transfer = Transfer.generate(
-            tx_create.to_inputs()[:2], [([user2_pk], 1), ([user2_pk], 1)], asset_id=tx_create.id
+            tx_create.to_inputs()[:2], [([user2_pk], 1), ([user2_pk], 1)], asset_ids=[tx_create.id]
         )
         tx_transfer_signed = tx_transfer.sign([user_sk])
         b.store_bulk_transactions([tx_transfer_signed])
@@ -393,7 +393,7 @@ class TestMultipleInputs(object):
             assert b.get_spent(input_tx.txid, input_tx.output) is None
 
         # create a transaction
-        tx = Transfer.generate(transactions[0].to_inputs(), [([user3_pk], 1)], asset_id=transactions[0].id)
+        tx = Transfer.generate(transactions[0].to_inputs(), [([user3_pk], 1)], asset_ids=[transactions[0].id])
         tx = tx.sign([user_sk, user2_sk])
         b.store_bulk_transactions([tx])
 
@@ -464,7 +464,7 @@ def test_cant_spend_same_input_twice_in_tx(b, alice):
 
     # Create a transfer transaction with duplicated fulfillments
     dup_inputs = tx_create.to_inputs() + tx_create.to_inputs()
-    tx_transfer = Transfer.generate(dup_inputs, [([alice.public_key], 200)], asset_id=tx_create.id)
+    tx_transfer = Transfer.generate(dup_inputs, [([alice.public_key], 200)], asset_ids=[tx_create.id])
     tx_transfer_signed = tx_transfer.sign([alice.private_key])
     with pytest.raises(DoubleSpend):
         b.validate_transaction(tx_transfer_signed)
@@ -476,10 +476,10 @@ def test_transaction_unicode(b, alice):
 
     # http://www.fileformat.info/info/unicode/char/1f37a/index.htm
 
-    beer_python = {"data": multihash(marshal({"beer": "\N{BEER MUG}"}))}
+    beer_python = [{"data": multihash(marshal({"beer": "\N{BEER MUG}"}))}]
     beer_json = {"data": multihash(marshal({"beer": "\N{BEER MUG}"}))}
 
-    tx = (Create.generate([alice.public_key], [([alice.public_key], 100)], asset=beer_python)).sign(
+    tx = (Create.generate([alice.public_key], [([alice.public_key], 100)], assets=beer_python)).sign(
         [alice.private_key]
     )
 

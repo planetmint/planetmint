@@ -105,8 +105,8 @@ def test_post_create_transaction_with_language(b, client, nested, language, expe
             asset = {"root": lang_obj}
         else:
             asset = lang_obj
-        asset = {"data": multihash(marshal(asset))}
-        tx = Create.generate([user_pub], [([user_pub], 1)], asset=asset)
+        assets = [{"data": multihash(marshal(asset))}]
+        tx = Create.generate([user_pub], [([user_pub], 1)], assets=assets)
         tx = tx.sign([user_priv])
         res = client.post(TX_ENDPOINT, data=json.dumps(tx.to_dict()))
         assert res.status_code == expected_status_code
@@ -140,7 +140,7 @@ def test_post_create_transaction_with_invalid_key(b, client, field, value, err_k
 
     if isinstance(b.connection, LocalMongoDBConnection):
         if field == "asset":
-            tx = Create.generate([user_pub], [([user_pub], 1)], asset=value)
+            tx = Create.generate([user_pub], [([user_pub], 1)], assets=value)
         elif field == "metadata":
             tx = Create.generate([user_pub], [([user_pub], 1)], metadata=value)
         tx = tx.sign([user_priv])
@@ -327,7 +327,7 @@ def test_post_invalid_transaction(
 @pytest.mark.abci
 def test_post_transfer_transaction_endpoint(client, user_pk, user_sk, posted_create_tx):
 
-    transfer_tx = Transfer.generate(posted_create_tx.to_inputs(), [([user_pk], 1)], asset_id=posted_create_tx.id)
+    transfer_tx = Transfer.generate(posted_create_tx.to_inputs(), [([user_pk], 1)], asset_ids=[posted_create_tx.id])
     transfer_tx = transfer_tx.sign([user_sk])
 
     res = client.post(TX_ENDPOINT, data=json.dumps(transfer_tx.to_dict()))
@@ -341,7 +341,7 @@ def test_post_transfer_transaction_endpoint(client, user_pk, user_sk, posted_cre
 def test_post_invalid_transfer_transaction_returns_400(client, user_pk, posted_create_tx):
     from transactions.common.exceptions import InvalidSignature
 
-    transfer_tx = Transfer.generate(posted_create_tx.to_inputs(), [([user_pk], 1)], asset_id=posted_create_tx.id)
+    transfer_tx = Transfer.generate(posted_create_tx.to_inputs(), [([user_pk], 1)], asset_ids=[posted_create_tx.id])
     transfer_tx._hash()
 
     res = client.post(TX_ENDPOINT, data=json.dumps(transfer_tx.to_dict()))
@@ -360,12 +360,14 @@ def test_post_wrong_asset_division_transfer_returns_400(b, client, user_pk):
     priv_key, pub_key = crypto.generate_key_pair()
 
     create_tx = Create.generate(
-        [pub_key], [([pub_key], 10)], asset={"data": multihash(marshal({"test": "asset"}))}
+        [pub_key], [([pub_key], 10)], assets=[{"data": multihash(marshal({"test": "asset"}))}]
     ).sign([priv_key])
     res = client.post(TX_ENDPOINT + "?mode=commit", data=json.dumps(create_tx.to_dict()))
     assert res.status_code == 202
 
-    transfer_tx = Transfer.generate(create_tx.to_inputs(), [([pub_key], 20)], asset_id=create_tx.id).sign(  # 20 > 10
+    transfer_tx = Transfer.generate(
+        create_tx.to_inputs(), [([pub_key], 20)], asset_ids=[create_tx.id]
+    ).sign(  # 20 > 10
         [priv_key]
     )
     res = client.post(TX_ENDPOINT + "?mode=commit", data=json.dumps(transfer_tx.to_dict()))
@@ -388,24 +390,24 @@ def test_transactions_get_list_good(client):
         """
         return [type("", (), {"to_dict": partial(lambda a: a, arg)}) for arg in sorted(args.items())]
 
-    asset_id = "1" * 64
+    asset_ids = ["1" * 64]
 
     with patch("planetmint.Planetmint.get_transactions_filtered", get_txs_patched):
-        url = TX_ENDPOINT + "?asset_id=" + asset_id
+        url = TX_ENDPOINT + "?asset_ids=" + ",".join(asset_ids)
         assert client.get(url).json == [
-            ["asset_id", asset_id],
+            ["asset_ids", asset_ids],
             ["last_tx", None],
             ["operation", None],
         ]
-        url = TX_ENDPOINT + "?asset_id=" + asset_id + "&operation=CREATE"
+        url = TX_ENDPOINT + "?asset_ids=" + ",".join(asset_ids) + "&operation=CREATE"
         assert client.get(url).json == [
-            ["asset_id", asset_id],
+            ["asset_ids", asset_ids],
             ["last_tx", None],
             ["operation", "CREATE"],
         ]
-        url = TX_ENDPOINT + "?asset_id=" + asset_id + "&last_tx=true"
+        url = TX_ENDPOINT + "?asset_ids=" + ",".join(asset_ids) + "&last_tx=true"
         assert client.get(url).json == [
-            ["asset_id", asset_id],
+            ["asset_ids", asset_ids],
             ["last_tx", True],
             ["operation", None],
         ]
@@ -449,7 +451,7 @@ def test_post_transaction_valid_modes(mock_post, client, mode):
     mock_post.side_effect = _mock_post
 
     alice = generate_key_pair()
-    tx = Create.generate([alice.public_key], [([alice.public_key], 1)], asset=None).sign([alice.private_key])
+    tx = Create.generate([alice.public_key], [([alice.public_key], 1)], assets=None).sign([alice.private_key])
     mode_endpoint = TX_ENDPOINT + mode[0]
     client.post(mode_endpoint, data=json.dumps(tx.to_dict()))
     args, kwargs = mock_post.call_args
@@ -461,7 +463,7 @@ def test_post_transaction_invalid_mode(client):
     from transactions.common.crypto import generate_key_pair
 
     alice = generate_key_pair()
-    tx = Create.generate([alice.public_key], [([alice.public_key], 1)], asset=None).sign([alice.private_key])
+    tx = Create.generate([alice.public_key], [([alice.public_key], 1)], assets=None).sign([alice.private_key])
     mode_endpoint = TX_ENDPOINT + "?mode=nope"
     response = client.post(mode_endpoint, data=json.dumps(tx.to_dict()))
     assert "400 BAD REQUEST" in response.status

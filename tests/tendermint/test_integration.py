@@ -112,12 +112,14 @@ def test_post_transaction_responses(tendermint_ws_url, b):
 
     alice = generate_key_pair()
     bob = generate_key_pair()
-    tx = Create.generate([alice.public_key], [([alice.public_key], 1)], asset=None).sign([alice.private_key])
+    tx = Create.generate([alice.public_key], [([alice.public_key], 1)], assets=None).sign([alice.private_key])
 
     code, message = b.write_transaction(tx, BROADCAST_TX_COMMIT)
     assert code == 202
 
-    tx_transfer = Transfer.generate(tx.to_inputs(), [([bob.public_key], 1)], asset_id=tx.id).sign([alice.private_key])
+    tx_transfer = Transfer.generate(tx.to_inputs(), [([bob.public_key], 1)], asset_ids=[tx.id]).sign(
+        [alice.private_key]
+    )
 
     code, message = b.write_transaction(tx_transfer, BROADCAST_TX_COMMIT)
     assert code == 202
@@ -126,7 +128,7 @@ def test_post_transaction_responses(tendermint_ws_url, b):
     double_spend = Transfer.generate(
         tx.to_inputs(),
         [([carly.public_key], 1)],
-        asset_id=tx.id,
+        asset_ids=[tx.id],
     ).sign([alice.private_key])
     for mode in (BROADCAST_TX_SYNC, BROADCAST_TX_COMMIT):
         code, message = b.write_transaction(double_spend, mode)

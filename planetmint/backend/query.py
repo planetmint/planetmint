@@ -89,7 +89,7 @@ def get_transactions(connection, transaction_ids):
 
 @singledispatch
 def get_asset(connection, asset_id):
-    """Get a transaction from the transactions table.
+    """Get an asset from the assets table.
 
     Args:
         asset_id (str): the id of the asset

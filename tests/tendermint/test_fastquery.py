@@ -53,7 +53,7 @@ def test_filter_spent_outputs(b, user_pk, user_sk):
 
     inputs = tx1.to_inputs()
 
-    tx2 = Transfer.generate([inputs[0]], out, tx1.id)
+    tx2 = Transfer.generate([inputs[0]], out, [tx1.id])
     tx2.sign([user_sk])
 
     # tx2 produces a new unspent. inputs[1] remains unspent.
@@ -75,7 +75,7 @@ def test_filter_unspent_outputs(b, user_pk, user_sk):
 
     inputs = tx1.to_inputs()
 
-    tx2 = Transfer.generate([inputs[0]], out, tx1.id)
+    tx2 = Transfer.generate([inputs[0]], out, [tx1.id])
     tx2.sign([user_sk])
 
     # tx2 produces a new unspent. input[1] remains unspent.
@@ -98,7 +98,7 @@ def test_outputs_query_key_order(b, user_pk, user_sk, user2_pk, user2_sk):
     b.store_bulk_transactions([tx1])
 
     inputs = tx1.to_inputs()
-    tx2 = Transfer.generate([inputs[1]], [([user2_pk], 2)], tx1.id).sign([user_sk])
+    tx2 = Transfer.generate([inputs[1]], [([user2_pk], 2)], [tx1.id]).sign([user_sk])
     assert b.validate_transaction(tx2)
 
     tx2_dict = tx2.to_dict()

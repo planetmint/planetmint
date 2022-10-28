@@ -23,7 +23,9 @@ def test_double_create():
     results = queue.Queue()
 
     tx = pm.transactions.fulfill(
-        pm.transactions.prepare(operation="CREATE", signers=alice.public_key, asset={"data": {"uuid": str(uuid4())}}),
+        pm.transactions.prepare(
+            operation="CREATE", signers=alice.public_key, assets=[{"data": {"uuid": str(uuid4())}}]
+        ),
         private_keys=alice.private_key,
     )
 

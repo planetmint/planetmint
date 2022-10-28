@@ -15,3 +15,11 @@ Most of the tests in the `tests/` folder are unit tests. For info about how to w
 Notes on Running a Local Dev Node as Processes (and Running All Tests)](https://docs.planetmint.io/en/latest/contributing/dev-setup-coding-and-contribution-process/run-node-as-processes.html)
 
 Note: There are acceptance tests in the `acceptance/` folder (at the same level in the hierarchy as the `tests/` folder).
+
+## Debugging test cases with VS Code
+
+In order to debug unit tests create a virtual environment and install all necessary dependencies. VS Code should notify you that a new virtual environment is detected and ask if you want to use it as environment (more info: [Getting started with Python in VS Code](https://code.visualstudio.com/docs/python/python-tutorial)).
+
+Configure the tests in VS Code by going to the `Testing` tab and click `Confiugre Python Tests` and select `pytest`. VS Code should now detect all test cases inside of `tests`. Click `Debug Tests` to run the tests with the debugger attached. (more info: [Python testing in VS Code](https://code.visualstudio.com/docs/python/testing))
+
+Note: `pip install .` will not automatically install the test dependencies. If missing install them manually.

@@ -79,7 +79,7 @@ format: check-py-deps ## Format the project
 
 test: check-deps test-unit test-acceptance ## Run unit and acceptance tests
 
-test-unit: check-deps ## Run all tests once
+test-unit: check-deps ## Run all tests once or specify a file/test with TEST=tests/file.py::Class::test
 	@$(DC) up -d bdb
 	@$(DC) exec planetmint pytest ${TEST}
 

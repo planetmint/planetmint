@@ -104,8 +104,9 @@ class ValidationWorker:
         self.validated_transactions = defaultdict(list)
 
     def validate(self, dict_transaction):
+        # TODO: this will only work for now, no multiasset support => needs to be refactored for COMPOSE/DECOMPOSE
         try:
-            asset_id = dict_transaction["asset"]["id"]
+            asset_id = dict_transaction["assets"][0]["id"]
         except KeyError:
             asset_id = dict_transaction["id"]
         except TypeError:

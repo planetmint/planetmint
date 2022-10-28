@@ -31,36 +31,36 @@ def test_get_assets_tendermint(client, b, alice):
     assert res.status_code == 200
 
     # create asset
-    asset = {"data": multihash(marshal({"msg": "abc"}))}
-    tx = Create.generate([alice.public_key], [([alice.public_key], 1)], asset=asset).sign([alice.private_key])
+    assets = [{"data": multihash(marshal({"msg": "abc"}))}]
+    tx = Create.generate([alice.public_key], [([alice.public_key], 1)], assets=assets).sign([alice.private_key])
 
     b.store_bulk_transactions([tx])
 
     # test that asset is returned
-    res = client.get(ASSETS_ENDPOINT + "?search=" + asset["data"])
+    res = client.get(ASSETS_ENDPOINT + "?search=" + assets[0]["data"])
     assert res.status_code == 200
     assert len(res.json) == 1
-    assert res.json[0] == {"data": asset["data"], "id": tx.id}
+    assert res.json[0] == {"data": assets[0]["data"], "id": tx.id}
 
 
 @pytest.mark.bdb
 def test_get_assets_limit_tendermint(client, b, alice):
 
     # create two assets
-    asset1 = {"data": multihash(marshal({"msg": "abc 1"}))}
-    asset2 = {"data": multihash(marshal({"msg": "abc 2"}))}
-    tx1 = Create.generate([alice.public_key], [([alice.public_key], 1)], asset=asset1).sign([alice.private_key])
-    tx2 = Create.generate([alice.public_key], [([alice.public_key], 1)], asset=asset2).sign([alice.private_key])
+    assets1 = [{"data": multihash(marshal({"msg": "abc 1"}))}]
+    assets2 = [{"data": multihash(marshal({"msg": "abc 2"}))}]
+    tx1 = Create.generate([alice.public_key], [([alice.public_key], 1)], assets=assets1).sign([alice.private_key])
+    tx2 = Create.generate([alice.public_key], [([alice.public_key], 1)], assets=assets2).sign([alice.private_key])
 
     b.store_bulk_transactions([tx1])
     b.store_bulk_transactions([tx2])
 
     # test that both assets are returned without limit
-    res = client.get(ASSETS_ENDPOINT + "?search=" + asset1["data"])
+    res = client.get(ASSETS_ENDPOINT + "?search=" + assets1[0]["data"])
     assert res.status_code == 200
     assert len(res.json) == 1
 
     # test that only one asset is returned when using limit=1
-    res = client.get(ASSETS_ENDPOINT + "?search=" + asset1["data"] + "&limit=1")
+    res = client.get(ASSETS_ENDPOINT + "?search=" + assets1[0]["data"] + "&limit=1")
     assert res.status_code == 200
     assert len(res.json) == 1

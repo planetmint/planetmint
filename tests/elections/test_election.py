@@ -18,13 +18,13 @@ def test_process_block_concludes_all_elections(b):
     private_key = validators[0]["private_key"]
     voter_keys = [v["private_key"] for v in validators]
 
-    election, votes = generate_election(b, ChainMigrationElection, public_key, private_key, {}, voter_keys)
+    election, votes = generate_election(b, ChainMigrationElection, public_key, private_key, [{"data": {}}], voter_keys)
 
     txs = [election]
     total_votes = votes
 
     election, votes = generate_election(
-        b, ValidatorElection, public_key, private_key, new_validator["election"], voter_keys
+        b, ValidatorElection, public_key, private_key, [{"data": new_validator["election"]}], voter_keys
     )
     txs += [election]
     total_votes += votes
@@ -64,7 +64,7 @@ def test_process_block_approves_only_one_validator_update(b):
     voter_keys = [v["private_key"] for v in validators]
 
     election, votes = generate_election(
-        b, ValidatorElection, public_key, private_key, new_validator["election"], voter_keys
+        b, ValidatorElection, public_key, private_key, [{"data": new_validator["election"]}], voter_keys
     )
     txs = [election]
     total_votes = votes
@@ -72,7 +72,7 @@ def test_process_block_approves_only_one_validator_update(b):
     another_validator = generate_validators([1])[0]
 
     election, votes = generate_election(
-        b, ValidatorElection, public_key, private_key, another_validator["election"], voter_keys
+        b, ValidatorElection, public_key, private_key, [{"data": another_validator["election"]}], voter_keys
     )
     txs += [election]
     total_votes += votes
@@ -104,7 +104,7 @@ def test_process_block_approves_after_pending_validator_update(b):
     voter_keys = [v["private_key"] for v in validators]
 
     election, votes = generate_election(
-        b, ValidatorElection, public_key, private_key, new_validator["election"], voter_keys
+        b, ValidatorElection, public_key, private_key, [{"data": new_validator["election"]}], voter_keys
     )
     txs = [election]
     total_votes = votes
@@ -112,12 +112,12 @@ def test_process_block_approves_after_pending_validator_update(b):
     another_validator = generate_validators([1])[0]
 
     election, votes = generate_election(
-        b, ValidatorElection, public_key, private_key, another_validator["election"], voter_keys
+        b, ValidatorElection, public_key, private_key, [{"data": another_validator["election"]}], voter_keys
     )
     txs += [election]
     total_votes += votes
 
-    election, votes = generate_election(b, ChainMigrationElection, public_key, private_key, {}, voter_keys)
+    election, votes = generate_election(b, ChainMigrationElection, public_key, private_key, [{"data": {}}], voter_keys)
 
     txs += [election]
     total_votes += votes
@@ -153,7 +153,7 @@ def test_process_block_does_not_approve_after_validator_update(b):
     voter_keys = [v["private_key"] for v in validators]
 
     election, votes = generate_election(
-        b, ValidatorElection, public_key, private_key, new_validator["election"], voter_keys
+        b, ValidatorElection, public_key, private_key, [{"data": new_validator["election"]}], voter_keys
     )
     txs = [election]
     total_votes = votes
@@ -163,7 +163,7 @@ def test_process_block_does_not_approve_after_validator_update(b):
     b.store_bulk_transactions(txs)
 
     second_election, second_votes = generate_election(
-        b, ChainMigrationElection, public_key, private_key, {}, voter_keys
+        b, ChainMigrationElection, public_key, private_key, [{"data": {}}], voter_keys
     )
 
     b.process_block(2, total_votes + [second_election])
@@ -186,11 +186,11 @@ def test_process_block_applies_only_one_migration(b):
     private_key = validators[0]["private_key"]
     voter_keys = [v["private_key"] for v in validators]
 
-    election, votes = generate_election(b, ChainMigrationElection, public_key, private_key, {}, voter_keys)
+    election, votes = generate_election(b, ChainMigrationElection, public_key, private_key, [{"data": {}}], voter_keys)
     txs = [election]
     total_votes = votes
 
-    election, votes = generate_election(b, ChainMigrationElection, public_key, private_key, {}, voter_keys)
+    election, votes = generate_election(b, ChainMigrationElection, public_key, private_key, [{"data": {}}], voter_keys)
 
     txs += [election]
     total_votes += votes

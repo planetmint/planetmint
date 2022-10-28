@@ -26,6 +26,9 @@ For reference, the possible headings are:
 * **Notes**
 
 ## [Unreleased]
+
+## [1.3.0] - 2022-27-10
+* **Changed** migrated asset to assets
 * **Changed** replaced transaction module with planetmint-transactions package
 * **Changed** moved transaction network validation to Planetmint class
 * **Changed** adjusted test cases
