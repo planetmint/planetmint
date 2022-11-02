@@ -8,6 +8,8 @@ import pytest
 from planetmint.version import __tm_supported_versions__
 from transactions.types.assets.create import Create
 from transactions.types.assets.transfer import Transfer
+from transactions.common.exceptions import ConfigurationError
+from planetmint.backend.connection import Connection, ConnectionError
 
 
 @pytest.fixture
@@ -28,7 +30,7 @@ def config(request, monkeypatch):
             "name": "bigchain",
         },
         "tendermint": {
-            "host": "localhost",
+            "host": "tendermint",
             "port": 26657,
         },
         "CONFIGURED": True,
@@ -48,28 +50,9 @@ def test_bigchain_class_default_initialization(config):
     assert planet.validation == BaseValidationRules
 
 
-def test_bigchain_class_initialization_with_parameters():
-    from planetmint import Planetmint
-    from planetmint.backend import connect
-    from planetmint.validation import BaseValidationRules
-
-    init_db_kwargs = {
-        "backend": "localmongodb",
-        "host": "this_is_the_db_host",
-        "port": 12345,
-        "name": "this_is_the_db_name",
-    }
-    connection = connect(**init_db_kwargs)
-    planet = Planetmint(connection=connection)
-    assert planet.connection == connection
-    assert planet.connection.host == init_db_kwargs["host"]
-    assert planet.connection.port == init_db_kwargs["port"]
-    # assert planet.connection.name == init_db_kwargs['name']
-    assert planet.validation == BaseValidationRules
-
-
 @pytest.mark.bdb
 def test_get_spent_issue_1271(b, alice, bob, carol):
+    b.connection.close()
     tx_1 = Create.generate(
         [carol.public_key],
         [([carol.public_key], 8)],

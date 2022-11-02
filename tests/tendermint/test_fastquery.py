@@ -91,7 +91,7 @@ def test_filter_unspent_outputs(b, user_pk, user_sk):
 
 def test_outputs_query_key_order(b, user_pk, user_sk, user2_pk, user2_sk):
     from planetmint import backend
-    from planetmint.backend.connection import connect
+    from planetmint.backend.connection import Connection
     from planetmint.backend import query
 
     tx1 = Create.generate([user_pk], [([user_pk], 3), ([user_pk], 2), ([user_pk], 1)]).sign([user_sk])
@@ -116,7 +116,7 @@ def test_outputs_query_key_order(b, user_pk, user_sk, user2_pk, user2_sk):
     assert len(outputs) == 1
 
     # clean the transaction, metdata and asset collection
-    connection = connect()
+    connection = Connection()
     query.delete_transactions(connection, txn_ids=[tx1.id, tx2.id])
 
     b.store_bulk_transactions([tx1])

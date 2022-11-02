@@ -27,7 +27,7 @@ services:
     restart: always
   planetmint:
     depends_on:
-      #- mongodb
+      - mongodb
       - tendermint
       - tarantool
     build:

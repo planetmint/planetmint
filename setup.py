@@ -136,6 +136,7 @@ install_requires = [
     "PyNaCl==1.4.0",
     "pyasn1>=0.4.8",
     "cryptography==3.4.7",
+    "python-decouple",
     "planetmint-transactions==0.2.0",
 ]
 

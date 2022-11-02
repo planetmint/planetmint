@@ -11,6 +11,7 @@ from unittest.mock import Mock, patch
 from cryptoconditions import Ed25519Sha256
 from ipld import multihash, marshal
 from hashlib import sha3_256
+
 from transactions.common import crypto
 from transactions.common.transaction import Transaction
 from transactions.types.assets.create import Create

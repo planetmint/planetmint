@@ -20,9 +20,7 @@ Content-Type: application/json
       ]
     }
   ],
-  "metadata": {
-    "sequence": 0
-  },
+  "metadata": "QmZs4UHLHCUGLQr6rzbtJTjT8Sf5pw6FNuaRZ5pzguk5FV",
   "operation": "CREATE",
   "outputs": [
     {

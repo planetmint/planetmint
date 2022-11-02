@@ -8,6 +8,12 @@ MongoDB.
 
 """
 import logging
+from collections import namedtuple
+from uuid import uuid4
+from planetmint.backend.connection import Connection
+
+import rapidjson
+from hashlib import sha3_256
 import json
 import rapidjson
 import requests
@@ -87,7 +93,7 @@ class Planetmint(object):
             self.validation = config_utils.load_validation_plugin(validationPlugin)
         else:
             self.validation = BaseValidationRules
-        self.connection = connection if connection is not None else planetmint.backend.connect()
+        self.connection = connection if connection is not None else Connection()
 
     def post_transaction(self, transaction, mode):
         """Submit a valid transaction to the mempool."""

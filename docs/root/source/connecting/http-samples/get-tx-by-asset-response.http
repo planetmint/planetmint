@@ -20,9 +20,7 @@ Content-Type: application/json
       ]
     }
   ],
-  "metadata": {
-    "sequence": 1
-  },
+  "metadata": "QmQ9Sc3VWZ3nH5FWVVi2MNMDhyjTiKrEb6mN79qqt1Uq9s",
   "operation": "TRANSFER",
   "outputs": [
     {
@@ -60,9 +58,7 @@ Content-Type: application/json
       ]
     }
   ],
-  "metadata": {
-    "sequence": 2
-  },
+  "metadata": "QmRRg9RGq3TmV6nj2SXJacPuTdwaFDGTPACJLdN368pN3t",
   "operation": "TRANSFER",
   "outputs": [
     {

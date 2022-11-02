@@ -33,6 +33,11 @@ For reference, the possible headings are:
 * **Changed** moved transaction network validation to Planetmint class
 * **Changed** adjusted test cases
 
+## [1.2.2] - 2022-23-09
+* **Changed** A connection singleton got introduced to avoid connection issues and unstable states.
+
+
+
 ## [1.2.1] - 2022-20-09
 * **Changed** Create model now validates for CID strings for asset["data"] and metadata
 * **Changed** adjusted test cases

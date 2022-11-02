@@ -7,16 +7,17 @@ import pytest
 
 
 def test_get_connection_raises_a_configuration_error(monkeypatch):
+    from planetmint.backend.connection import ConnectionError
+    from planetmint.backend.tarantool.connection import TarantoolDBConnection
+
+    with pytest.raises(ConnectionError):
+        TarantoolDBConnection("localhost", "1337", "mydb", "password")
+
+
+@pytest.mark.skip(reason="we currently do not suppport mongodb.")
+def test_get_connection_raises_a_configuration_error_mongodb(monkeypatch):
+    from planetmint.backend.localmongodb.connection import LocalMongoDBConnection
     from transactions.common.exceptions import ConfigurationError
-    from planetmint.backend.connection import connect
 
-    with pytest.raises(ConfigurationError):
-        connect("localhost", "1337", "mydb", "password", "msaccess")
-
-    with pytest.raises(ConfigurationError):
-        # We need to force a misconfiguration here
-        monkeypatch.setattr(
-            "planetmint.backend.connection.BACKENDS", {"catsandra": "planetmint.backend.meowmeow.Catsandra"}
-        )
-
-        connect("localhost", "1337", "mydb", "password", "catsandra")
+    with pytest.raises(ConnectionError):
+        conn = LocalMongoDBConnection("localhost", "1337", "mydb", "password")
