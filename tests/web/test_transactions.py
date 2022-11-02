@@ -12,10 +12,6 @@ from cryptoconditions import Ed25519Sha256
 from ipld import multihash, marshal
 from hashlib import sha3_256
 
-# from planetmint.transactions.common import crypto
-# from planetmint.transactions.types.assets.create import Create
-# from planetmint.transactions.types.assets.transfer import Transfer
-# from planetmint.transactions.common.transaction_mode_types import (
 from transactions.common import crypto
 from transactions.common.transaction import Transaction
 from transactions.types.assets.create import Create

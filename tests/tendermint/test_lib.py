@@ -5,12 +5,6 @@
 
 
 import os
-
-# from unittest.mock import patch
-# from planetmint.transactions.types.assets.create import Create
-# from planetmint.transactions.types.assets.transfer import Transfer
-# from hashlib import sha3_256
-
 import pytest
 
 from unittest.mock import patch

@@ -5,11 +5,6 @@
 
 import pytest
 
-# from unittest.mock import MagicMock, patch
-# from planetmint.transactions.common import crypto
-# from planetmint.transactions.types.assets.create import Create
-# from planetmint.transactions.types.assets.transfer import Transfer
-
 from transactions.types.assets.create import Create
 from transactions.types.assets.transfer import Transfer
 from unittest.mock import MagicMock, patch
