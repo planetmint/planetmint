@@ -137,7 +137,7 @@ install_requires = [
     "pyasn1>=0.4.8",
     "cryptography==3.4.7",
     "python-decouple",
-    "planetmint-transactions==0.2.0",
+    "planetmint-transactions==0.2.1",
 ]
 
 setup(

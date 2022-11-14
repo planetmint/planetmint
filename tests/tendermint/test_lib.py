@@ -20,6 +20,7 @@ from transactions.common.transaction_mode_types import (
     BROADCAST_TX_SYNC,
 )
 from planetmint.lib import Block
+from planetmint.backend.interfaces import Asset, MetaData
 from ipld import marshal, multihash
 
 
@@ -195,12 +196,12 @@ def test_store_transaction(mocker, b, signed_create_tx, signed_transfer_tx, db_c
         )
     else:
         mocked_store_asset.assert_called_once_with(
-            b.connection, [(signed_create_tx.assets, signed_create_tx.id, signed_create_tx.id)]
+            b.connection, [Asset(signed_create_tx.id, signed_create_tx.id, signed_create_tx.assets[0])]
         )
 
     mocked_store_metadata.assert_called_once_with(
         b.connection,
-        [{"id": signed_create_tx.id, "metadata": signed_create_tx.metadata}],
+        [MetaData(signed_create_tx.id, signed_create_tx.metadata)]
     )
     mocked_store_transaction.assert_called_once_with(
         b.connection,
@@ -245,7 +246,7 @@ def test_store_bulk_transaction(mocker, b, signed_create_tx, signed_transfer_tx,
     if isinstance(b.connection, TarantoolDBConnection):
         mocked_store_assets.assert_called_once_with(
             b.connection,  # signed_create_tx.asset['data'] this was before
-            [(signed_create_tx.assets, signed_create_tx.id, signed_create_tx.id)],
+            [Asset(signed_create_tx.id, signed_create_tx.id, signed_create_tx.assets[0])]
         )
     else:
         mocked_store_assets.assert_called_once_with(
@@ -254,7 +255,7 @@ def test_store_bulk_transaction(mocker, b, signed_create_tx, signed_transfer_tx,
         )
     mocked_store_metadata.assert_called_once_with(
         b.connection,
-        [{"id": signed_create_tx.id, "metadata": signed_create_tx.metadata}],
+        [MetaData(signed_create_tx.id, signed_create_tx.metadata)]
     )
     mocked_store_transactions.assert_called_once_with(
         b.connection,
@@ -513,28 +514,20 @@ def test_migrate_abci_chain_generates_new_chains(b, chain, block_height, expecte
 
 @pytest.mark.bdb
 def test_get_spent_key_order(b, user_pk, user_sk, user2_pk, user2_sk):
-    from planetmint import backend
     from transactions.common.crypto import generate_key_pair
     from transactions.common.exceptions import DoubleSpend
 
     alice = generate_key_pair()
     bob = generate_key_pair()
 
-    tx1 = Create.generate([user_pk], [([alice.public_key], 3), ([user_pk], 2)], assets=None).sign([user_sk])
+    tx1 = Create.generate([user_pk], [([alice.public_key], 3), ([user_pk], 2)]).sign([user_sk])
     b.store_bulk_transactions([tx1])
 
     inputs = tx1.to_inputs()
     tx2 = Transfer.generate([inputs[1]], [([user2_pk], 2)], [tx1.id]).sign([user_sk])
     assert b.validate_transaction(tx2)
-
-    tx2_dict = tx2.to_dict()
-    fulfills = tx2_dict["inputs"][0]["fulfills"]
-    tx2_dict["inputs"][0]["fulfills"] = {
-        "output_index": fulfills["output_index"],
-        "transaction_id": fulfills["transaction_id"],
-    }
-
-    backend.query.store_transactions(b.connection, [tx2_dict])
+    
+    b.store_bulk_transactions([tx2])
 
     tx3 = Transfer.generate([inputs[1]], [([bob.public_key], 2)], [tx1.id]).sign([user_sk])
 

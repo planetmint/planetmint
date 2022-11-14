@@ -10,6 +10,7 @@ import json
 from transactions.common.transaction import Transaction
 from transactions.types.assets.create import Create
 from transactions.types.assets.transfer import Transfer
+from planetmint.backend.interfaces import Asset, MetaData
 
 pytestmark = pytest.mark.bdb
 
@@ -44,11 +45,11 @@ def test_write_assets(db_conn):
     from planetmint.backend.tarantool import query
 
     assets = [
-        {"id": "1", "data": "1"},
-        {"id": "2", "data": "2"},
-        {"id": "3", "data": "3"},
+        Asset("1", "1", "1"),
+        Asset("2", "2", "2"),
+        Asset("3", "3", "3"),
         # Duplicated id. Should not be written to the database
-        {"id": "1", "data": "1"},
+        Asset("1", "1", "1")
     ]
 
     # write the assets
@@ -56,25 +57,25 @@ def test_write_assets(db_conn):
         query.store_asset(connection=db_conn, asset=asset)
 
     # check that 3 assets were written to the database
-    documents = query.get_assets(assets_ids=[asset["id"] for asset in assets], connection=db_conn)
+    documents = query.get_assets(assets_ids=[asset.id for asset in assets], connection=db_conn)
 
     assert len(documents) == 3
-    assert list(documents)[0][0] == assets[:-1][0]
+    assert list(documents)[0] == assets[:-1][0]
 
 
 def test_get_assets(db_conn):
     from planetmint.backend.tarantool import query
-
+    
     assets = [
-        ("1", "1", "1"),
-        ("2", "2", "2"),
-        ("3", "3", "3"),
+        Asset("1", "1"),
+        Asset("2", "2"),
+        Asset("3", "3"),
     ]
 
     query.store_assets(assets=assets, connection=db_conn)
 
     for asset in assets:
-        assert query.get_asset(asset_id=asset[2], connection=db_conn)
+        assert query.get_asset(asset_id=asset.id, connection=db_conn)
 
 
 @pytest.mark.parametrize("table", ["assets", "metadata"])
@@ -164,17 +165,17 @@ def test_text_search(table):
 def test_write_metadata(db_conn):
     from planetmint.backend.tarantool import query
 
-    metadata = [{"id": "1", "data": "1"}, {"id": "2", "data": "2"}, {"id": "3", "data": "3"}]
+    metadata = [MetaData("1", "1"), MetaData("2", "2"), MetaData("3", "3")]
     # write the assets
     query.store_metadatas(connection=db_conn, metadata=metadata)
 
     # check that 3 assets were written to the database
     metadatas = []
     for meta in metadata:
-        _data = db_conn.run(db_conn.space("meta_data").select(meta["id"]))[0]
-        metadatas.append({"id": _data[0], "data": json.loads(_data[1])})
+        _data = db_conn.run(db_conn.space("meta_data").select(meta.id))[0]
+        metadatas.append(MetaData(_data[0], json.loads(_data[1])))
 
-    metadatas = sorted(metadatas, key=lambda k: k["id"])
+    metadatas = sorted(metadatas, key=lambda k: k.id)
 
     assert len(metadatas) == 3
     assert list(metadatas) == metadata
@@ -184,15 +185,15 @@ def test_get_metadata(db_conn):
     from planetmint.backend.tarantool import query
 
     metadata = [
-        {"id": "dd86682db39e4b424df0eec1413cfad65488fd48712097c5d865ca8e8e059b64", "metadata": None},
-        {"id": "55a2303e3bcd653e4b5bd7118d39c0e2d48ee2f18e22fbcf64e906439bdeb45d", "metadata": {"key": "value"}},
+        MetaData("dd86682db39e4b424df0eec1413cfad65488fd48712097c5d865ca8e8e059b64", None),
+        MetaData("55a2303e3bcd653e4b5bd7118d39c0e2d48ee2f18e22fbcf64e906439bdeb45d", {"key": "value"})
     ]
 
     # conn.db.metadata.insert_many(deepcopy(metadata), ordered=False)
     query.store_metadatas(connection=db_conn, metadata=metadata)
 
     for meta in metadata:
-        _m = query.get_metadata(connection=db_conn, transaction_ids=[meta["id"]])
+        _m = query.get_metadata(connection=db_conn, transaction_ids=[meta.id])
         assert _m
 
 

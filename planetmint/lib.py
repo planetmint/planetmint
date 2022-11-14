@@ -54,6 +54,7 @@ from planetmint.tendermint_utils import (
 )
 from planetmint import exceptions as core_exceptions
 from planetmint.validation import BaseValidationRules
+from planetmint.backend.interfaces import Asset, MetaData
 
 logger = logging.getLogger(__name__)
 
@@ -148,21 +149,16 @@ class Planetmint(object):
 
             tx_assets = transaction.pop("assets")
             metadata = transaction.pop("metadata")
-
-            tx_assets = backend.convert.prepare_asset(
-                self.connection,
-                transaction_type=transaction["operation"],
-                transaction_id=transaction["id"],
-                filter_operation=[t.CREATE, t.VALIDATOR_ELECTION, t.CHAIN_MIGRATION_ELECTION],
-                assets=tx_assets,
-            )
-
-            metadata = backend.convert.prepare_metadata(
-                self.connection, transaction_id=transaction["id"], metadata=metadata
-            )
+            
+            if tx_assets is not None:
+                for asset in tx_assets:
+                    id = transaction["id"] if "id" not in asset else asset["id"]
+                    tx_asset = Asset(id, transaction["id"], asset)
+                    assets.append(tx_asset)
+            
+            metadata = MetaData(transaction["id"], metadata)
 
             txn_metadatas.append(metadata)
-            assets.append(tx_assets)
             txns.append(transaction)
 
         backend.query.store_metadatas(self.connection, txn_metadatas)
@@ -258,10 +254,7 @@ class Planetmint(object):
         if transaction:
             assets = backend.query.get_assets(self.connection, [transaction_id])
             metadata = backend.query.get_metadata(self.connection, [transaction_id])
-            # NOTE: assets must not be replaced for transfer transactions
-            # NOTE: assets should be appended for all txs that define new assets otherwise the ids are already stored in tx
-            if transaction["operation"] != "TRANSFER" and transaction["operation"] != "VOTE" and assets:
-                transaction["assets"] = assets[0][0]
+            transaction["assets"] = [asset.data for asset in assets]
 
             if "metadata" not in transaction:
                 metadata = metadata[0] if metadata else None
@@ -323,6 +316,8 @@ class Planetmint(object):
             raise DoubleSpend('tx "{}" spends inputs twice'.format(txid))
         elif transactions:
             transaction = backend.query.get_transaction(self.connection, transactions[0]["id"])
+            assets = backend.query.get_assets(self.connection, [transaction["id"]])
+            transaction["assets"] = [asset.data for asset in assets]
             transaction = Transaction.from_dict(transaction, False)
         elif current_spent_transactions:
             transaction = current_spent_transactions[0]
@@ -476,7 +471,7 @@ class Planetmint(object):
         """
         return backend.query.text_search(self.connection, search, limit=limit, table=table)
 
-    def get_assets(self, asset_ids):
+    def get_assets(self, asset_ids) -> list[Asset]:
         """Return a list of assets that match the asset_ids
 
         Args:
@@ -597,12 +592,12 @@ class Planetmint(object):
             tx_map[tx["id"]] = tx
             tx_ids.append(tx["id"])
 
-        assets = list(self.get_assets(tx_ids))
+        # TODO: this will break if more than one asset is used
+        assets = self.get_assets(tx_ids)
         for asset in assets:
             if asset is not None:
-                # This is tarantool specific behaviour needs to be addressed
-                tx = tx_map[asset[1]]
-                tx["asset"] = asset[0]
+                tx = tx_map[asset.id]
+                tx["assets"] = [asset.data]
 
         tx_ids = list(tx_map.keys())
         metadata_list = list(self.get_metadata(tx_ids))

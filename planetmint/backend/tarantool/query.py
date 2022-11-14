@@ -12,9 +12,9 @@ from operator import itemgetter
 from tarantool.error import DatabaseError
 from planetmint.backend import query
 from planetmint.backend.utils import module_dispatch_registrar
+from planetmint.backend.interfaces import Asset, MetaData
 from planetmint.backend.tarantool.connection import TarantoolDBConnection
 from planetmint.backend.tarantool.transaction.tools import TransactionCompose, TransactionDecompose
-
 
 register_query = module_dispatch_registrar(query)
 
@@ -91,11 +91,11 @@ def get_transactions(connection, transactions_ids: list):
 
 
 @register_query(TarantoolDBConnection)
-def store_metadatas(connection, metadata: list):
+def store_metadatas(connection, metadata: list[MetaData]):
     for meta in metadata:
         connection.run(
             connection.space("meta_data").insert(
-                (meta["id"], json.dumps(meta["data"] if not "metadata" in meta else meta["metadata"]))
+                (meta.id, json.dumps(meta.metadata))
             )  # noqa: E713
         )
 
@@ -115,17 +115,10 @@ def get_metadata(connection, transaction_ids: list):
 
 
 @register_query(TarantoolDBConnection)
-def store_asset(connection, asset):
-    def convert(obj):
-        if isinstance(obj, tuple):
-            obj = list(obj)
-            obj[0] = json.dumps(obj[0])
-            return tuple(obj)
-        else:
-            return (json.dumps(obj), obj["id"], obj["id"])
-
+def store_asset(connection, asset: Asset):
+    asset = (json.dumps(asset.data), asset.tx_id, asset.id)
     try:
-        return connection.run(connection.space("assets").insert(convert(asset)), only_data=False)
+        return connection.run(connection.space("assets").insert(asset), only_data=False)
     except DatabaseError:
         pass
 
@@ -137,21 +130,20 @@ def store_assets(connection, assets: list):
 
 
 @register_query(TarantoolDBConnection)
-def get_asset(connection, asset_id: str):
+def get_asset(connection, asset_id: str) -> Asset:
     _data = connection.run(connection.space("assets").select(asset_id, index="txid_search"))
-
-    return json.loads(_data[0][0]) if len(_data) > 0 else []
+    return Asset(_data[0][2], _data[0][1], json.loads(_data[0][0]))
 
 
 @register_query(TarantoolDBConnection)
-def get_assets(connection, assets_ids: list) -> list:
+def get_assets(connection, assets_ids: list) -> list[Asset]:
     _returned_data = []
     for _id in list(set(assets_ids)):
         res = connection.run(connection.space("assets").select(_id, index="txid_search"))
         _returned_data.append(res[0])
 
     sorted_assets = sorted(_returned_data, key=lambda k: k[1], reverse=False)
-    return [(json.loads(asset[0]), asset[1]) for asset in sorted_assets]
+    return [Asset(asset[2], asset[1], json.loads(asset[0])) for asset in sorted_assets]
 
 
 @register_query(TarantoolDBConnection)
@@ -238,7 +230,7 @@ def text_search(conn, search, table="assets", limit=0):
     if len(res[0]):  # NEEDS BEAUTIFICATION
         if table == "assets":
             for result in res[0]:
-                to_return.append({"data": json.loads(result[0])[0]["data"], "id": result[1]})
+                to_return.append({"data": json.loads(result[0])["data"], "id": result[1]})
         else:
             for result in res[0]:
                 to_return.append({"metadata": json.loads(result[1]), "id": result[0]})
