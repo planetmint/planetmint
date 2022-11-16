@@ -4,6 +4,7 @@
 # Code is Apache-2.0 and docs are CC-BY-4.0
 
 from dataclasses import dataclass
+from typing import Union
 
 # Asset should represent a single asset (e.g.: tarantool tuple (data, tx_id, asset_id))
 # If multiple assets are stored at once this should remain the same. 
@@ -11,18 +12,21 @@ from dataclasses import dataclass
 
 @dataclass
 class Asset:
-    id: str = None
-    tx_id: str = None
-    data: dict = None
+    id: str = ""
+    tx_id: str = ""
+    data: str = ""
 
 @dataclass
 class MetaData:
-    id: str = None
-    metadata: str = None
+    id: str = ""
+    metadata: str = ""
 
 @dataclass
 class Input:
-    id: str = None
+    tx_id: str = ""
+    fulfills: Union[dict, None] = None
+    owners_before: list[str] = None
+    fulfillment: str = ""
     
 @dataclass
 class Output:

@@ -7,7 +7,7 @@
 
 from functools import singledispatch
 from planetmint.backend.exceptions import OperationError
-from planetmint.backend.interfaces import Asset, MetaData
+from planetmint.backend.interfaces import Asset, Block, MetaData, Input
 
 @singledispatch
 def store_asset(connection, asset: dict) -> Asset:
@@ -148,7 +148,7 @@ def get_owned_ids(connection, owner):
 
 
 @singledispatch
-def get_block(connection, block_id):
+def get_block(connection, block_id) -> Block:
     """Get a block from the planet table.
 
     Args:
@@ -176,7 +176,7 @@ def get_block_with_transaction(connection, txid):
 
 
 @singledispatch
-def get_metadata(connection, transaction_ids):
+def get_metadata(connection, transaction_ids) -> list[MetaData]:
     """Get a list of metadata from the metadata table.
 
     Args:
@@ -435,6 +435,15 @@ def get_latest_abci_chain(conn):
     """
     raise NotImplementedError
 
+@singledispatch
+def get_inputs_by_tx_id(connection, tx_id) -> list[Input]:
+    """Retrieve inputs for a transaction by its id"""
+    raise NotImplementedError
+
+@singledispatch
+def store_transaction_inputs(connection, inputs: list[Input]):
+    """Store inputs for a transaction"""
+    raise NotImplementedError
 
 @singledispatch
 def _group_transaction_by_ids(txids: list, connection):

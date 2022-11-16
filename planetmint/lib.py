@@ -483,7 +483,7 @@ class Planetmint(object):
         """
         return backend.query.get_assets(self.connection, asset_ids)
 
-    def get_metadata(self, txn_ids):
+    def get_metadata(self, txn_ids) -> list[MetaData]:
         """Return a list of metadata that match the transaction ids (txn_ids)
 
         Args:
@@ -595,16 +595,13 @@ class Planetmint(object):
         # TODO: this will break if more than one asset is used
         assets = self.get_assets(tx_ids)
         for asset in assets:
-            if asset is not None:
-                tx = tx_map[asset.id]
-                tx["assets"] = [asset.data]
+            tx = tx_map[asset.id]
+            tx["assets"] = [asset.data]
 
-        tx_ids = list(tx_map.keys())
-        metadata_list = list(self.get_metadata(tx_ids))
+        metadata_list = self.get_metadata(tx_ids)
         for metadata in metadata_list:
-            if "id" in metadata:
-                tx = tx_map[metadata["id"]]
-                tx.update({"metadata": metadata.get("metadata")})
+            tx = tx_map[metadata.id]
+            tx["metadata"] = metadata.metadata
 
         if return_list:
             tx_list = []

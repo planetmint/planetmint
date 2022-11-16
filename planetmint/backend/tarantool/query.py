@@ -12,7 +12,7 @@ from operator import itemgetter
 from tarantool.error import DatabaseError
 from planetmint.backend import query
 from planetmint.backend.utils import module_dispatch_registrar
-from planetmint.backend.interfaces import Asset, MetaData
+from planetmint.backend.interfaces import Asset, MetaData, Input
 from planetmint.backend.tarantool.connection import TarantoolDBConnection
 from planetmint.backend.tarantool.transaction.tools import TransactionCompose, TransactionDecompose
 
@@ -50,6 +50,40 @@ def _group_transaction_by_ids(connection, txids: list):
         _transactions.append(_transaction)
     return _transactions
 
+@register_query(TarantoolDBConnection)
+def get_inputs_by_tx_id(connection, tx_id: str) -> list[Input]:
+    _inputs = connection.run(connection.space("inputs").select(tx_id, index="id_search"))
+    _sorted_inputs = sorted(_inputs, key=itemgetter(6))
+    
+    inputs = []
+    
+    for input in _sorted_inputs:
+        tx_id = input[0]
+        fulfillment = input[1]
+        owners_before = input[2]
+        fulfills = None
+        fulfills_tx_id = input[3]
+
+        if fulfills_tx_id:
+            fulfills = {
+                "transaction_id": fulfills_tx_id,
+                "output_index": int(input[4])
+            }
+        
+        inputs.append(Input(tx_id, fulfills, owners_before, fulfillment))
+
+    return inputs
+
+@register_query(TarantoolDBConnection)
+def store_transaction_inputs(connection, inputs: list[Input]):
+    for index, input in enumerate(inputs):
+        connection.run(connection.space("inputs").insert((
+            input.tx_id,
+            input.fulfillment,
+            input.fulfills["transaction_id"] if input.fulfills else "",
+            input.fulfills["output_index"] if input.fulfills else "",
+            index
+        )))
 
 @register_query(TarantoolDBConnection)
 def store_transactions(connection, signed_transactions: list):
@@ -101,7 +135,7 @@ def store_metadatas(connection, metadata: list[MetaData]):
 
 
 @register_query(TarantoolDBConnection)
-def get_metadata(connection, transaction_ids: list):
+def get_metadata(connection, transaction_ids: list) -> list[MetaData]:
     _returned_data = []
     for _id in transaction_ids:
         metadata = connection.run(connection.space("meta_data").select(_id, index="id_search"))
@@ -109,16 +143,16 @@ def get_metadata(connection, transaction_ids: list):
             if len(metadata) > 0:
                 metadata[0] = list(metadata[0])
                 metadata[0][1] = json.loads(metadata[0][1])
-                metadata[0] = tuple(metadata[0])
+                metadata = MetaData(metadata[0][0], metadata[0][1])
                 _returned_data.append(metadata)
     return _returned_data
 
 
 @register_query(TarantoolDBConnection)
 def store_asset(connection, asset: Asset):
-    asset = (json.dumps(asset.data), asset.tx_id, asset.id)
+    tuple_asset = (json.dumps(asset.data), asset.tx_id, asset.id)
     try:
-        return connection.run(connection.space("assets").insert(asset), only_data=False)
+        return connection.run(connection.space("assets").insert(tuple_asset), only_data=False)
     except DatabaseError:
         pass
 
@@ -236,11 +270,6 @@ def text_search(conn, search, table="assets", limit=0):
                 to_return.append({"metadata": json.loads(result[1]), "id": result[0]})
 
     return to_return if limit == 0 else to_return[:limit]
-
-
-def _remove_text_score(asset):
-    asset.pop("score", None)
-    return asset
 
 
 @register_query(TarantoolDBConnection)
