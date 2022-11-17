@@ -102,18 +102,11 @@ class TransactionDecompose:
         _map = self.get_map()
         return (self._transaction["id"], self._transaction["operation"], self._transaction["version"], _map)
 
-    def __prepare_script(self):
-        try:
-            return (self._transaction["id"], self._transaction[TARANT_TABLE_SCRIPT])
-        except KeyError:
-            return None
-
     def convert_to_tuple(self):
         self._tuple_transaction[TARANT_TABLE_TRANSACTION] = self.__prepare_transaction()
         keys, outputs = self.__prepare_outputs()
         self._tuple_transaction[TARANT_TABLE_OUTPUT] = outputs
         self._tuple_transaction[TARANT_TABLE_KEYS] = keys
-        self._tuple_transaction[TARANT_TABLE_SCRIPT] = self.__prepare_script()
         return self._tuple_transaction
 
 
@@ -151,18 +144,10 @@ class TransactionCompose:
             _outputs.append(_out)
         return _outputs
 
-    def _get_script(self):
-        if self.db_results[TARANT_TABLE_SCRIPT]:
-            return self.db_results[TARANT_TABLE_SCRIPT][0][1]
-        else:
-            return None
-
     def convert_to_dict(self):
         transaction = {k: None for k in list(self._map.keys())}
         transaction["id"] = self._get_transaction_id()
         transaction["version"] = self._get_transaction_version()
         transaction["operation"] = self._get_transaction_operation()
         transaction[TARANT_TABLE_OUTPUT] = self._get_outputs()
-        if self._get_script():
-            transaction[TARANT_TABLE_SCRIPT] = self._get_script()
         return transaction

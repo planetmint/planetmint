@@ -7,7 +7,7 @@
 
 from functools import singledispatch
 from planetmint.backend.exceptions import OperationError
-from planetmint.backend.interfaces import Asset, Block, MetaData, Input
+from planetmint.backend.interfaces import Asset, Block, MetaData, Input, Script
 
 @singledispatch
 def store_asset(connection, asset: dict) -> Asset:
@@ -460,4 +460,9 @@ def store_transaction_inputs(connection, inputs: list[Input]):
 @singledispatch
 def _group_transaction_by_ids(txids: list, connection):
     """Returns the transactions object (JSON TYPE), from list of ids."""
+    raise NotImplementedError
+
+@singledispatch
+def get_script_by_tx_id(connection, tx_id: str) -> Script:
+    """Retrieve script for a transaction by its id"""
     raise NotImplementedError

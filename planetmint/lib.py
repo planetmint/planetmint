@@ -12,12 +12,10 @@ from collections import namedtuple
 from uuid import uuid4
 from planetmint.backend.connection import Connection
 
-import rapidjson
 from hashlib import sha3_256
 import json
 import rapidjson
 import requests
-import planetmint
 
 from collections import namedtuple, OrderedDict
 from uuid import uuid4

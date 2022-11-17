@@ -14,7 +14,7 @@ from planetmint.backend.tarantool.const import TARANT_TABLE_META_DATA, TARANT_TA
     TARANT_TABLE_TRANSACTION, TARANT_TABLE_INPUT, TARANT_TABLE_OUTPUT, TARANT_TABLE_SCRIPT, TARANT_TX_ID_SEARCH, \
     TARANT_ID_SEARCH
 from planetmint.backend.utils import module_dispatch_registrar
-from planetmint.backend.models import Asset, MetaData, Input, Fulfills
+from planetmint.backend.models import Asset, MetaData, Input, Script
 from planetmint.backend.tarantool.connection import TarantoolDBConnection
 from planetmint.backend.tarantool.transaction.tools import TransactionCompose, TransactionDecompose
 
@@ -35,20 +35,21 @@ def _group_transaction_by_ids(connection, txids: list):
         _txassets = connection.run(connection.space(TARANT_TABLE_ASSETS).select(txid, index=TARANT_TX_ID_SEARCH))
         _txassets = get_assets(connection, [txid])
         _txmeta = get_metadata_by_tx_id(connection, txid)
-        _txscript = connection.run(connection.space(TARANT_TABLE_SCRIPT).select(txid, index=TARANT_TX_ID_SEARCH))
+        _txscript = get_script_by_tx_id(connection, txid)
 
         _txoutputs = sorted(_txoutputs, key=itemgetter(8), reverse=False)
         result_map = {
             TARANT_TABLE_TRANSACTION: _txobject,
             TARANT_TABLE_OUTPUT: _txoutputs,
             TARANT_TABLE_KEYS: _txkeys,
-            TARANT_TABLE_SCRIPT: _txscript,
         }
         tx_compose = TransactionCompose(db_results=result_map)
         _transaction = tx_compose.convert_to_dict()
         _transaction[TARANT_TABLE_INPUT] = [input.to_input_dict() for input in _txinputs]
         _transaction["assets"] = [asset.data for asset in _txassets]
-        _transaction["metadata"] = _txmeta.metadata
+        _transaction["metadata"] = _txmeta.metadata 
+        if _txscript.script:
+            _transaction[TARANT_TABLE_SCRIPT] = _txscript.script
         _transactions.append(_transaction)
     return _transactions
 
@@ -97,8 +98,8 @@ def store_transactions(connection, signed_transactions: list):
             assets.append(Asset(id, transaction["id"], asset))
         store_assets(connection, assets)
 
-        if txtuples[TARANT_TABLE_SCRIPT] is not None:
-            connection.run(connection.space(TARANT_TABLE_SCRIPT).insert(txtuples["script"]), only_data=False)
+        if TARANT_TABLE_SCRIPT in transaction:
+            connection.run(connection.space(TARANT_TABLE_SCRIPT).insert((transaction["id"], transaction[TARANT_TABLE_SCRIPT])), only_data=False)
 
 
 @register_query(TarantoolDBConnection)
@@ -496,3 +497,8 @@ def get_latest_abci_chain(connection):
         return None
     _chain = sorted(_all_chains, key=itemgetter(0), reverse=True)[0]
     return {"height": _chain[0], "is_synced": _chain[1], "chain_id": _chain[2]}
+
+@register_query(TarantoolDBConnection)
+def get_script_by_tx_id(connection, tx_id: str) -> Script:
+    script = connection.run(connection.space(TARANT_TABLE_SCRIPT).select(tx_id, index=TARANT_TX_ID_SEARCH))
+    return Script.from_tuple(script[0]) if len(script) < 0 else Script(tx_id)
