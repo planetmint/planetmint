@@ -259,7 +259,7 @@ class Planetmint(object):
             if "metadata" not in transaction:
                 metadata = metadata[0] if metadata else None
                 if metadata:
-                    metadata = metadata.get("metadata")
+                    metadata = metadata.metadata
 
                 transaction.update({"metadata": metadata})
 

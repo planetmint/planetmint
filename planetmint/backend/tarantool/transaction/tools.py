@@ -72,25 +72,6 @@ class TransactionDecompose:
         asset_id = _asset[0]["id"] if _asset[0].get("id") is not None else self._transaction["id"]
         self._tuple_transaction[TARANT_TABLE_ASSETS] = (json.dumps(_asset), self._transaction["id"], asset_id)
 
-    def __prepare_inputs(self):
-        _inputs = []
-        input_index = 0
-        for _input in self._transaction[TARANT_TABLE_INPUT]:
-
-            _inputs.append(
-                (
-                    self._transaction["id"],
-                    _input["fulfillment"],
-                    _input["owners_before"],
-                    _input["fulfills"]["transaction_id"] if _input["fulfills"] is not None else "",
-                    str(_input["fulfills"]["output_index"]) if _input["fulfills"] is not None else "",
-                    self.__create_hash(7),
-                    input_index,
-                )
-            )
-            input_index = input_index + 1
-        return _inputs
-
     def __prepare_outputs(self):
         _outputs = []
         _keys = []
@@ -145,7 +126,6 @@ class TransactionDecompose:
         self._metadata_check()
         self.__asset_check()
         self._tuple_transaction[TARANT_TABLE_TRANSACTION] = self.__prepare_transaction()
-        self._tuple_transaction[TARANT_TABLE_INPUT] = self.__prepare_inputs()
         keys, outputs = self.__prepare_outputs()
         self._tuple_transaction[TARANT_TABLE_OUTPUT] = outputs
         self._tuple_transaction[TARANT_TABLE_KEYS] = keys
@@ -174,18 +154,6 @@ class TransactionCompose:
 
     def _get_metadata(self):
         return json.loads(self.db_results[TARANT_TABLE_META_DATA][0][1]) if len(self.db_results[TARANT_TABLE_META_DATA]) == 1 else None
-
-    def _get_inputs(self):
-        _inputs = []
-        for _input in self.db_results[TARANT_TABLE_INPUT]:
-            _in = copy.deepcopy(self._map[TARANT_TABLE_INPUT][_input[-1]])
-            _in["fulfillment"] = _input[1]
-            if _in["fulfills"] is not None:
-                _in["fulfills"]["transaction_id"] = _input[3]
-                _in["fulfills"]["output_index"] = int(_input[4])
-            _in["owners_before"] = _input[2]
-            _inputs.append(_in)
-        return _inputs
 
     def _get_outputs(self):
         _outputs = []
@@ -217,10 +185,9 @@ class TransactionCompose:
         transaction = {k: None for k in list(self._map.keys())}
         transaction["id"] = self._get_transaction_id()
         transaction[TARANT_TABLE_ASSETS] = self._get_asset()
-        transaction[TARANT_TABLE_META_DATA] = self._get_metadata()
+        transaction["metadata"] = self._get_metadata()
         transaction["version"] = self._get_transaction_version()
         transaction["operation"] = self._get_transaction_operation()
-        transaction[TARANT_TABLE_INPUT] = self._get_inputs()
         transaction[TARANT_TABLE_OUTPUT] = self._get_outputs()
         if self._get_script():
             transaction[TARANT_TABLE_SCRIPT] = self._get_script()

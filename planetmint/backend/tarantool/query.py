@@ -29,18 +29,16 @@ def _group_transaction_by_ids(connection, txids: list):
         if len(_txobject) == 0:
             continue
         _txobject = _txobject[0]
-        _txinputs = connection.run(connection.space(TARANT_TABLE_INPUT).select(txid, index=TARANT_ID_SEARCH))
+        _txinputs = get_inputs_by_tx_id(connection, txid)
         _txoutputs = connection.run(connection.space(TARANT_TABLE_OUTPUT).select(txid, index=TARANT_ID_SEARCH))
         _txkeys = connection.run(connection.space(TARANT_TABLE_KEYS).select(txid, index=TARANT_TX_ID_SEARCH))
         _txassets = connection.run(connection.space(TARANT_TABLE_ASSETS).select(txid, index=TARANT_TX_ID_SEARCH))
         _txmeta = connection.run(connection.space(TARANT_TABLE_META_DATA).select(txid, index=TARANT_ID_SEARCH))
         _txscript = connection.run(connection.space(TARANT_TABLE_SCRIPT).select(txid, index=TARANT_TX_ID_SEARCH))
 
-        _txinputs = sorted(_txinputs, key=itemgetter(6), reverse=False)
         _txoutputs = sorted(_txoutputs, key=itemgetter(8), reverse=False)
         result_map = {
             TARANT_TABLE_TRANSACTION: _txobject,
-            TARANT_TABLE_INPUT: _txinputs,
             TARANT_TABLE_OUTPUT: _txoutputs,
             TARANT_TABLE_KEYS: _txkeys,
             TARANT_TABLE_ASSETS: _txassets,
@@ -49,6 +47,7 @@ def _group_transaction_by_ids(connection, txids: list):
         }
         tx_compose = TransactionCompose(db_results=result_map)
         _transaction = tx_compose.convert_to_dict()
+        _transaction[TARANT_TABLE_INPUT] = [input.to_input_dict() for input in _txinputs]
         _transactions.append(_transaction)
     return _transactions
 
@@ -56,23 +55,7 @@ def _group_transaction_by_ids(connection, txids: list):
 def get_inputs_by_tx_id(connection, tx_id: str) -> list[Input]:
     _inputs = connection.run(connection.space(TARANT_TABLE_INPUT).select(tx_id, index=TARANT_ID_SEARCH))
     _sorted_inputs = sorted(_inputs, key=itemgetter(6))
-    
-    inputs = []
-    
-    for input in _sorted_inputs:
-        tx_id = input[0]
-        fulfillment = input[1]
-        owners_before = input[2]
-        fulfills = None
-        fulfills_tx_id = input[3]
-
-        if fulfills_tx_id:
-            # TODO: the output_index should be an unsigned int
-            fulfills = Fulfills(fulfills_tx_id, int(input[4]))
-        
-        inputs.append(Input(tx_id, fulfills, owners_before, fulfillment))
-
-    return inputs
+    return [Input.from_tuple(input) for input in _sorted_inputs]
 
 @register_query(TarantoolDBConnection)
 def store_transaction_inputs(connection, inputs: list[Input]):
@@ -97,8 +80,10 @@ def store_transactions(connection, signed_transactions: list):
             connection.run(connection.space(TARANT_TABLE_TRANSACTION).insert(txtuples[TARANT_TABLE_TRANSACTION]), only_data=False)
         except:  # This is used for omitting duplicate error in database for test -> test_bigchain_api::test_double_inclusion  # noqa: E501, E722
             continue
-        for _in in txtuples[TARANT_TABLE_INPUT]:
-            connection.run(connection.space(TARANT_TABLE_INPUT).insert(_in), only_data=False)
+
+        inputs = [Input.from_dict(input, transaction["id"]) for input in transaction[TARANT_TABLE_INPUT]]
+        store_transaction_inputs(connection, inputs)
+
         for _out in txtuples[TARANT_TABLE_OUTPUT]:
             connection.run(connection.space(TARANT_TABLE_OUTPUT).insert(_out), only_data=False)
 
@@ -111,7 +96,7 @@ def store_transactions(connection, signed_transactions: list):
         if txtuples[TARANT_TABLE_ASSETS] is not None:
             connection.run(connection.space(TARANT_TABLE_ASSETS).insert(txtuples[TARANT_TABLE_ASSETS]), only_data=False)
 
-        if txtuples["script"] is not None:
+        if txtuples[TARANT_TABLE_SCRIPT] is not None:
             connection.run(connection.space(TARANT_TABLE_SCRIPT).insert(txtuples["script"]), only_data=False)
 
 
@@ -169,7 +154,7 @@ def store_assets(connection, assets: list):
 @register_query(TarantoolDBConnection)
 def get_asset(connection, asset_id: str) -> Asset:
     _data = connection.run(connection.space(TARANT_TABLE_ASSETS).select(asset_id, index=TARANT_TX_ID_SEARCH))
-    return Asset(_data[0][2], _data[0][1], json.loads(_data[0][0]))
+    return Asset.from_tuple(_data[0])
 
 
 @register_query(TarantoolDBConnection)
@@ -180,7 +165,7 @@ def get_assets(connection, assets_ids: list) -> list[Asset]:
         _returned_data.append(res[0])
 
     sorted_assets = sorted(_returned_data, key=lambda k: k[1], reverse=False)
-    return [Asset(asset[2], asset[1], json.loads(asset[0])) for asset in sorted_assets]
+    return [Asset.from_tuple(asset) for asset in sorted_assets]
 
 
 @register_query(TarantoolDBConnection)
