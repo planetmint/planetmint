@@ -43,7 +43,7 @@ def test_get_metadata_tendermint(client, b, alice):
     res = client.get(METADATA_ENDPOINT + "?search=" + metadata)
     assert res.status_code == 200
     assert len(res.json) == 1
-    assert res.json[0] == {"metadata": metadata, "id": tx.id}
+    assert res.json[0] == {"meta_data": metadata, "id": tx.id}
 
 
 @pytest.mark.bdb

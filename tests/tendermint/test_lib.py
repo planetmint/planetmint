@@ -173,8 +173,6 @@ def test_update_utxoset(b, signed_create_tx, signed_transfer_tx, db_conn):
 def test_store_transaction(mocker, b, signed_create_tx, signed_transfer_tx, db_context):
     from planetmint.backend.tarantool.connection import TarantoolDBConnection
 
-    mocked_store_asset = mocker.patch("planetmint.backend.query.store_assets")
-    mocked_store_metadata = mocker.patch("planetmint.backend.query.store_metadatas")
     mocked_store_transaction = mocker.patch("planetmint.backend.query.store_transactions")
     b.store_bulk_transactions([signed_create_tx])
     if not isinstance(b.connection, TarantoolDBConnection):
@@ -184,31 +182,11 @@ def test_store_transaction(mocker, b, signed_create_tx, signed_transfer_tx, db_c
         utxo = utxoset.find_one()
         assert utxo["transaction_id"] == signed_create_tx.id
         assert utxo["output_index"] == 0
-        mocked_store_asset.assert_called_once_with(
-            b.connection,
-            [
-                {
-                    "data": signed_create_tx.assets[0]["data"],
-                    "tx_id": signed_create_tx.id,
-                    "asset_ids": [signed_create_tx.id],
-                }
-            ],
-        )
-    else:
-        mocked_store_asset.assert_called_once_with(
-            b.connection, [Asset(signed_create_tx.id, signed_create_tx.id, signed_create_tx.assets[0])]
-        )
 
-    mocked_store_metadata.assert_called_once_with(
-        b.connection,
-        [MetaData(signed_create_tx.id, signed_create_tx.metadata)]
-    )
     mocked_store_transaction.assert_called_once_with(
         b.connection,
-        [{k: v for k, v in signed_create_tx.to_dict().items() if k not in ("assets", "metadata")}],
+        [signed_create_tx.to_dict()],
     )
-    mocked_store_asset.reset_mock()
-    mocked_store_metadata.reset_mock()
     mocked_store_transaction.reset_mock()
     b.store_bulk_transactions([signed_transfer_tx])
     if not isinstance(b.connection, TarantoolDBConnection):
@@ -216,15 +194,10 @@ def test_store_transaction(mocker, b, signed_create_tx, signed_transfer_tx, db_c
         utxo = utxoset.find_one()
         assert utxo["transaction_id"] == signed_transfer_tx.id
         assert utxo["output_index"] == 0
-        assert not mocked_store_asset.called
-    mocked_store_metadata.asser_called_once_with(
-        b.connection,
-        [{"id": signed_transfer_tx.id, "metadata": signed_transfer_tx.metadata}],
-    )
     if not isinstance(b.connection, TarantoolDBConnection):
         mocked_store_transaction.assert_called_once_with(
             b.connection,
-            [{k: v for k, v in signed_transfer_tx.to_dict().items() if k != "metadata"}],
+            [signed_transfer_tx.to_dict()],
         )
 
 
@@ -232,8 +205,6 @@ def test_store_transaction(mocker, b, signed_create_tx, signed_transfer_tx, db_c
 def test_store_bulk_transaction(mocker, b, signed_create_tx, signed_transfer_tx, db_context):
     from planetmint.backend.tarantool.connection import TarantoolDBConnection
 
-    mocked_store_assets = mocker.patch("planetmint.backend.query.store_assets")
-    mocked_store_metadata = mocker.patch("planetmint.backend.query.store_metadatas")
     mocked_store_transactions = mocker.patch("planetmint.backend.query.store_transactions")
     b.store_bulk_transactions((signed_create_tx,))
     if not isinstance(b.connection, TarantoolDBConnection):
@@ -243,26 +214,12 @@ def test_store_bulk_transaction(mocker, b, signed_create_tx, signed_transfer_tx,
         utxo = utxoset.find_one()
         assert utxo["transaction_id"] == signed_create_tx.id
         assert utxo["output_index"] == 0
-    if isinstance(b.connection, TarantoolDBConnection):
-        mocked_store_assets.assert_called_once_with(
-            b.connection,  # signed_create_tx.asset['data'] this was before
-            [Asset(signed_create_tx.id, signed_create_tx.id, signed_create_tx.assets[0])]
-        )
-    else:
-        mocked_store_assets.assert_called_once_with(
-            b.connection,  # signed_create_tx.asset['data'] this was before
-            [(signed_create_tx.assets[0]["data"], signed_create_tx.id, signed_create_tx.id)],
-        )
-    mocked_store_metadata.assert_called_once_with(
-        b.connection,
-        [MetaData(signed_create_tx.id, signed_create_tx.metadata)]
-    )
+
     mocked_store_transactions.assert_called_once_with(
         b.connection,
-        [{k: v for k, v in signed_create_tx.to_dict().items() if k not in ("assets", "metadata")}],
+        [signed_create_tx.to_dict()],
     )
-    mocked_store_assets.reset_mock()
-    mocked_store_metadata.reset_mock()
+
     mocked_store_transactions.reset_mock()
     b.store_bulk_transactions((signed_transfer_tx,))
     if not isinstance(b.connection, TarantoolDBConnection):
@@ -270,15 +227,11 @@ def test_store_bulk_transaction(mocker, b, signed_create_tx, signed_transfer_tx,
         utxo = utxoset.find_one()
         assert utxo["transaction_id"] == signed_transfer_tx.id
         assert utxo["output_index"] == 0
-        assert not mocked_store_assets.called
-    mocked_store_metadata.asser_called_once_with(
-        b.connection,
-        [{"id": signed_transfer_tx.id, "metadata": signed_transfer_tx.metadata}],
-    )
+
     if not isinstance(b.connection, TarantoolDBConnection):
         mocked_store_transactions.assert_called_once_with(
             b.connection,
-            [{k: v for k, v in signed_transfer_tx.to_dict().items() if k != "metadata"}],
+            [signed_transfer_tx.to_dict()],
         )
 
 

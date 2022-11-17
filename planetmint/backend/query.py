@@ -174,6 +174,18 @@ def get_block_with_transaction(connection, txid):
 
     raise NotImplementedError
 
+@singledispatch
+def get_metadata_by_tx_id(connection, transaction_id: str) -> MetaData:
+    """Get metadata from the metadata table containing `transaction_id`.
+
+    Args:
+        transaction_id (str): id for the metadata to be retrieved from
+        the database.
+
+    Returns:
+        metadata (MetaData): the list of returned metadata.
+    """
+    raise NotImplementedError
 
 @singledispatch
 def get_metadata(connection, transaction_ids) -> list[MetaData]:

@@ -33,7 +33,8 @@ def _group_transaction_by_ids(connection, txids: list):
         _txoutputs = connection.run(connection.space(TARANT_TABLE_OUTPUT).select(txid, index=TARANT_ID_SEARCH))
         _txkeys = connection.run(connection.space(TARANT_TABLE_KEYS).select(txid, index=TARANT_TX_ID_SEARCH))
         _txassets = connection.run(connection.space(TARANT_TABLE_ASSETS).select(txid, index=TARANT_TX_ID_SEARCH))
-        _txmeta = connection.run(connection.space(TARANT_TABLE_META_DATA).select(txid, index=TARANT_ID_SEARCH))
+        _txassets = get_assets(connection, [txid])
+        _txmeta = get_metadata_by_tx_id(connection, txid)
         _txscript = connection.run(connection.space(TARANT_TABLE_SCRIPT).select(txid, index=TARANT_TX_ID_SEARCH))
 
         _txoutputs = sorted(_txoutputs, key=itemgetter(8), reverse=False)
@@ -41,13 +42,13 @@ def _group_transaction_by_ids(connection, txids: list):
             TARANT_TABLE_TRANSACTION: _txobject,
             TARANT_TABLE_OUTPUT: _txoutputs,
             TARANT_TABLE_KEYS: _txkeys,
-            TARANT_TABLE_ASSETS: _txassets,
-            TARANT_TABLE_META_DATA: _txmeta,
             TARANT_TABLE_SCRIPT: _txscript,
         }
         tx_compose = TransactionCompose(db_results=result_map)
         _transaction = tx_compose.convert_to_dict()
         _transaction[TARANT_TABLE_INPUT] = [input.to_input_dict() for input in _txinputs]
+        _transaction["assets"] = [asset.data for asset in _txassets]
+        _transaction["metadata"] = _txmeta.metadata
         _transactions.append(_transaction)
     return _transactions
 
@@ -76,10 +77,8 @@ def store_transactions(connection, signed_transactions: list):
     for transaction in signed_transactions:
         txprepare = TransactionDecompose(transaction)
         txtuples = txprepare.convert_to_tuple()
-        try:
-            connection.run(connection.space(TARANT_TABLE_TRANSACTION).insert(txtuples[TARANT_TABLE_TRANSACTION]), only_data=False)
-        except:  # This is used for omitting duplicate error in database for test -> test_bigchain_api::test_double_inclusion  # noqa: E501, E722
-            continue
+
+        connection.run(connection.space(TARANT_TABLE_TRANSACTION).insert(txtuples[TARANT_TABLE_TRANSACTION]), only_data=False)
 
         inputs = [Input.from_dict(input, transaction["id"]) for input in transaction[TARANT_TABLE_INPUT]]
         store_transaction_inputs(connection, inputs)
@@ -90,11 +89,13 @@ def store_transactions(connection, signed_transactions: list):
         for _key in txtuples[TARANT_TABLE_KEYS]:
             connection.run(connection.space(TARANT_TABLE_KEYS).insert(_key), only_data=False)
 
-        if txtuples[TARANT_TABLE_META_DATA] is not None:
-            connection.run(connection.space(TARANT_TABLE_META_DATA).insert(txtuples[TARANT_TABLE_META_DATA]), only_data=False)
+        store_metadatas(connection, [MetaData(transaction["id"], transaction["metadata"])])
 
-        if txtuples[TARANT_TABLE_ASSETS] is not None:
-            connection.run(connection.space(TARANT_TABLE_ASSETS).insert(txtuples[TARANT_TABLE_ASSETS]), only_data=False)
+        assets = []
+        for asset in transaction[TARANT_TABLE_ASSETS]:
+            id = transaction["id"] if "id" not in asset else asset["id"]
+            assets.append(Asset(id, transaction["id"], asset))
+        store_assets(connection, assets)
 
         if txtuples[TARANT_TABLE_SCRIPT] is not None:
             connection.run(connection.space(TARANT_TABLE_SCRIPT).insert(txtuples["script"]), only_data=False)
@@ -135,6 +136,10 @@ def get_metadata(connection, transaction_ids: list) -> list[MetaData]:
                 _returned_data.append(metadata)
     return _returned_data
 
+@register_query(TarantoolDBConnection)
+def get_metadata_by_tx_id(connection, transaction_id: str) -> MetaData:
+    metadata = connection.run(connection.space(TARANT_TABLE_META_DATA).select(transaction_id, index=TARANT_ID_SEARCH))
+    return MetaData.from_tuple(metadata[0]) if len(metadata) > 0 else MetaData(transaction_id)
 
 @register_query(TarantoolDBConnection)
 def store_asset(connection, asset: Asset):

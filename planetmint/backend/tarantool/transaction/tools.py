@@ -58,20 +58,6 @@ class TransactionDecompose:
     def __create_hash(self, n: int):
         return token_hex(n)
 
-    def _metadata_check(self):
-        metadata = self._transaction.get(TARANT_TABLE_META_DATA)
-        if metadata is None:
-            return
-
-        self._tuple_transaction[TARANT_TABLE_META_DATA] = (self._transaction["id"], json.dumps(metadata))
-
-    def __asset_check(self):
-        _asset = self._transaction.get(TARANT_TABLE_ASSETS)
-        if _asset is None:
-            return
-        asset_id = _asset[0]["id"] if _asset[0].get("id") is not None else self._transaction["id"]
-        self._tuple_transaction[TARANT_TABLE_ASSETS] = (json.dumps(_asset), self._transaction["id"], asset_id)
-
     def __prepare_outputs(self):
         _outputs = []
         _keys = []
@@ -123,8 +109,6 @@ class TransactionDecompose:
             return None
 
     def convert_to_tuple(self):
-        self._metadata_check()
-        self.__asset_check()
         self._tuple_transaction[TARANT_TABLE_TRANSACTION] = self.__prepare_transaction()
         keys, outputs = self.__prepare_outputs()
         self._tuple_transaction[TARANT_TABLE_OUTPUT] = outputs
@@ -146,14 +130,6 @@ class TransactionCompose:
 
     def _get_transaction_id(self):
         return self.db_results[TARANT_TABLE_TRANSACTION][0]
-
-    def _get_asset(self):
-        _asset = iter(self.db_results[TARANT_TABLE_ASSETS])
-        _res_asset = next(iter(next(_asset, iter([]))), None)
-        return json.loads(_res_asset)
-
-    def _get_metadata(self):
-        return json.loads(self.db_results[TARANT_TABLE_META_DATA][0][1]) if len(self.db_results[TARANT_TABLE_META_DATA]) == 1 else None
 
     def _get_outputs(self):
         _outputs = []
@@ -184,8 +160,6 @@ class TransactionCompose:
     def convert_to_dict(self):
         transaction = {k: None for k in list(self._map.keys())}
         transaction["id"] = self._get_transaction_id()
-        transaction[TARANT_TABLE_ASSETS] = self._get_asset()
-        transaction["metadata"] = self._get_metadata()
         transaction["version"] = self._get_transaction_version()
         transaction["operation"] = self._get_transaction_operation()
         transaction[TARANT_TABLE_OUTPUT] = self._get_outputs()

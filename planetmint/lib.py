@@ -141,29 +141,11 @@ class Planetmint(object):
 
     def store_bulk_transactions(self, transactions):
         txns = []
-        assets = []
-        txn_metadatas = []
 
         for t in transactions:
             transaction = t.tx_dict if t.tx_dict else rapidjson.loads(rapidjson.dumps(t.to_dict()))
-
-            tx_assets = transaction.pop("assets")
-            metadata = transaction.pop("metadata")
-            
-            if tx_assets is not None:
-                for asset in tx_assets:
-                    id = transaction["id"] if "id" not in asset else asset["id"]
-                    tx_asset = Asset(id, transaction["id"], asset)
-                    assets.append(tx_asset)
-            
-            metadata = MetaData(transaction["id"], metadata)
-
-            txn_metadatas.append(metadata)
             txns.append(transaction)
 
-        backend.query.store_metadatas(self.connection, txn_metadatas)
-        if assets:
-            backend.query.store_assets(self.connection, assets)
         return backend.query.store_transactions(self.connection, txns)
 
     def delete_transactions(self, txs):
@@ -251,21 +233,7 @@ class Planetmint(object):
 
     def get_transaction(self, transaction_id):
         transaction = backend.query.get_transaction(self.connection, transaction_id)
-        if transaction:
-            assets = backend.query.get_assets(self.connection, [transaction_id])
-            metadata = backend.query.get_metadata(self.connection, [transaction_id])
-            transaction["assets"] = [asset.data for asset in assets]
-
-            if "metadata" not in transaction:
-                metadata = metadata[0] if metadata else None
-                if metadata:
-                    metadata = metadata.metadata
-
-                transaction.update({"metadata": metadata})
-
-            transaction = Transaction.from_dict(transaction, False)
-
-        return transaction
+        return Transaction.from_dict(transaction, False)
 
     def get_transactions(self, txn_ids):
         return backend.query.get_transactions(self.connection, txn_ids)
