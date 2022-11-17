@@ -5,14 +5,13 @@
 
 """Query implementation for Tarantool"""
 import json
-
-from secrets import token_hex
+from uuid import uuid4
 from hashlib import sha256
 from operator import itemgetter
 from tarantool.error import DatabaseError
 from planetmint.backend import query
 from planetmint.backend.utils import module_dispatch_registrar
-from planetmint.backend.interfaces import Asset, MetaData, Input
+from planetmint.backend.models import Asset, MetaData, Input, Fulfills
 from planetmint.backend.tarantool.connection import TarantoolDBConnection
 from planetmint.backend.tarantool.transaction.tools import TransactionCompose, TransactionDecompose
 
@@ -65,10 +64,8 @@ def get_inputs_by_tx_id(connection, tx_id: str) -> list[Input]:
         fulfills_tx_id = input[3]
 
         if fulfills_tx_id:
-            fulfills = {
-                "transaction_id": fulfills_tx_id,
-                "output_index": int(input[4])
-            }
+            # TODO: the output_index should be an unsigned int
+            fulfills = Fulfills(fulfills_tx_id, int(input[4]))
         
         inputs.append(Input(tx_id, fulfills, owners_before, fulfillment))
 
@@ -80,8 +77,11 @@ def store_transaction_inputs(connection, inputs: list[Input]):
         connection.run(connection.space("inputs").insert((
             input.tx_id,
             input.fulfillment,
-            input.fulfills["transaction_id"] if input.fulfills else "",
-            input.fulfills["output_index"] if input.fulfills else "",
+            input.owners_before,
+            input.fulfills.transaction_id if input.fulfills else "",
+            # TODO: the output_index should be an unsigned int
+            str(input.fulfills.output_index) if input.fulfills else "",
+            uuid4().hex,
             index
         )))
 
@@ -208,7 +208,7 @@ def get_latest_block(connection):  # TODO Here is used DESCENDING OPERATOR
 
 @register_query(TarantoolDBConnection)
 def store_block(connection, block: dict):
-    block_unique_id = token_hex(8)
+    block_unique_id = uuid4().hex
     connection.run(
         connection.space("blocks").insert((block["app_hash"], block["height"], block_unique_id)), only_data=False
     )
@@ -370,7 +370,7 @@ def get_unspent_outputs(connection, query=None):  # for now we don't have implem
 def store_pre_commit_state(connection, state: dict):
     _precommit = connection.run(connection.space("pre_commits").select([], limit=1))
     _precommitTuple = (
-        (token_hex(8), state["height"], state["transactions"])
+        (uuid4().hex, state["height"], state["transactions"])
         if _precommit is None or len(_precommit) == 0
         else _precommit[0]
     )
@@ -394,7 +394,7 @@ def get_pre_commit_state(connection):
 @register_query(TarantoolDBConnection)
 def store_validator_set(conn, validators_update: dict):
     _validator = conn.run(conn.space("validators").select(validators_update["height"], index="height_search", limit=1))
-    unique_id = token_hex(8) if _validator is None or len(_validator) == 0 else _validator[0][0]
+    unique_id = uuid4().hex if _validator is None or len(_validator) == 0 else _validator[0][0]
     conn.run(
         conn.space("validators").upsert(
             (unique_id, validators_update["height"], validators_update["validators"]),

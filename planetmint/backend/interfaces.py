@@ -4,30 +4,11 @@
 # Code is Apache-2.0 and docs are CC-BY-4.0
 
 from dataclasses import dataclass
-from typing import Union
-
-# Asset should represent a single asset (e.g.: tarantool tuple (data, tx_id, asset_id))
-# If multiple assets are stored at once this should remain the same. 
-# For Create ({'data': 'values'}, c_tx_id, c_tx_id), For Transfer ({'id': c_tx_id}, tx_id, c_tx_id)
-
-@dataclass
-class Asset:
-    id: str = ""
-    tx_id: str = ""
-    data: str = ""
-
-@dataclass
-class MetaData:
-    id: str = ""
-    metadata: str = ""
-
-@dataclass
-class Input:
-    tx_id: str = ""
-    fulfills: Union[dict, None] = None
-    owners_before: list[str] = None
-    fulfillment: str = ""
     
+# NOTE: only here temporarily
+from planetmint.backend.models import Asset, MetaData, Input
+
+
 @dataclass
 class Output:
     id: str = None
