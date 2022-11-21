@@ -5,7 +5,6 @@
 
 from __future__ import annotations
 from dataclasses import dataclass, field
-from typing import Optional
 
 
 @dataclass
@@ -17,9 +16,9 @@ class SubCondition:
 @dataclass
 class ConditionDetails:
     type: str
-    public_key: str
-    threshold: int
-    sub_conditions: field(default_factory=list)
+    public_key: str = ""
+    threshold: int = 0
+    sub_conditions: list[SubCondition] = field(default_factory=list)
 
 
 @dataclass
@@ -31,24 +30,16 @@ class Condition:
 @dataclass
 class Output:
     id: str
-    public_keys: str
-    condition: Optional[Condition]
+    amount: int
+    condition: field(default_factory=Condition)
+    public_keys: str = ""
 
     @staticmethod
-    def from_dict(output: dict) -> Output:
-        return Output(
-            id=output["id"],
-            public_keys=output["public_keys"],
-            condition=Condition(
-                uri=output["condition"]["uri"],
-                details=ConditionDetails(
-                    type=output["condition"]["details"]["type"],
-                    public_key=output["condition"]["details"]["public_key"],
-                    threshold=output["condition"]["details"]["threshold"],
-                    sub_conditions=output["condition"]["details"]["subconditions"],
-                ),
-            ),
-        )
+    def from_dict(output: dict, tx_id: str = "") -> Output:
+        if output["condition"]["details"].get("subconditions") is None:
+            return output_with_public_key(output, tx_id)
+        else:
+            return output_with_sub_conditions(output, tx_id)
 
     @staticmethod
     def from_tuple(output: tuple) -> Output:
@@ -80,3 +71,40 @@ class Output:
                 },
             },
         }
+
+
+def output_with_sub_conditions(output, tx_id) -> Output:
+    return Output(
+        id=tx_id,
+        amount=output["amount"],
+        condition=Condition(
+            uri=output["condition"]["uri"],
+            details=ConditionDetails(
+                type=output["condition"]["details"]["type"],
+                threshold=output["condition"]["details"]["threshold"],
+                sub_conditions=[
+                    SubCondition(
+                        type=sub_condition["type"],
+                        body=sub_condition["body"],
+                    )
+                    for sub_condition in output["condition"]["details"][
+                        "subconditions"
+                    ]
+                ],
+            ),
+        ),
+    )
+
+
+def output_with_public_key(output, tx_id) -> Output:
+    return Output(
+        id=tx_id,
+        amount=output["amount"],
+        condition=Condition(
+            uri=output["condition"]["uri"],
+            details=ConditionDetails(
+                type=output["condition"]["details"]["type"],
+                public_key=output["condition"]["details"]["public_key"],
+            ),
+        ),
+    )

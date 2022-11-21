@@ -81,6 +81,7 @@ def store_transaction_outputs(connection, output: Output, index: int):
         output.public_keys,
         output.condition,
         output.condition,
+        uuid4().hex,
         index
     )))
 
@@ -96,7 +97,7 @@ def store_transactions(connection, signed_transactions: list):
         [store_transaction_inputs(connection, Input.from_dict(input, transaction["id"]), index) for
          index, input in enumerate(transaction[TARANT_TABLE_INPUT])]
 
-        [store_transaction_outputs(connection, Output.from_dict(output)) for index, output in
+        [store_transaction_outputs(connection, Output.from_dict(output, transaction["id"])) for index, output in
          enumerate(transaction[TARANT_TABLE_OUTPUT])]
 
         for _key in txtuples[TARANT_TABLE_KEYS]:
