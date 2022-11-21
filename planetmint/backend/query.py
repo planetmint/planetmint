@@ -7,7 +7,7 @@
 
 from functools import singledispatch
 from planetmint.backend.exceptions import OperationError
-from planetmint.backend.interfaces import Asset, Block, MetaData, Input, Script
+from planetmint.backend.interfaces import Asset, Block, MetaData, Input, Script, Output
 
 @singledispatch
 def store_asset(connection, asset: dict) -> Asset:
@@ -184,6 +184,16 @@ def get_metadata_by_tx_id(connection, transaction_id: str) -> MetaData:
 
     Returns:
         metadata (MetaData): the list of returned metadata.
+    """
+    raise NotImplementedError
+
+@singledispatch
+def store_transaction_outputs(connection, output: Output, index: int):
+    """Store the transaction outputs.
+
+    Args:
+        output (Output): the output to store.
+        index (int): the index of the output in the transaction.
     """
     raise NotImplementedError
 

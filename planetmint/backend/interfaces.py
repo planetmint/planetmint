@@ -7,11 +7,8 @@ from dataclasses import dataclass
     
 # NOTE: only here temporarily
 from planetmint.backend.models import Asset, MetaData, Input
+from planetmint.backend.models import Output
 
-
-@dataclass
-class Output:
-    id: str = None
 
 @dataclass
 class Block:

@@ -8,3 +8,4 @@ from .fulfills import Fulfills
 from .input import Input
 from .metadata import MetaData
 from .script import Script
+from .output import Output
