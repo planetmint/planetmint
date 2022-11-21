@@ -15,51 +15,50 @@ class SubCondition:
 
 @dataclass
 class ConditionDetails:
-    type: str
+    type: str = ""
     public_key: str = ""
     threshold: int = 0
-    sub_conditions: list[SubCondition] = field(default_factory=list)
+    sub_conditions: list[SubCondition] = None
 
 
 @dataclass
 class Condition:
-    uri: str
-    details: ConditionDetails
+    uri: str = ""
+    details: ConditionDetails = field(default_factory=ConditionDetails)
 
 
 @dataclass
 class Output:
-    id: str
-    amount: int
-    condition: field(default_factory=Condition)
-    public_keys: str = ""
+    tx_id: str = ""
+    amount: int = 0
+    condition: Condition = field(default_factory=Condition)
 
     @staticmethod
     def from_dict(output: dict, tx_id: str = "") -> Output:
         if output["condition"]["details"].get("subconditions") is None:
             return output_with_public_key(output, tx_id)
         else:
+            print(output)
             return output_with_sub_conditions(output, tx_id)
 
     @staticmethod
     def from_tuple(output: tuple) -> Output:
         return Output(
-            id=output[0],
-            public_keys=output[1],
+            tx_id=output[0],
             condition=Condition(
-                uri=output[2],
+                uri=output[1],
                 details=ConditionDetails(
-                    type=output[3],
-                    public_key=output[4],
-                    threshold=output[5],
-                    sub_conditions=output[6],
+                    type=output[2],
+                    public_key=output[3],
+                    threshold=output[4],
+                    sub_conditions=output[5],
                 ),
             ),
         )
 
     def to_output_dict(self) -> dict:
         return {
-            "id": self.id,
+            "id": self.tx_id,
             "public_keys": self.public_keys,
             "condition": {
                 "uri": self.condition.uri,
@@ -75,7 +74,7 @@ class Output:
 
 def output_with_sub_conditions(output, tx_id) -> Output:
     return Output(
-        id=tx_id,
+        tx_id=tx_id,
         amount=output["amount"],
         condition=Condition(
             uri=output["condition"]["uri"],
@@ -98,7 +97,7 @@ def output_with_sub_conditions(output, tx_id) -> Output:
 
 def output_with_public_key(output, tx_id) -> Output:
     return Output(
-        id=tx_id,
+        tx_id=tx_id,
         amount=output["amount"],
         condition=Condition(
             uri=output["condition"]["uri"],

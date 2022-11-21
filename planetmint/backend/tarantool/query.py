@@ -78,10 +78,14 @@ def store_transaction_inputs(connection, input: Input, index: int):
 @register_query(TarantoolDBConnection)
 def store_transaction_outputs(connection, output: Output, index: int):
     connection.run(connection.space(TARANT_TABLE_OUTPUT).insert((
-        output.public_keys,
-        output.condition,
-        output.condition,
+        output.tx_id,
+        output.amount,
+        output.condition.uri if output.condition else "",
+        output.condition.details.type if output.condition.details else "",
+        output.condition.details.public_key if output.condition.details else "",
         uuid4().hex,
+        output.condition.details.threshold if output.condition.details else "",
+        output.condition.details.sub_conditions if output.condition.details else "",
         index
     )))
 
@@ -97,7 +101,7 @@ def store_transactions(connection, signed_transactions: list):
         [store_transaction_inputs(connection, Input.from_dict(input, transaction["id"]), index) for
          index, input in enumerate(transaction[TARANT_TABLE_INPUT])]
 
-        [store_transaction_outputs(connection, Output.from_dict(output, transaction["id"])) for index, output in
+        [store_transaction_outputs(connection, Output.from_dict(output, transaction["id"]), index) for index, output in
          enumerate(transaction[TARANT_TABLE_OUTPUT])]
 
         for _key in txtuples[TARANT_TABLE_KEYS]:
