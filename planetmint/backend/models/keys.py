@@ -10,14 +10,15 @@ from typing import Optional
 @dataclass
 class Keys:
     tx_id: str = ""
-    public_key: str = ""
+    output_id: str = ""
+    public_keys: [str] = ""
 
     @staticmethod
     def from_dict(output: dict, tx_id: str = "") -> Keys:
         if output["condition"]["details"].get("subconditions") is None:
             return Keys(
                 tx_id=tx_id,
-                public_key=output["condition"]["details"]["public_key"],
+                public_keys=output["public_keys"],
             )
 
 
@@ -25,11 +26,11 @@ class Keys:
     def from_tuple(output: tuple) -> Keys:
         return Keys(
             tx_id=output[0],
-            public_key=output[1],
+            public_keys=output[1],
         )
 
     def to_output_dict(self) -> dict:
         return {
             "tx_id": self.tx_id,
-            "public_keys": self.public_key,
+            "public_keys": self.public_keys,
         }

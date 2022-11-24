@@ -5,6 +5,9 @@
 
 from __future__ import annotations
 from dataclasses import dataclass, field
+from typing import List
+
+from planetmint.backend.models.keys import Keys
 
 
 @dataclass
@@ -31,15 +34,17 @@ class Condition:
 class Output:
     tx_id: str = ""
     amount: int = 0
+    public_keys: List[str] = field(default_factory=list)
     condition: Condition = field(default_factory=Condition)
 
     @staticmethod
-    def from_dict(output: dict, tx_id: str = "") -> Output:
+    def outputs_and_keys_dict(output: dict, tx_id: str = "") -> (Output, Keys):
+        out_dict: Output
         if output["condition"]["details"].get("subconditions") is None:
-            return output_with_public_key(output, tx_id)
+            out_dict = output_with_public_key(output, tx_id)
         else:
-            print(output)
-            return output_with_sub_conditions(output, tx_id)
+            out_dict = output_with_sub_conditions(output, tx_id)
+        return out_dict, Keys.from_dict(output, tx_id)
 
     @staticmethod
     def from_tuple(output: tuple) -> Output:
@@ -59,6 +64,7 @@ class Output:
     def to_output_dict(self) -> dict:
         return {
             "id": self.tx_id,
+            "amount": self.amount,
             "public_keys": self.public_keys,
             "condition": {
                 "uri": self.condition.uri,
@@ -72,9 +78,25 @@ class Output:
         }
 
 
+def output_with_public_key(output, tx_id) -> Output:
+    return Output(
+        tx_id=tx_id,
+        public_keys=output["public_keys"],
+        amount=output["amount"],
+        condition=Condition(
+            uri=output["condition"]["uri"],
+            details=ConditionDetails(
+                type=output["condition"]["details"]["type"],
+                public_key=output["condition"]["details"]["public_key"],
+            ),
+        ),
+    )
+
+
 def output_with_sub_conditions(output, tx_id) -> Output:
     return Output(
         tx_id=tx_id,
+        public_keys=output["public_keys"],
         amount=output["amount"],
         condition=Condition(
             uri=output["condition"]["uri"],
@@ -95,15 +117,4 @@ def output_with_sub_conditions(output, tx_id) -> Output:
     )
 
 
-def output_with_public_key(output, tx_id) -> Output:
-    return Output(
-        tx_id=tx_id,
-        amount=output["amount"],
-        condition=Condition(
-            uri=output["condition"]["uri"],
-            details=ConditionDetails(
-                type=output["condition"]["details"]["type"],
-                public_key=output["condition"]["details"]["public_key"],
-            ),
-        ),
-    )
+

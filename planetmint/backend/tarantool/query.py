@@ -10,6 +10,7 @@ from hashlib import sha256
 from operator import itemgetter
 from tarantool.error import DatabaseError
 from planetmint.backend import query
+from planetmint.backend.models.keys import Keys
 from planetmint.backend.tarantool.const import TARANT_TABLE_META_DATA, TARANT_TABLE_ASSETS, TARANT_TABLE_KEYS, \
     TARANT_TABLE_TRANSACTION, TARANT_TABLE_INPUT, TARANT_TABLE_OUTPUT, TARANT_TABLE_SCRIPT, TARANT_TX_ID_SEARCH, \
     TARANT_ID_SEARCH
@@ -76,18 +77,54 @@ def store_transaction_inputs(connection, input: Input, index: int):
 
 
 @register_query(TarantoolDBConnection)
-def store_transaction_outputs(connection, output: Output, index: int):
+def store_transaction_outputs_and_keys(connection, output_key: (Output, Keys), index: int):
+    output_id = store_transaction_outputs(connection, output_key[0], index)
+    store_transaction_keys(connection, output_key[1], output_id, index)
+
+
+def store_transaction_outputs(connection, output: Output, index: int) -> str:
+    output_id = uuid4().hex
+    if output.condition.details.sub_conditions is None:
+        tmp_output = (
+            output.tx_id,
+            output.amount,
+            output.condition.uri if output.condition else "",
+            output.condition.details.type if output.condition.details else "",
+            output.condition.details.public_key if output.condition.details else "",
+            output_id,
+            None,
+            None,
+            index,
+        )
+    else:
+        tmp_output = (
+            output.tx_id,
+            output.amount,
+            output.condition.uri if output.condition else "",
+            output.condition.details.type if output.condition.details else "",
+            None,
+            output_id,
+            output.condition.details.threshold if output.condition.details else "",
+            json.dumps(output.condition.details.sub_conditions, default=) if output.condition.details.sub_conditions else "",
+            index,
+        )
+
     connection.run(connection.space(TARANT_TABLE_OUTPUT).insert((
-        output.tx_id,
-        output.amount,
-        output.condition.uri if output.condition else "",
-        output.condition.details.type if output.condition.details else "",
-        output.condition.details.public_key if output.condition.details else "",
-        uuid4().hex,
-        output.condition.details.threshold if output.condition.details else "",
-        output.condition.details.sub_conditions if output.condition.details else "",
-        index
+        tmp_output
     )))
+    return output_id
+
+
+@register_query(TarantoolDBConnection)
+def store_transaction_keys(connection, keys: Keys, output_id: str, index: int):
+    for key in keys.public_keys:
+        connection.run(connection.space(TARANT_TABLE_KEYS).insert((
+            uuid4().hex,
+            keys.tx_id,
+            output_id,
+            key,
+            index
+        )))
 
 
 @register_query(TarantoolDBConnection)
@@ -96,16 +133,15 @@ def store_transactions(connection, signed_transactions: list):
         txprepare = TransactionDecompose(transaction)
         txtuples = txprepare.convert_to_tuple()
 
-        connection.run(connection.space(TARANT_TABLE_TRANSACTION).insert(txtuples[TARANT_TABLE_TRANSACTION]), only_data=False)
+        connection.run(connection.space(TARANT_TABLE_TRANSACTION).insert(txtuples[TARANT_TABLE_TRANSACTION]),
+                       only_data=False)
 
         [store_transaction_inputs(connection, Input.from_dict(input, transaction["id"]), index) for
          index, input in enumerate(transaction[TARANT_TABLE_INPUT])]
 
-        [store_transaction_outputs(connection, Output.from_dict(output, transaction["id"]), index) for index, output in
+        [store_transaction_outputs_and_keys(connection, Output.outputs_and_keys_dict(output, transaction["id"]), index)
+         for index, output in
          enumerate(transaction[TARANT_TABLE_OUTPUT])]
-
-        for _key in txtuples[TARANT_TABLE_KEYS]:
-            connection.run(connection.space(TARANT_TABLE_KEYS).insert(_key), only_data=False)
 
         store_metadatas(connection, [MetaData(transaction["id"], transaction["metadata"])])
 
@@ -116,7 +152,9 @@ def store_transactions(connection, signed_transactions: list):
         store_assets(connection, assets)
 
         if TARANT_TABLE_SCRIPT in transaction:
-            connection.run(connection.space(TARANT_TABLE_SCRIPT).insert((transaction["id"], transaction[TARANT_TABLE_SCRIPT])), only_data=False)
+            connection.run(
+                connection.space(TARANT_TABLE_SCRIPT).insert((transaction["id"], transaction[TARANT_TABLE_SCRIPT])),
+                only_data=False)
 
 
 @register_query(TarantoolDBConnection)
@@ -154,10 +192,12 @@ def get_metadata(connection, transaction_ids: list) -> list[MetaData]:
                 _returned_data.append(metadata)
     return _returned_data
 
+
 @register_query(TarantoolDBConnection)
 def get_metadata_by_tx_id(connection, transaction_id: str) -> MetaData:
     metadata = connection.run(connection.space(TARANT_TABLE_META_DATA).select(transaction_id, index=TARANT_ID_SEARCH))
     return MetaData.from_tuple(metadata[0]) if len(metadata) > 0 else MetaData(transaction_id)
+
 
 @register_query(TarantoolDBConnection)
 def store_asset(connection, asset: Asset):
@@ -520,6 +560,7 @@ def get_latest_abci_chain(connection):
         return None
     _chain = sorted(_all_chains, key=itemgetter(0), reverse=True)[0]
     return {"height": _chain[0], "is_synced": _chain[1], "chain_id": _chain[2]}
+
 
 @register_query(TarantoolDBConnection)
 def get_script_by_tx_id(connection, tx_id: str) -> Script:
