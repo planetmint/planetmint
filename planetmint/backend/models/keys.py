@@ -15,11 +15,10 @@ class Keys:
 
     @staticmethod
     def from_dict(output: dict, tx_id: str = "") -> Keys:
-        if output["condition"]["details"].get("subconditions") is None:
-            return Keys(
-                tx_id=tx_id,
-                public_keys=output["public_keys"],
-            )
+        return Keys(
+            tx_id=tx_id,
+            public_keys=output["public_keys"],
+        )
 
 
     @staticmethod

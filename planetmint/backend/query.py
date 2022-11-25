@@ -500,3 +500,14 @@ def _group_transaction_by_ids(txids: list, connection):
 def get_script_by_tx_id(connection, tx_id: str) -> Script:
     """Retrieve script for a transaction by its id"""
     raise NotImplementedError
+
+
+@singledispatch
+def get_outputs_by_tx_id(connection, tx_id: str) -> list[Output]:
+    """Retrieve outputs for a transaction by its id"""
+    raise NotImplementedError
+
+@singledispatch
+def get_keys_by_tx_id(connection, tx_id: str) -> list[Keys]:
+    """Retrieve keys for a transaction by its id"""
+    raise NotImplementedError

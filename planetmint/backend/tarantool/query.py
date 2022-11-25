@@ -31,9 +31,8 @@ def _group_transaction_by_ids(connection, txids: list):
             continue
         _txobject = _txobject[0]
         _txinputs = get_inputs_by_tx_id(connection, txid)
-        _txoutputs = connection.run(connection.space(TARANT_TABLE_OUTPUT).select(txid, index=TARANT_ID_SEARCH))
-        _txkeys = connection.run(connection.space(TARANT_TABLE_KEYS).select(txid, index=TARANT_TX_ID_SEARCH))
-        _txassets = connection.run(connection.space(TARANT_TABLE_ASSETS).select(txid, index=TARANT_TX_ID_SEARCH))
+        _txoutputs = get_outputs_by_tx_id(connection, txid)
+        _txkeys = get_keys_by_tx_id(connection, txid)
         _txassets = get_assets(connection, [txid])
         _txmeta = get_metadata_by_tx_id(connection, txid)
         _txscript = get_script_by_tx_id(connection, txid)
@@ -60,6 +59,20 @@ def get_inputs_by_tx_id(connection, tx_id: str) -> list[Input]:
     _inputs = connection.run(connection.space(TARANT_TABLE_INPUT).select(tx_id, index=TARANT_ID_SEARCH))
     _sorted_inputs = sorted(_inputs, key=itemgetter(6))
     return [Input.from_tuple(input) for input in _sorted_inputs]
+
+
+@register_query(TarantoolDBConnection)
+def get_outputs_by_tx_id(connection, tx_id: str) -> list[Output]:
+    _outputs = connection.run(connection.space(TARANT_TABLE_OUTPUT).select(tx_id, index=TARANT_ID_SEARCH))
+    _sorted_inputs = sorted(_outputs, key=itemgetter(6))
+    return [Output.from_tuple(output) for output in _sorted_inputs]
+
+
+@register_query(TarantoolDBConnection)
+def get_keys_by_tx_id(connection, tx_id: str) -> list[Keys]:
+    _keys = connection.run(connection.space(TARANT_TABLE_KEYS).select(tx_id, index=TARANT_ID_SEARCH))
+    _sorted_keys = sorted(_keys, key=itemgetter(6))
+    return [Keys.from_tuple(key) for key in _sorted_keys]
 
 
 @register_query(TarantoolDBConnection)
@@ -105,7 +118,7 @@ def store_transaction_outputs(connection, output: Output, index: int) -> str:
             None,
             output_id,
             output.condition.details.threshold if output.condition.details else "",
-            json.dumps(output.condition.details.sub_conditions, default=) if output.condition.details.sub_conditions else "",
+            output.condition.details.sub_conditions_to_list_dict() if output.condition.details.sub_conditions else "",
             index,
         )
 
@@ -130,11 +143,6 @@ def store_transaction_keys(connection, keys: Keys, output_id: str, index: int):
 @register_query(TarantoolDBConnection)
 def store_transactions(connection, signed_transactions: list):
     for transaction in signed_transactions:
-        txprepare = TransactionDecompose(transaction)
-        txtuples = txprepare.convert_to_tuple()
-
-        connection.run(connection.space(TARANT_TABLE_TRANSACTION).insert(txtuples[TARANT_TABLE_TRANSACTION]),
-                       only_data=False)
 
         [store_transaction_inputs(connection, Input.from_dict(input, transaction["id"]), index) for
          index, input in enumerate(transaction[TARANT_TABLE_INPUT])]

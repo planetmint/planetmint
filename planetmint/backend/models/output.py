@@ -13,7 +13,7 @@ from planetmint.backend.models.keys import Keys
 @dataclass
 class SubCondition:
     type: str
-    body: str
+    public_key: str
 
 
 @dataclass
@@ -22,6 +22,11 @@ class ConditionDetails:
     public_key: str = ""
     threshold: int = 0
     sub_conditions: list[SubCondition] = None
+
+    def sub_conditions_to_list_dict(self):
+        if self.sub_conditions is None:
+            return None
+        return [sub_condition.__dict__ for sub_condition in self.sub_conditions]
 
 
 @dataclass
@@ -106,7 +111,7 @@ def output_with_sub_conditions(output, tx_id) -> Output:
                 sub_conditions=[
                     SubCondition(
                         type=sub_condition["type"],
-                        body=sub_condition["body"],
+                        public_key=sub_condition["public_key"],
                     )
                     for sub_condition in output["condition"]["details"][
                         "subconditions"
