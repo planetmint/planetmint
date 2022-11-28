@@ -86,7 +86,7 @@ class TestBigchainApi(object):
 
     @pytest.mark.usefixtures("inputs")
     def test_non_create_input_not_found(self, b, user_pk):
-        from cryptoconditions import Ed25519Sha256
+        from planetmint_cryptoconditions import Ed25519Sha256
         from transactions.common.exceptions import InputDoesNotExist
         from transactions.common.transaction import Input, TransactionLink
 
