@@ -55,13 +55,14 @@ class Output:
     def from_tuple(output: tuple) -> Output:
         return Output(
             tx_id=output[0],
+            amount=output[1],
             condition=Condition(
-                uri=output[1],
+                uri=output[2],
                 details=ConditionDetails(
-                    type=output[2],
-                    public_key=output[3],
-                    threshold=output[4],
-                    sub_conditions=output[5],
+                    type=output[3],
+                    public_key=output[4],
+                    threshold=output[6],
+                    sub_conditions=output[7],
                 ),
             ),
         )

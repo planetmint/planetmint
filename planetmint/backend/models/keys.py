@@ -24,12 +24,14 @@ class Keys:
     @staticmethod
     def from_tuple(output: tuple) -> Keys:
         return Keys(
-            tx_id=output[0],
-            public_keys=output[1],
+            tx_id=output[1],
+            output_id=output[2],
+            public_keys=output[3],
         )
 
-    def to_output_dict(self) -> dict:
+    def to_dict(self) -> dict:
         return {
             "tx_id": self.tx_id,
+            "output_id": self.output_id,
             "public_keys": self.public_keys,
         }
