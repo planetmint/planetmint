@@ -7,7 +7,7 @@
 
 from functools import singledispatch
 from planetmint.backend.exceptions import OperationError
-from planetmint.backend.interfaces import Asset, Block, MetaData, Input, Script, Output
+from planetmint.backend.interfaces import Asset, Block, MetaData, Input, Script, Output, Transaction
 from planetmint.backend.models.keys import Keys
 
 
@@ -59,27 +59,26 @@ def store_transactions(connection, signed_transactions):
 
     raise NotImplementedError
 
-
 @singledispatch
-def get_transaction(connection, transaction_id):
-    """Get a transaction from the transactions table.
-
-    Args:
-        transaction_id (str): the id of the transaction.
-
-    Returns:
-        The result of the operation.
-    """
+def store_transaction(connection, transaction):
+    """Store a single transaction."""
 
     raise NotImplementedError
 
 
 @singledispatch
-def get_transactions(connection, transaction_ids):
-    """Get transactions from the transactions table.
+def get_transaction(conn, transaction_id):
+    """Get a transaction from the database."""
+
+    raise NotImplementedError
+
+
+@singledispatch
+def get_transactions(connection, transactions_ids) -> list[Transaction]:
+    """Get a transaction from the transactions table.
 
     Args:
-        transaction_ids (list): list of transaction ids to fetch
+        transaction_id (str): the id of the transaction.
 
     Returns:
         The result of the operation.
