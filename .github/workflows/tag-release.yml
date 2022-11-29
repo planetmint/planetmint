@@ -19,7 +19,7 @@ jobs:
           python-version: 3.9
 
       - name: Install dependencies
-        run: pip install -e '.[dev]' && python setup.py bdist_wheel sdist
+        run: pip install -e '.[dev]' && pip install wheel && python setup.py bdist_wheel sdist
 
       - name: Upload to TestPyPI
         run: |
