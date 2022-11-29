@@ -15,7 +15,5 @@ RUN pip install --upgrade \
     pytest~=6.2.5 \
     pycco \
     websocket-client~=0.47.0 \
-    planetmint-cryptoconditions>=0.10.0 \
     planetmint-driver>=9.2.0 \
     blns
-RUN pip install base58 pynacl==1.4.0 zenroom==2.1.0.dev1655293214 pyasn1==0.4.8 cryptography==3.4.7

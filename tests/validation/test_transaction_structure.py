@@ -232,7 +232,7 @@ def test_handle_threshold_overflow():
 
 
 def test_unsupported_condition_type():
-    from cryptoconditions.exceptions import UnsupportedTypeError
+    from planetmint_cryptoconditions.exceptions import UnsupportedTypeError
 
     with pytest.raises(UnsupportedTypeError):
         _fulfillment_from_details({"type": "a"})

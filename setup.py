@@ -111,7 +111,6 @@ install_requires = [
     "base58==2.1.1",
     "aiohttp==3.8.1",
     "abci==0.8.3",
-    "planetmint-cryptoconditions>=0.10.0",
     "flask-cors==3.0.10",
     "flask-restful==0.3.9",
     "flask==2.1.2",
@@ -119,7 +118,6 @@ install_requires = [
     "jsonschema==4.16.0",
     "logstats==0.3.0",
     "packaging>=20.9",
-    # TODO Consider not installing the db drivers, or putting them in extras.
     "pymongo==3.11.4",
     "tarantool==0.7.1",
     "python-rapidjson>=1.0",
@@ -130,14 +128,9 @@ install_requires = [
     "nest-asyncio==1.5.5",
     "protobuf==3.20.1",
     "planetmint-ipld>=0.0.3",
-    "pyasn1",
-    "zenroom==2.1.0.dev1655293214",
-    "base58>=2.1.0",
-    "PyNaCl==1.4.0",
     "pyasn1>=0.4.8",
-    "cryptography==3.4.7",
     "python-decouple",
-    "planetmint-transactions==0.2.0",
+    "planetmint-transactions>=0.2.2",
 ]
 
 setup(
