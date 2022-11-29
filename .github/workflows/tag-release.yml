@@ -1,0 +1,30 @@
+
+name: Deploy packages
+on: 
+  push:
+    tags:
+      - '*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3
+      
+      - name: Setup python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.9
+
+      - name: Setup poetry
+        uses: Gr1N/setup-poetry@v7
+
+      - name: Install dependencies
+        run: poetry install --with dev 
+
+      - name: Upload to TestPyPI
+        run: |
+          poetry build
+          poetry publish -u __token__ -p ${{ secrets.PYPI_TOKEN }}
