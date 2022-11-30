@@ -67,7 +67,7 @@ def store_transaction(connection, transaction):
 
 
 @singledispatch
-def get_transaction(conn, transaction_id):
+def get_transaction(connection, transaction_id):
     """Get a transaction from the database."""
 
     raise NotImplementedError

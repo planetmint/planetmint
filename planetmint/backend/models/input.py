@@ -42,7 +42,7 @@ class Input:
                 
         return Input(tx_id, fulfills, owners_before, fulfillment)
     
-    def to_input_dict(self) -> dict:
+    def to_dict(self) -> dict:
         fulfills = {
             "transaction_id": self.fulfills.transaction_id,
             "output_index": self.fulfills.output_index

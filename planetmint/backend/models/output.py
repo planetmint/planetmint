@@ -67,7 +67,7 @@ class Output:
             ),
         )
 
-    def to_output_dict(self) -> dict:
+    def to_dict(self) -> dict:
         return {
             "id": self.tx_id,
             "amount": self.amount,

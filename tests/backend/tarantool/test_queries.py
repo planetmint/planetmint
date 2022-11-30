@@ -204,8 +204,8 @@ def test_get_owned_ids(signed_create_tx, user_pk, db_conn):
     query.store_transactions(connection=db_conn, signed_transactions=[signed_create_tx.to_dict()])
     txns = list(query.get_owned_ids(connection=db_conn, owner=user_pk))
     tx_dict = signed_create_tx.to_dict()
-    founded = [tx for tx in txns if tx["id"] == tx_dict["id"]]
-    assert founded[0] == tx_dict
+    founded = [tx for tx in txns if tx["transactions"].id == tx_dict["id"]]
+    assert founded[0]["transactions"].raw_transaction == tx_dict
 
 
 def test_get_spending_transactions(user_pk, user_sk, db_conn):
@@ -225,7 +225,8 @@ def test_get_spending_transactions(user_pk, user_sk, db_conn):
     txns = list(query.get_spending_transactions(connection=db_conn, inputs=links))
 
     # tx3 not a member because input 1 not asked for
-    assert txns == [tx2.to_dict(), tx4.to_dict()]
+    assert txns[0]["transactions"].raw_transaction == tx2.to_dict()
+    assert txns[1]["transactions"].raw_transaction == tx4.to_dict()
 
 
 def test_get_spending_transactions_multiple_inputs(db_conn):
@@ -261,7 +262,7 @@ def test_get_spending_transactions_multiple_inputs(db_conn):
         txns = list(query.get_spending_transactions(connection=db_conn, inputs=[li]))
         assert len(txns) == num
         if len(txns):
-            assert [tx["id"] for tx in txns] == match
+            assert [tx["transactions"].id for tx in txns] == match
 
 
 def test_store_block(db_conn):

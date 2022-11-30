@@ -8,11 +8,8 @@ MongoDB.
 
 """
 import logging
-from collections import namedtuple
-from uuid import uuid4
 from planetmint.backend.connection import Connection
 
-from hashlib import sha3_256
 import json
 import rapidjson
 import requests
@@ -40,6 +37,7 @@ from transactions.common.transaction import VALIDATOR_ELECTION, CHAIN_MIGRATION_
 from transactions.common.transaction_mode_types import BROADCAST_TX_COMMIT, BROADCAST_TX_ASYNC, BROADCAST_TX_SYNC
 from transactions.types.elections.election import Election
 from transactions.types.elections.validator_utils import election_id_to_public_key
+
 from planetmint.config import Config
 from planetmint import backend, config_utils, fastquery
 from planetmint.tendermint_utils import (
@@ -230,8 +228,7 @@ class Planetmint(object):
         return bool(transaction)
 
     def get_transaction(self, transaction_id):
-        transaction = backend.query.get_transaction(self.connection, transaction_id)
-        return Transaction.from_dict(transaction, False)
+        return backend.query.get_transaction(self.connection, transaction_id)
 
     def get_transactions(self, txn_ids):
         return backend.query.get_transactions(self.connection, txn_ids)

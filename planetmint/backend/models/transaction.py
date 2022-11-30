@@ -12,6 +12,7 @@ class Transaction:
     id: str = ""
     operation: str = ""
     version: str = ""
+    raw_transaction: dict = dict
 
     @staticmethod
     def from_dict(transaction: dict) -> Transaction:
@@ -19,6 +20,7 @@ class Transaction:
             id=transaction["id"],
             operation=transaction["operation"],
             version=transaction["version"],
+            raw_transaction=transaction["transaction"],
         )
 
 
@@ -28,11 +30,14 @@ class Transaction:
             id=transaction[0],
             operation=transaction[1],
             version=transaction[2],
+            raw_transaction=transaction[3],
         )
+
 
     def to_dict(self) -> dict:
         return {
             "id": self.id,
             "operation": self.operation,
             "version": self.version,
+            "transaction": self.raw_transaction,
         }
