@@ -742,23 +742,23 @@ class Planetmint(object):
         # validators and their voting power in the network
         return current_topology == voters
 
-    def count_votes(self, election_pk, transactions, getter=getattr):
+    def count_votes(self, election_pk, transactions):
         votes = 0
         for txn in transactions:
-            if getter(txn, "operation") == Vote.OPERATION:
-                for output in getter(txn, "outputs"):
+            if txn.operation == Vote.OPERATION:
+                for output in txn.outputs:
                     # NOTE: We enforce that a valid vote to election id will have only
                     # election_pk in the output public keys, including any other public key
                     # along with election_pk will lead to vote being not considered valid.
-                    if len(getter(output, "public_keys")) == 1 and [election_pk] == getter(output, "public_keys"):
-                        votes = votes + int(getter(output, "amount"))
+                    if len(output.public_keys) == 1 and [election_pk] == output.public_keys:
+                        votes = votes + output.amount
         return votes
 
     def get_commited_votes(self, transaction, election_pk=None):  # TODO: move somewhere else
         if election_pk is None:
             election_pk = election_id_to_public_key(transaction.id)
         txns = list(backend.query.get_asset_tokens_for_public_key(self.connection, transaction.id, election_pk))
-        return self.count_votes(election_pk, txns, dict.get)
+        return self.count_votes(election_pk, txns)
 
     def _get_initiated_elections(self, height, txns):  # TODO: move somewhere else
         elections = []

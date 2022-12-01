@@ -320,7 +320,7 @@ def test_election_new_upsert_validator_with_tendermint(b, priv_validator_path, u
 
     election_id = run_election_new_upsert_validator(new_args, b)
 
-    assert b.get_transaction(election_id)
+    assert b.get_transaction_space_by_id(election_id)
 
 
 @pytest.mark.bdb
@@ -347,7 +347,7 @@ def test_election_new_upsert_validator_without_tendermint(caplog, b, priv_valida
     with caplog.at_level(logging.INFO):
         election_id = run_election_new_upsert_validator(args, b)
         assert caplog.records[0].msg == "[SUCCESS] Submitted proposal with id: " + election_id
-        assert b.get_transaction(election_id)
+        assert b.get_transaction_space_by_id(election_id)
 
 
 @pytest.mark.abci
@@ -358,7 +358,7 @@ def test_election_new_chain_migration_with_tendermint(b, priv_validator_path, us
 
     election_id = run_election_new_chain_migration(new_args, b)
 
-    assert b.get_transaction(election_id)
+    assert b.get_transaction_space_by_id(election_id)
 
 
 @pytest.mark.bdb
@@ -377,7 +377,7 @@ def test_election_new_chain_migration_without_tendermint(caplog, b, priv_validat
     with caplog.at_level(logging.INFO):
         election_id = run_election_new_chain_migration(args, b)
         assert caplog.records[0].msg == "[SUCCESS] Submitted proposal with id: " + election_id
-        assert b.get_transaction(election_id)
+        assert b.get_transaction_space_by_id(election_id)
 
 
 @pytest.mark.bdb
@@ -446,7 +446,7 @@ def test_election_approve_with_tendermint(b, priv_validator_path, user_sk, valid
     args = Namespace(action="approve", election_id=election_id, sk=priv_validator_path, config={})
     approve = run_election_approve(args, b)
 
-    assert b.get_transaction(approve)
+    assert b.get_transaction_space_by_id(approve)
 
 
 @pytest.mark.bdb
@@ -463,7 +463,7 @@ def test_election_approve_without_tendermint(caplog, b, priv_validator_path, new
     with caplog.at_level(logging.INFO):
         approval_id = run_election_approve(args, b)
         assert caplog.records[0].msg == "[SUCCESS] Your vote has been submitted"
-        assert b.get_transaction(approval_id)
+        assert b.get_transaction_space_by_id(approval_id)
 
 
 @pytest.mark.bdb

@@ -7,6 +7,9 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Optional
 
+from planetmint.backend.models import Asset, MetaData, Input, Output, Script
+from planetmint.backend.models.keys import Keys
+
 
 @dataclass
 class Transaction:
@@ -14,6 +17,12 @@ class Transaction:
     operation: str = ""
     version: str = ""
     raw_transaction: dict = dict
+    assets: list[Asset] = None
+    metadata: MetaData = None
+    inputs: list[Input] = None
+    outputs: list[Output] = None
+    keys: Keys = None
+    script: Script = None
 
     @staticmethod
     def from_dict(transaction: dict) -> Transaction:
@@ -21,6 +30,7 @@ class Transaction:
             id=transaction["id"],
             operation=transaction["operation"],
             version=transaction["version"],
+            inputs=transaction["inputs"],
             raw_transaction=transaction["transaction"],
         )
 

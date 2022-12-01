@@ -78,7 +78,7 @@ def test_app(b, eventqueue_fixture, init_chain_request):
     data = p.process("commit", None)
     res = next(read_messages(BytesIO(data), types.Response))
     assert res.commit.data == new_block_hash.encode("utf-8")
-    assert b.get_transaction(tx.id).id == tx.id
+    assert b.get_transaction_space_by_id(tx.id).id == tx.id
 
     block0 = b.get_latest_block()
     assert block0

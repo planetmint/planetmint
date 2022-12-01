@@ -68,11 +68,24 @@ def store_transaction(connection, transaction):
 
 
 @singledispatch
-def get_transaction(connection, transaction_id):
-    """Get a transaction from the database."""
+def get_transaction_space_by_id(connection, transaction_id):
+    """Get the transaction space by transaction id."""
 
     raise NotImplementedError
 
+
+@singledispatch
+def get_transaction_single(connection, transaction_id):
+    """Get a single transaction by id."""
+
+    raise NotImplementedError
+
+
+@singledispatch
+def get_transaction(connection, transaction_id):
+    """Get a transaction by id."""
+
+    raise NotImplementedError
 
 @singledispatch
 def get_transactions(connection, transactions_ids) -> list[Transaction]:

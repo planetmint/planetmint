@@ -246,7 +246,7 @@ def test_upsert_validator(b, node_key, node_keys, ed25519_node_keys):
     )
     code, message = b.write_transaction(election, BROADCAST_TX_COMMIT)
     assert code == 202
-    assert b.get_transaction(election.id)
+    assert b.get_transaction_space_by_id(election.id)
 
     tx_vote = gen_vote(election, 0, ed25519_node_keys)
     assert b.validate_transaction(tx_vote)
