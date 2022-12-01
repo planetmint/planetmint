@@ -235,7 +235,7 @@ def test_deliver_tx__valid_create_updates_db_and_emits_event(b, init_chain_reque
 
     app.end_block(types.RequestEndBlock(height=99))
     app.commit()
-    assert b.get_transaction_space_by_id(tx.id).id == tx.id
+    assert b.get_transaction(tx.id).id == tx.id
     block_event = events.get()
     assert block_event.data["transactions"] == [tx]
 
@@ -264,7 +264,7 @@ def test_deliver_tx__double_spend_fails(b, init_chain_request):
 
     app.end_block(types.RequestEndBlock(height=99))
     app.commit()
-    assert b.get_transaction_space_by_id(tx.id).id == tx.id
+    assert b.get_transaction(tx.id).id == tx.id
     result = app.deliver_tx(encode_tx_to_bytes(tx))
     assert result.code == CodeTypeError
 
@@ -410,7 +410,7 @@ def test_rollback_pre_commit_state_after_crash(b):
     rollback(b)
 
     for tx in txs:
-        assert b.get_transaction_space_by_id(tx.id)
+        assert b.get_transaction(tx.id)
     assert b.get_latest_abci_chain()
     assert len(b.get_validator_set()["validators"]) == 1
     assert b.get_election(migration_election.id)
@@ -421,7 +421,7 @@ def test_rollback_pre_commit_state_after_crash(b):
     rollback(b)
 
     for tx in txs:
-        assert not b.get_transaction_space_by_id(tx.id)
+        assert not b.get_transaction(tx.id)
     assert not b.get_latest_abci_chain()
     assert len(b.get_validator_set()["validators"]) == 4
     assert len(b.get_validator_set(2)["validators"]) == 4

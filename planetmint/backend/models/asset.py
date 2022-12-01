@@ -12,8 +12,8 @@ from dataclasses import dataclass
 class Asset:
     id: str = ""
     tx_id: str = ""
-    data: str = ""
+    data: dict = ""
 
     @staticmethod
     def from_tuple(asset_tuple: tuple) -> Asset:
-        return Asset(asset_tuple[2], asset_tuple[1], json.loads(asset_tuple[0]))
+        return Asset(asset_tuple[2], asset_tuple[1], json.loads(asset_tuple[0])["data"])

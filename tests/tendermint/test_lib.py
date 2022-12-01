@@ -67,9 +67,9 @@ def test_asset_is_separated_from_transaciton(b):
     tx_dict = copy.deepcopy(tx.to_dict())
 
     b.store_bulk_transactions([tx])
-    assert "asset" not in backend.query.get_transaction(b.connection, tx.id)
-    assert backend.query.get_asset(b.connection, tx.id)["data"] == assets[0]
-    assert b.get_transaction_space_by_id(tx.id).to_dict() == tx_dict
+    assert "asset" not in backend.query.get_transaction_single(b.connection, tx.id)
+    assert backend.query.get_asset(b.connection, tx.id).data == assets[0]
+    assert b.get_transaction(tx.id).to_dict() == tx_dict
 
 
 @pytest.mark.bdb

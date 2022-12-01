@@ -224,11 +224,11 @@ class Planetmint(object):
             return backend.query.delete_unspent_outputs(self.connection, *unspent_outputs)
 
     def is_committed(self, transaction_id):
-        transaction = backend.query.get_transaction(self.connection, transaction_id)
+        transaction = backend.query.get_transaction_space_by_id(self.connection, transaction_id)
         return bool(transaction)
 
     def get_transaction(self, transaction_id):
-        return backend.query.get_transaction(self.connection, transaction_id)
+        return backend.query.get_transaction_single(self.connection, transaction_id)
 
     def get_transactions(self, txn_ids):
         return backend.query.get_transactions(self.connection, txn_ids)
@@ -278,7 +278,7 @@ class Planetmint(object):
             raise DoubleSpend('tx "{}" spends inputs twice'.format(txid))
         elif transactions:
             tx_id = transactions[0]["transactions"].id
-            tx = backend.query.get_transaction(self.connection, tx_id)
+            tx = backend.query.get_transaction_single(self.connection, tx_id)
             assets = backend.query.get_assets_by_tx_id(self.connection, tx_id)
             transaction = {"transactions": tx} | {"assets": [asset.data for asset in assets]}
         elif current_spent_transactions:
@@ -693,7 +693,7 @@ class Planetmint(object):
         return recipients
 
     def show_election_status(self, transaction):
-        data = transaction.assets[0]["data"]
+        data = transaction.assets[0]
         if "public_key" in data.keys():
             data["public_key"] = public_key_to_base64(data["public_key"]["value"])
         response = ""
@@ -757,7 +757,7 @@ class Planetmint(object):
     def get_commited_votes(self, transaction, election_pk=None):  # TODO: move somewhere else
         if election_pk is None:
             election_pk = election_id_to_public_key(transaction.id)
-        txns = list(backend.query.get_asset_tokens_for_public_key(self.connection, transaction.id, election_pk))
+        txns = backend.query.get_asset_tokens_for_public_key(self.connection, transaction.id, election_pk)
         return self.count_votes(election_pk, txns)
 
     def _get_initiated_elections(self, height, txns):  # TODO: move somewhere else
@@ -851,7 +851,7 @@ class Planetmint(object):
         votes_committed = self.get_commited_votes(transaction, election_pk)
         votes_current = self.count_votes(election_pk, current_votes)
 
-        total_votes = sum(output.amount for output in transaction.outputs)
+        total_votes = sum(int(output.amount) for output in transaction.outputs)
         if (votes_committed < (2 / 3) * total_votes) and (votes_committed + votes_current >= (2 / 3) * total_votes):
             return True
 
@@ -909,7 +909,7 @@ class Planetmint(object):
         if election.operation == CHAIN_MIGRATION_ELECTION:
             self.migrate_abci_chain()
         if election.operation == VALIDATOR_ELECTION:
-            validator_updates = [election.assets[0]["data"]]
+            validator_updates = [election.assets[0].data]
             curr_validator_set = self.get_validators(new_height)
             updated_validator_set = new_validator_set(curr_validator_set, validator_updates)
 
@@ -917,7 +917,7 @@ class Planetmint(object):
 
             # TODO change to `new_height + 2` when upgrading to Tendermint 0.24.0.
             self.store_validator_set(new_height + 1, updated_validator_set)
-            return encode_validator(election.assets[0]["data"])
+            return encode_validator(election.assets[0].data)
 
 
 Block = namedtuple("Block", ("app_hash", "height", "transactions"))

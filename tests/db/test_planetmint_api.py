@@ -105,12 +105,12 @@ class TestBigchainApi(object):
         tx = Create.generate([alice.public_key], [([alice.public_key], 1)], assets=[asset1]).sign([alice.private_key])
         b.store_bulk_transactions([tx])
 
-        tx_from_db = b.get_transaction_space_by_id(tx.id)
+        tx_from_db = b.get_transaction(tx.id)
 
         before = tx.to_dict()
         after = tx_from_db.to_dict()
 
-        assert before["assets"][0]["data"] == after["transaction"]["assets"][0]["data"]
+        assert before["assets"][0] == after["transaction"]["assets"][0]
         before.pop("asset", None)
         after["transaction"].pop("asset", None)
         assert before == after["transaction"]
@@ -131,7 +131,7 @@ class TestTransactionValidation(object):
         from transactions.common.exceptions import InvalidSignature
 
         input_tx = b.fastquery.get_outputs_by_public_key(user_pk).pop()
-        input_transaction = b.get_transaction_space_by_id(input_tx.txid)
+        input_transaction = b.get_transaction(input_tx.txid)
         sk, pk = generate_key_pair()
         tx = Create.generate([pk], [([user_pk], 1)])
         tx.operation = "TRANSFER"
@@ -158,7 +158,7 @@ class TestMultipleInputs(object):
         user2_sk, user2_pk = crypto.generate_key_pair()
 
         tx_link = b.fastquery.get_outputs_by_public_key(user_pk).pop()
-        input_tx = b.get_transaction_space_by_id(tx_link.txid)
+        input_tx = b.get_transaction(tx_link.txid)
         inputs = input_tx.to_inputs()
         tx = Transfer.generate(inputs, [([user2_pk], 1)], asset_ids=[input_tx.id])
         tx = tx.sign([user_sk])
@@ -175,7 +175,7 @@ class TestMultipleInputs(object):
         user3_sk, user3_pk = crypto.generate_key_pair()
         tx_link = b.fastquery.get_outputs_by_public_key(user_pk).pop()
 
-        input_tx = b.get_transaction_space_by_id(tx_link.txid)
+        input_tx = b.get_transaction(tx_link.txid)
         tx = Transfer.generate(input_tx.to_inputs(), [([user2_pk, user3_pk], 1)], asset_ids=[input_tx.id])
         tx = tx.sign([user_sk])
 
@@ -195,7 +195,7 @@ class TestMultipleInputs(object):
         b.store_bulk_transactions([tx])
 
         owned_input = b.fastquery.get_outputs_by_public_key(user_pk).pop()
-        input_tx = b.get_transaction_space_by_id(owned_input.txid)
+        input_tx = b.get_transaction(owned_input.txid)
         inputs = input_tx.to_inputs()
 
         transfer_tx = Transfer.generate(inputs, [([user3_pk], 1)], asset_ids=[input_tx.id])
@@ -220,7 +220,7 @@ class TestMultipleInputs(object):
 
         # get input
         tx_link = b.fastquery.get_outputs_by_public_key(user_pk).pop()
-        tx_input = b.get_transaction_space_by_id(tx_link.txid)
+        tx_input = b.get_transaction(tx_link.txid)
 
         tx = Transfer.generate(tx_input.to_inputs(), [([user3_pk, user4_pk], 1)], asset_ids=[tx_input.id])
         tx = tx.sign([user_sk, user2_sk])

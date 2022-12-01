@@ -31,7 +31,7 @@ register_query = module_dispatch_registrar(query)
 
 
 @register_query(TarantoolDBConnection)
-def _group_transaction_by_ids(connection, txids: list):
+def _group_transaction_by_ids(connection, txids: list) -> list[Transaction]:
     _transactions = []
     for txid in txids:
         tx = get_transaction_space_by_id(connection, txid)
@@ -39,8 +39,9 @@ def _group_transaction_by_ids(connection, txids: list):
             continue
 
         tx.inputs = get_inputs_by_tx_id(connection, txid)
-        tx.outputs = get_outputs_by_tx_id(connection, txid)
-        tx.keys = get_keys_by_tx_id(connection, txid)
+        _output = get_outputs_by_tx_id(connection, txid)
+        _keys = get_keys_by_tx_id(connection, txid)
+        tx.outputs = [_enricht_output_with_public_keys(_keys, output) for output in _output]
         tx.assets = get_assets_by_tx_id(connection, txid)
         tx.metadata = get_metadata_by_tx_id(connection, txid)
         tx.script = get_script_by_tx_id(connection, txid)
@@ -48,6 +49,10 @@ def _group_transaction_by_ids(connection, txids: list):
         _transactions.append(tx)
     return _transactions
 
+
+def _enricht_output_with_public_keys(keys: list[Keys], output: Output) -> Output:
+    output.public_keys = [key.public_keys for key in keys if key.output_id == output.id]
+    return output
 
 @register_query(TarantoolDBConnection)
 def get_inputs_by_tx_id(connection, tx_id: str) -> list[Input]:
@@ -183,7 +188,7 @@ def get_transaction_space_by_id(connection, transaction_id):
 
 @register_query(TarantoolDBConnection)
 def get_transaction_single(connection, transaction_id):
-    return _group_transaction_by_ids(txids=[transaction_id], connection=connection)
+    return _group_transaction_by_ids(txids=[transaction_id], connection=connection)[0]
 
 
 @register_query(TarantoolDBConnection)

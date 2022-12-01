@@ -37,8 +37,9 @@ class Condition:
 
 @dataclass
 class Output:
+    id: str = ""
     tx_id: str = ""
-    amount: int = 0
+    amount: str = '0'
     public_keys: List[str] = field(default_factory=list)
     condition: Condition = field(default_factory=Condition)
 
@@ -54,6 +55,7 @@ class Output:
     @staticmethod
     def from_tuple(output: tuple) -> Output:
         return Output(
+            id=output[5],
             tx_id=output[0],
             amount=output[1],
             condition=Condition(
