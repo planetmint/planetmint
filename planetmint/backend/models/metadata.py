@@ -8,11 +8,12 @@ import json
 from dataclasses import dataclass
 from typing import Optional
 
+
 @dataclass
 class MetaData:
     id: str = ""
     metadata: Optional[str] = None
-    
+
     @staticmethod
     def from_tuple(meta_data_tuple: tuple) -> MetaData:
         return MetaData(meta_data_tuple[0], json.loads(meta_data_tuple[1]))

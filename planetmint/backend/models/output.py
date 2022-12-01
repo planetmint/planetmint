@@ -114,13 +114,8 @@ def output_with_sub_conditions(output, tx_id) -> Output:
                         type=sub_condition["type"],
                         public_key=sub_condition["public_key"],
                     )
-                    for sub_condition in output["condition"]["details"][
-                        "subconditions"
-                    ]
+                    for sub_condition in output["condition"]["details"]["subconditions"]
                 ],
             ),
         ),
     )
-
-
-

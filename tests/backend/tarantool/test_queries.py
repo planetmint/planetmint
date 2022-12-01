@@ -49,7 +49,7 @@ def test_write_assets(db_conn):
         Asset("2", "2", "2"),
         Asset("3", "3", "3"),
         # Duplicated id. Should not be written to the database
-        Asset("1", "1", "1")
+        Asset("1", "1", "1"),
     ]
 
     # write the assets
@@ -65,7 +65,7 @@ def test_write_assets(db_conn):
 
 def test_get_assets(db_conn):
     from planetmint.backend.tarantool import query
-    
+
     assets = [
         Asset("1", "1"),
         Asset("2", "2"),
@@ -186,7 +186,7 @@ def test_get_metadata(db_conn):
 
     metadata = [
         MetaData("dd86682db39e4b424df0eec1413cfad65488fd48712097c5d865ca8e8e059b64", None),
-        MetaData("55a2303e3bcd653e4b5bd7118d39c0e2d48ee2f18e22fbcf64e906439bdeb45d", {"key": "value"})
+        MetaData("55a2303e3bcd653e4b5bd7118d39c0e2d48ee2f18e22fbcf64e906439bdeb45d", {"key": "value"}),
     ]
 
     # conn.db.metadata.insert_many(deepcopy(metadata), ordered=False)

@@ -7,6 +7,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Optional
 
+
 @dataclass
 class Transaction:
     id: str = ""
@@ -23,7 +24,6 @@ class Transaction:
             raw_transaction=transaction["transaction"],
         )
 
-
     @staticmethod
     def from_tuple(transaction: tuple) -> Transaction:
         return Transaction(
@@ -32,7 +32,6 @@ class Transaction:
             version=transaction[2],
             raw_transaction=transaction[3],
         )
-
 
     def to_dict(self) -> dict:
         return {

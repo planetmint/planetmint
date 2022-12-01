@@ -479,7 +479,7 @@ def test_get_spent_key_order(b, user_pk, user_sk, user2_pk, user2_sk):
     inputs = tx1.to_inputs()
     tx2 = Transfer.generate([inputs[1]], [([user2_pk], 2)], [tx1.id]).sign([user_sk])
     assert b.validate_transaction(tx2)
-    
+
     b.store_bulk_transactions([tx2])
 
     tx3 = Transfer.generate([inputs[1]], [([bob.public_key], 2)], [tx1.id]).sign([user_sk])

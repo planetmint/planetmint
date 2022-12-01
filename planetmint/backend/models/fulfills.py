@@ -5,6 +5,7 @@
 
 from dataclasses import dataclass
 
+
 @dataclass
 class Fulfills:
     transaction_id: str = ""

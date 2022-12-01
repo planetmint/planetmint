@@ -59,6 +59,7 @@ def store_transactions(connection, signed_transactions):
 
     raise NotImplementedError
 
+
 @singledispatch
 def store_transaction(connection, transaction):
     """Store a single transaction."""
@@ -99,6 +100,7 @@ def get_asset(connection, asset_id) -> Asset:
     """
 
     raise NotImplementedError
+
 
 @singledispatch
 def get_assets_by_tx_id(connection, tx_id: str) -> list[Asset]:
@@ -188,6 +190,7 @@ def get_block_with_transaction(connection, txid):
 
     raise NotImplementedError
 
+
 @singledispatch
 def get_metadata_by_tx_id(connection, transaction_id: str) -> MetaData:
     """Get metadata from the metadata table containing `transaction_id`.
@@ -200,6 +203,7 @@ def get_metadata_by_tx_id(connection, transaction_id: str) -> MetaData:
         metadata (MetaData): the list of returned metadata.
     """
     raise NotImplementedError
+
 
 @singledispatch
 def store_transaction_outputs_and_keys(connection, output: Output, index: int):
@@ -221,6 +225,7 @@ def store_transaction_outputs(connection, output: Output, index: int):
         index (int): the index of the output in the transaction.
     """
     raise NotImplementedError
+
 
 @singledispatch
 def store_transaction_keys(connection, keys: [Keys], output_id: str, index: int):
@@ -493,20 +498,24 @@ def get_latest_abci_chain(conn):
     """
     raise NotImplementedError
 
+
 @singledispatch
 def get_inputs_by_tx_id(connection, tx_id) -> list[Input]:
     """Retrieve inputs for a transaction by its id"""
     raise NotImplementedError
+
 
 @singledispatch
 def store_transaction_inputs(connection, inputs: list[Input]):
     """Store inputs for a transaction"""
     raise NotImplementedError
 
+
 @singledispatch
 def _group_transaction_by_ids(txids: list, connection):
     """Returns the transactions object (JSON TYPE), from list of ids."""
     raise NotImplementedError
+
 
 @singledispatch
 def get_script_by_tx_id(connection, tx_id: str) -> Script:
@@ -518,6 +527,7 @@ def get_script_by_tx_id(connection, tx_id: str) -> Script:
 def get_outputs_by_tx_id(connection, tx_id: str) -> list[Output]:
     """Retrieve outputs for a transaction by its id"""
     raise NotImplementedError
+
 
 @singledispatch
 def get_keys_by_tx_id(connection, tx_id: str) -> list[Keys]:

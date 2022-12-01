@@ -7,12 +7,13 @@ from __future__ import annotations
 import json
 from dataclasses import dataclass
 
+
 @dataclass
 class Asset:
     id: str = ""
     tx_id: str = ""
     data: str = ""
-    
+
     @staticmethod
     def from_tuple(asset_tuple: tuple) -> Asset:
         return Asset(asset_tuple[2], asset_tuple[1], json.loads(asset_tuple[0]))
