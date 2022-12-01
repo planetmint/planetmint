@@ -262,7 +262,6 @@ class Planetmint(object):
 
     def get_spent(self, txid, output, current_transactions=[]):
         transactions = backend.query.get_spent(self.connection, txid, output)
-        transactions = list(transactions) if transactions else []
         if len(transactions) > 1:
             raise core_exceptions.CriticalDoubleSpend(
                 "`{}` was spent more than once. There is a problem" " with the chain".format(txid)
@@ -278,10 +277,10 @@ class Planetmint(object):
         if len(transactions) + len(current_spent_transactions) > 1:
             raise DoubleSpend('tx "{}" spends inputs twice'.format(txid))
         elif transactions:
-            transaction = backend.query.get_transaction(self.connection, transactions[0]["id"])
-            assets = backend.query.get_assets(self.connection, [transaction["id"]])
-            transaction["assets"] = [asset.data for asset in assets]
-            transaction = Transaction.from_dict(transaction, False)
+            tx_id = transactions[0]["transactions"].id
+            tx = backend.query.get_transaction(self.connection, tx_id)
+            assets = backend.query.get_assets_by_tx_id(self.connection, tx_id)
+            transaction = {"transactions": tx} | {"assets": [asset.data for asset in assets]}
         elif current_spent_transactions:
             transaction = current_spent_transactions[0]
 

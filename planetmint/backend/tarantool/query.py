@@ -33,7 +33,7 @@ def _group_transaction_by_ids(connection, txids: list):
         _txinputs = get_inputs_by_tx_id(connection, txid)
         _txoutputs = get_outputs_by_tx_id(connection, txid)
         _txkeys = get_keys_by_tx_id(connection, txid)
-        _txassets = get_assets(connection, [txid])
+        _txassets = get_assets_by_tx_id(connection, txid)
         _txmeta = get_metadata_by_tx_id(connection, txid)
         _txscript = get_script_by_tx_id(connection, txid)
 
@@ -243,10 +243,26 @@ def get_assets(connection, assets_ids: list) -> list[Asset]:
     _returned_data = []
     for _id in list(set(assets_ids)):
         res = connection.run(connection.space(TARANT_TABLE_ASSETS).select(_id, index=TARANT_TX_ID_SEARCH))
+        if len(res) is 0:
+            continue
         _returned_data.append(res[0])
 
     sorted_assets = sorted(_returned_data, key=lambda k: k[1], reverse=False)
     return [Asset.from_tuple(asset) for asset in sorted_assets]
+
+
+@register_query(TarantoolDBConnection)
+def get_assets_by_tx_id(connection, tx_id: str) -> list[Asset]:
+    res = connection.run(connection.space(TARANT_TABLE_ASSETS).select(tx_id, index=TARANT_TX_ID_SEARCH))
+    if len(res) > 1:
+        return _from_tuple_list_to_asset_list(res)
+
+    sorted_assets = sorted(res, key=lambda k: k[1], reverse=False)
+    return _from_tuple_list_to_asset_list(sorted_assets)
+
+
+def _from_tuple_list_to_asset_list(_data: list) -> list[Asset]:
+    return [Asset.from_tuple(asset) for asset in _data]
 
 
 @register_query(TarantoolDBConnection)

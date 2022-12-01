@@ -18,7 +18,7 @@ class FastQuery:
         """Get outputs for a public key"""
         txs = list(query.get_owned_ids(self.connection, public_key))
         return [
-            TransactionLink(tx["id"], index)
+            TransactionLink(tx["transactions"].id, index)
             for tx in txs
             for index, output in enumerate(tx["outputs"])
             if condition_details_has_owner(output["condition"]["details"], public_key)

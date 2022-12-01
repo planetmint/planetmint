@@ -100,6 +100,19 @@ def get_asset(connection, asset_id) -> Asset:
 
     raise NotImplementedError
 
+@singledispatch
+def get_assets_by_tx_id(connection, tx_id: str) -> list[Asset]:
+    """Get assets by transaction id.
+
+    Args:
+        tx_id (str): the id of the transaction.
+
+    Returns:
+        The result of the operation.
+    """
+
+    raise NotImplementedError
+
 
 @singledispatch
 def get_spent(connection, transaction_id, condition_id):
