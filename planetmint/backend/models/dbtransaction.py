@@ -4,15 +4,14 @@
 # Code is Apache-2.0 and docs are CC-BY-4.0
 
 from __future__ import annotations
-from dataclasses import dataclass, field
-from typing import Optional
+from dataclasses import dataclass
 
 from planetmint.backend.models import Asset, MetaData, Input, Output, Script
 from planetmint.backend.models.keys import Keys
 
 
 @dataclass
-class Transaction:
+class DbTransaction:
     id: str = ""
     operation: str = ""
     version: str = ""
@@ -25,8 +24,8 @@ class Transaction:
     script: Script = None
 
     @staticmethod
-    def from_dict(transaction: dict) -> Transaction:
-        return Transaction(
+    def from_dict(transaction: dict) -> DbTransaction:
+        return DbTransaction(
             id=transaction["id"],
             operation=transaction["operation"],
             version=transaction["version"],
@@ -35,8 +34,8 @@ class Transaction:
         )
 
     @staticmethod
-    def from_tuple(transaction: tuple) -> Transaction:
-        return Transaction(
+    def from_tuple(transaction: tuple) -> DbTransaction:
+        return DbTransaction(
             id=transaction[0],
             operation=transaction[1],
             version=transaction[2],
@@ -48,5 +47,11 @@ class Transaction:
             "id": self.id,
             "operation": self.operation,
             "version": self.version,
+            "inputs": Input.list_to_dict(self.inputs),
+            "assets": Asset.list_to_dict(self.assets),
+            "metadata": self.metadata.to_dict(),
+            "outputs": Output.list_to_dict(self.outputs),
+            "keys": self.keys.to_dict(),
+            "script": self.script.to_dict(),
             "transaction": self.raw_transaction,
         }

@@ -85,6 +85,10 @@ class Output:
             },
         }
 
+    @staticmethod
+    def list_to_dict(output_list: list[Output]) -> list[dict]:
+        return [output.to_dict() for output in output_list]
+
 
 def output_with_public_key(output, tx_id) -> Output:
     return Output(

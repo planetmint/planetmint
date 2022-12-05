@@ -11,7 +11,7 @@ from operator import itemgetter
 from tarantool.error import DatabaseError
 from planetmint.backend import query
 from planetmint.backend.models.keys import Keys
-from planetmint.backend.models.transaction import Transaction
+from planetmint.backend.models.dbtransaction import DbTransaction
 from planetmint.backend.tarantool.const import (
     TARANT_TABLE_META_DATA,
     TARANT_TABLE_ASSETS,
@@ -31,7 +31,7 @@ register_query = module_dispatch_registrar(query)
 
 
 @register_query(TarantoolDBConnection)
-def _group_transaction_by_ids(connection, txids: list) -> list[Transaction]:
+def _group_transaction_by_ids(connection, txids: list) -> list[DbTransaction]:
     _transactions = []
     for txid in txids:
         tx = get_transaction_space_by_id(connection, txid)
@@ -76,7 +76,7 @@ def get_keys_by_tx_id(connection, tx_id: str) -> list[Keys]:
 
 
 @register_query(TarantoolDBConnection)
-def get_transaction(connection, tx_id: str) -> Transaction:
+def get_transaction(connection, tx_id: str) -> DbTransaction:
     return NotImplemented
 
 @register_query(TarantoolDBConnection)
@@ -174,7 +174,7 @@ def store_transactions(connection, signed_transactions: list):
 
 @register_query(TarantoolDBConnection)
 def store_transaction(connection, transaction):
-    tx = (transaction["id"], transaction["operation"], transaction["version"], transaction)
+    tx = (transaction["id"], transaction["operation"], transaction["version"], [transaction])
     connection.run(connection.space(TARANT_TABLE_TRANSACTION).insert(tx), only_data=False)
 
 
@@ -183,16 +183,16 @@ def get_transaction_space_by_id(connection, transaction_id):
     txs = connection.run(connection.space(TARANT_TABLE_TRANSACTION).select(transaction_id, index=TARANT_ID_SEARCH))
     if len(txs) == 0:
         return None
-    return Transaction.from_tuple(txs[0])
+    return DbTransaction.from_tuple(txs[0])
 
 
 @register_query(TarantoolDBConnection)
-def get_transaction_single(connection, transaction_id):
+def get_transaction_single(connection, transaction_id) -> DbTransaction:
     return _group_transaction_by_ids(txids=[transaction_id], connection=connection)[0]
 
 
 @register_query(TarantoolDBConnection)
-def get_transactions(connection, transactions_ids: list) -> list[Transaction]:
+def get_transactions(connection, transactions_ids: list) -> list[DbTransaction]:
     return _group_transaction_by_ids(txids=transactions_ids, connection=connection)
 
 

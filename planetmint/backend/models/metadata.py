@@ -17,3 +17,9 @@ class MetaData:
     @staticmethod
     def from_tuple(meta_data_tuple: tuple) -> MetaData:
         return MetaData(meta_data_tuple[0], json.loads(meta_data_tuple[1]))
+
+    def to_dict(self) -> dict:
+        return {
+            "id": self.id,
+            "metadata": self.metadata
+        }

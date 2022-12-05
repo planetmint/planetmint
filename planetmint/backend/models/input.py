@@ -48,3 +48,9 @@ class Input:
         )
 
         return {"fulfills": fulfills, "fulfillment": self.fulfillment, "owners_before": self.owners_before}
+
+    @staticmethod
+    def list_to_dict(input_list: list[Input]) -> list[dict]:
+        return [input.to_dict() for input in input_list]
+
+

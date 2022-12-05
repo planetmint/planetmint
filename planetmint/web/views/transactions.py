@@ -37,7 +37,7 @@ class TransactionApi(Resource):
         pool = current_app.config["bigchain_pool"]
 
         with pool() as planet:
-            tx = planet.get_transaction_space_by_id(tx_id)
+            tx = planet.get_transaction(tx_id)
 
         if not tx:
             return make_error(404)

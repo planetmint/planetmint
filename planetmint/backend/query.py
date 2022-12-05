@@ -6,9 +6,13 @@
 """Query interfaces for backends."""
 
 from functools import singledispatch
+
+from planetmint.backend.models import Asset, MetaData, Output, Input, Script
+
 from planetmint.backend.exceptions import OperationError
-from planetmint.backend.interfaces import Asset, Block, MetaData, Input, Script, Output, Transaction
 from planetmint.backend.models.keys import Keys
+from planetmint.backend.interfaces import Block
+from planetmint.backend.models.dbtransaction import DbTransaction
 
 
 @singledispatch
@@ -75,7 +79,7 @@ def get_transaction_space_by_id(connection, transaction_id):
 
 
 @singledispatch
-def get_transaction_single(connection, transaction_id):
+def get_transaction_single(connection, transaction_id) -> DbTransaction:
     """Get a single transaction by id."""
 
     raise NotImplementedError
@@ -88,7 +92,7 @@ def get_transaction(connection, transaction_id):
     raise NotImplementedError
 
 @singledispatch
-def get_transactions(connection, transactions_ids) -> list[Transaction]:
+def get_transactions(connection, transactions_ids) -> list[DbTransaction]:
     """Get a transaction from the transactions table.
 
     Args:

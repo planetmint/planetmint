@@ -16,3 +16,9 @@ class Script:
     @staticmethod
     def from_tuple(script_tuple: tuple) -> Script:
         return Script(script_tuple[0], script_tuple[1])
+
+    def to_dict(self) -> dict:
+        return {
+            "id": self.id,
+            "script": self.script
+        }
