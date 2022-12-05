@@ -120,7 +120,7 @@ def _setup_database(_configure_planetmint):  # TODO Here is located setup databa
     dbname = Config().get()["database"]["name"]
     conn = Connection()
 
-    _drop_db(conn, dbname)
+    schema.drop_database(conn, dbname)
     schema.init_database(conn, dbname)
     print("Finishing init database")
 
@@ -128,7 +128,7 @@ def _setup_database(_configure_planetmint):  # TODO Here is located setup databa
 
     print("Deleting `{}` database".format(dbname))
     conn = Connection()
-    _drop_db(conn, dbname)
+    schema.drop_database(conn, dbname)
 
     print("Finished deleting `{}`".format(dbname))
 
@@ -337,32 +337,6 @@ def inputs(user_pk, b, alice):
         block = Block(app_hash="hash" + str(height), height=height, transactions=tx_ids)
         b.store_block(block._asdict())
         b.store_bulk_transactions(transactions)
-
-
-# @pytest.fixture
-# def dummy_db(request):
-#     from planetmint.backend import Connection
-#
-#     conn = Connection()
-#     dbname = request.fixturename
-#     xdist_suffix = getattr(request.config, 'slaveinput', {}).get('slaveid')
-#     if xdist_suffix:
-#         dbname = '{}_{}'.format(dbname, xdist_suffix)
-#
-#
-#     _drop_db(conn, dbname)  # make sure we start with a clean DB
-#     schema.init_database(conn, dbname)
-#     yield dbname
-#
-#     _drop_db(conn, dbname)
-
-
-def _drop_db(conn, dbname):
-    print(f"CONNECTION FOR DROPPING {conn}")
-    try:
-        schema.drop_database(conn, dbname)
-    except DatabaseDoesNotExist:
-        pass
 
 
 @pytest.fixture

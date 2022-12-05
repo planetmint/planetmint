@@ -8,8 +8,14 @@ function init()
         { name = 'height', type = 'unsigned' },
         { name = 'is_synced', type = 'boolean' }
     })
-    abci_chains:create_index('id', { parts = {'id'}})
-    abci_chains:create_index('height', { parts = {'height'}})
+    abci_chains:create_index('id', { 
+        if_not_exists = true, 
+        parts = {{ field = 'id', type = 'string' }}
+    })
+    abci_chains:create_index('height', { 
+        if_not_exists = true,
+        parts = {{ field = 'height', type = 'unsigned' }}
+    })
 
 
     -- Transactions
@@ -18,19 +24,26 @@ function init()
         { name = 'id', type = 'string' },
         { name = 'operation', type = 'string' },
         { name = 'version', type = 'string' },
-        { name = 'metadata', type = 'string' },
+        { name = 'metadata', type = 'string', is_nullable = true },
         { name = 'assets', type = 'array' },
         { name = 'inputs', type = 'array' },
         { name = 'scripts', type = 'map', is_nullable = true }
     })
-    transactions:create_index('id', { parts = {{ field = 'id', type = 'string' }}})
-    transactions:create_index('transactions_by_asset', { parts = {
-        { field = 'assets[*].id', type = 'string', is_nullable = true },
-        { field = 'assets[*].data', type = 'string', is_nullable = true }
+    transactions:create_index('id', { 
+        if_not_exists = true,
+        parts = {{ field = 'id', type = 'string' }}
+    })
+    transactions:create_index('transactions_by_asset', { 
+        if_not_exists = true,
+        parts = {
+            { field = 'assets[*].id', type = 'string', is_nullable = true },
+            { field = 'assets[*].data', type = 'string', is_nullable = true }
     }})
-    transactions:create_index('spending_transaction_by_id_and_output_index', { parts = {
-        { field = 'inputs[*].fulfills["transaction_id"]', type = 'string' },
-        { field = 'inputs[*].fulfills["output_index"]', type = 'unsigned' }
+    transactions:create_index('spending_transaction_by_id_and_output_index', { 
+        if_not_exists = true,
+        parts = {
+            { field = 'inputs[*].fulfills["transaction_id"]', type = 'string', is_nullable = true },
+            { field = 'inputs[*].fulfills["output_index"]', type = 'unsigned', is_nullable = true }
     }})
 
 
@@ -44,9 +57,20 @@ function init()
         { name = 'output_index', type = 'number' },
         { name = 'transaction_id' , type = 'string' }
     })
-    outputs:create_index('id', { parts = {{ field = 'id', type = 'string' }}})
-    outputs:create_index('transaction_id', { unique = false, parts = {{ field = 'id', type = 'string' }}})
-    outputs:create_index('public_keys', { unique = false, parts = {{field = 'public_keys[*]', type  = 'string' }}})
+    outputs:create_index('id', {
+        if_not_exists = true, 
+        parts = {{ field = 'id', type = 'string' }}
+    })
+    outputs:create_index('transaction_id', { 
+        if_not_exists = true,
+        unique = false,
+        parts = {{ field = 'transaction_id', type = 'string' }}
+    })
+    outputs:create_index('public_keys', { 
+        if_not_exists = true,
+        unique = false,
+        parts = {{field = 'public_keys[*]', type  = 'string' }}
+    })
 
 
     -- Precommits
@@ -56,8 +80,14 @@ function init()
         { name = 'height', type = 'unsigned' },
         { name = 'transaction_ids', type = 'array'}
     })
-    pre_commits:create_index('id', { parts = {{ field = 'id', type = 'string' }}})
-    pre_commits:create_index('height', { parts = {{ field = 'height', type = 'unsigned' }}})
+    pre_commits:create_index('id', { 
+        if_not_exists = true,
+        parts = {{ field = 'id', type = 'string' }}
+    })
+    pre_commits:create_index('height', { 
+        if_not_exists = true,
+        parts = {{ field = 'height', type = 'unsigned' }}
+    })
 
 
     -- Blocks
@@ -68,9 +98,18 @@ function init()
         { name = 'height', type = 'unsigned' },
         { name = 'transaction_ids', type = 'array' }
     })
-    blocks:create_index('id', { parts = {{ field = 'id', type = 'string' }}})
-    blocks:create_index('height', { parts = {{ field = 'height', type = 'unsigned' }}})
-    blocks:create_index('block_by_transaction_id', { parts = {{ field = 'transaction_ids[*]', type = 'string' }}})
+    blocks:create_index('id', { 
+        if_not_exists = true,
+        parts = {{ field = 'id', type = 'string' }}
+    })
+    blocks:create_index('height', { 
+        if_not_exists = true,
+        parts = {{ field = 'height', type = 'unsigned' }}
+    })
+    blocks:create_index('block_by_transaction_id', { 
+        if_not_exists = true,
+        parts = {{ field = 'transaction_ids[*]', type = 'string' }}
+    })
 
 
     -- UTXO
@@ -81,10 +120,15 @@ function init()
         { name = 'output_index', type = 'unsigned' },
         { name = 'utxo', type = 'map' }
     })
-    utxos:create_index('id', { parts = {{ field = 'id', type = 'string' }}})
-    utxos:create_index('utxo_by_transaction_id_and_output_index', { parts = {
-        { field = 'transaction_id', type = 'string' },
-        { field = 'output_index', type = 'unsigned' }
+    utxos:create_index('id', { 
+        if_not_exists = true,
+        parts = {{ field = 'id', type = 'string' }}
+    })
+    utxos:create_index('utxo_by_transaction_id_and_output_index', { 
+        if_not_exists = true,
+        parts = {
+            { field = 'transaction_id', type = 'string' },
+            { field = 'output_index', type = 'unsigned' }
     }})
 
 
@@ -95,8 +139,14 @@ function init()
         { name = 'height', type = 'unsigned' },
         { name = 'is_concluded', type = 'boolean' }
     })
-    elections:create_index('id', { parts = {{ field = 'id', type = 'string' }}})
-    elections:create_index('height', { parts = {{ field = 'height', type = 'unsigned' }}})
+    elections:create_index('id', { 
+        if_not_exists = true,
+        parts = {{ field = 'id', type = 'string' }}
+    })
+    elections:create_index('height', { 
+        if_not_exists = true,
+        parts = {{ field = 'height', type = 'unsigned' }}
+    })
 
 
     -- Validators
@@ -106,18 +156,29 @@ function init()
         { name = 'height', type = 'unsigned' },
         { name = 'set', type = 'array' }
     })
-    validator_sets:create_index('id', { parts = {{ field = 'id', type = 'string' }}})
+    validator_sets:create_index('id', { 
+        if_not_exists = true,
+        parts = {{ field = 'id', type = 'string' }}
+    })
+    validator_sets:create_index('height', { 
+        if_not_exists = true,
+        parts = {{ field = 'height', type = 'unsigned' }}
+    })
 end
 
 function drop()
-    box.space.abci_chains:drop()
-    box.space.blocks:drop()
-    box.space.elections:drop()
-    box.space.pre_commits:drop()
-    box.space.utxos:drop()
-    box.space.validator_sets:drop()
-    box.space.transactions:drop()
-    box.space.outputs:drop()
+    if pcall(function() 
+        box.space.abci_chains:drop()
+        box.space.blocks:drop()
+        box.space.elections:drop()
+        box.space.pre_commits:drop()
+        box.space.utxos:drop()
+        box.space.validator_sets:drop()
+        box.space.transactions:drop()
+        box.space.outputs:drop()    
+    end) then
+        print("Error: specified space not found")
+    end
 end
 
 function indexed_pattern_search(space_name, field_no, pattern)

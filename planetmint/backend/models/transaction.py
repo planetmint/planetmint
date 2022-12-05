@@ -12,6 +12,10 @@ class Transaction:
     id: str = ""
     operation: str = ""
     version: str = ""
+    metadata: str = ""
+    assets: list = field(default_factory=list)
+    inputs: list = field(default_factory=list)
+    scripts: Optional[map] = None
 
     @staticmethod
     def from_dict(transaction: dict) -> Transaction:
@@ -19,6 +23,10 @@ class Transaction:
             id=transaction["id"],
             operation=transaction["operation"],
             version=transaction["version"],
+            metadata=transaction["metadata"],
+            assets=transaction["assets"],
+            inputs=transaction["inputs"],
+            scripts=transaction["scripts"] if "scripts" in transaction.keys() else None
         )
 
 

@@ -5,7 +5,6 @@
 
 from planetmint.backend.tarantool.connection import TarantoolDBConnection
 
-
 def _check_spaces_by_list(conn, space_names):
     _exists = []
     for name in space_names:
@@ -25,5 +24,6 @@ def test_create_tables(db_conn):
 
 def test_drop(db_conn):  # remove dummy_db as argument
     db_conn.drop_database()
+    db_conn.close()
     actual_spaces = _check_spaces_by_list(conn=db_conn, space_names=db_conn.SPACE_NAMES)
     assert [] == actual_spaces
