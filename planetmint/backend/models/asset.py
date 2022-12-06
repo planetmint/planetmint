@@ -7,12 +7,24 @@ from __future__ import annotations
 import json
 from dataclasses import dataclass
 
+
 @dataclass
 class Asset:
     id: str = ""
     tx_id: str = ""
-    data: str = ""
-    
+    data: dict = ""
+
     @staticmethod
     def from_tuple(asset_tuple: tuple) -> Asset:
-        return Asset(asset_tuple[2], asset_tuple[1], json.loads(asset_tuple[0]))
+        return Asset(asset_tuple[2], asset_tuple[1], json.loads(asset_tuple[0])["data"])
+
+    def to_dict(self) -> dict:
+        return {
+            "id": self.id,
+            "tx_id": self.tx_id,
+            "data": self.data
+        }
+
+    @staticmethod
+    def list_to_dict(asset_list: list[Asset]) -> list[dict]:
+        return [asset.to_dict() for asset in asset_list]

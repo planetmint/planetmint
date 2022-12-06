@@ -1,7 +1,14 @@
 from transactions.common.memoize import HDict
 
-from planetmint.backend.tarantool.const import TARANT_TABLE_META_DATA, TARANT_TABLE_ASSETS, TARANT_TABLE_KEYS, \
-    TARANT_TABLE_TRANSACTION, TARANT_TABLE_INPUT, TARANT_TABLE_OUTPUT, TARANT_TABLE_SCRIPT
+from planetmint.backend.tarantool.const import (
+    TARANT_TABLE_META_DATA,
+    TARANT_TABLE_ASSETS,
+    TARANT_TABLE_KEYS,
+    TARANT_TABLE_TRANSACTION,
+    TARANT_TABLE_INPUT,
+    TARANT_TABLE_OUTPUT,
+    TARANT_TABLE_SCRIPT,
+)
 
 
 def get_items(_list):

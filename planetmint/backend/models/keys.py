@@ -7,6 +7,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Optional
 
+
 @dataclass
 class Keys:
     tx_id: str = ""
@@ -19,7 +20,6 @@ class Keys:
             tx_id=tx_id,
             public_keys=output["public_keys"],
         )
-
 
     @staticmethod
     def from_tuple(output: tuple) -> Keys:

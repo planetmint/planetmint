@@ -6,9 +6,13 @@
 """Query interfaces for backends."""
 
 from functools import singledispatch
+
+from planetmint.backend.models import Asset, MetaData, Output, Input, Script
+
 from planetmint.backend.exceptions import OperationError
-from planetmint.backend.interfaces import Asset, Block, MetaData, Input, Script, Output, Transaction
 from planetmint.backend.models.keys import Keys
+from planetmint.backend.interfaces import Block
+from planetmint.backend.models.dbtransaction import DbTransaction
 
 
 @singledispatch
@@ -59,6 +63,7 @@ def store_transactions(connection, signed_transactions):
 
     raise NotImplementedError
 
+
 @singledispatch
 def store_transaction(connection, transaction):
     """Store a single transaction."""
@@ -67,14 +72,27 @@ def store_transaction(connection, transaction):
 
 
 @singledispatch
-def get_transaction(conn, transaction_id):
-    """Get a transaction from the database."""
+def get_transaction_space_by_id(connection, transaction_id):
+    """Get the transaction space by transaction id."""
 
     raise NotImplementedError
 
 
 @singledispatch
-def get_transactions(connection, transactions_ids) -> list[Transaction]:
+def get_transaction_single(connection, transaction_id) -> DbTransaction:
+    """Get a single transaction by id."""
+
+    raise NotImplementedError
+
+
+@singledispatch
+def get_transaction(connection, transaction_id):
+    """Get a transaction by id."""
+
+    raise NotImplementedError
+
+@singledispatch
+def get_transactions(connection, transactions_ids) -> list[DbTransaction]:
     """Get a transaction from the transactions table.
 
     Args:
@@ -93,6 +111,20 @@ def get_asset(connection, asset_id) -> Asset:
 
     Args:
         asset_id (str): the id of the asset
+
+    Returns:
+        The result of the operation.
+    """
+
+    raise NotImplementedError
+
+
+@singledispatch
+def get_assets_by_tx_id(connection, tx_id: str) -> list[Asset]:
+    """Get assets by transaction id.
+
+    Args:
+        tx_id (str): the id of the transaction.
 
     Returns:
         The result of the operation.
@@ -175,6 +207,7 @@ def get_block_with_transaction(connection, txid):
 
     raise NotImplementedError
 
+
 @singledispatch
 def get_metadata_by_tx_id(connection, transaction_id: str) -> MetaData:
     """Get metadata from the metadata table containing `transaction_id`.
@@ -187,6 +220,7 @@ def get_metadata_by_tx_id(connection, transaction_id: str) -> MetaData:
         metadata (MetaData): the list of returned metadata.
     """
     raise NotImplementedError
+
 
 @singledispatch
 def store_transaction_outputs_and_keys(connection, output: Output, index: int):
@@ -208,6 +242,7 @@ def store_transaction_outputs(connection, output: Output, index: int):
         index (int): the index of the output in the transaction.
     """
     raise NotImplementedError
+
 
 @singledispatch
 def store_transaction_keys(connection, keys: [Keys], output_id: str, index: int):
@@ -480,20 +515,24 @@ def get_latest_abci_chain(conn):
     """
     raise NotImplementedError
 
+
 @singledispatch
 def get_inputs_by_tx_id(connection, tx_id) -> list[Input]:
     """Retrieve inputs for a transaction by its id"""
     raise NotImplementedError
+
 
 @singledispatch
 def store_transaction_inputs(connection, inputs: list[Input]):
     """Store inputs for a transaction"""
     raise NotImplementedError
 
+
 @singledispatch
 def _group_transaction_by_ids(txids: list, connection):
     """Returns the transactions object (JSON TYPE), from list of ids."""
     raise NotImplementedError
+
 
 @singledispatch
 def get_script_by_tx_id(connection, tx_id: str) -> Script:
@@ -505,6 +544,7 @@ def get_script_by_tx_id(connection, tx_id: str) -> Script:
 def get_outputs_by_tx_id(connection, tx_id: str) -> list[Output]:
     """Retrieve outputs for a transaction by its id"""
     raise NotImplementedError
+
 
 @singledispatch
 def get_keys_by_tx_id(connection, tx_id: str) -> list[Keys]:

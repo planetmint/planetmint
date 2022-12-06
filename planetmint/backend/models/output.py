@@ -37,8 +37,9 @@ class Condition:
 
 @dataclass
 class Output:
+    id: str = ""
     tx_id: str = ""
-    amount: int = 0
+    amount: str = '0'
     public_keys: List[str] = field(default_factory=list)
     condition: Condition = field(default_factory=Condition)
 
@@ -54,6 +55,7 @@ class Output:
     @staticmethod
     def from_tuple(output: tuple) -> Output:
         return Output(
+            id=output[5],
             tx_id=output[0],
             amount=output[1],
             condition=Condition(
@@ -67,7 +69,7 @@ class Output:
             ),
         )
 
-    def to_output_dict(self) -> dict:
+    def to_dict(self) -> dict:
         return {
             "id": self.tx_id,
             "amount": self.amount,
@@ -82,6 +84,10 @@ class Output:
                 },
             },
         }
+
+    @staticmethod
+    def list_to_dict(output_list: list[Output]) -> list[dict]:
+        return [output.to_dict() for output in output_list]
 
 
 def output_with_public_key(output, tx_id) -> Output:
@@ -114,13 +120,8 @@ def output_with_sub_conditions(output, tx_id) -> Output:
                         type=sub_condition["type"],
                         public_key=sub_condition["public_key"],
                     )
-                    for sub_condition in output["condition"]["details"][
-                        "subconditions"
-                    ]
+                    for sub_condition in output["condition"]["details"]["subconditions"]
                 ],
             ),
         ),
     )
-
-
-

@@ -110,10 +110,10 @@ class TestBigchainApi(object):
         before = tx.to_dict()
         after = tx_from_db.to_dict()
 
-        assert before["assets"][0]["data"] == after["assets"][0]["data"]
+        assert before["assets"][0] == after["transaction"]["assets"][0]
         before.pop("asset", None)
-        after.pop("asset", None)
-        assert before == after
+        after["transaction"].pop("asset", None)
+        assert before == after["transaction"]
 
 
 class TestTransactionValidation(object):

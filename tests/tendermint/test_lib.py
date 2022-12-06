@@ -67,8 +67,8 @@ def test_asset_is_separated_from_transaciton(b):
     tx_dict = copy.deepcopy(tx.to_dict())
 
     b.store_bulk_transactions([tx])
-    assert "asset" not in backend.query.get_transaction(b.connection, tx.id)
-    assert backend.query.get_asset(b.connection, tx.id)["data"] == assets[0]
+    assert "asset" not in backend.query.get_transaction_single(b.connection, tx.id)
+    assert backend.query.get_asset(b.connection, tx.id).data == assets[0]
     assert b.get_transaction(tx.id).to_dict() == tx_dict
 
 
@@ -479,7 +479,7 @@ def test_get_spent_key_order(b, user_pk, user_sk, user2_pk, user2_sk):
     inputs = tx1.to_inputs()
     tx2 = Transfer.generate([inputs[1]], [([user2_pk], 2)], [tx1.id]).sign([user_sk])
     assert b.validate_transaction(tx2)
-    
+
     b.store_bulk_transactions([tx2])
 
     tx3 = Transfer.generate([inputs[1]], [([bob.public_key], 2)], [tx1.id]).sign([user_sk])

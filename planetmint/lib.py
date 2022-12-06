@@ -8,11 +8,8 @@ MongoDB.
 
 """
 import logging
-from collections import namedtuple
-from uuid import uuid4
 from planetmint.backend.connection import Connection
 
-from hashlib import sha3_256
 import json
 import rapidjson
 import requests
@@ -40,6 +37,7 @@ from transactions.common.transaction import VALIDATOR_ELECTION, CHAIN_MIGRATION_
 from transactions.common.transaction_mode_types import BROADCAST_TX_COMMIT, BROADCAST_TX_ASYNC, BROADCAST_TX_SYNC
 from transactions.types.elections.election import Election
 from transactions.types.elections.validator_utils import election_id_to_public_key
+
 from planetmint.config import Config
 from planetmint import backend, config_utils, fastquery
 from planetmint.tendermint_utils import (
@@ -226,12 +224,11 @@ class Planetmint(object):
             return backend.query.delete_unspent_outputs(self.connection, *unspent_outputs)
 
     def is_committed(self, transaction_id):
-        transaction = backend.query.get_transaction(self.connection, transaction_id)
+        transaction = backend.query.get_transaction_space_by_id(self.connection, transaction_id)
         return bool(transaction)
 
     def get_transaction(self, transaction_id):
-        transaction = backend.query.get_transaction(self.connection, transaction_id)
-        return Transaction.from_dict(transaction, False)
+        return backend.query.get_transaction_single(self.connection, transaction_id)
 
     def get_transactions(self, txn_ids):
         return backend.query.get_transactions(self.connection, txn_ids)
@@ -265,7 +262,6 @@ class Planetmint(object):
 
     def get_spent(self, txid, output, current_transactions=[]):
         transactions = backend.query.get_spent(self.connection, txid, output)
-        transactions = list(transactions) if transactions else []
         if len(transactions) > 1:
             raise core_exceptions.CriticalDoubleSpend(
                 "`{}` was spent more than once. There is a problem" " with the chain".format(txid)
@@ -281,10 +277,10 @@ class Planetmint(object):
         if len(transactions) + len(current_spent_transactions) > 1:
             raise DoubleSpend('tx "{}" spends inputs twice'.format(txid))
         elif transactions:
-            transaction = backend.query.get_transaction(self.connection, transactions[0]["id"])
-            assets = backend.query.get_assets(self.connection, [transaction["id"]])
-            transaction["assets"] = [asset.data for asset in assets]
-            transaction = Transaction.from_dict(transaction, False)
+            tx_id = transactions[0]["transactions"].id
+            tx = backend.query.get_transaction_single(self.connection, tx_id)
+            tx.assets = backend.query.get_assets_by_tx_id(self.connection, tx_id)
+            transaction = tx.to_dict()
         elif current_spent_transactions:
             transaction = current_spent_transactions[0]
 
@@ -697,7 +693,7 @@ class Planetmint(object):
         return recipients
 
     def show_election_status(self, transaction):
-        data = transaction.assets[0]["data"]
+        data = transaction.assets[0]
         if "public_key" in data.keys():
             data["public_key"] = public_key_to_base64(data["public_key"]["value"])
         response = ""
@@ -746,23 +742,23 @@ class Planetmint(object):
         # validators and their voting power in the network
         return current_topology == voters
 
-    def count_votes(self, election_pk, transactions, getter=getattr):
+    def count_votes(self, election_pk, transactions):
         votes = 0
         for txn in transactions:
-            if getter(txn, "operation") == Vote.OPERATION:
-                for output in getter(txn, "outputs"):
+            if txn.operation == Vote.OPERATION:
+                for output in txn.outputs:
                     # NOTE: We enforce that a valid vote to election id will have only
                     # election_pk in the output public keys, including any other public key
                     # along with election_pk will lead to vote being not considered valid.
-                    if len(getter(output, "public_keys")) == 1 and [election_pk] == getter(output, "public_keys"):
-                        votes = votes + int(getter(output, "amount"))
+                    if len(output.public_keys) == 1 and [election_pk] == output.public_keys:
+                        votes = votes + output.amount
         return votes
 
     def get_commited_votes(self, transaction, election_pk=None):  # TODO: move somewhere else
         if election_pk is None:
             election_pk = election_id_to_public_key(transaction.id)
-        txns = list(backend.query.get_asset_tokens_for_public_key(self.connection, transaction.id, election_pk))
-        return self.count_votes(election_pk, txns, dict.get)
+        txns = backend.query.get_asset_tokens_for_public_key(self.connection, transaction.id, election_pk)
+        return self.count_votes(election_pk, txns)
 
     def _get_initiated_elections(self, height, txns):  # TODO: move somewhere else
         elections = []
@@ -855,7 +851,7 @@ class Planetmint(object):
         votes_committed = self.get_commited_votes(transaction, election_pk)
         votes_current = self.count_votes(election_pk, current_votes)
 
-        total_votes = sum(output.amount for output in transaction.outputs)
+        total_votes = sum(int(output.amount) for output in transaction.outputs)
         if (votes_committed < (2 / 3) * total_votes) and (votes_committed + votes_current >= (2 / 3) * total_votes):
             return True
 
@@ -913,7 +909,7 @@ class Planetmint(object):
         if election.operation == CHAIN_MIGRATION_ELECTION:
             self.migrate_abci_chain()
         if election.operation == VALIDATOR_ELECTION:
-            validator_updates = [election.assets[0]["data"]]
+            validator_updates = [election.assets[0].data]
             curr_validator_set = self.get_validators(new_height)
             updated_validator_set = new_validator_set(curr_validator_set, validator_updates)
 
@@ -921,7 +917,7 @@ class Planetmint(object):
 
             # TODO change to `new_height + 2` when upgrading to Tendermint 0.24.0.
             self.store_validator_set(new_height + 1, updated_validator_set)
-            return encode_validator(election.assets[0]["data"])
+            return encode_validator(election.assets[0].data)
 
 
 Block = namedtuple("Block", ("app_hash", "height", "transactions"))
