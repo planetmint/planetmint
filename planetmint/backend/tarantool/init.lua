@@ -14,6 +14,7 @@ function init()
     })
     abci_chains:create_index('height', { 
         if_not_exists = true,
+        unique = false,
         parts = {{ field = 'height', type = 'unsigned' }}
     })
 
@@ -145,6 +146,7 @@ function init()
     })
     elections:create_index('height', { 
         if_not_exists = true,
+        unique = false,
         parts = {{ field = 'height', type = 'unsigned' }}
     })
 
