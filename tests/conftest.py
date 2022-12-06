@@ -127,14 +127,13 @@ def _setup_database(_configure_planetmint):  # TODO Here is located setup databa
     yield
 
     print("Deleting `{}` database".format(dbname))
-    conn = Connection()
     schema.drop_database(conn, dbname)
 
     print("Finished deleting `{}`".format(dbname))
 
 
 @pytest.fixture
-def _bdb(_setup_database, _configure_planetmint):
+def _bdb(_setup_database):
     from transactions.common.memoize import to_dict, from_dict
     from transactions.common.transaction import Transaction
     from .utils import flush_db

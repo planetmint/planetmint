@@ -33,6 +33,7 @@ def flush_localmongo_db(connection, dbname):
 @flush_db.register(TarantoolDBConnection)
 def flush_tarantool_db(connection, dbname):
     connection.connect().call('drop')
+    connection.connect().call('init')
 
 
 def generate_block(planet):
