@@ -8,6 +8,7 @@ import json
 from uuid import uuid4
 from hashlib import sha256
 from operator import itemgetter
+from typing import Union
 from tarantool.error import DatabaseError
 from planetmint.backend import query
 from planetmint.backend.models.keys import Keys
@@ -157,13 +158,13 @@ def store_transactions(connection, signed_transactions: list):
             for index, output in enumerate(transaction[TARANT_TABLE_OUTPUT])
         ]
 
-        store_metadatas(connection, [MetaData(transaction["id"], transaction["metadata"])])
+        # store_metadatas(connection, [MetaData(transaction["id"], transaction["metadata"])])
 
-        assets = []
-        for asset in transaction[TARANT_TABLE_ASSETS]:
-            id = transaction["id"] if "id" not in asset else asset["id"]
-            assets.append(Asset(id, transaction["id"], asset))
-        store_assets(connection, assets)
+        # assets = []
+        # for asset in transaction[TARANT_TABLE_ASSETS]:
+        #     id = transaction["id"] if "id" not in asset else asset["id"]
+        #     assets.append(Asset(id, transaction["id"], asset))
+        # store_assets(connection, assets)
 
         if TARANT_TABLE_SCRIPT in transaction:
             connection.run(
@@ -284,29 +285,30 @@ def get_spent(connection, fullfil_transaction_id: str, fullfil_output_index: str
 
 @register_query(TarantoolDBConnection)
 def get_latest_block(connection):  # TODO Here is used DESCENDING OPERATOR
-    _all_blocks = connection.run(connection.space("blocks").select())
-    block = {"app_hash": "", "height": 0, TARANT_TABLE_TRANSACTION: []}
-
-    if _all_blocks is not None:
-        if len(_all_blocks) > 0:
-            _block = sorted(_all_blocks, key=itemgetter(1), reverse=True)[0]
-            _txids = connection.run(connection.space("blocks_tx").select(_block[2], index="block_search"))
-            block["app_hash"] = _block[0]
-            block["height"] = _block[1]
-            block[TARANT_TABLE_TRANSACTION] = [tx[0] for tx in _txids]
-        else:
-            block = None
+    # NOTE:TARANTOOL THROWS ERROR ON ITERATOR 'REQ'
+    latest_blocks = connection.run(connection.space("blocks").select())
+    
+    
+    if not latest_blocks:
+        return None
+    
+    # TODO: return Block dataclass instance
+    block = {
+        "app_hash": latest_blocks[0][1],
+        "height": latest_blocks[0][2],
+        TARANT_TABLE_TRANSACTION: latest_blocks[0][3]
+    }
+    
     return block
 
 
 @register_query(TarantoolDBConnection)
 def store_block(connection, block: dict):
+    
     block_unique_id = uuid4().hex
     connection.run(
-        connection.space("blocks").insert((block["app_hash"], block["height"], block_unique_id)), only_data=False
+        connection.space("blocks").insert((block_unique_id, block["app_hash"], block["height"], block[TARANT_TABLE_TRANSACTION])), only_data=False
     )
-    for txid in block[TARANT_TABLE_TRANSACTION]:
-        connection.run(connection.space("blocks_tx").insert((txid, block_unique_id)), only_data=False)
 
 
 @register_query(TarantoolDBConnection)
@@ -501,10 +503,10 @@ def get_pre_commit_state(connection):
 
 @register_query(TarantoolDBConnection)
 def store_validator_set(conn, validators_update: dict):
-    _validator = conn.run(conn.space("validators").select(validators_update["height"], index="height_search", limit=1))
+    _validator = conn.run(conn.space("validator_sets").select(validators_update["height"], index="height", limit=1))
     unique_id = uuid4().hex if _validator is None or len(_validator) == 0 else _validator[0][0]
     conn.run(
-        conn.space("validators").upsert(
+        conn.space("validator_sets").upsert(
             (unique_id, validators_update["height"], validators_update["validators"]),
             op_list=[("=", 1, validators_update["height"]), ("=", 2, validators_update["validators"])],
             limit=1,
@@ -543,14 +545,14 @@ def store_elections(connection, elections: list):
 
 @register_query(TarantoolDBConnection)
 def delete_elections(connection, height: int):
-    _elections = connection.run(connection.space("elections").select(height, index="height_search"))
+    _elections = connection.run(connection.space("elections").select(height, index="height"))
     for _elec in _elections:
         connection.run(connection.space("elections").delete(_elec[0]), only_data=False)
 
 
 @register_query(TarantoolDBConnection)
 def get_validator_set(connection, height: int = None):
-    _validators = connection.run(connection.space("validators").select())
+    _validators = connection.run(connection.space("validator_sets").select())
     if height is not None and _validators is not None:
         _validators = [
             {"height": validator[1], "validators": validator[2]} for validator in _validators if validator[1] <= height
@@ -585,11 +587,10 @@ def get_asset_tokens_for_public_key(
 
 @register_query(TarantoolDBConnection)
 def store_abci_chain(connection, height: int, chain_id: str, is_synced: bool = True):
-    hash_id_primarykey = sha256(json.dumps(obj={"height": height}).encode()).hexdigest()
     connection.run(
         connection.space("abci_chains").upsert(
-            (height, is_synced, chain_id, hash_id_primarykey),
-            op_list=[("=", 0, height), ("=", 1, is_synced), ("=", 2, chain_id)],
+            (chain_id, height, is_synced),
+            op_list=[("=", 0, chain_id), ("=", 1, height), ("=", 0, is_synced)],
         ),
         only_data=False,
     )
@@ -607,7 +608,7 @@ def get_latest_abci_chain(connection):
     if _all_chains is None or len(_all_chains) == 0:
         return None
     _chain = sorted(_all_chains, key=itemgetter(0), reverse=True)[0]
-    return {"height": _chain[0], "is_synced": _chain[1], "chain_id": _chain[2]}
+    return {"chain_id": _chain[0], "height": _chain[1], "is_synced": _chain[2]}
 
 
 @register_query(TarantoolDBConnection)

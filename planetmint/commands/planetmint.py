@@ -240,7 +240,7 @@ def run_election_show(args, planet):
 
 def _run_init():
     bdb = planetmint.Planetmint()
-    schema.init_database(connection=bdb.connection)
+    schema.init_database(bdb.connection)
 
 
 @configure_planetmint

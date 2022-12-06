@@ -8,8 +8,6 @@ import pytest
 from planetmint.version import __tm_supported_versions__
 from transactions.types.assets.create import Create
 from transactions.types.assets.transfer import Transfer
-from transactions.common.exceptions import ConfigurationError
-from planetmint.backend.connection import Connection, ConnectionError
 
 
 @pytest.fixture
@@ -52,7 +50,6 @@ def test_bigchain_class_default_initialization(config):
 
 @pytest.mark.bdb
 def test_get_spent_issue_1271(b, alice, bob, carol):
-    b.connection.close()
     tx_1 = Create.generate(
         [carol.public_key],
         [([carol.public_key], 8)],

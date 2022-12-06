@@ -144,17 +144,15 @@ SCHEMA_DROP_COMMANDS = {
     "scripts": "box.space.scripts:drop()",
 }
 
+@register_schema(TarantoolDBConnection)
+def init_database(connection, db_name=None):
+    print('init database tarantool schema')
+    connection.connect().call('init')
 
 @register_schema(TarantoolDBConnection)
-def drop_database(connection, not_used=None):
-    for _space in SPACE_NAMES:
-        try:
-            cmd = SCHEMA_DROP_COMMANDS[_space].encode()
-            run_command_with_output(command=cmd)
-            print(f"Space '{_space}' was dropped succesfuly.")
-        except Exception:
-            print(f"Unexpected error while trying to drop space '{_space}'")
-
+def drop_database(connection, db_name=None):
+    print('drop database tarantool schema')
+    connection.connect().call('drop')
 
 @register_schema(TarantoolDBConnection)
 def create_database(connection, dbname):
@@ -182,31 +180,4 @@ def run_command_with_output(command):
 
 @register_schema(TarantoolDBConnection)
 def create_tables(connection, dbname):
-    for _space in SPACE_NAMES:
-        try:
-            cmd = SPACE_COMMANDS[_space].encode()
-            run_command_with_output(command=cmd)
-            print(f"Space '{_space}' created.")
-        except Exception as err:
-            print(f"Unexpected error while trying to create '{_space}': {err}")
-        create_schema(space_name=_space)
-        create_indexes(space_name=_space)
-
-
-def create_indexes(space_name):
-    indexes = INDEX_COMMANDS[space_name]
-    for index_name, index_cmd in indexes.items():
-        try:
-            run_command_with_output(command=index_cmd.encode())
-            print(f"Index '{index_name}' created succesfully.")
-        except Exception as err:
-            print(f"Unexpected error while trying to create index '{index_name}': '{err}'")
-
-
-def create_schema(space_name):
-    try:
-        cmd = SCHEMA_COMMANDS[space_name].encode()
-        run_command_with_output(command=cmd)
-        print(f"Schema created for {space_name} succesfully.")
-    except Exception as unexpected_error:
-        print(f"Got unexpected error when creating index for '{space_name}' Space.\n {unexpected_error}")
+    connection.connect().call('init')
