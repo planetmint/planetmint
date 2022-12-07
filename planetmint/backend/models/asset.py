@@ -22,8 +22,8 @@ class Asset:
         }
 
     @staticmethod
-    def from_list_dict(asset_tuple_list: list[tuple]) -> list[Asset]:
-        return [Asset.from_dict(asset_tuple) for asset_tuple in asset_tuple_list]
+    def from_list_dict(asset_dict_list: list[dict]) -> list[Asset]:
+        return [Asset.from_dict(asset_dict) for asset_dict in asset_dict_list]
 
     @staticmethod
     def list_to_dict(asset_list: list[Asset]) -> list[dict]:

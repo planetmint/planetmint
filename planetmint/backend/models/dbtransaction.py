@@ -6,8 +6,7 @@
 from __future__ import annotations
 from dataclasses import dataclass
 
-from planetmint.backend.models import Asset, MetaData, Input, Output, Script
-from planetmint.backend.models.keys import Keys
+from planetmint.backend.models import Asset, MetaData, Input, Script
 
 
 @dataclass

@@ -47,7 +47,7 @@ class Input:
             else None
         )
 
-        return {"fulfills": fulfills, "fulfillment": self.fulfillment, "owners_before": self.owners_before}
+        return {"owners_before": self.owners_before, "fulfills": fulfills, "fulfillment": self.fulfillment}
 
     @staticmethod
     def from_list_dict(input_tuple_list: list[dict]) -> list[Input]:

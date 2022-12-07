@@ -9,6 +9,5 @@ from .input import Input
 from .metadata import MetaData
 from .script import Script
 from .output import Output
-from .keys import Keys
 from .dbtransaction import DbTransaction
 from .block import Block

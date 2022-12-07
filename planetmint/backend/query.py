@@ -10,7 +10,6 @@ from functools import singledispatch
 from planetmint.backend.models import Asset, MetaData, Output, Input, Script
 
 from planetmint.backend.exceptions import OperationError
-from planetmint.backend.models.keys import Keys
 from planetmint.backend.interfaces import Block
 from planetmint.backend.models.dbtransaction import DbTransaction
 
@@ -209,62 +208,12 @@ def get_block_with_transaction(connection, txid):
 
 
 @singledispatch
-def get_metadata_by_tx_id(connection, transaction_id: str) -> MetaData:
-    """Get metadata from the metadata table containing `transaction_id`.
-
-    Args:
-        transaction_id (str): id for the metadata to be retrieved from
-        the database.
-
-    Returns:
-        metadata (MetaData): the list of returned metadata.
-    """
-    raise NotImplementedError
-
-
-@singledispatch
-def store_transaction_outputs_and_keys(connection, output: Output, index: int):
-    """Store the transaction outputs.
-
-    Args:
-        output (Output): the output to store.
-        index (int): the index of the output in the transaction.
-    """
-    raise NotImplementedError
-
-
-@singledispatch
 def store_transaction_outputs(connection, output: Output, index: int):
     """Store the transaction outputs.
 
     Args:
         output (Output): the output to store.
         index (int): the index of the output in the transaction.
-    """
-    raise NotImplementedError
-
-
-@singledispatch
-def store_transaction_keys(connection, keys: [Keys], output_id: str, index: int):
-    """Store the transaction keys.
-
-    Args:
-        input (Input): the input to store.
-        index (int): the index of the input in the transaction.
-    """
-    raise NotImplementedError
-
-
-@singledispatch
-def get_metadata(connection, transaction_ids) -> list[MetaData]:
-    """Get a list of metadata from the metadata table.
-
-    Args:
-        transaction_ids (list): a list of ids for the metadata to be retrieved from
-        the database.
-
-    Returns:
-        metadata (list): the list of returned metadata.
     """
     raise NotImplementedError
 
@@ -547,6 +496,6 @@ def get_outputs_by_tx_id(connection, tx_id: str) -> list[Output]:
 
 
 @singledispatch
-def get_keys_by_tx_id(connection, tx_id: str) -> list[Keys]:
-    """Retrieve keys for a transaction by its id"""
+def get_metadata(conn, transaction_ids):
+    """Retrieve metadata for a list of transactions by their ids"""
     raise NotImplementedError

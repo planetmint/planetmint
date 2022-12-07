@@ -13,9 +13,9 @@ class Script:
     script: dict = None
 
     @staticmethod
-    def from_dict(script_dict: dict) -> Script:
+    def from_dict(script_dict: dict) -> Script | None:
         if script_dict is None:
-            return Script()
+            return None
         return Script(script_dict["script"])
 
     def to_dict(self) -> dict:

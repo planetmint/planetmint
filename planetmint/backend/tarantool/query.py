@@ -70,7 +70,6 @@ def store_transaction_outputs(connection, output: Output, index: int) -> str:
 def store_transactions(connection, signed_transactions: list):
     for transaction in signed_transactions:
         store_transaction(connection, transaction)
-
         [
             store_transaction_outputs(connection, Output.outputs_dict(output, transaction["id"]), index)
             for index, output in enumerate(transaction[TARANT_TABLE_OUTPUT])

@@ -7,8 +7,6 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import List
 
-from planetmint.backend.models.keys import Keys
-
 
 @dataclass
 class SubCondition:
@@ -26,7 +24,7 @@ class SubCondition:
 class ConditionDetails:
     type: str = ""
     public_key: str = ""
-    threshold: int = 0
+    threshold: int = None
     sub_conditions: list[SubCondition] = None
 
     @staticmethod
@@ -100,18 +98,18 @@ class Output:
 
     def to_dict(self) -> dict:
         return {
-            "id": self.transaction_id,
-            "amount": self.amount,
+            "id": self.id,
             "public_keys": self.public_keys,
             "condition": {
-                "uri": self.condition.uri,
                 "details": {
                     "type": self.condition.details.type,
                     "public_key": self.condition.details.public_key,
                     "threshold": self.condition.details.threshold,
                     "subconditions": self.condition.details.sub_conditions,
                 },
+                "uri": self.condition.uri,
             },
+            "amount": str(self.amount),
         }
 
 
