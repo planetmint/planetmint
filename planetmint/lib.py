@@ -233,7 +233,7 @@ class Planetmint(object):
     def get_transactions(self, txn_ids):
         return backend.query.get_transactions(self.connection, txn_ids)
 
-    def get_transactions_filtered(self, asset_ids, operation=None, last_tx=None):
+    def get_transactions_filtered(self, asset_ids, operation=None, last_tx=False):
         """Get a list of transactions filtered on some criteria"""
         txids = backend.query.get_txids_filtered(self.connection, asset_ids, operation, last_tx)
         for txid in txids:

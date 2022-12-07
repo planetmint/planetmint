@@ -13,8 +13,8 @@ class Asset:
     data: str = ""
 
     @staticmethod
-    def from_dict(asset_tuple: dict) -> Asset:
-        return Asset(asset_tuple["data"])
+    def from_dict(asset_dict: dict) -> Asset:
+        return Asset(asset_dict["data"]) if "data" in asset_dict.keys() else Asset(asset_dict["id"])
 
     def to_dict(self) -> dict:
         return {

@@ -160,42 +160,30 @@ def store_block(connection, block: dict):
 
 
 @register_query(TarantoolDBConnection)
-def get_txids_filtered(
-        connection, asset_ids: list[str], operation: str = None, last_tx: any = None
-):  # TODO here is used 'OR' operator
-    actions = {
-        "CREATE": {"sets": ["CREATE", asset_ids], "index": "transaction_search"},
-        # 1 - operation, 2 - id (only in transactions) +
-        "TRANSFER": {"sets": ["TRANSFER", asset_ids], "index": "transaction_search"},
-        # 1 - operation, 2 - asset.id (linked mode) + OPERATOR OR
-        None: {"sets": [asset_ids, asset_ids]},
-    }[operation]
-    _transactions = []
-    if actions["sets"][0] == "CREATE":  # +
-        _transactions = connection.run(
-            connection.space(TARANT_TABLE_TRANSACTION).select([operation, asset_ids[0]], index=actions["index"])
+def get_txids_filtered(connection, asset_ids: list[str], operation: str = "", last_tx: bool = False):
+    transactions = []
+    if operation == "CREATE":
+        transactions = connection.run(
+            connection.space(TARANT_TABLE_TRANSACTION).select([asset_ids[0], operation], index="transactions_by_id_and_operation")
         )
-    elif actions["sets"][0] == "TRANSFER":  # +
-        _assets = connection.run(connection.space(TARANT_TABLE_ASSETS).select(asset_ids, index="only_asset_search"))
-
-        for asset in _assets:
-            _txid = asset[1]
-            _tmp_transactions = connection.run(
-                connection.space(TARANT_TABLE_TRANSACTION).select([operation, _txid], index=actions["index"])
-            )
-            if len(_tmp_transactions) != 0:
-                _transactions.extend(_tmp_transactions)
+    elif operation == "TRANSFER":
+        transactions = connection.run(
+            connection.space(TARANT_TABLE_TRANSACTION).select(["", operation, asset_ids], index="transactions_by_id_and_operation")
+        )
     else:
-        _tx_ids = connection.run(connection.space(TARANT_TABLE_TRANSACTION).select(asset_ids, index=TARANT_ID_SEARCH))
-        _assets_ids = connection.run(
-            connection.space(TARANT_TABLE_ASSETS).select(asset_ids, index="only_asset_search")
+        txs = connection.run(connection.space(TARANT_TABLE_TRANSACTION).select(asset_ids, index=TARANT_ID_SEARCH))
+        asset_txs = connection.run(
+            connection.space(TARANT_TABLE_TRANSACTION).select(asset_ids, index="transactions_by_asset")
         )
-        return tuple(set([sublist[1] for sublist in _assets_ids] + [sublist[0] for sublist in _tx_ids]))
+        transactions = txs + asset_txs
 
+    ids = tuple([tx[0] for tx in transactions])
+
+    # NOTE: check when and where this is used and remove if not
     if last_tx:
-        return tuple(next(iter(_transactions)))
+        return ids[0]
 
-    return tuple([elem[0] for elem in _transactions])
+    return ids
 
 
 @register_query(TarantoolDBConnection)

@@ -46,6 +46,14 @@ function init()
             { field = 'inputs[*].fulfills["transaction_id"]', type = 'string', is_nullable = true },
             { field = 'inputs[*].fulfills["output_index"]', type = 'unsigned', is_nullable = true }
     }})
+    transactions:create_index('transactions_by_id_and_operation', {
+        if_not_exists = true,
+        parts = {
+            { field = 'id', type = 'string' },
+            { field = 'operation', type = 'string' },
+            { field = 'assets[*].id', type = 'string', is_nullable = true }
+        }
+    })
 
 
     -- Outputs
