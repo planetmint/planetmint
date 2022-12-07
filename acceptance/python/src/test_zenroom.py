@@ -2,8 +2,8 @@ import os
 import json
 import base58
 from hashlib import sha3_256
-from cryptoconditions.types.ed25519 import Ed25519Sha256
-from cryptoconditions.types.zenroom import ZenroomSha256
+from planetmint_cryptoconditions.types.ed25519 import Ed25519Sha256
+from planetmint_cryptoconditions.types.zenroom import ZenroomSha256
 from zenroom import zencode_exec
 from planetmint_driver import Planetmint
 from planetmint_driver.crypto import generate_keypair

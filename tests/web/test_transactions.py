@@ -8,7 +8,7 @@ import base58
 import pytest
 
 from unittest.mock import Mock, patch
-from cryptoconditions import Ed25519Sha256
+from planetmint_cryptoconditions import Ed25519Sha256
 from ipld import multihash, marshal
 from hashlib import sha3_256
 

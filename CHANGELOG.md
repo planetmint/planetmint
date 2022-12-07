@@ -25,7 +25,10 @@ For reference, the possible headings are:
 * **Known Issues**
 * **Notes**
 
-## [Unreleased]
+
+## [1.3.2] - 2022-28-11
+* **Changed** new zenroom 2.3.1 support
+* **Changed** integrated new planetmint-cryptoconditions package (via the transactions package)
 
 ## [1.3.0] - 2022-27-10
 * **Changed** migrated asset to assets

@@ -3,7 +3,7 @@ import base58
 
 from hashlib import sha3_256
 from zenroom import zencode_exec
-from cryptoconditions.types.zenroom import ZenroomSha256
+from planetmint_cryptoconditions.types.zenroom import ZenroomSha256
 from transactions.common.crypto import generate_key_pair
 from ipld import multihash, marshal
 
@@ -32,7 +32,7 @@ GENERATE_KEYPAIR = """Scenario 'ecdh': Create the keypair
     Given that I am known as 'Pippo'
     When I create the ecdh key
     When I create the bitcoin key
-    Then print data"""
+    Then print keyring"""
 
 INITIAL_STATE = {"also": "more data"}
 SCRIPT_INPUT = {
