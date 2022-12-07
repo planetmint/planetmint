@@ -9,7 +9,6 @@ from uuid import uuid4
 from hashlib import sha256
 from operator import itemgetter
 
-from planetmint.backend.models.output import Condition
 
 from planetmint.backend import query
 from planetmint.backend.models.dbtransaction import DbTransaction
@@ -55,8 +54,6 @@ def get_transaction(connection, tx_id: str) -> DbTransaction:
 
 
 def store_transaction_outputs(connection, output: Output, index: int) -> str:
-    # TODO: store public keys as well
-
     output_id = uuid4().hex
     connection.run(connection.space(TARANT_TABLE_OUTPUT).insert((
         output_id,
@@ -146,6 +143,9 @@ def get_spent(connection, fullfil_transaction_id: str, fullfil_output_index: str
 @register_query(TarantoolDBConnection)
 def get_latest_block(connection):
     blocks = connection.run(connection.space("blocks").select())
+    if not blocks:
+        return None
+
     blocks = sorted(blocks, key=itemgetter(2), reverse=True)
     latest_block = Block.from_tuple(blocks[0])
     return latest_block.to_dict()
