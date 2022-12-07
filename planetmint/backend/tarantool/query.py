@@ -238,7 +238,7 @@ def get_block(connection, block_id=None):
 @register_query(TarantoolDBConnection)
 def get_block_with_transaction(connection, txid: str):
     _block = connection.run(connection.space("blocks").select(txid, index="block_by_transaction_id"))
-    return _block[0] if len(_block) == 1 else []
+    return _block if len(_block) > 0 else []
 
 
 @register_query(TarantoolDBConnection)
