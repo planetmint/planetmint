@@ -335,7 +335,7 @@ class Planetmint(object):
         if len(blocks) > 1:
             logger.critical("Transaction id %s exists in multiple blocks", txid)
 
-        return [block["height"] for block in blocks]
+        return blocks
 
     def validate_transaction(self, tx, current_transactions=[]):
         """Validate a transaction against the current status of the database."""

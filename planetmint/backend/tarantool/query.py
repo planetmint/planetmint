@@ -25,7 +25,7 @@ from planetmint.backend.tarantool.const import (
     TARANT_ID_SEARCH,
 )
 from planetmint.backend.utils import module_dispatch_registrar
-from planetmint.backend.models import Asset, MetaData, Input, Script, Output
+from planetmint.backend.models import Asset, Block, MetaData, Input, Script, Output
 from planetmint.backend.tarantool.connection import TarantoolDBConnection
 
 register_query = module_dispatch_registrar(query)
@@ -284,27 +284,15 @@ def get_spent(connection, fullfil_transaction_id: str, fullfil_output_index: str
 
 
 @register_query(TarantoolDBConnection)
-def get_latest_block(connection):  # TODO Here is used DESCENDING OPERATOR
-    # NOTE:TARANTOOL THROWS ERROR ON ITERATOR 'REQ'
-    latest_blocks = connection.run(connection.space("blocks").select())
-    
-    
-    if not latest_blocks:
-        return None
-    
-    # TODO: return Block dataclass instance
-    block = {
-        "app_hash": latest_blocks[0][1],
-        "height": latest_blocks[0][2],
-        TARANT_TABLE_TRANSACTION: latest_blocks[0][3]
-    }
-    
-    return block
+def get_latest_block(connection):
+    blocks = connection.run(connection.space("blocks").select())
+    blocks = sorted(blocks, key=itemgetter(2), reverse=True)
+    latest_block = Block.from_tuple(blocks[0])
+    return latest_block.to_dict()
 
 
 @register_query(TarantoolDBConnection)
 def store_block(connection, block: dict):
-    
     block_unique_id = uuid4().hex
     connection.run(
         connection.space("blocks").insert((block_unique_id, block["app_hash"], block["height"], block[TARANT_TABLE_TRANSACTION])), only_data=False
@@ -395,23 +383,15 @@ def get_spending_transactions(connection, inputs):
 
 @register_query(TarantoolDBConnection)
 def get_block(connection, block_id=None):
-    if block_id is None:
-        block_id = []
-    _block = connection.run(connection.space("blocks").select(block_id, index="block_search", limit=1))
-    if _block is None or len(_block) == 0:
-        return []
-    _block = _block[0]
-    _txblock = connection.run(connection.space("blocks_tx").select(_block[2], index="block_search"))
-    return {"app_hash": _block[0], "height": _block[1], TARANT_TABLE_TRANSACTION: [_tx[0] for _tx in _txblock]}
+    _block = connection.run(connection.space("blocks").select(block_id, index="id", limit=1))
+    _block = Block.from_tuple(_block[0])
+    return _block.to_dict()
 
 
 @register_query(TarantoolDBConnection)
 def get_block_with_transaction(connection, txid: str):
-    _all_blocks_tx = connection.run(connection.space("blocks_tx").select(txid, index=TARANT_ID_SEARCH))
-    if _all_blocks_tx is None or len(_all_blocks_tx) == 0:
-        return []
-    _block = connection.run(connection.space("blocks").select(_all_blocks_tx[0][1], index="block_id_search"))
-    return [{"height": _height[1]} for _height in _block]
+    _block = connection.run(connection.space("blocks").select(txid, index="block_by_transaction_id"))
+    return _block[0] if len(_block) == 1 else []
 
 
 @register_query(TarantoolDBConnection)
