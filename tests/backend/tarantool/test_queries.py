@@ -208,63 +208,6 @@ def test_get_owned_ids(signed_create_tx, user_pk, db_conn):
     assert founded[0]["transactions"].raw_transaction == tx_dict
 
 
-def test_get_spending_transactions(user_pk, user_sk, db_conn):
-    from planetmint.backend.tarantool import query
-
-    out = [([user_pk], 1)]
-    tx1 = Create.generate([user_pk], out * 3)
-    tx1.sign([user_sk])
-    inputs = tx1.to_inputs()
-    tx2 = Transfer.generate([inputs[0]], out, [tx1.id]).sign([user_sk])
-    tx3 = Transfer.generate([inputs[1]], out, [tx1.id]).sign([user_sk])
-    tx4 = Transfer.generate([inputs[2]], out, [tx1.id]).sign([user_sk])
-    txns = [deepcopy(tx.to_dict()) for tx in [tx1, tx2, tx3, tx4]]
-    query.store_transactions(signed_transactions=txns, connection=db_conn)
-
-    links = [inputs[0].fulfills.to_dict(), inputs[2].fulfills.to_dict()]
-    txns = list(query.get_spending_transactions(connection=db_conn, inputs=links))
-
-    # tx3 not a member because input 1 not asked for
-    assert txns[0]["transactions"].raw_transaction == tx2.to_dict()
-    assert txns[1]["transactions"].raw_transaction == tx4.to_dict()
-
-
-def test_get_spending_transactions_multiple_inputs(db_conn):
-    from transactions.common.crypto import generate_key_pair
-    from planetmint.backend.tarantool import query
-
-    (alice_sk, alice_pk) = generate_key_pair()
-    (bob_sk, bob_pk) = generate_key_pair()
-    (carol_sk, carol_pk) = generate_key_pair()
-
-    out = [([alice_pk], 9)]
-    tx1 = Create.generate([alice_pk], out).sign([alice_sk])
-
-    inputs1 = tx1.to_inputs()
-    tx2 = Transfer.generate([inputs1[0]], [([alice_pk], 6), ([bob_pk], 3)], [tx1.id]).sign([alice_sk])
-
-    inputs2 = tx2.to_inputs()
-    tx3 = Transfer.generate([inputs2[0]], [([bob_pk], 3), ([carol_pk], 3)], [tx1.id]).sign([alice_sk])
-
-    inputs3 = tx3.to_inputs()
-    tx4 = Transfer.generate([inputs2[1], inputs3[0]], [([carol_pk], 6)], [tx1.id]).sign([bob_sk])
-
-    txns = [deepcopy(tx.to_dict()) for tx in [tx1, tx2, tx3, tx4]]
-    query.store_transactions(signed_transactions=txns, connection=db_conn)
-
-    links = [
-        ({"transaction_id": tx2.id, "output_index": 0}, 1, [tx3.id]),
-        ({"transaction_id": tx2.id, "output_index": 1}, 1, [tx4.id]),
-        ({"transaction_id": tx3.id, "output_index": 0}, 1, [tx4.id]),
-        ({"transaction_id": tx3.id, "output_index": 1}, 0, None),
-    ]
-    for li, num, match in links:
-        txns = list(query.get_spending_transactions(connection=db_conn, inputs=[li]))
-        assert len(txns) == num
-        if len(txns):
-            assert [tx["transactions"].id for tx in txns] == match
-
-
 def test_store_block(db_conn):
     from planetmint.lib import Block
     from planetmint.backend.tarantool import query

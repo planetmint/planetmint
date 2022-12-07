@@ -10,21 +10,21 @@ from dataclasses import dataclass
 
 @dataclass
 class Asset:
-    id: str = ""
-    tx_id: str = ""
-    data: dict = ""
+    data: str = ""
 
     @staticmethod
-    def from_tuple(asset_tuple: tuple) -> Asset:
-        return Asset(asset_tuple[2], asset_tuple[1], json.loads(asset_tuple[0])["data"])
+    def from_dict(asset_tuple: dict) -> Asset:
+        return Asset(asset_tuple["data"])
 
     def to_dict(self) -> dict:
         return {
-            "id": self.id,
-            "tx_id": self.tx_id,
             "data": self.data
         }
 
     @staticmethod
+    def from_list_dict(asset_tuple_list: list[tuple]) -> list[Asset]:
+        return [Asset.from_dict(asset_tuple) for asset_tuple in asset_tuple_list]
+
+    @staticmethod
     def list_to_dict(asset_list: list[Asset]) -> list[dict]:
-        return [asset.to_dict() for asset in asset_list]
+        return [asset.to_dict() for asset in asset_list or []]

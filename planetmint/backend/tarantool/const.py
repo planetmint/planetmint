@@ -12,3 +12,6 @@ TARANT_TABLE_OUTPUT = "outputs"
 TARANT_TABLE_SCRIPT = "scripts"
 TARANT_TX_ID_SEARCH = "transaction_id"
 TARANT_ID_SEARCH = "id"
+
+TARANT_INDEX_TX_BY_ASSET_ID = "transactions_by_asset"
+TARANT_INDEX_SPENDING_BY_ID_AND_OUTPUT_INDEX = "spending_transaction_by_id_and_output_index"

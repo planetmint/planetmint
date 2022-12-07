@@ -239,6 +239,9 @@ class Planetmint(object):
         for txid in txids:
             yield self.get_transaction(txid)
 
+    def get_outputs_by_tx_id(self, txid):
+        return backend.query.get_outputs_by_tx_id(self.connection, txid)
+
     def get_outputs_filtered(self, owner, spent=None):
         """Get a list of output links filtered on some criteria
 
@@ -337,17 +340,15 @@ class Planetmint(object):
 
         return blocks
 
-    def validate_transaction(self, tx, current_transactions=[]):
+    def validate_transaction(self, transaction, current_transactions=[]):
         """Validate a transaction against the current status of the database."""
-
-        transaction = tx
 
         # CLEANUP: The conditional below checks for transaction in dict format.
         # It would be better to only have a single format for the transaction
         # throught the code base.
         if isinstance(transaction, dict):
             try:
-                transaction = Transaction.from_dict(tx, False)
+                transaction = Transaction.from_dict(transaction, False)
             except SchemaValidationError as e:
                 logger.warning("Invalid transaction schema: %s", e.__cause__.message)
                 return False
@@ -371,6 +372,7 @@ class Planetmint(object):
         for input_ in tx.inputs:
             input_txid = input_.fulfills.txid
             input_tx = self.get_transaction(input_txid)
+            _output = self.get_outputs_by_tx_id(input_txid)
             if input_tx is None:
                 for ctxn in current_transactions:
                     if ctxn.id == input_txid:
@@ -383,9 +385,13 @@ class Planetmint(object):
             if spent:
                 raise DoubleSpend("input `{}` was already spent".format(input_txid))
 
-            output = input_tx.outputs[input_.fulfills.output]
+
+            output = _output[input_.fulfills.output]
             input_conditions.append(output)
-            input_txs.append(input_tx)
+            tx_dict = input_tx.to_dict()
+            tx_dict["outputs"] = output.to_dict()
+            pm_transaction = Transaction.from_dict(tx_dict, False)
+            input_txs.append(pm_transaction)
 
         # Validate that all inputs are distinct
         links = [i.fulfills.to_uri() for i in tx.inputs]

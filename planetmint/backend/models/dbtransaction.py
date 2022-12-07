@@ -15,12 +15,9 @@ class DbTransaction:
     id: str = ""
     operation: str = ""
     version: str = ""
-    raw_transaction: dict = dict
-    assets: list[Asset] = None
     metadata: MetaData = None
+    assets: list[Asset] = None
     inputs: list[Input] = None
-    outputs: list[Output] = None
-    keys: Keys = None
     script: Script = None
 
     @staticmethod
@@ -29,8 +26,10 @@ class DbTransaction:
             id=transaction["id"],
             operation=transaction["operation"],
             version=transaction["version"],
-            inputs=transaction["inputs"],
-            raw_transaction=transaction["transaction"],
+            inputs=Input.from_list_dict(transaction["inputs"]),
+            assets=Asset.from_list_dict(transaction["assets"]),
+            metadata=MetaData.from_dict(transaction["metadata"]),
+            script=Script.from_dict(transaction["script"]),
         )
 
     @staticmethod
@@ -39,7 +38,10 @@ class DbTransaction:
             id=transaction[0],
             operation=transaction[1],
             version=transaction[2],
-            raw_transaction=transaction[3],
+            metadata=MetaData.from_dict(transaction[3]),
+            assets=Asset.from_list_dict(transaction[4]),
+            inputs=Input.from_list_dict(transaction[5]),
+            script=Script.from_dict(transaction[6]),
         )
 
     def to_dict(self) -> dict:
@@ -49,9 +51,6 @@ class DbTransaction:
             "version": self.version,
             "inputs": Input.list_to_dict(self.inputs),
             "assets": Asset.list_to_dict(self.assets),
-            "metadata": self.metadata.to_dict(),
-            "outputs": Output.list_to_dict(self.outputs),
-            "keys": self.keys.to_dict(),
-            "script": self.script.to_dict(),
-            "transaction": self.raw_transaction,
+            "metadata": self.metadata.to_dict() if self.metadata is not None else None,
+            "script": self.script.to_dict() if self.script is not None else None,
         }

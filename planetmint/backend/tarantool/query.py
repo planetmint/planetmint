@@ -8,10 +8,10 @@ import json
 from uuid import uuid4
 from hashlib import sha256
 from operator import itemgetter
-from typing import Union
-from tarantool.error import DatabaseError
+
+from planetmint.backend.models.output import Condition
+
 from planetmint.backend import query
-from planetmint.backend.models.keys import Keys
 from planetmint.backend.models.dbtransaction import DbTransaction
 from planetmint.backend.tarantool.const import (
     TARANT_TABLE_META_DATA,
@@ -22,7 +22,7 @@ from planetmint.backend.tarantool.const import (
     TARANT_TABLE_OUTPUT,
     TARANT_TABLE_SCRIPT,
     TARANT_TX_ID_SEARCH,
-    TARANT_ID_SEARCH,
+    TARANT_ID_SEARCH, TARANT_INDEX_TX_BY_ASSET_ID, TARANT_INDEX_SPENDING_BY_ID_AND_OUTPUT_INDEX,
 )
 from planetmint.backend.utils import module_dispatch_registrar
 from planetmint.backend.models import Asset, Block, MetaData, Input, Script, Output
@@ -38,107 +38,35 @@ def _group_transaction_by_ids(connection, txids: list) -> list[DbTransaction]:
         tx = get_transaction_space_by_id(connection, txid)
         if tx is None:
             continue
-
-        tx.inputs = get_inputs_by_tx_id(connection, txid)
-        _output = get_outputs_by_tx_id(connection, txid)
-        _keys = get_keys_by_tx_id(connection, txid)
-        tx.outputs = [_enricht_output_with_public_keys(_keys, output) for output in _output]
-        tx.assets = get_assets_by_tx_id(connection, txid)
-        tx.metadata = get_metadata_by_tx_id(connection, txid)
-        tx.script = get_script_by_tx_id(connection, txid)
-
         _transactions.append(tx)
     return _transactions
 
 
-def _enricht_output_with_public_keys(keys: list[Keys], output: Output) -> Output:
-    output.public_keys = [key.public_keys for key in keys if key.output_id == output.id]
-    return output
-
-@register_query(TarantoolDBConnection)
-def get_inputs_by_tx_id(connection, tx_id: str) -> list[Input]:
-    _inputs = connection.run(connection.space(TARANT_TABLE_INPUT).select(tx_id, index=TARANT_ID_SEARCH))
-    _sorted_inputs = sorted(_inputs, key=itemgetter(6))
-    return [Input.from_tuple(input) for input in _sorted_inputs]
-
-
 @register_query(TarantoolDBConnection)
 def get_outputs_by_tx_id(connection, tx_id: str) -> list[Output]:
-    _outputs = connection.run(connection.space(TARANT_TABLE_OUTPUT).select(tx_id, index=TARANT_ID_SEARCH))
-    _sorted_outputs = sorted(_outputs, key=itemgetter(8))
+    _outputs = connection.run(connection.space(TARANT_TABLE_OUTPUT).select(tx_id, index=TARANT_TX_ID_SEARCH))
+    _sorted_outputs = sorted(_outputs, key=itemgetter(4))
     return [Output.from_tuple(output) for output in _sorted_outputs]
-
-
-@register_query(TarantoolDBConnection)
-def get_keys_by_tx_id(connection, tx_id: str) -> list[Keys]:
-    _keys = connection.run(connection.space(TARANT_TABLE_KEYS).select(tx_id, index=TARANT_TX_ID_SEARCH))
-    _sorted_keys = sorted(_keys, key=itemgetter(4))
-    return [Keys.from_tuple(key) for key in _sorted_keys]
 
 
 @register_query(TarantoolDBConnection)
 def get_transaction(connection, tx_id: str) -> DbTransaction:
     return NotImplemented
 
-@register_query(TarantoolDBConnection)
-def store_transaction_inputs(connection, input: Input, index: int):
-    connection.run(
-        connection.space(TARANT_TABLE_INPUT).insert(
-            (
-                input.tx_id,
-                input.fulfillment,
-                input.owners_before,
-                input.fulfills.transaction_id if input.fulfills else "",
-                # TODO: the output_index should be an unsigned int
-                str(input.fulfills.output_index) if input.fulfills else "",
-                uuid4().hex,
-                index,
-            )
-        )
-    )
-
-
-@register_query(TarantoolDBConnection)
-def store_transaction_outputs_and_keys(connection, output_key: (Output, Keys), index: int):
-    output_id = store_transaction_outputs(connection, output_key[0], index)
-    store_transaction_keys(connection, output_key[1], output_id, index)
-
 
 def store_transaction_outputs(connection, output: Output, index: int) -> str:
+    # TODO: store public keys as well
+
     output_id = uuid4().hex
-    if output.condition.details.sub_conditions is None:
-        tmp_output = (
-            output.tx_id,
-            output.amount,
-            output.condition.uri if output.condition else "",
-            output.condition.details.type if output.condition.details else "",
-            output.condition.details.public_key if output.condition.details else "",
-            output_id,
-            None,
-            None,
-            index,
-        )
-    else:
-        tmp_output = (
-            output.tx_id,
-            output.amount,
-            output.condition.uri if output.condition else "",
-            output.condition.details.type if output.condition.details else "",
-            None,
-            output_id,
-            output.condition.details.threshold if output.condition.details else "",
-            output.condition.details.sub_conditions_to_list_dict() if output.condition.details.sub_conditions else "",
-            index,
-        )
-
-    connection.run(connection.space(TARANT_TABLE_OUTPUT).insert((tmp_output)))
+    connection.run(connection.space(TARANT_TABLE_OUTPUT).insert((
+        output_id,
+        int(output.amount),
+        output.public_keys,
+        output.condition.to_dict(),
+        index,
+        output.transaction_id,
+    )))
     return output_id
-
-
-@register_query(TarantoolDBConnection)
-def store_transaction_keys(connection, keys: Keys, output_id: str, index: int):
-    for key in keys.public_keys:
-        connection.run(connection.space(TARANT_TABLE_KEYS).insert((uuid4().hex, keys.tx_id, output_id, key, index)))
 
 
 @register_query(TarantoolDBConnection)
@@ -147,35 +75,24 @@ def store_transactions(connection, signed_transactions: list):
         store_transaction(connection, transaction)
 
         [
-            store_transaction_inputs(connection, Input.from_dict(input, transaction["id"]), index)
-            for index, input in enumerate(transaction[TARANT_TABLE_INPUT])
-        ]
-
-        [
-            store_transaction_outputs_and_keys(
-                connection, Output.outputs_and_keys_dict(output, transaction["id"]), index
-            )
+            store_transaction_outputs(connection, Output.outputs_dict(output, transaction["id"]), index)
             for index, output in enumerate(transaction[TARANT_TABLE_OUTPUT])
         ]
-
-        # store_metadatas(connection, [MetaData(transaction["id"], transaction["metadata"])])
-
-        # assets = []
-        # for asset in transaction[TARANT_TABLE_ASSETS]:
-        #     id = transaction["id"] if "id" not in asset else asset["id"]
-        #     assets.append(Asset(id, transaction["id"], asset))
-        # store_assets(connection, assets)
-
-        if TARANT_TABLE_SCRIPT in transaction:
-            connection.run(
-                connection.space(TARANT_TABLE_SCRIPT).insert((transaction["id"], transaction[TARANT_TABLE_SCRIPT])),
-                only_data=False,
-            )
 
 
 @register_query(TarantoolDBConnection)
 def store_transaction(connection, transaction):
-    tx = (transaction["id"], transaction["operation"], transaction["version"], [transaction])
+    scripts = None
+    if TARANT_TABLE_SCRIPT in transaction:
+        scripts = transaction[TARANT_TABLE_SCRIPT]
+    tx = (
+        transaction["id"],
+        transaction["operation"],
+        transaction["version"],
+        transaction["metadata"],
+        transaction["assets"],
+        transaction["inputs"],
+        scripts)
     connection.run(connection.space(TARANT_TABLE_TRANSACTION).insert(tx), only_data=False)
 
 
@@ -198,86 +115,29 @@ def get_transactions(connection, transactions_ids: list) -> list[DbTransaction]:
 
 
 @register_query(TarantoolDBConnection)
-def store_metadatas(connection, metadata: list[MetaData]):
-    for meta in metadata:
-        connection.run(
-            connection.space(TARANT_TABLE_META_DATA).insert((meta.id, json.dumps(meta.metadata)))  # noqa: E713
-        )
-
-
-@register_query(TarantoolDBConnection)
-def get_metadata(connection, transaction_ids: list) -> list[MetaData]:
-    _returned_data = []
-    for _id in transaction_ids:
-        metadata = connection.run(connection.space(TARANT_TABLE_META_DATA).select(_id, index=TARANT_ID_SEARCH))
-        if metadata is not None:
-            if len(metadata) > 0:
-                metadata[0] = list(metadata[0])
-                metadata[0][1] = json.loads(metadata[0][1])
-                metadata = MetaData(metadata[0][0], metadata[0][1])
-                _returned_data.append(metadata)
-    return _returned_data
-
-
-@register_query(TarantoolDBConnection)
-def get_metadata_by_tx_id(connection, transaction_id: str) -> MetaData:
-    metadata = connection.run(connection.space(TARANT_TABLE_META_DATA).select(transaction_id, index=TARANT_ID_SEARCH))
-    return MetaData.from_tuple(metadata[0]) if len(metadata) > 0 else MetaData(transaction_id)
-
-
-@register_query(TarantoolDBConnection)
-def store_asset(connection, asset: Asset):
-    tuple_asset = (json.dumps(asset.data), asset.tx_id, asset.id)
-    try:
-        return connection.run(connection.space(TARANT_TABLE_ASSETS).insert(tuple_asset), only_data=False)
-    except DatabaseError:
-        pass
-
-
-@register_query(TarantoolDBConnection)
-def store_assets(connection, assets: list):
-    for asset in assets:
-        store_asset(connection, asset)
-
-
-@register_query(TarantoolDBConnection)
 def get_asset(connection, asset_id: str) -> Asset:
-    _data = connection.run(connection.space(TARANT_TABLE_ASSETS).select(asset_id, index=TARANT_TX_ID_SEARCH))
-    return Asset.from_tuple(_data[0])
+    _data = connection.run(connection.space(TARANT_TABLE_TRANSACTION).select(asset_id, index=TARANT_INDEX_TX_BY_ASSET_ID))
+    return Asset.from_dict(_data[0])
 
 
 @register_query(TarantoolDBConnection)
 def get_assets(connection, assets_ids: list) -> list[Asset]:
     _returned_data = []
     for _id in list(set(assets_ids)):
-        res = connection.run(connection.space(TARANT_TABLE_ASSETS).select(_id, index=TARANT_TX_ID_SEARCH))
+        res = connection.run(connection.space(TARANT_TABLE_TRANSACTION).select(_id, index=TARANT_INDEX_TX_BY_ASSET_ID))
         if len(res) is 0:
             continue
         _returned_data.append(res[0])
 
     sorted_assets = sorted(_returned_data, key=lambda k: k[1], reverse=False)
-    return [Asset.from_tuple(asset) for asset in sorted_assets]
-
-
-@register_query(TarantoolDBConnection)
-def get_assets_by_tx_id(connection, tx_id: str) -> list[Asset]:
-    res = connection.run(connection.space(TARANT_TABLE_ASSETS).select(tx_id, index=TARANT_TX_ID_SEARCH))
-    if len(res) > 1:
-        return _from_tuple_list_to_asset_list(res)
-
-    sorted_assets = sorted(res, key=lambda k: k[1], reverse=False)
-    return _from_tuple_list_to_asset_list(sorted_assets)
-
-
-def _from_tuple_list_to_asset_list(_data: list) -> list[Asset]:
-    return [Asset.from_tuple(asset) for asset in _data]
+    return [Asset.from_dict(asset) for asset in sorted_assets]
 
 
 @register_query(TarantoolDBConnection)
 def get_spent(connection, fullfil_transaction_id: str, fullfil_output_index: str):
     _inputs = connection.run(
-        connection.space(TARANT_TABLE_INPUT).select(
-            [fullfil_transaction_id, str(fullfil_output_index)], index="spent_search"
+        connection.space(TARANT_TABLE_TRANSACTION).select(
+            [fullfil_transaction_id, fullfil_output_index], index=TARANT_INDEX_SPENDING_BY_ID_AND_OUTPUT_INDEX
         )
     )
     return _group_transaction_by_ids(txids=[inp[0] for inp in _inputs], connection=connection)
@@ -301,7 +161,7 @@ def store_block(connection, block: dict):
 
 @register_query(TarantoolDBConnection)
 def get_txids_filtered(
-    connection, asset_ids: list[str], operation: str = None, last_tx: any = None
+        connection, asset_ids: list[str], operation: str = None, last_tx: any = None
 ):  # TODO here is used 'OR' operator
     actions = {
         "CREATE": {"sets": ["CREATE", asset_ids], "index": "transaction_search"},
@@ -555,7 +415,7 @@ def get_election(connection, election_id: str):
 
 @register_query(TarantoolDBConnection)
 def get_asset_tokens_for_public_key(
-    connection, asset_id: str, public_key: str
+        connection, asset_id: str, public_key: str
 ):  # FIXME Something can be wrong with this function ! (public_key) is not used  # noqa: E501
     # space = connection.space("keys")
     # _keys = space.select([public_key], index="keys_search")
@@ -589,9 +449,3 @@ def get_latest_abci_chain(connection):
         return None
     _chain = sorted(_all_chains, key=itemgetter(1), reverse=True)[0]
     return {"chain_id": _chain[0], "height": _chain[1], "is_synced": _chain[2]}
-
-
-@register_query(TarantoolDBConnection)
-def get_script_by_tx_id(connection, tx_id: str) -> Script:
-    script = connection.run(connection.space(TARANT_TABLE_SCRIPT).select(tx_id, index=TARANT_TX_ID_SEARCH))
-    return Script.from_tuple(script[0]) if len(script) < 0 else Script(tx_id)

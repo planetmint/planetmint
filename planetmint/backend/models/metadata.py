@@ -11,15 +11,15 @@ from typing import Optional
 
 @dataclass
 class MetaData:
-    id: str = ""
     metadata: Optional[str] = None
 
     @staticmethod
-    def from_tuple(meta_data_tuple: tuple) -> MetaData:
-        return MetaData(meta_data_tuple[0], json.loads(meta_data_tuple[1]))
+    def from_dict(meta_data_tuple: dict) -> MetaData:
+        if meta_data_tuple is None:
+            return MetaData()
+        return MetaData(meta_data_tuple["meta_data"])
 
     def to_dict(self) -> dict:
         return {
-            "id": self.id,
             "metadata": self.metadata
         }

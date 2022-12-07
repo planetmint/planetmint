@@ -50,7 +50,11 @@ class Input:
         return {"fulfills": fulfills, "fulfillment": self.fulfillment, "owners_before": self.owners_before}
 
     @staticmethod
+    def from_list_dict(input_tuple_list: list[dict]) -> list[Input]:
+        return [Input.from_dict(input_tuple) for input_tuple in input_tuple_list]
+
+    @staticmethod
     def list_to_dict(input_list: list[Input]) -> list[dict]:
-        return [input.to_dict() for input in input_list]
+        return [input.to_dict() for input in input_list or []]
 
 
