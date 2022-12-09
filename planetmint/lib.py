@@ -281,7 +281,7 @@ class Planetmint(object):
         if len(transactions) + len(current_spent_transactions) > 1:
             raise DoubleSpend('tx "{}" spends inputs twice'.format(txid))
         elif transactions:
-            tx_id = transactions[0]["transactions"].id
+            tx_id = transactions[0].id
             tx = backend.query.get_transaction_single(self.connection, tx_id)
             tx.assets = backend.query.get_assets_by_tx_id(self.connection, tx_id)
             transaction = tx.to_dict()

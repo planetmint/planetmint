@@ -16,9 +16,19 @@ class SubCondition:
     def to_tuple(self) -> tuple:
         return self.type, self.public_key
 
+    def to_dict(self) -> dict:
+        return {
+            "type": self.type,
+            "public_key": self.public_key
+        }
+
     @staticmethod
     def from_dict(subcondition_dict: dict) -> SubCondition:
         return SubCondition(subcondition_dict["type"], subcondition_dict["public_key"])
+
+    @staticmethod
+    def list_to_dict(subconditions: List[SubCondition]) -> List[dict]:
+        return [subcondition.to_dict() for subcondition in subconditions]
 
 @dataclass
 class ConditionDetails:
@@ -27,11 +37,24 @@ class ConditionDetails:
     threshold: int = None
     sub_conditions: list[SubCondition] = None
 
+    def to_dict(self) -> dict:
+        if self.sub_conditions is None:
+            return {
+                "type": self.type,
+                "public_key": self.public_key,
+            }
+        else:
+            return {
+                "type": self.type,
+                "threshold": self.threshold,
+                "subconditions": [subcondition.to_dict() for subcondition in self.sub_conditions],
+            }
+
     @staticmethod
     def from_dict(data: dict) -> ConditionDetails:
         sub_conditions = None
-        if data["sub_conditions"] is not None:
-            sub_conditions = [SubCondition.from_dict(sub_condition) for sub_condition in data["sub_conditions"]]
+        if data["subconditions"] is not None:
+            sub_conditions = [SubCondition.from_dict(sub_condition) for sub_condition in data["subconditions"]]
         return ConditionDetails(
             type=data.get("type"),
             public_key=data.get("public_key"),
@@ -55,7 +78,7 @@ class Condition:
     def to_dict(self) -> dict:
         return {
             "uri": self.uri,
-            "details": self.details.__dict__,
+            "details": self.details.to_dict(),
         }
 
     @staticmethod
@@ -105,7 +128,7 @@ class Output:
                     "type": self.condition.details.type,
                     "public_key": self.condition.details.public_key,
                     "threshold": self.condition.details.threshold,
-                    "subconditions": self.condition.details.sub_conditions,
+                    "subconditions": SubCondition.list_to_dict(self.condition.details.sub_conditions),
                 },
                 "uri": self.condition.uri,
             },
