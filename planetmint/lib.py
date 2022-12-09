@@ -283,7 +283,6 @@ class Planetmint(object):
         elif transactions:
             tx_id = transactions[0].id
             tx = backend.query.get_transaction_single(self.connection, tx_id)
-            tx.assets = backend.query.get_assets_by_tx_id(self.connection, tx_id)
             transaction = tx.to_dict()
         elif current_spent_transactions:
             transaction = current_spent_transactions[0]
