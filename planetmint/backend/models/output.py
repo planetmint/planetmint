@@ -27,7 +27,9 @@ class SubCondition:
         return SubCondition(subcondition_dict["type"], subcondition_dict["public_key"])
 
     @staticmethod
-    def list_to_dict(subconditions: List[SubCondition]) -> List[dict]:
+    def list_to_dict(subconditions: List[SubCondition]) -> List[dict] | None:
+        if subconditions is None:
+            return None
         return [subcondition.to_dict() for subcondition in subconditions]
 
 @dataclass
@@ -53,7 +55,7 @@ class ConditionDetails:
     @staticmethod
     def from_dict(data: dict) -> ConditionDetails:
         sub_conditions = None
-        if data["subconditions"] is not None:
+        if "subconditions" in data:
             sub_conditions = [SubCondition.from_dict(sub_condition) for sub_condition in data["subconditions"]]
         return ConditionDetails(
             type=data.get("type"),
@@ -81,12 +83,6 @@ class Condition:
             "details": self.details.to_dict(),
         }
 
-    @staticmethod
-    def list_of_sub_conditions_to_tuple(sub_conditions: List[SubCondition]) -> tuple:
-        sub_con_tuple = None
-        if sub_conditions is not None:
-            sub_con_tuple = [sub_condition.to_tuple() for sub_condition in sub_conditions]
-        return sub_con_tuple
 
 @dataclass
 class Output:
