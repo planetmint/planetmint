@@ -4,9 +4,9 @@
 # Code is Apache-2.0 and docs are CC-BY-4.0
 
 from __future__ import annotations
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
-from planetmint.backend.models import Asset, MetaData, Input, Script
+from planetmint.backend.models import Asset, MetaData, Input, Script, Output
 
 
 @dataclass
@@ -15,8 +15,9 @@ class DbTransaction:
     operation: str = ""
     version: str = ""
     metadata: MetaData = None
-    assets: list[Asset] = None
-    inputs: list[Input] = None
+    assets: list[Asset] = field(default_factory=list)
+    inputs: list[Input] = field(default_factory=list)
+    outputs: list[Output] = field(default_factory=list)
     script: Script = None
 
     @staticmethod

@@ -71,8 +71,8 @@ def store_transaction(connection, transaction):
 
 
 @singledispatch
-def get_transaction_space_by_id(connection, transaction_id):
-    """Get the transaction space by transaction id."""
+def get_transaction_by_id(connection, transaction_id):
+    """Get the transaction by transaction id."""
 
     raise NotImplementedError
 
@@ -464,7 +464,7 @@ def store_transaction_inputs(connection, inputs: list[Input]):
 
 
 @singledispatch
-def _group_transaction_by_ids(txids: list, connection):
+def get_complete_transactions_by_ids(txids: list, connection):
     """Returns the transactions object (JSON TYPE), from list of ids."""
     raise NotImplementedError
 

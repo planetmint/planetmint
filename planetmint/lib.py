@@ -225,7 +225,7 @@ class Planetmint(object):
             return backend.query.delete_unspent_outputs(self.connection, *unspent_outputs)
 
     def is_committed(self, transaction_id):
-        transaction = backend.query.get_transaction_space_by_id(self.connection, transaction_id)
+        transaction = backend.query.get_transaction_by_id(self.connection, transaction_id)
         return bool(transaction)
 
     def get_transaction(self, transaction_id):

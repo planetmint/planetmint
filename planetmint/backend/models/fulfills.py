@@ -10,3 +10,9 @@ from dataclasses import dataclass
 class Fulfills:
     transaction_id: str = ""
     output_index: int = 0
+
+    def to_dict(self) -> dict:
+        return {
+            "transaction_id": self.transaction_id,
+            "output_index": self.output_index
+        }

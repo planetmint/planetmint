@@ -120,8 +120,8 @@ def condition_details_has_owner(condition_details, owner):
         bool: True if the public key is found in the condition details, False otherwise
 
     """
-    if "subconditions" in condition_details:
-        result = condition_details_has_owner(condition_details["subconditions"], owner)
+    if condition_details.sub_conditions is not None:
+        result = condition_details_has_owner(condition_details.sub_conditions, owner)
         if result:
             return True
 
@@ -131,7 +131,7 @@ def condition_details_has_owner(condition_details, owner):
             if result:
                 return True
     else:
-        if "public_key" in condition_details and owner == condition_details["public_key"]:
+        if condition_details.public_key is not None and owner == condition_details.public_key:
             return True
     return False
 
