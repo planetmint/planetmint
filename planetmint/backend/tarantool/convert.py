@@ -8,18 +8,19 @@
 from planetmint.backend.utils import module_dispatch_registrar
 from planetmint.backend import convert
 from planetmint.backend.tarantool.connection import TarantoolDBConnection
+from transactions import Transaction
 
 register_query = module_dispatch_registrar(convert)
 
 
 @register_query(TarantoolDBConnection)
-def prepare_asset(connection, transaction_type, transaction_id, filter_operation, assets):
-    asset_id = transaction_id
-    if transaction_type not in filter_operation:
-        asset_id = assets[0]["id"]
-    return tuple([assets, transaction_id, asset_id])
+def prepare_asset(connection, transaction: Transaction, filter_operation, assets):
+    asset_id = transaction.id
+    if transaction.operation not in filter_operation:
+        asset_id = Transaction.read_out_asset_id(transaction)
+    return tuple([assets, transaction.id, asset_id])
 
 
 @register_query(TarantoolDBConnection)
-def prepare_metadata(connection, transaction_id, metadata):
-    return {"id": transaction_id, "metadata": metadata}
+def prepare_metadata(connection, transaction: Transaction, metadata):
+    return {"id": transaction.id, "metadata": metadata}

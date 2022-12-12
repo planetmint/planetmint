@@ -25,6 +25,8 @@ For reference, the possible headings are:
 * **Known Issues**
 * **Notes**
 
+## [1.4.0] - 2022-12-12
+* **Added** added upgrade compatibility to older nodes to support v2.0 TX validity for nodes supporting v3.0 transactions (planetmint-transactions >= 0.4.1)
 
 ## [1.3.2] - 2022-28-11
 * **Changed** new zenroom 2.3.1 support

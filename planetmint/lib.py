@@ -143,23 +143,28 @@ class Planetmint(object):
         assets = []
         txn_metadatas = []
 
-        for t in transactions:
-            transaction = t.tx_dict if t.tx_dict else rapidjson.loads(rapidjson.dumps(t.to_dict()))
+        for tx in transactions:
+            transaction = tx.tx_dict if tx.tx_dict else rapidjson.loads(rapidjson.dumps(tx.to_dict()))
 
-            tx_assets = transaction.pop("assets")
+            try:
+                tx_assets = transaction.pop("assets")
+            except KeyError:
+                tx_assets = transaction.pop("asset")
+
             metadata = transaction.pop("metadata")
 
             tx_assets = backend.convert.prepare_asset(
                 self.connection,
-                transaction_type=transaction["operation"],
-                transaction_id=transaction["id"],
-                filter_operation=[t.CREATE, t.VALIDATOR_ELECTION, t.CHAIN_MIGRATION_ELECTION],
+                tx,
+                filter_operation=[
+                    Transaction.CREATE,
+                    Transaction.VALIDATOR_ELECTION,
+                    Transaction.CHAIN_MIGRATION_ELECTION,
+                ],
                 assets=tx_assets,
             )
 
-            metadata = backend.convert.prepare_metadata(
-                self.connection, transaction_id=transaction["id"], metadata=metadata
-            )
+            metadata = backend.convert.prepare_metadata(self.connection, tx, metadata=metadata)
 
             txn_metadatas.append(metadata)
             assets.append(tx_assets)
@@ -437,7 +442,7 @@ class Planetmint(object):
 
         # validate asset id
         asset_id = tx.get_asset_id(input_txs)
-        if asset_id != tx.assets[0]["id"]:
+        if asset_id != Transaction.read_out_asset_id(tx):
             raise AssetIdMismatch(("The asset id of the input does not" " match the asset id of the" " transaction"))
 
         if not tx.inputs_valid(input_conditions):

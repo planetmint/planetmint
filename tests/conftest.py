@@ -770,3 +770,110 @@ def generate_votes(election, voters, keys):
         v = gen_vote(election, voter, keys)
         votes.append(v)
     return votes
+
+
+@pytest.fixture
+def signed_2_0_create_tx():
+    return {
+        "inputs": [
+            {
+                "owners_before": ["7WaJCRqUJMZjVyQxqq8GNjkw11gacFmDAZGPLdNxfBgx"],
+                "fulfills": None,
+                "fulfillment": "pGSAIGC5nQ37hCCMAWIUBAJn4wVBOkHlURaWzWLjE5rTzG91gUC0Akx2m_AoPy1H6yTz7Ou2I-OGjNjWgvR5EATn8XZ1u-g91XL3CkSXXiL2sUJqDibJQJjGZjag_7fRu5_VkDUD",
+            }
+        ],
+        "outputs": [
+            {
+                "public_keys": ["7WaJCRqUJMZjVyQxqq8GNjkw11gacFmDAZGPLdNxfBgx"],
+                "condition": {
+                    "details": {
+                        "type": "ed25519-sha-256",
+                        "public_key": "7WaJCRqUJMZjVyQxqq8GNjkw11gacFmDAZGPLdNxfBgx",
+                    },
+                    "uri": "ni:///sha-256;xtKK2YRiX7_EPF2harsf-PELcJwfHQM7jZ_YvilEOOI?fpt=ed25519-sha-256&cost=131072",
+                },
+                "amount": "3000",
+            }
+        ],
+        "operation": "CREATE",
+        "metadata": "QmRBri4SARi56PgB2ALFVjHsLhQDUh4jYbeiHaU94vLoxd",
+        "asset": {"data": "QmW5GVMW98D3mktSDfWHS8nX2UiCd8gP1uCiujnFX4yK8n"},
+        "version": "2.0",
+        "id": "334014a29d99a488789c711b7dc5fceb534d1a9290b14d0270dbe6b60e2f036e",
+    }
+
+
+@pytest.fixture
+def signed_2_0_create_tx_assets():
+    return {
+        "inputs": [
+            {
+                "owners_before": ["5V4AANHTSLdQH1mEA1pohW3jMduY9xMJ1voos7gRfMQF"],
+                "fulfills": None,
+                "fulfillment": "pGSAIEKelMEu8AzcA9kcDLrsEXhSpZG-lf2c9CuZpzZU_ONkgUBMztcnweWqwHVfVk9Y-IRgfdh864yXYTrTKzSMy6uvNjQeLtGzKxz4gjb01NUu6WLvZBAvr0Ws4glfxKiDLjkP",
+            }
+        ],
+        "outputs": [
+            {
+                "public_keys": ["5V4AANHTSLdQH1mEA1pohW3jMduY9xMJ1voos7gRfMQF"],
+                "condition": {
+                    "details": {
+                        "type": "ed25519-sha-256",
+                        "public_key": "5V4AANHTSLdQH1mEA1pohW3jMduY9xMJ1voos7gRfMQF",
+                    },
+                    "uri": "ni:///sha-256;M3l9yVs7ItjP-lxT7B2ta6rpRa-GHt6TBSYpy8l-IS8?fpt=ed25519-sha-256&cost=131072",
+                },
+                "amount": "3000",
+            }
+        ],
+        "operation": "CREATE",
+        "metadata": "QmRBri4SARi56PgB2ALFVjHsLhQDUh4jYbeiHaU94vLoxd",
+        "assets": {"data": "QmW5GVMW98D3mktSDfWHS8nX2UiCd8gP1uCiujnFX4yK8n"},
+        "version": "2.0",
+        "id": "3e2a2c5eef5e6a0c4e1e5f8d0dc1d3d9b4f035592a9788f8bfa7d59f86d123d3",
+    }
+
+
+@pytest.fixture
+def signed_2_0_transfer_tx():
+    return {
+        "inputs": [
+            {
+                "owners_before": ["7WaJCRqUJMZjVyQxqq8GNjkw11gacFmDAZGPLdNxfBgx"],
+                "fulfills": {
+                    "transaction_id": "334014a29d99a488789c711b7dc5fceb534d1a9290b14d0270dbe6b60e2f036e",
+                    "output_index": 0,
+                },
+                "fulfillment": "pGSAIGC5nQ37hCCMAWIUBAJn4wVBOkHlURaWzWLjE5rTzG91gUBHNp8jobEyMqcIcIFl-TaAEDHRMyigDutgCIIomyVgb1a0LIk5eEpMTVP4ACxZnrVH-SIKEDHNdH4FGyBMka4B",
+            }
+        ],
+        "outputs": [
+            {
+                "public_keys": ["3m1tUV5hmWPBaNQEoyFtZxFgDFiHYAYvPMzczNHwWp5v"],
+                "condition": {
+                    "details": {
+                        "type": "ed25519-sha-256",
+                        "public_key": "3m1tUV5hmWPBaNQEoyFtZxFgDFiHYAYvPMzczNHwWp5v",
+                    },
+                    "uri": "ni:///sha-256;4pXSmxViATpOG8Mcc0gYsa-4bjRnLk5MY06VXv_UeJA?fpt=ed25519-sha-256&cost=131072",
+                },
+                "amount": "50",
+            },
+            {
+                "public_keys": ["7WaJCRqUJMZjVyQxqq8GNjkw11gacFmDAZGPLdNxfBgx"],
+                "condition": {
+                    "details": {
+                        "type": "ed25519-sha-256",
+                        "public_key": "7WaJCRqUJMZjVyQxqq8GNjkw11gacFmDAZGPLdNxfBgx",
+                    },
+                    "uri": "ni:///sha-256;xtKK2YRiX7_EPF2harsf-PELcJwfHQM7jZ_YvilEOOI?fpt=ed25519-sha-256&cost=131072",
+                },
+                "amount": "2950",
+            },
+        ],
+        "operation": "TRANSFER",
+        "metadata": "QmTjWHzypFxE8uuXJXMJQJxgAEKjoWmQimGiutmPyJ6CAB",
+        "asset": {"id": "334014a29d99a488789c711b7dc5fceb534d1a9290b14d0270dbe6b60e2f036e"},
+        "version": "2.0",
+        "id": "e577641b0e2eb619e282f802516ce043e9d4af51dd4b6c959e18246e85cae2a6",
+    }
