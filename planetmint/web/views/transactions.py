@@ -92,6 +92,13 @@ class TransactionListApi(Resource):
             except ValidationError as e:
                 return make_error(400, "Invalid transaction ({}): {}".format(type(e).__name__, e))
             else:
+                if tx_obj.version != Transaction.VERSION:
+                    return make_error(
+                        401,
+                        "Invalid transaction version: The transaction is valid, \
+                            but this node only accepts transaction with higher \
+                            schema version number.",
+                    )
                 status_code, message = planet.write_transaction(tx_obj, mode)
 
         if status_code == 202:
