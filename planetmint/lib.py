@@ -146,11 +146,7 @@ class Planetmint(object):
         for tx in transactions:
             transaction = tx.tx_dict if tx.tx_dict else rapidjson.loads(rapidjson.dumps(tx.to_dict()))
 
-            try:
-                tx_assets = transaction.pop("assets")
-            except KeyError:
-                tx_assets = transaction.pop("asset")
-
+            tx_assets = transaction.pop(Transaction.get_assets_tag(tx.version))
             metadata = transaction.pop("metadata")
 
             tx_assets = backend.convert.prepare_asset(
