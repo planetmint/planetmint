@@ -169,7 +169,7 @@ def get_txids_filtered(connection, asset_ids: list[str], operation: str = "", la
         )
     elif operation == "TRANSFER":
         transactions = connection.run(
-            connection.space(TARANT_TABLE_TRANSACTION).select(["", operation, asset_ids], index="transactions_by_id_and_operation")
+            connection.space(TARANT_TABLE_TRANSACTION).select(asset_ids, index="transactions_by_asset")
         )
     else:
         txs = connection.run(connection.space(TARANT_TABLE_TRANSACTION).select(asset_ids, index=TARANT_ID_SEARCH))
@@ -232,7 +232,7 @@ def get_spending_transactions(connection, inputs):
 
 @register_query(TarantoolDBConnection)
 def get_block(connection, block_id=None):
-    _block = connection.run(connection.space("blocks").select(block_id, index="id", limit=1))
+    _block = connection.run(connection.space("blocks").select(block_id, index="height", limit=1))
     _block = Block.from_tuple(_block[0])
     return _block.to_dict()
 

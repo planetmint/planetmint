@@ -560,17 +560,6 @@ class Planetmint(object):
             tx_map[tx["id"]] = tx
             tx_ids.append(tx["id"])
 
-        # TODO: this will break if more than one asset is used
-        assets = self.get_assets(tx_ids)
-        for asset in assets:
-            tx = tx_map[asset.id]
-            tx["assets"] = [asset.data]
-
-        metadata_list = self.get_metadata(tx_ids)
-        for metadata in metadata_list:
-            tx = tx_map[metadata.id]
-            tx["metadata"] = metadata.metadata
-
         if return_list:
             tx_list = []
             for tx_id, tx in tx_map.items():

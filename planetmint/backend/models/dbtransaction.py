@@ -50,6 +50,7 @@ class DbTransaction:
             "operation": self.operation,
             "version": self.version,
             "inputs": Input.list_to_dict(self.inputs),
+            "outputs": Output.list_to_dict(self.outputs),
             "assets": Asset.list_to_dict(self.assets),
             "metadata": self.metadata.to_dict() if self.metadata is not None else None,
             "script": self.script.to_dict() if self.script is not None else None,
