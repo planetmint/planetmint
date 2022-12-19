@@ -14,6 +14,7 @@ import json
 import rapidjson
 import requests
 
+from itertools import chain
 from collections import namedtuple, OrderedDict
 from uuid import uuid4
 from hashlib import sha3_256
@@ -450,6 +451,12 @@ class Planetmint(object):
             list: The list of assets returned from the database.
         """
         return backend.query.get_assets(self.connection, asset_ids)
+
+    def get_assets_by_cid(self, asset_cid) -> list[dict]:
+        asset_txs = backend.query.get_transactions_by_asset(self.connection, asset_cid)
+        # flatten and return all found assets
+        return list(chain.from_iterable([Asset.list_to_dict(tx.assets) for tx in asset_txs]))
+        
 
     def get_metadata(self, txn_ids) -> list[MetaData]:
         """Return a list of metadata that match the transaction ids (txn_ids)

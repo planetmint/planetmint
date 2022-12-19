@@ -54,6 +54,12 @@ def get_outputs_by_tx_id(connection, tx_id: str) -> list[Output]:
 def get_transaction(connection, tx_id: str) -> DbTransaction:
     return NotImplemented
 
+@register_query(TarantoolDBConnection)
+def get_transactions_by_asset(connection, asset: str) -> list[DbTransaction]:
+    txs = connection.run(connection.space(TARANT_TABLE_TRANSACTION).select(asset, index="transactions_by_asset_cid"))
+    tx_ids = [tx[0] for tx in txs]
+    return get_complete_transactions_by_ids(connection, tx_ids)
+
 
 def store_transaction_outputs(connection, output: Output, index: int) -> str:
     output_id = uuid4().hex
@@ -116,7 +122,6 @@ def get_transactions(connection, transactions_ids: list) -> list[DbTransaction]:
 def get_asset(connection, asset_id: str) -> Asset:
     _data = connection.run(connection.space(TARANT_TABLE_TRANSACTION).select(asset_id, index=TARANT_INDEX_TX_BY_ASSET_ID))
     return Asset.from_dict(_data[0])
-
 
 @register_query(TarantoolDBConnection)
 def get_assets(connection, assets_ids: list) -> list[Asset]:

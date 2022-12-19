@@ -91,6 +91,12 @@ def get_transaction(connection, transaction_id):
     raise NotImplementedError
 
 @singledispatch
+def get_transactions_by_asset(connection, asset):
+    """Get a transaction by id."""
+
+    raise NotImplementedError
+
+@singledispatch
 def get_transactions(connection, transactions_ids) -> list[DbTransaction]:
     """Get a transaction from the transactions table.
 

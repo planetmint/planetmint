@@ -34,12 +34,20 @@ function init()
         if_not_exists = true,
         parts = {{ field = 'id', type = 'string' }}
     })
-    transactions:create_index('transactions_by_asset', { 
+    transactions:create_index('transactions_by_asset_id', { 
         if_not_exists = true,
+        unique = false,
         parts = {
-            { field = 'assets[*].id', type = 'string', is_nullable = true },
+            { field = 'assets[*].id', type = 'string', is_nullable = true }
+        }
+    })
+    transactions:create_index('transactions_by_asset_cid', {
+        if_not_exists = true,
+        unique = false,
+        parts = {
             { field = 'assets[*].data', type = 'string', is_nullable = true }
-    }})
+        }
+    })
     transactions:create_index('spending_transaction_by_id_and_output_index', { 
         if_not_exists = true,
         parts = {
