@@ -55,8 +55,8 @@ def get_transaction(connection, tx_id: str) -> DbTransaction:
     return NotImplemented
 
 @register_query(TarantoolDBConnection)
-def get_transactions_by_asset(connection, asset: str) -> list[DbTransaction]:
-    txs = connection.run(connection.space(TARANT_TABLE_TRANSACTION).select(asset, index="transactions_by_asset_cid"))
+def get_transactions_by_asset(connection, asset: str, limit: int = 1000) -> list[DbTransaction]:
+    txs = connection.run(connection.space(TARANT_TABLE_TRANSACTION).select(asset, limit=limit, index="transactions_by_asset_cid"))
     tx_ids = [tx[0] for tx in txs]
     return get_complete_transactions_by_ids(connection, tx_ids)
 

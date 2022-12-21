@@ -452,8 +452,8 @@ class Planetmint(object):
         """
         return backend.query.get_assets(self.connection, asset_ids)
 
-    def get_assets_by_cid(self, asset_cid) -> list[dict]:
-        asset_txs = backend.query.get_transactions_by_asset(self.connection, asset_cid)
+    def get_assets_by_cid(self, asset_cid, **kwargs) -> list[dict]:
+        asset_txs = backend.query.get_transactions_by_asset(self.connection, asset_cid, **kwargs)
         # flatten and return all found assets
         return list(chain.from_iterable([Asset.list_to_dict(tx.assets) for tx in asset_txs]))
         

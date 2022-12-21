@@ -9,7 +9,7 @@ For more information please refer to the documentation: http://planetmint.io/htt
 """
 import logging
 
-from flask_restful import Resource
+from flask_restful import Resource, reqparse
 from flask import current_app
 from planetmint.backend.exceptions import OperationError
 from planetmint.web.views.base import make_error
@@ -19,10 +19,17 @@ logger = logging.getLogger(__name__)
 
 class AssetListApi(Resource):
     def get(self, cid: str):
+        parser = reqparse.RequestParser()
+        parser.add_argument("limit", type=int)
+        args = parser.parse_args()
+
+        if not args["limit"]:
+            del args["limit"]
+
         pool = current_app.config["bigchain_pool"]
         
         with pool() as planet:
-            assets = planet.get_assets_by_cid(cid)
+            assets = planet.get_assets_by_cid(cid, **args)
             
         try:
             # This only works with MongoDB as the backend

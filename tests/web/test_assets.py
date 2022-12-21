@@ -23,3 +23,18 @@ def test_get_assets_tendermint(client, b, alice):
     assert res.status_code == 200
     assert len(res.json) == 1
     assert res.json[0] == {"data": assets[0]["data"]}
+
+
+@pytest.mark.bdb
+def test_get_assets_tendermint_limit(client, b, alice, bob):
+    # create assets
+    assets = [{"data": multihash(marshal({"msg": "abc"}))}]
+    tx_1 = Create.generate([alice.public_key], [([alice.public_key], 1)], assets=assets).sign([alice.private_key])
+    tx_2 = Create.generate([bob.public_key], [([bob.public_key], 1)], assets=assets).sign([bob.private_key])
+
+    b.store_bulk_transactions([tx_1, tx_2])
+
+    res = client.get(ASSETS_ENDPOINT + assets[0]["data"] + "?limit=1")
+    assert res.status_code == 200
+    assert len(res.json) == 1
+    assert res.json[0] == {"data": assets[0]["data"]}
