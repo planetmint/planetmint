@@ -103,7 +103,6 @@ tests_require = [
     "pytest-flask",
     "pytest-aiohttp",
     "pytest-asyncio",
-    "tox",
 ] + docs_require
 
 install_requires = [
