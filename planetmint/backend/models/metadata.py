@@ -14,10 +14,10 @@ class MetaData:
     metadata: Optional[str] = None
 
     @staticmethod
-    def from_dict(meta_data_tuple: dict) -> MetaData | None:
-        if meta_data_tuple is None:
+    def from_dict(meta_data: dict) -> MetaData | None:
+        if meta_data is None:
             return None
-        return MetaData(meta_data_tuple["meta_data"])
+        return MetaData(meta_data)
 
     def to_dict(self) -> dict:
         return {

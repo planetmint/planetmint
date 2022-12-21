@@ -97,6 +97,12 @@ def get_transactions_by_asset(connection, asset):
     raise NotImplementedError
 
 @singledispatch
+def get_transactions_by_metadata(connection, metadata: str, limit: int = 1000) -> list[DbTransaction]:
+    """ Get a transaction by its metadata cid."""
+
+    raise NotImplementedError
+
+@singledispatch
 def get_transactions(connection, transactions_ids) -> list[DbTransaction]:
     """Get a transaction from the transactions table.
 

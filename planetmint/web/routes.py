@@ -32,7 +32,7 @@ def r(*args, **kwargs):
 ROUTES_API_V1 = [
     r("/", info.ApiV1Index),
     r("assets/<string:cid>", assets.AssetListApi),
-    r("metadata/", metadata.MetadataApi),
+    r("metadata/<string:cid>", metadata.MetadataApi),
     r("blocks/<int:block_id>", blocks.BlockApi),
     r("blocks/latest", blocks.LatestBlock),
     r("blocks/", blocks.BlockListApi),

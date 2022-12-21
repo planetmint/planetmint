@@ -18,33 +18,28 @@ logger = logging.getLogger(__name__)
 
 
 class MetadataApi(Resource):
-    def get(self):
+    def get(self, cid):
         """API endpoint to perform a text search on transaction metadata.
 
         Args:
-            search (str): Text search string to query the text index
             limit (int, optional): Limit the number of returned documents.
 
         Return:
             A list of metadata that match the query.
         """
         parser = reqparse.RequestParser()
-        parser.add_argument("search", type=str, required=True)
         parser.add_argument("limit", type=int)
         args = parser.parse_args()
 
-        if not args["search"]:
-            return make_error(400, "text_search cannot be empty")
         if not args["limit"]:
             del args["limit"]
 
         pool = current_app.config["bigchain_pool"]
 
         with pool() as planet:
-            args["table"] = "meta_data"
-            metadata = planet.text_search(**args)
+            metadata = planet.get_metadata_by_cid(cid, **args)
 
         try:
-            return list(metadata)
+            return metadata
         except OperationError as e:
             return make_error(400, "({}): {}".format(type(e).__name__, e))

@@ -56,10 +56,20 @@ def get_transaction(connection, tx_id: str) -> DbTransaction:
 
 @register_query(TarantoolDBConnection)
 def get_transactions_by_asset(connection, asset: str, limit: int = 1000) -> list[DbTransaction]:
-    txs = connection.run(connection.space(TARANT_TABLE_TRANSACTION).select(asset, limit=limit, index="transactions_by_asset_cid"))
+    txs = connection.run(
+        connection.space(TARANT_TABLE_TRANSACTION).select(asset, limit=limit, index="transactions_by_asset_cid")
+    )
     tx_ids = [tx[0] for tx in txs]
     return get_complete_transactions_by_ids(connection, tx_ids)
 
+
+@register_query(TarantoolDBConnection)
+def get_transactions_by_metadata(connection, metadata: str, limit: int = 1000) -> list[DbTransaction]:
+    txs = connection.run(
+        connection.space(TARANT_TABLE_TRANSACTION).select(metadata, limit=limit, index="transactions_by_metadata_cid")
+    )
+    tx_ids = [tx[0] for tx in txs]
+    return get_complete_transactions_by_ids(connection, tx_ids)
 
 def store_transaction_outputs(connection, output: Output, index: int) -> str:
     output_id = uuid4().hex

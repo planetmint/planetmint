@@ -470,6 +470,10 @@ class Planetmint(object):
         """
         return backend.query.get_metadata(self.connection, txn_ids)
 
+    def get_metadata_by_cid(self, metadata_cid, **kwargs) -> list[str]:
+        metadata_txs = backend.query.get_transactions_by_metadata(self.connection, metadata_cid, **kwargs)
+        return [tx.metadata.metadata for tx in metadata_txs]
+
     @property
     def fastquery(self):
         return fastquery.FastQuery(self.connection)

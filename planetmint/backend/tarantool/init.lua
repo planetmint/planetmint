@@ -48,6 +48,11 @@ function init()
             { field = 'assets[*].data', type = 'string', is_nullable = true }
         }
     })
+    transactions:create_index('transactions_by_metadata_cid', {
+        if_not_exists = true,
+        unique = false,
+        parts = {{ field = 'metadata', type = 'string' }}
+    })
     transactions:create_index('spending_transaction_by_id_and_output_index', { 
         if_not_exists = true,
         parts = {
@@ -63,6 +68,21 @@ function init()
         }
     })
 
+    -- Governance
+    governance = box.schema.create_space('governance', { if_not_exists = true })
+    governance:format({
+        { name = 'id', type = 'string' },
+        { name = 'operation', type = 'string' },
+        { name = 'version', type = 'string' },
+        { name = 'metadata', type = 'string', is_nullable = true },
+        { name = 'assets', type = 'array' },
+        { name = 'inputs', type = 'array' },
+        { name = 'scripts', type = 'map', is_nullable = true }
+    })
+    governance:create_index('id', {
+        if_not_exists = true,
+        parts = {{ field = 'id', type = 'string' }}
+    })
 
     -- Outputs
     outputs = box.schema.create_space('outputs', { if_not_exists = true })
