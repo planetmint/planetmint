@@ -9,7 +9,8 @@ from planetmint.version import __tm_supported_versions__
 from transactions.types.assets.create import Create
 from transactions.types.assets.transfer import Transfer
 from transactions.common.exceptions import ConfigurationError
-from planetmint.backend.connection import Connection, ConnectionError
+from planetmint.backend.connection import Connection
+from planetmint.backend.exceptions import ConnectionError
 
 
 @pytest.fixture

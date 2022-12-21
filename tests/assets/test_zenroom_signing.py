@@ -56,11 +56,11 @@ def test_zenroom_signing():
     biolabs = generate_key_pair()
     version = "3.0"
 
-    alice = json.loads(zencode_exec(GENERATE_KEYPAIR).output)["keyring"]
-    bob = json.loads(zencode_exec(GENERATE_KEYPAIR).output)["keyring"]
+    alice = json.loads(zencode_exec(GENERATE_KEYPAIR).output)
+    bob = json.loads(zencode_exec(GENERATE_KEYPAIR).output)
 
-    zen_public_keys = json.loads(zencode_exec(SK_TO_PK.format("Alice"), keys=json.dumps({"keyring": alice})).output)
-    zen_public_keys.update(json.loads(zencode_exec(SK_TO_PK.format("Bob"), keys=json.dumps({"keyring": bob})).output))
+    zen_public_keys = json.loads(zencode_exec(SK_TO_PK.format("Alice"), keys=json.dumps(alice)).output)
+    zen_public_keys.update(json.loads(zencode_exec(SK_TO_PK.format("Bob"), keys=json.dumps(bob)).output))
 
     zenroomscpt = ZenroomSha256(script=FULFILL_SCRIPT, data=INITIAL_STATE, keys=zen_public_keys)
     print(f"zenroom is: {zenroomscpt.script}")
