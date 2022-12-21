@@ -25,6 +25,9 @@ For reference, the possible headings are:
 * **Known Issues**
 * **Notes**
 
+## [1.4.1] - 2022-21-12
+* **fixed** inconsistent cryptocondition keyring tag handling. Using cryptoconditions > 1.1.0 from now on.
+
 ## [1.4.0] - 2022-12-12
 * **Added** added upgrade compatibility to older nodes to support v2.0 TX validity for nodes supporting v3.0 transactions (planetmint-transactions >= 0.4.1)
 
