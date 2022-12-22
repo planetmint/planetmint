@@ -161,6 +161,11 @@ function init()
         if_not_exists = true,
         parts = {{ field = 'id', type = 'string' }}
     })
+    utxos:create_index('utxos_by_transaction_id', {
+        if_not_exists = true,
+        unique = false,
+        parts = {{ field = 'transaction_id', type = 'string' }}
+    })
     utxos:create_index('utxo_by_transaction_id_and_output_index', { 
         if_not_exists = true,
         parts = {

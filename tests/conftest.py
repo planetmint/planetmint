@@ -511,13 +511,6 @@ def tarantool_client(db_context):  # TODO Here add TarantoolConnectionClass
     return TarantoolDBConnection(host=db_context.host, port=db_context.port)
 
 
-# @pytest.fixture
-# def mongo_client(db_context):  # TODO Here add TarantoolConnectionClass
-#    return None  # MongoClient(host=db_context.host, port=db_context.port)
-#
-#
-
-
 @pytest.fixture
 def utxo_collection(tarantool_client, _setup_database):
     return tarantool_client.get_space("utxos")
@@ -534,11 +527,11 @@ def dummy_unspent_outputs():
 
 @pytest.fixture
 def utxoset(dummy_unspent_outputs, utxo_collection):
-    from json import dumps
+    from uuid import uuid4
 
     num_rows_before_operation = utxo_collection.select().rowcount
     for utxo in dummy_unspent_outputs:
-        res = utxo_collection.insert((utxo["transaction_id"], utxo["output_index"], dumps(utxo)))
+        res = utxo_collection.insert((uuid4().hex, utxo["transaction_id"], utxo["output_index"], utxo))
         assert res
     num_rows_after_operation = utxo_collection.select().rowcount
     assert num_rows_after_operation == num_rows_before_operation + 3

@@ -120,7 +120,8 @@ def get_transaction_by_id(connection, transaction_id):
 
 @register_query(TarantoolDBConnection)
 def get_transaction_single(connection, transaction_id) -> DbTransaction:
-    return get_complete_transactions_by_ids(txids=[transaction_id], connection=connection)[0]
+    txs = get_complete_transactions_by_ids(txids=[transaction_id], connection=connection)
+    return txs[0] if len(txs) == 1 else None
 
 
 @register_query(TarantoolDBConnection)
@@ -298,7 +299,7 @@ def store_unspent_outputs(connection, *unspent_outputs: list):
     if unspent_outputs:
         for utxo in unspent_outputs:
             output = connection.run(
-                connection.space("utxos").insert((utxo["transaction_id"], utxo["output_index"], json.dumps(utxo)))
+                connection.space("utxos").insert((uuid4().hex, utxo["transaction_id"], utxo["output_index"], utxo))
             )
             result.append(output)
     return result
@@ -309,7 +310,10 @@ def delete_unspent_outputs(connection, *unspent_outputs: list):
     result = []
     if unspent_outputs:
         for utxo in unspent_outputs:
-            output = connection.run(connection.space("utxos").delete((utxo["transaction_id"], utxo["output_index"])))
+            output = connection.run(
+                connection.space("utxos")
+                .delete((utxo["transaction_id"], utxo["output_index"]), index="utxo_by_transaction_id_and_output_index")
+            )
             result.append(output)
     return result
 
@@ -317,7 +321,7 @@ def delete_unspent_outputs(connection, *unspent_outputs: list):
 @register_query(TarantoolDBConnection)
 def get_unspent_outputs(connection, query=None):  # for now we don't have implementation for 'query'.
     _utxos = connection.run(connection.space("utxos").select([]))
-    return [json.loads(utx[2]) for utx in _utxos]
+    return [utx[3] for utx in _utxos]
 
 
 @register_query(TarantoolDBConnection)
