@@ -83,6 +83,13 @@ function init()
         if_not_exists = true,
         parts = {{ field = 'id', type = 'string' }}
     })
+    governance:create_index('governance_by_asset_id', { 
+        if_not_exists = true,
+        unique = false,
+        parts = {
+            { field = 'assets[*].id', type = 'string', is_nullable = true }
+        }
+    })
 
     -- Outputs
     outputs = box.schema.create_space('outputs', { if_not_exists = true })
@@ -218,7 +225,8 @@ function drop()
         box.space.utxos:drop()
         box.space.validator_sets:drop()
         box.space.transactions:drop()
-        box.space.outputs:drop()    
+        box.space.outputs:drop()
+        box.space.governance:drop()
     end) then
         print("Error: specified space not found")
     end

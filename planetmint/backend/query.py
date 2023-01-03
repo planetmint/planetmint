@@ -69,6 +69,23 @@ def store_transaction(connection, transaction):
 
     raise NotImplementedError
 
+@singledispatch
+def store_governance_transactions(connection, transactions):
+    """Store the list of governance transactions."""
+
+    raise NotImplementedError
+
+@singledispatch
+def store_governance_transaction(connection, transaction):
+    """Store a single governance transaction."""
+
+    raise NotImplementedError
+
+@singledispatch
+def get_governance_transaction_by_id(connection, transaction_id):
+    """Get the transaction by transaction id."""
+
+    raise NotImplementedError
 
 @singledispatch
 def get_transaction_by_id(connection, transaction_id):

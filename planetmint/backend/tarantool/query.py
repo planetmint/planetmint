@@ -22,6 +22,7 @@ from planetmint.backend.tarantool.const import (
     TARANT_TABLE_SCRIPT,
     TARANT_TX_ID_SEARCH,
     TARANT_ID_SEARCH, TARANT_INDEX_TX_BY_ASSET_ID, TARANT_INDEX_SPENDING_BY_ID_AND_OUTPUT_INDEX,
+    TARANT_TABLE_GOVERNANCE,
 )
 from planetmint.backend.utils import module_dispatch_registrar
 from planetmint.backend.models import Asset, Block, MetaData, Input, Script, Output
@@ -31,10 +32,10 @@ register_query = module_dispatch_registrar(query)
 
 
 @register_query(TarantoolDBConnection)
-def get_complete_transactions_by_ids(connection, txids: list) -> list[DbTransaction]:
+def get_complete_transactions_by_ids(connection, txids: list, table = TARANT_TABLE_TRANSACTION) -> list[DbTransaction]:
     _transactions = []
     for txid in txids:
-        tx = get_transaction_by_id(connection, txid)
+        tx = get_transaction_by_id(connection, txid, table)
         if tx is None:
             continue
         outputs = get_outputs_by_tx_id(connection, txid)
@@ -109,18 +110,48 @@ def store_transaction(connection, transaction):
         scripts)
     connection.run(connection.space(TARANT_TABLE_TRANSACTION).insert(tx), only_data=False)
 
+@register_query(TarantoolDBConnection)
+def store_governance_transactions(connection, signed_transactions: list):
+    for transaction in signed_transactions:
+        store_governance_transaction(connection, transaction)
+        [
+            store_transaction_outputs(connection, Output.outputs_dict(output, transaction["id"]), index)
+            for index, output in enumerate(transaction[TARANT_TABLE_OUTPUT])
+        ]
 
 @register_query(TarantoolDBConnection)
-def get_transaction_by_id(connection, transaction_id):
-    txs = connection.run(connection.space(TARANT_TABLE_TRANSACTION).select(transaction_id, index=TARANT_ID_SEARCH))
+def store_governance_transaction(connection, transaction):
+    scripts = None
+    if TARANT_TABLE_SCRIPT in transaction:
+        scripts = transaction[TARANT_TABLE_SCRIPT]
+    tx = (
+        transaction["id"],
+        transaction["operation"],
+        transaction["version"],
+        transaction["metadata"],
+        transaction["assets"],
+        transaction["inputs"],
+        scripts)
+    connection.run(connection.space(TARANT_TABLE_GOVERNANCE).insert(tx), only_data=False)
+
+@register_query(TarantoolDBConnection)
+def get_governance_transaction_by_id(connection, transaction_id):
+    txs = connection.run(connection.space(TARANT_TABLE_GOVERNANCE).select(transaction_id, index=TARANT_ID_SEARCH))
+    if len(txs) == 0:
+        return None
+    return DbTransaction.from_tuple(txs[0])
+
+@register_query(TarantoolDBConnection)
+def get_transaction_by_id(connection, transaction_id, table = TARANT_TABLE_TRANSACTION):
+    txs = connection.run(connection.space(table).select(transaction_id, index=TARANT_ID_SEARCH))
     if len(txs) == 0:
         return None
     return DbTransaction.from_tuple(txs[0])
 
 
 @register_query(TarantoolDBConnection)
-def get_transaction_single(connection, transaction_id) -> DbTransaction:
-    txs = get_complete_transactions_by_ids(txids=[transaction_id], connection=connection)
+def get_transaction_single(connection, transaction_id, table = TARANT_TABLE_TRANSACTION) -> DbTransaction:
+    txs = get_complete_transactions_by_ids(txids=[transaction_id], connection=connection, table=table)
     return txs[0] if len(txs) == 1 else None
 
 
@@ -422,15 +453,21 @@ def get_election(connection, election_id: str):
 
 
 @register_query(TarantoolDBConnection)
-def get_asset_tokens_for_public_key(
-        connection, asset_id: str, public_key: str
-):  # FIXME Something can be wrong with this function ! (public_key) is not used  # noqa: E501
+def get_asset_tokens_for_public_key(connection, asset_id: str, public_key: str) -> list[DbTransaction]:  
+    # FIXME Something can be wrong with this function ! (public_key) is not used  # noqa: E501
     # space = connection.space("keys")
     # _keys = space.select([public_key], index="keys_search")
-    _transactions = connection.run(connection.space(TARANT_TABLE_ASSETS).select([asset_id], index="assetid_search"))
+    # _transactions = connection.run(connection.space(TARANT_TABLE_ASSETS).select([asset_id], index="assetid_search"))
     # _transactions = _transactions
     # _keys = _keys.data
-    return get_complete_transactions_by_ids(connection=connection, txids=[_tx[1] for _tx in _transactions])
+    id_transactions = connection.run(connection.space(TARANT_TABLE_GOVERNANCE).select([asset_id]))
+    asset_id_transactions = connection.run(connection.space(TARANT_TABLE_GOVERNANCE).select([asset_id], index="governance_by_asset_id"))
+    transactions = id_transactions + asset_id_transactions
+
+    # TODO return transaction class
+    # return transactions
+    return get_complete_transactions_by_ids(connection, [_tx[0] for _tx in transactions], TARANT_TABLE_GOVERNANCE)
+    # return get_complete_transactions_by_ids(connection=connection, txids=[_tx[1] for _tx in transactions])
 
 
 @register_query(TarantoolDBConnection)

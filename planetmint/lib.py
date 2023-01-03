@@ -40,6 +40,7 @@ from transactions.types.elections.election import Election
 from transactions.types.elections.validator_utils import election_id_to_public_key
 
 from planetmint.backend.models import Output
+from planetmint.backend.tarantool.const import TARANT_TABLE_GOVERNANCE, TARANT_TABLE_TRANSACTION
 from planetmint.config import Config
 from planetmint import backend, config_utils, fastquery
 from planetmint.tendermint_utils import (
@@ -53,6 +54,7 @@ from planetmint.tendermint_utils import (
 from planetmint import exceptions as core_exceptions
 from planetmint.validation import BaseValidationRules
 from planetmint.backend.interfaces import Asset, MetaData
+from planetmint.const import GOVERNANCE_TRANSACTION_TYPES
 
 logger = logging.getLogger(__name__)
 
@@ -139,12 +141,18 @@ class Planetmint(object):
 
     def store_bulk_transactions(self, transactions):
         txns = []
+        gov_txns = []
 
         for t in transactions:
             transaction = t.tx_dict if t.tx_dict else rapidjson.loads(rapidjson.dumps(t.to_dict()))
-            txns.append(transaction)
+            print(transaction["operation"])
+            if transaction["operation"] in GOVERNANCE_TRANSACTION_TYPES:
+                gov_txns.append(transaction)
+            else:
+                txns.append(transaction)
 
-        return backend.query.store_transactions(self.connection, txns)
+        backend.query.store_transactions(self.connection, txns)
+        backend.query.store_governance_transactions(self.connection, gov_txns)
 
     def delete_transactions(self, txs):
         return backend.query.delete_transactions(self.connection, txs)
@@ -229,8 +237,8 @@ class Planetmint(object):
         transaction = backend.query.get_transaction_by_id(self.connection, transaction_id)
         return bool(transaction)
 
-    def get_transaction(self, transaction_id):
-        return backend.query.get_transaction_single(self.connection, transaction_id)
+    def get_transaction(self, transaction_id, table = TARANT_TABLE_TRANSACTION):
+        return backend.query.get_transaction_single(self.connection, transaction_id, table)
 
     def get_transactions(self, txn_ids):
         return backend.query.get_transactions(self.connection, txn_ids)
@@ -240,6 +248,9 @@ class Planetmint(object):
         txids = backend.query.get_txids_filtered(self.connection, asset_ids, operation, last_tx)
         for txid in txids:
             yield self.get_transaction(txid)
+
+    def get_governance_transaction(self, transaction_id):
+        return backend.query.get_governance_transaction_by_id(self.connection, transaction_id)
 
     def get_outputs_by_tx_id(self, txid):
         return backend.query.get_outputs_by_tx_id(self.connection, txid)
@@ -817,7 +828,7 @@ class Planetmint(object):
 
         validator_update = None
         for election_id, votes in elections.items():
-            election = self.get_transaction(election_id)
+            election = self.get_transaction(election_id, TARANT_TABLE_GOVERNANCE)
             if election is None:
                 continue
 
