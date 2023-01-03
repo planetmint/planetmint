@@ -17,7 +17,6 @@ class FastQuery:
     def get_outputs_by_public_key(self, public_key):
         """Get outputs for a public key"""
         txs = query.get_owned_ids(self.connection, public_key)
-        print(txs)
         return [
             TransactionLink(tx.id, index)
             for tx in txs

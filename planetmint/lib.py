@@ -145,7 +145,6 @@ class Planetmint(object):
 
         for t in transactions:
             transaction = t.tx_dict if t.tx_dict else rapidjson.loads(rapidjson.dumps(t.to_dict()))
-            print(transaction["operation"])
             if transaction["operation"] in GOVERNANCE_TRANSACTION_TYPES:
                 gov_txns.append(transaction)
             else:
@@ -377,9 +376,14 @@ class Planetmint(object):
         # store the inputs so that we can check if the asset ids match
         input_txs = []
         input_conditions = []
+        
+        table = TARANT_TABLE_TRANSACTION
+        if tx.operation in GOVERNANCE_TRANSACTION_TYPES:
+            table = TARANT_TABLE_GOVERNANCE
+        
         for input_ in tx.inputs:
             input_txid = input_.fulfills.txid
-            input_tx = self.get_transaction(input_txid)
+            input_tx = self.get_transaction(input_txid, table)
             _output = self.get_outputs_by_tx_id(input_txid)
             if input_tx is None:
                 for ctxn in current_transactions:
