@@ -31,6 +31,8 @@ from planetmint.commands.election_types import elections
 from planetmint.version import __tm_supported_versions__
 from planetmint.config import Config
 
+from planetmint.backend.tarantool.const import TARANT_TABLE_GOVERNANCE
+
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -226,7 +228,7 @@ def run_election_show(args, planet):
     :param planet: an instance of Planetmint
     """
 
-    election = planet.get_transaction(args.election_id)
+    election = planet.get_transaction(args.election_id, TARANT_TABLE_GOVERNANCE)
     if not election:
         logger.error(f"No election found with election_id {args.election_id}")
         return

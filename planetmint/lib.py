@@ -710,6 +710,8 @@ class Planetmint(object):
 
     def show_election_status(self, transaction):
         data = transaction.assets[0]
+        data = data.to_dict()["data"]
+
         if "public_key" in data.keys():
             data["public_key"] = public_key_to_base64(data["public_key"]["value"])
         response = ""
