@@ -170,7 +170,7 @@ def get_assets(connection, assets_ids: list) -> list[Asset]:
     _returned_data = []
     for _id in list(set(assets_ids)):
         res = connection.run(connection.space(TARANT_TABLE_TRANSACTION).select(_id, index=TARANT_INDEX_TX_BY_ASSET_ID))
-        if len(res) is 0:
+        if len(res) == 0:
             continue
         _returned_data.append(res[0])
 
