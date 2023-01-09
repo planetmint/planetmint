@@ -56,5 +56,3 @@ class Input:
     @staticmethod
     def list_to_dict(input_list: list[Input]) -> list[dict]:
         return [input.to_dict() for input in input_list or []]
-
-

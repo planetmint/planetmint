@@ -69,11 +69,13 @@ def store_transaction(connection, transaction):
 
     raise NotImplementedError
 
+
 @singledispatch
 def store_governance_transactions(connection, transactions):
     """Store the list of governance transactions."""
 
     raise NotImplementedError
+
 
 @singledispatch
 def store_governance_transaction(connection, transaction):
@@ -81,11 +83,13 @@ def store_governance_transaction(connection, transaction):
 
     raise NotImplementedError
 
+
 @singledispatch
 def get_governance_transaction_by_id(connection, transaction_id):
     """Get the transaction by transaction id."""
 
     raise NotImplementedError
+
 
 @singledispatch
 def get_transaction_by_id(connection, transaction_id):
@@ -107,17 +111,20 @@ def get_transaction(connection, transaction_id):
 
     raise NotImplementedError
 
+
 @singledispatch
 def get_transactions_by_asset(connection, asset):
     """Get a transaction by id."""
 
     raise NotImplementedError
 
+
 @singledispatch
 def get_transactions_by_metadata(connection, metadata: str, limit: int = 1000) -> list[DbTransaction]:
-    """ Get a transaction by its metadata cid."""
+    """Get a transaction by its metadata cid."""
 
     raise NotImplementedError
+
 
 @singledispatch
 def get_transactions(connection, transactions_ids) -> list[DbTransaction]:

@@ -236,7 +236,7 @@ class Planetmint(object):
         transaction = backend.query.get_transaction_by_id(self.connection, transaction_id)
         return bool(transaction)
 
-    def get_transaction(self, transaction_id, table = TARANT_TABLE_TRANSACTION):
+    def get_transaction(self, transaction_id, table=TARANT_TABLE_TRANSACTION):
         return backend.query.get_transaction_single(self.connection, transaction_id, table)
 
     def get_transactions(self, txn_ids):
@@ -376,11 +376,11 @@ class Planetmint(object):
         # store the inputs so that we can check if the asset ids match
         input_txs = []
         input_conditions = []
-        
+
         table = TARANT_TABLE_TRANSACTION
         if tx.operation in GOVERNANCE_TRANSACTION_TYPES:
             table = TARANT_TABLE_GOVERNANCE
-        
+
         for input_ in tx.inputs:
             input_txid = input_.fulfills.txid
             input_tx = self.get_transaction(input_txid, table)
@@ -467,7 +467,6 @@ class Planetmint(object):
         asset_txs = backend.query.get_transactions_by_asset(self.connection, asset_cid, **kwargs)
         # flatten and return all found assets
         return list(chain.from_iterable([Asset.list_to_dict(tx.assets) for tx in asset_txs]))
-        
 
     def get_metadata(self, txn_ids) -> list[MetaData]:
         """Return a list of metadata that match the transaction ids (txn_ids)

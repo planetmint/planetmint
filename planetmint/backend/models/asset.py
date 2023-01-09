@@ -17,9 +17,7 @@ class Asset:
         return Asset(asset_dict["data"]) if "data" in asset_dict.keys() else Asset(asset_dict["id"])
 
     def to_dict(self) -> dict:
-        return {
-            "data": self.data
-        }
+        return {"data": self.data}
 
     @staticmethod
     def from_list_dict(asset_dict_list: list[dict]) -> list[Asset]:

@@ -118,6 +118,7 @@ def drop_database(connection, dbname):
 
     raise NotImplementedError
 
+
 @singledispatch
 def init_database(connection, dbname):
     """Initialize the configured backend for use with Planetmint.

@@ -38,7 +38,7 @@ class TarantoolDBConnection(DBConnection):
                 "pre_commits",
                 "validator_sets",
                 "transactions",
-                "outputs"
+                "outputs",
             ]
         except tarantool.error.NetworkError as network_err:
             logger.info("Host cant be reached")
@@ -95,12 +95,12 @@ class TarantoolDBConnection(DBConnection):
             raise net_error
 
     def drop_database(self):
-        self.connect().call('drop')
+        self.connect().call("drop")
         # db_config = Config().get()["database"]
         # cmd_resp = self.run_command(command=self.drop_path, config=db_config)  # noqa: F841
 
     def init_database(self):
-        self.connect().call('init')
+        self.connect().call("init")
         # db_config = Config().get()["database"]
         # cmd_resp = self.run_command(command=self.init_path, config=db_config)  # noqa: F841
 

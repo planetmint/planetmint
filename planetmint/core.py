@@ -202,8 +202,8 @@ class App(BaseApplication):
 
         block_txn_hash = calculate_hash(self.block_txn_ids)
         block = self.planetmint_node.get_latest_block()
-        
-        logger.debug('BLOCK: ', block)
+
+        logger.debug("BLOCK: ", block)
 
         if self.block_txn_ids:
             self.block_txn_hash = calculate_hash([block["app_hash"], block_txn_hash])

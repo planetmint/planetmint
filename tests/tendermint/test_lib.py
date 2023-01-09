@@ -305,7 +305,8 @@ def test_store_one_unspent_output(b, unspent_output_1, utxo_collection):
     else:
         utx_space = b.connection.get_space("utxos")
         res = utx_space.select(
-            [unspent_output_1["transaction_id"], unspent_output_1["output_index"]], index="utxo_by_transaction_id_and_output_index"
+            [unspent_output_1["transaction_id"], unspent_output_1["output_index"]],
+            index="utxo_by_transaction_id_and_output_index",
         )
         assert len(res.data) == 1
 

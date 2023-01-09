@@ -17,10 +17,7 @@ class SubCondition:
         return self.type, self.public_key
 
     def to_dict(self) -> dict:
-        return {
-            "type": self.type,
-            "public_key": self.public_key
-        }
+        return {"type": self.type, "public_key": self.public_key}
 
     @staticmethod
     def from_dict(subcondition_dict: dict) -> SubCondition:
@@ -31,6 +28,7 @@ class SubCondition:
         if subconditions is None:
             return None
         return [subcondition.to_dict() for subcondition in subconditions]
+
 
 @dataclass
 class ConditionDetails:
@@ -64,11 +62,11 @@ class ConditionDetails:
             sub_conditions=sub_conditions,
         )
 
+
 @dataclass
 class Condition:
     uri: str = ""
     details: ConditionDetails = field(default_factory=ConditionDetails)
-
 
     @staticmethod
     def from_dict(data: dict) -> Condition:
@@ -130,7 +128,6 @@ class Output:
             },
             "amount": str(self.amount),
         }
-
 
     @staticmethod
     def list_to_dict(output_list: list[Output]) -> list[dict]:

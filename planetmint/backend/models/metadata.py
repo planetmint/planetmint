@@ -20,6 +20,4 @@ class MetaData:
         return MetaData(meta_data)
 
     def to_dict(self) -> dict:
-        return {
-            "metadata": self.metadata
-        }
+        return {"metadata": self.metadata}

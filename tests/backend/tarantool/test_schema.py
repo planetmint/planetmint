@@ -5,6 +5,7 @@
 
 from planetmint.backend.tarantool.connection import TarantoolDBConnection
 
+
 def _check_spaces_by_list(conn, space_names):
     _exists = []
     for name in space_names:

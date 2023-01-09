@@ -47,7 +47,7 @@ def test_get_owned_ids(signed_create_tx, user_pk, db_conn):
 
     # insert a transaction
     query.store_transactions(connection=db_conn, signed_transactions=[signed_create_tx.to_dict()])
-    
+
     txns = query.get_owned_ids(connection=db_conn, owner=user_pk)
     tx_dict = signed_create_tx.to_dict()
     owned_tx = remove_generated_fields(txns[0].to_dict())

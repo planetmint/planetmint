@@ -19,6 +19,4 @@ class Script:
         return Script(script_dict["script"])
 
     def to_dict(self) -> dict:
-        return {
-            "script": self.script
-        }
+        return {"script": self.script}

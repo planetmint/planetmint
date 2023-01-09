@@ -12,7 +12,4 @@ class Fulfills:
     output_index: int = 0
 
     def to_dict(self) -> dict:
-        return {
-            "transaction_id": self.transaction_id,
-            "output_index": self.output_index
-        }
+        return {"transaction_id": self.transaction_id, "output_index": self.output_index}

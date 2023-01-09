@@ -144,15 +144,18 @@ SCHEMA_DROP_COMMANDS = {
     "scripts": "box.space.scripts:drop()",
 }
 
+
 @register_schema(TarantoolDBConnection)
 def init_database(connection, db_name=None):
-    print('init database tarantool schema')
-    connection.connect().call('init')
+    print("init database tarantool schema")
+    connection.connect().call("init")
+
 
 @register_schema(TarantoolDBConnection)
 def drop_database(connection, db_name=None):
-    print('drop database tarantool schema')
-    connection.connect().call('drop')
+    print("drop database tarantool schema")
+    connection.connect().call("drop")
+
 
 @register_schema(TarantoolDBConnection)
 def create_database(connection, dbname):
@@ -180,4 +183,4 @@ def run_command_with_output(command):
 
 @register_schema(TarantoolDBConnection)
 def create_tables(connection, dbname):
-    connection.connect().call('init')
+    connection.connect().call("init")

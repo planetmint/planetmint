@@ -20,8 +20,4 @@ class Block:
         return Block(block_tuple[0], block_tuple[1], block_tuple[2], block_tuple[3])
 
     def to_dict(self) -> dict:
-        return {
-            "app_hash": self.app_hash,
-            "height": self.height,
-            "transactions": self.transactions
-        }
+        return {"app_hash": self.app_hash, "height": self.height, "transactions": self.transactions}
