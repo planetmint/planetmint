@@ -14,7 +14,7 @@ from transactions.types.assets.create import Create
 from transactions.types.assets.transfer import Transfer
 from transactions.common import crypto
 from planetmint import events
-from planetmint.web.websocket_server import init_app, EVENTS_ENDPOINT
+from planetmint.web.websocket_server import init_app, EVENTS_ENDPOINT, EVENTS_ENDPOINT_BLOCKS
 from ipld import multihash, marshal
 
 
