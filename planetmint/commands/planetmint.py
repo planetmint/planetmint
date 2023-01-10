@@ -195,7 +195,7 @@ def run_election_approve(args, planet):
     """
 
     key = load_node_key(args.sk)
-    tx = planet.get_transaction(args.election_id,TARANT_TABLE_GOVERNANCE)
+    tx = planet.get_transaction(args.election_id, TARANT_TABLE_GOVERNANCE)
     voting_powers = [v.amount for v in tx.outputs if key.public_key in v.public_keys]
     if len(voting_powers) > 0:
         voting_power = voting_powers[0]

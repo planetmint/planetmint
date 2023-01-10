@@ -12,9 +12,12 @@ from argparse import Namespace
 from planetmint.config import Config
 from planetmint import ValidatorElection
 from planetmint.commands.planetmint import run_election_show
+from planetmint.commands.planetmint import run_election_new_chain_migration
 from planetmint.backend.connection import Connection
+from planetmint.backend.tarantool.const import TARANT_TABLE_GOVERNANCE
 from planetmint.lib import Block
 from transactions.types.elections.chain_migration_election import ChainMigrationElection
+
 from tests.utils import generate_election, generate_validators
 
 
@@ -347,13 +350,11 @@ def test_election_new_upsert_validator_without_tendermint(caplog, b, priv_valida
     with caplog.at_level(logging.INFO):
         election_id = run_election_new_upsert_validator(args, b)
         assert caplog.records[0].msg == "[SUCCESS] Submitted proposal with id: " + election_id
-        assert b.get_transaction(election_id)
+        assert b.get_transaction(election_id, TARANT_TABLE_GOVERNANCE)
 
 
 @pytest.mark.abci
 def test_election_new_chain_migration_with_tendermint(b, priv_validator_path, user_sk, validators):
-    from planetmint.commands.planetmint import run_election_new_chain_migration
-
     new_args = Namespace(action="new", election_type="migration", sk=priv_validator_path, config={})
 
     election_id = run_election_new_chain_migration(new_args, b)
@@ -363,8 +364,6 @@ def test_election_new_chain_migration_with_tendermint(b, priv_validator_path, us
 
 @pytest.mark.bdb
 def test_election_new_chain_migration_without_tendermint(caplog, b, priv_validator_path, user_sk):
-    from planetmint.commands.planetmint import run_election_new_chain_migration
-
     def mock_write(tx, mode):
         b.store_bulk_transactions([tx])
         return (202, "")
@@ -377,7 +376,7 @@ def test_election_new_chain_migration_without_tendermint(caplog, b, priv_validat
     with caplog.at_level(logging.INFO):
         election_id = run_election_new_chain_migration(args, b)
         assert caplog.records[0].msg == "[SUCCESS] Submitted proposal with id: " + election_id
-        assert b.get_transaction(election_id)
+        assert b.get_transaction(election_id, TARANT_TABLE_GOVERNANCE)
 
 
 @pytest.mark.bdb
