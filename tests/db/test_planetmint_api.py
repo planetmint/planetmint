@@ -7,6 +7,7 @@ import random
 import pytest
 
 from unittest.mock import patch
+from planetmint.backend.models import Input
 from transactions.types.assets.create import Create
 from transactions.types.assets.transfer import Transfer
 from ipld import marshal, multihash
@@ -110,10 +111,10 @@ class TestBigchainApi(object):
         before = tx.to_dict()
         after = tx_from_db.to_dict()
 
-        assert before["assets"][0] == after["transaction"]["assets"][0]
-        before.pop("asset", None)
-        after["transaction"].pop("asset", None)
-        assert before == after["transaction"]
+        assert before["assets"][0] == after["assets"][0]
+        before.pop("assets", None)
+        after.pop("assets", None)
+        assert before == after
 
 
 class TestTransactionValidation(object):
@@ -159,7 +160,7 @@ class TestMultipleInputs(object):
 
         tx_link = b.fastquery.get_outputs_by_public_key(user_pk).pop()
         input_tx = b.get_transaction(tx_link.txid)
-        inputs = input_tx.to_inputs()
+        inputs = Input.list_to_dict(input_tx.inputs)
         tx = Transfer.generate(inputs, [([user2_pk], 1)], asset_ids=[input_tx.id])
         tx = tx.sign([user_sk])
 

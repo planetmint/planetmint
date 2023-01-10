@@ -36,6 +36,7 @@ from transactions.common.exceptions import (
 )
 from transactions.common.transaction import VALIDATOR_ELECTION, CHAIN_MIGRATION_ELECTION
 from transactions.common.transaction_mode_types import BROADCAST_TX_COMMIT, BROADCAST_TX_ASYNC, BROADCAST_TX_SYNC
+from transactions.common.output import Output as TransactionOutput
 from transactions.types.elections.election import Election
 from transactions.types.elections.validator_utils import election_id_to_public_key
 
@@ -414,8 +415,14 @@ class Planetmint(object):
         asset_id = tx.get_asset_id(input_txs)
         if asset_id != tx.assets[0]["id"]:
             raise AssetIdMismatch(("The asset id of the input does not" " match the asset id of the" " transaction"))
-
-        if not tx.inputs_valid(input_conditions):
+        
+        # convert planetmint.Output objects to transactions.common.Output objects
+        input_conditions_dict = Output.list_to_dict(input_conditions)
+        input_conditions_converted = []
+        for input_cond in input_conditions_dict:
+            input_conditions_converted.append(TransactionOutput.from_dict( input_cond ))
+        
+        if not tx.inputs_valid(input_conditions_converted):
             raise InvalidSignature("Transaction signature is invalid.")
 
         input_amount = sum([input_condition.amount for input_condition in input_conditions])
