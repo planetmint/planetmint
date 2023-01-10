@@ -4,20 +4,21 @@
 # Code is Apache-2.0 and docs are CC-BY-4.0
 
 from __future__ import annotations
-import json
 from dataclasses import dataclass
-
 
 @dataclass
 class Asset:
+    key: str = ""
     data: str = ""
 
     @staticmethod
     def from_dict(asset_dict: dict) -> Asset:
-        return Asset(asset_dict["data"]) if "data" in asset_dict.keys() else Asset(asset_dict["id"])
-
+        key = "data" if "data" in asset_dict.keys() else "id"
+        data = asset_dict[key]
+        return Asset(key, data)
+       
     def to_dict(self) -> dict:
-        return {"data": self.data}
+        return {self.key: self.data}
 
     @staticmethod
     def from_list_dict(asset_dict_list: list[dict]) -> list[Asset]:
