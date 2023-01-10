@@ -164,8 +164,6 @@ class TestTransactionValidation(object):
 class TestMultipleInputs(object):
     def test_transfer_single_owner_single_input(self, b, inputs, user_pk, user_sk):
         user2_sk, user2_pk = crypto.generate_key_pair()
-        
-        
         tx_link = b.fastquery.get_outputs_by_public_key(user_pk).pop()
         input_tx = b.get_transaction(tx_link.txid)
         tx_converted = Transaction.from_dict( input_tx.to_dict(), True)
@@ -204,9 +202,10 @@ class TestMultipleInputs(object):
 
         owned_input = b.fastquery.get_outputs_by_public_key(user_pk).pop()
         input_tx = b.get_transaction(owned_input.txid)
-        inputs = input_tx.to_inputs()
+        input_tx_converted = Transaction.from_dict( input_tx.to_dict(), True)
 
-        transfer_tx = Transfer.generate(inputs, [([user3_pk], 1)], asset_ids=[input_tx.id])
+
+        transfer_tx = Transfer.generate(input_tx_converted.to_inputs(), [([user3_pk], 1)], asset_ids=[input_tx.id])
         transfer_tx = transfer_tx.sign([user_sk, user2_sk])
 
         # validate transaction
@@ -227,8 +226,10 @@ class TestMultipleInputs(object):
         # get input
         tx_link = b.fastquery.get_outputs_by_public_key(user_pk).pop()
         tx_input = b.get_transaction(tx_link.txid)
+        input_tx_converted = Transaction.from_dict( tx_input.to_dict(), True)
 
-        tx = Transfer.generate(tx_input.to_inputs(), [([user3_pk, user4_pk], 1)], asset_ids=[tx_input.id])
+
+        tx = Transfer.generate(input_tx_converted.to_inputs(), [([user3_pk, user4_pk], 1)], asset_ids=[tx_input.id])
         tx = tx.sign([user_sk, user2_sk])
 
         b.validate_transaction(tx)
@@ -389,7 +390,7 @@ class TestMultipleInputs(object):
         b.store_bulk_transactions([tx])
 
         # check that used inputs are marked as spent
-        assert b.get_spent(transactions[0].id, 0) == tx
+        assert b.get_spent(transactions[0].id, 0) == tx.to_dict()
         # check that the other remain marked as unspent
         for unspent in transactions[1:]:
             assert b.get_spent(unspent.id, 0) is None
