@@ -21,6 +21,7 @@ from transactions.common.exceptions import DatabaseDoesNotExist, ValidationError
 from transactions.types.elections.vote import Vote
 from transactions.types.elections.chain_migration_election import ChainMigrationElection
 from transactions.types.elections.validator_utils import election_id_to_public_key
+from transactions.common.transaction import Transaction
 from planetmint import ValidatorElection, Planetmint
 from planetmint.backend import schema
 from planetmint.commands import utils
@@ -203,7 +204,8 @@ def run_election_approve(args, planet):
         logger.error("The key you provided does not match any of the eligible voters in this election.")
         return False
 
-    inputs = [i for i in tx.inputs if key.public_key in i.owners_before]
+    tx_converted = Transaction.from_dict(tx.to_dict(), True)
+    inputs = [i for i in tx_converted.to_inputs() if key.public_key in i.owners_before]
     election_pub_key = election_id_to_public_key(tx.id)
     approval = Vote.generate(inputs, [([election_pub_key], voting_power)], [tx.id]).sign([key.private_key])
     planet.validate_transaction(approval)
