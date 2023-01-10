@@ -195,7 +195,7 @@ def run_election_approve(args, planet):
     """
 
     key = load_node_key(args.sk)
-    tx = planet.get_transaction(args.election_id)
+    tx = planet.get_transaction(args.election_id,TARANT_TABLE_GOVERNANCE)
     voting_powers = [v.amount for v in tx.outputs if key.public_key in v.public_keys]
     if len(voting_powers) > 0:
         voting_power = voting_powers[0]
@@ -203,7 +203,7 @@ def run_election_approve(args, planet):
         logger.error("The key you provided does not match any of the eligible voters in this election.")
         return False
 
-    inputs = [i for i in tx.to_inputs() if key.public_key in i.owners_before]
+    inputs = [i for i in tx.inputs if key.public_key in i.owners_before]
     election_pub_key = election_id_to_public_key(tx.id)
     approval = Vote.generate(inputs, [([election_pub_key], voting_power)], [tx.id]).sign([key.private_key])
     planet.validate_transaction(approval)
