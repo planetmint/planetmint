@@ -50,7 +50,7 @@ def test_get_owned_ids(signed_create_tx, user_pk, db_conn):
 
     txns = query.get_owned_ids(connection=db_conn, owner=user_pk)
     tx_dict = signed_create_tx.to_dict()
-    owned_tx = DbTransaction.remove_generated_fields(txns[0].to_dict())
+    owned_tx = txns[0].to_dict()
     assert owned_tx == tx_dict
 
 
