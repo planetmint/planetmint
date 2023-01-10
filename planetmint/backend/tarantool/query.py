@@ -242,12 +242,12 @@ def get_txids_filtered(connection, asset_ids: list[str], operation: str = "", la
         )
     elif operation == "TRANSFER":
         transactions = connection.run(
-            connection.space(TARANT_TABLE_TRANSACTION).select(asset_ids, index="transactions_by_asset")
+            connection.space(TARANT_TABLE_TRANSACTION).select(asset_ids, index=TARANT_INDEX_TX_BY_ASSET_ID)
         )
     else:
         txs = connection.run(connection.space(TARANT_TABLE_TRANSACTION).select(asset_ids, index=TARANT_ID_SEARCH))
         asset_txs = connection.run(
-            connection.space(TARANT_TABLE_TRANSACTION).select(asset_ids, index="transactions_by_asset")
+            connection.space(TARANT_TABLE_TRANSACTION).select(asset_ids, index=TARANT_INDEX_TX_BY_ASSET_ID)
         )
         transactions = txs + asset_txs
 
