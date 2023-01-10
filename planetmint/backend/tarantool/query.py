@@ -306,6 +306,8 @@ def get_spending_transactions(connection, inputs):
 @register_query(TarantoolDBConnection)
 def get_block(connection, block_id=None):
     _block = connection.run(connection.space("blocks").select(block_id, index="height", limit=1))
+    if len(_block) == 0:
+        return
     _block = Block.from_tuple(_block[0])
     return _block.to_dict()
 
