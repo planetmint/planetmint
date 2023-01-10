@@ -2,17 +2,22 @@
 # Planetmint and IPDB software contributors.
 # SPDX-License-Identifier: (Apache-2.0 AND CC-BY-4.0)
 # Code is Apache-2.0 and docs are CC-BY-4.0
-import warnings
 import random
-import pytest
-
+import warnings
 from unittest.mock import patch
-from planetmint.backend.models import Input
+
+import pytest
+from base58 import b58decode
+from ipld import marshal, multihash
+from transactions.common import crypto
+from transactions.common.output import Output as TransactionOutput
+from transactions.common.transaction import TransactionLink
+from transactions.common.transaction import Transaction
 from transactions.types.assets.create import Create
 from transactions.types.assets.transfer import Transfer
-from ipld import marshal, multihash
-from base58 import b58decode
 
+
+from planetmint.backend.models import Output
 
 pytestmark = pytest.mark.bdb
 
@@ -20,6 +25,7 @@ pytestmark = pytest.mark.bdb
 class TestBigchainApi(object):
     def test_get_spent_with_double_spend_detected(self, b, alice):
         from transactions.common.exceptions import DoubleSpend
+
         from planetmint.exceptions import CriticalDoubleSpend
 
         tx = Create.generate([alice.public_key], [([alice.public_key], 1)])
@@ -46,9 +52,11 @@ class TestBigchainApi(object):
             b.get_spent(tx.id, 0)
 
     def test_double_inclusion(self, b, alice):
-        from planetmint.backend.exceptions import OperationError
         from tarantool.error import DatabaseError
-        from planetmint.backend.tarantool.connection import TarantoolDBConnection
+
+        from planetmint.backend.exceptions import OperationError
+        from planetmint.backend.tarantool.connection import \
+            TarantoolDBConnection
 
         tx = Create.generate([alice.public_key], [([alice.public_key], 1)])
         tx = tx.sign([alice.private_key])
@@ -62,7 +70,8 @@ class TestBigchainApi(object):
                 b.store_bulk_transactions([tx])
 
     def test_text_search(self, b, alice):
-        from planetmint.backend.tarantool.connection import TarantoolDBConnection
+        from planetmint.backend.tarantool.connection import \
+            TarantoolDBConnection
 
         if isinstance(b.connection, TarantoolDBConnection):
             warnings.warn(" :::::: This function is used only with  :::::: ")
@@ -154,14 +163,14 @@ class TestTransactionValidation(object):
 
 class TestMultipleInputs(object):
     def test_transfer_single_owner_single_input(self, b, inputs, user_pk, user_sk):
-        from transactions.common import crypto
-
         user2_sk, user2_pk = crypto.generate_key_pair()
-
+        
+        
         tx_link = b.fastquery.get_outputs_by_public_key(user_pk).pop()
         input_tx = b.get_transaction(tx_link.txid)
-        inputs = Input.list_to_dict(input_tx.inputs)
-        tx = Transfer.generate(inputs, [([user2_pk], 1)], asset_ids=[input_tx.id])
+        tx_converted = Transaction.from_dict( input_tx.to_dict(), True)
+        
+        tx = Transfer.generate(tx_converted.to_inputs(), [([user2_pk], 1)], asset_ids=[input_tx.id])
         tx = tx.sign([user_sk])
 
         # validate transaction
@@ -170,14 +179,14 @@ class TestMultipleInputs(object):
         assert len(tx.outputs) == 1
 
     def test_single_owner_before_multiple_owners_after_single_input(self, b, user_sk, user_pk, inputs):
-        from transactions.common import crypto
-
         user2_sk, user2_pk = crypto.generate_key_pair()
         user3_sk, user3_pk = crypto.generate_key_pair()
         tx_link = b.fastquery.get_outputs_by_public_key(user_pk).pop()
 
         input_tx = b.get_transaction(tx_link.txid)
-        tx = Transfer.generate(input_tx.to_inputs(), [([user2_pk, user3_pk], 1)], asset_ids=[input_tx.id])
+        tx_converted = Transaction.from_dict( input_tx.to_dict(), True)
+
+        tx = Transfer.generate(tx_converted.to_inputs(), [([user2_pk, user3_pk], 1)], asset_ids=[input_tx.id])
         tx = tx.sign([user_sk])
 
         b.validate_transaction(tx)
@@ -186,8 +195,6 @@ class TestMultipleInputs(object):
 
     @pytest.mark.usefixtures("inputs")
     def test_multiple_owners_before_single_owner_after_single_input(self, b, user_sk, user_pk, alice):
-        from transactions.common import crypto
-
         user2_sk, user2_pk = crypto.generate_key_pair()
         user3_sk, user3_pk = crypto.generate_key_pair()
 
@@ -209,8 +216,6 @@ class TestMultipleInputs(object):
 
     @pytest.mark.usefixtures("inputs")
     def test_multiple_owners_before_multiple_owners_after_single_input(self, b, user_sk, user_pk, alice):
-        from transactions.common import crypto
-
         user2_sk, user2_pk = crypto.generate_key_pair()
         user3_sk, user3_pk = crypto.generate_key_pair()
         user4_sk, user4_pk = crypto.generate_key_pair()
@@ -231,9 +236,6 @@ class TestMultipleInputs(object):
         assert len(tx.outputs) == 1
 
     def test_get_owned_ids_single_tx_single_output(self, b, user_sk, user_pk, alice):
-        from transactions.common import crypto
-        from transactions.common.transaction import TransactionLink
-
         user2_sk, user2_pk = crypto.generate_key_pair()
 
         tx = Create.generate([alice.public_key], [([user_pk], 1)])
@@ -256,9 +258,6 @@ class TestMultipleInputs(object):
         assert owned_inputs_user2 == [TransactionLink(tx_transfer.id, 0)]
 
     def test_get_owned_ids_single_tx_multiple_outputs(self, b, user_sk, user_pk, alice):
-        from transactions.common import crypto
-        from transactions.common.transaction import TransactionLink
-
         user2_sk, user2_pk = crypto.generate_key_pair()
 
         # create divisible asset
@@ -287,9 +286,6 @@ class TestMultipleInputs(object):
         assert owned_inputs_user2 == [TransactionLink(tx_transfer.id, 0), TransactionLink(tx_transfer.id, 1)]
 
     def test_get_owned_ids_multiple_owners(self, b, user_sk, user_pk, alice):
-        from transactions.common import crypto
-        from transactions.common.transaction import TransactionLink
-
         user2_sk, user2_pk = crypto.generate_key_pair()
         user3_sk, user3_pk = crypto.generate_key_pair()
 
@@ -317,8 +313,6 @@ class TestMultipleInputs(object):
         assert not spent_user1
 
     def test_get_spent_single_tx_single_output(self, b, user_sk, user_pk, alice):
-        from transactions.common import crypto
-
         user2_sk, user2_pk = crypto.generate_key_pair()
 
         tx = Create.generate([alice.public_key], [([user_pk], 1)])
@@ -341,8 +335,6 @@ class TestMultipleInputs(object):
         assert spent_inputs_user1 == tx
 
     def test_get_spent_single_tx_multiple_outputs(self, b, user_sk, user_pk, alice):
-        from transactions.common import crypto
-
         # create a new users
         user2_sk, user2_pk = crypto.generate_key_pair()
 
@@ -374,8 +366,6 @@ class TestMultipleInputs(object):
         assert b.get_spent(tx_create.to_inputs()[2].fulfills.txid, 2) is None
 
     def test_get_spent_multiple_owners(self, b, user_sk, user_pk, alice):
-        from transactions.common import crypto
-
         user2_sk, user2_pk = crypto.generate_key_pair()
         user3_sk, user3_pk = crypto.generate_key_pair()
 
@@ -407,6 +397,7 @@ class TestMultipleInputs(object):
 
 def test_get_outputs_filtered_only_unspent():
     from transactions.common.transaction import TransactionLink
+
     from planetmint.lib import Planetmint
 
     go = "planetmint.fastquery.FastQuery.get_outputs_by_public_key"
@@ -422,6 +413,7 @@ def test_get_outputs_filtered_only_unspent():
 
 def test_get_outputs_filtered_only_spent():
     from transactions.common.transaction import TransactionLink
+
     from planetmint.lib import Planetmint
 
     go = "planetmint.fastquery.FastQuery.get_outputs_by_public_key"
@@ -439,6 +431,7 @@ def test_get_outputs_filtered_only_spent():
 @patch("planetmint.fastquery.FastQuery.filter_spent_outputs")
 def test_get_outputs_filtered(filter_spent, filter_unspent):
     from transactions.common.transaction import TransactionLink
+
     from planetmint.lib import Planetmint
 
     go = "planetmint.fastquery.FastQuery.get_outputs_by_public_key"
@@ -473,6 +466,7 @@ def test_cant_spend_same_input_twice_in_tx(b, alice):
 
 def test_transaction_unicode(b, alice):
     import copy
+
     from transactions.common.utils import serialize
 
     # http://www.fileformat.info/info/unicode/char/1f37a/index.htm
