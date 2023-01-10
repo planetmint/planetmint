@@ -462,7 +462,7 @@ def test_election_approve_without_tendermint(caplog, b, priv_validator_path, new
     with caplog.at_level(logging.INFO):
         approval_id = run_election_approve(args, b)
         assert caplog.records[0].msg == "[SUCCESS] Your vote has been submitted"
-        assert b.get_transaction(approval_id)
+        assert b.get_transaction(approval_id, TARANT_TABLE_GOVERNANCE)
 
 
 @pytest.mark.bdb
