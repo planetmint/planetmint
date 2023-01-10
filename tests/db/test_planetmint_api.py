@@ -332,7 +332,7 @@ class TestMultipleInputs(object):
         b.store_bulk_transactions([tx])
 
         spent_inputs_user1 = b.get_spent(input_txid, 0)
-        assert spent_inputs_user1 == tx
+        assert spent_inputs_user1 == tx.to_dict()
 
     def test_get_spent_single_tx_multiple_outputs(self, b, user_sk, user_pk, alice):
         # create a new users
@@ -359,7 +359,7 @@ class TestMultipleInputs(object):
         # check that used inputs are marked as spent
         for ffill in tx_create.to_inputs()[:2]:
             spent_tx = b.get_spent(ffill.fulfills.txid, ffill.fulfills.output)
-            assert spent_tx == tx_transfer_signed
+            assert spent_tx == tx_transfer_signed.to_dict()
 
         # check if remaining transaction that was unspent is also perceived
         # spendable by Planetmint
