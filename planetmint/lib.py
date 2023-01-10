@@ -39,7 +39,7 @@ from transactions.common.transaction_mode_types import BROADCAST_TX_COMMIT, BROA
 from transactions.types.elections.election import Election
 from transactions.types.elections.validator_utils import election_id_to_public_key
 
-from planetmint.backend.models import Output
+from planetmint.backend.models import Output, DbTransaction
 from planetmint.backend.tarantool.const import TARANT_TABLE_GOVERNANCE, TARANT_TABLE_TRANSACTION
 from planetmint.config import Config
 from planetmint import backend, config_utils, fastquery
@@ -401,7 +401,7 @@ class Planetmint(object):
             input_conditions.append(output)
             tx_dict = input_tx.to_dict()
             tx_dict["outputs"] = Output.list_to_dict(_output)
-            tx_dict = remove_generated_fields(tx_dict)
+            tx_dict = DbTransaction.remove_generated_fields(tx_dict)
             pm_transaction = Transaction.from_dict(tx_dict, False)
             input_txs.append(pm_transaction)
 
@@ -940,15 +940,3 @@ class Planetmint(object):
 
 Block = namedtuple("Block", ("app_hash", "height", "transactions"))
 
-
-def remove_generated_fields(tx_dict: dict):
-    tx_dict["outputs"] = [remove_generated_or_none_output_keys(output) for output in tx_dict["outputs"]]
-    if tx_dict["script"] is None:
-        tx_dict.pop("script")
-    return tx_dict
-
-
-def remove_generated_or_none_output_keys(output):
-    output["condition"]["details"] = {k: v for k, v in output["condition"]["details"].items() if v is not None}
-    output.pop("id")
-    return output
