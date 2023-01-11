@@ -14,6 +14,7 @@ from operator import itemgetter
 from planetmint.backend import query
 from planetmint.backend.models.dbtransaction import DbTransaction
 from planetmint.backend.exceptions import OperationDataInsertionError
+from planetmint.exceptions import CriticalDoubleSpend
 from planetmint.backend.tarantool.const import (
     TARANT_TABLE_META_DATA,
     TARANT_TABLE_ASSETS,
@@ -133,7 +134,10 @@ def store_transaction(connection, transaction):
         connection.run(connection.space(TARANT_TABLE_TRANSACTION).insert(tx), only_data=False)
     except Exception as e:
         logger.info(f"Could not insert transactions: {e}")
-        raise OperationDataInsertionError()
+        if e.args[0] == 3 and e.args[1].startswith('Duplicate key exists in'):
+            raise CriticalDoubleSpend()
+        else:
+            raise OperationDataInsertionError()
 
 
 @register_query(TarantoolDBConnection)
@@ -163,8 +167,10 @@ def store_governance_transaction(connection, transaction):
     try:
         connection.run(connection.space(TARANT_TABLE_GOVERNANCE).insert(tx), only_data=False)
     except Exception as e:
-        logger.info(f"Could not insert governance transaction: {e}")
-        raise OperationDataInsertionError()
+        if e.args[0] == 3 and e.args[1].startswith('Duplicate key exists in'):
+            raise CriticalDoubleSpend()
+        else:
+            raise OperationDataInsertionError()
 
 
 @register_query(TarantoolDBConnection)

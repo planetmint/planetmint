@@ -245,8 +245,8 @@ class Planetmint(object):
         if unspent_outputs:
             return backend.query.delete_unspent_outputs(self.connection, *unspent_outputs)
 
-    def is_committed(self, transaction_id):
-        transaction = backend.query.get_transaction_by_id(self.connection, transaction_id)
+    def is_committed(self, transaction_id, table=TARANT_TABLE_TRANSACTION):
+        transaction = backend.query.get_transaction_by_id(self.connection, transaction_id, table)
         return bool(transaction)
 
     def get_transaction(self, transaction_id, table=TARANT_TABLE_TRANSACTION):
@@ -614,7 +614,7 @@ class Planetmint(object):
         """
 
         duplicates = any(txn for txn in current_transactions if txn.id == transaction.id)
-        if self.is_committed(transaction.id) or duplicates:
+        if self.is_committed(transaction.id, TARANT_TABLE_GOVERNANCE) or duplicates:
             raise DuplicateTransaction("transaction `{}` already exists".format(transaction.id))
 
         current_validators = self.get_validators_dict()

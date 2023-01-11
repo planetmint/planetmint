@@ -18,6 +18,7 @@ from transactions.types.assets.transfer import Transfer
 
 
 from planetmint.backend.models import Output
+from planetmint.exceptions import CriticalDoubleSpend
 
 pytestmark = pytest.mark.bdb
 
@@ -46,10 +47,9 @@ class TestBigchainApi(object):
         with pytest.raises(DoubleSpend):
             b.validate_transaction(transfer_tx2)
 
-        b.store_bulk_transactions([transfer_tx2])
-
         with pytest.raises(CriticalDoubleSpend):
-            b.get_spent(tx.id, 0)
+            b.store_bulk_transactions([transfer_tx2])
+
 
     def test_double_inclusion(self, b, alice):
         from tarantool.error import DatabaseError
@@ -62,7 +62,7 @@ class TestBigchainApi(object):
 
         b.store_bulk_transactions([tx])
         if isinstance(b.connection, TarantoolDBConnection):
-            with pytest.raises(DatabaseError):
+            with pytest.raises(CriticalDoubleSpend):
                 b.store_bulk_transactions([tx])
         else:
             with pytest.raises(OperationError):
