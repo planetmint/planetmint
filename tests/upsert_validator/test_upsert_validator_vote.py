@@ -208,7 +208,7 @@ def test_valid_election_conclude(b_mock, valid_upsert_validator_election, ed2551
     # so any invocation of `.has_concluded` for that election should return False
     assert not b_mock.has_election_concluded(valid_upsert_validator_election)
 
-    # Vote is still valid but the election cannot be.has_concludedd as it it assmed that it has
+    # Vote is still valid but the election cannot be.has_concluded as it it assumed that it has
     # been.has_concludedd before
     assert b_mock.validate_transaction(tx_vote3)
     assert not b_mock.has_election_concluded(valid_upsert_validator_election, [tx_vote3])

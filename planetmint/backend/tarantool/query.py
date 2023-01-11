@@ -5,6 +5,7 @@
 
 """Query implementation for Tarantool"""
 import json
+import logging
 from uuid import uuid4
 from hashlib import sha256
 from operator import itemgetter
@@ -12,6 +13,7 @@ from operator import itemgetter
 
 from planetmint.backend import query
 from planetmint.backend.models.dbtransaction import DbTransaction
+from planetmint.backend.exceptions import OperationDataInsertionError
 from planetmint.backend.tarantool.const import (
     TARANT_TABLE_META_DATA,
     TARANT_TABLE_ASSETS,
@@ -30,6 +32,8 @@ from planetmint.backend.utils import module_dispatch_registrar
 from planetmint.backend.models import Asset, Block, MetaData, Input, Script, Output
 from planetmint.backend.tarantool.connection import TarantoolDBConnection
 
+
+logger = logging.getLogger(__name__)
 register_query = module_dispatch_registrar(query)
 
 
@@ -82,19 +86,23 @@ def get_transactions_by_metadata(connection, metadata: str, limit: int = 1000) -
 
 def store_transaction_outputs(connection, output: Output, index: int) -> str:
     output_id = uuid4().hex
-    connection.run(
-        connection.space(TARANT_TABLE_OUTPUT).insert(
-            (
-                output_id,
-                int(output.amount),
-                output.public_keys,
-                output.condition.to_dict(),
-                index,
-                output.transaction_id,
+    try:
+        connection.run(
+            connection.space(TARANT_TABLE_OUTPUT).insert(
+                (
+                    output_id,
+                    int(output.amount),
+                    output.public_keys,
+                    output.condition.to_dict(),
+                    index,
+                    output.transaction_id,
+                )
             )
         )
-    )
-    return output_id
+        return output_id
+    except Exception as e:
+        logger.info(f"Could not insert Output: {e}")
+        raise OperationDataInsertionError()
 
 
 @register_query(TarantoolDBConnection)
@@ -121,7 +129,11 @@ def store_transaction(connection, transaction):
         transaction["inputs"],
         scripts,
     )
-    connection.run(connection.space(TARANT_TABLE_TRANSACTION).insert(tx), only_data=False)
+    try:
+        connection.run(connection.space(TARANT_TABLE_TRANSACTION).insert(tx), only_data=False)
+    except Exception as e:
+        logger.info(f"Could not insert transactions: {e}")
+        raise OperationDataInsertionError()
 
 
 @register_query(TarantoolDBConnection)
@@ -148,7 +160,11 @@ def store_governance_transaction(connection, transaction):
         transaction["inputs"],
         scripts,
     )
-    connection.run(connection.space(TARANT_TABLE_GOVERNANCE).insert(tx), only_data=False)
+    try:
+        connection.run(connection.space(TARANT_TABLE_GOVERNANCE).insert(tx), only_data=False)
+    except Exception as e:
+        logger.info(f"Could not insert governance transaction: {e}")
+        raise OperationDataInsertionError()
 
 
 @register_query(TarantoolDBConnection)
@@ -223,12 +239,16 @@ def get_latest_block(connection):
 @register_query(TarantoolDBConnection)
 def store_block(connection, block: dict):
     block_unique_id = uuid4().hex
-    connection.run(
-        connection.space("blocks").insert(
-            (block_unique_id, block["app_hash"], block["height"], block[TARANT_TABLE_TRANSACTION])
-        ),
-        only_data=False,
-    )
+    try:
+        connection.run(
+            connection.space("blocks").insert(
+                (block_unique_id, block["app_hash"], block["height"], block[TARANT_TABLE_TRANSACTION])
+            ),
+            only_data=False,
+        )
+    except Exception as e:
+        logger.info(f"Could not insert block: {e}")
+        raise OperationDataInsertionError()
 
 
 @register_query(TarantoolDBConnection)
@@ -337,10 +357,14 @@ def store_unspent_outputs(connection, *unspent_outputs: list):
     result = []
     if unspent_outputs:
         for utxo in unspent_outputs:
-            output = connection.run(
-                connection.space("utxos").insert((uuid4().hex, utxo["transaction_id"], utxo["output_index"], utxo))
-            )
-            result.append(output)
+            try:
+                output = connection.run(
+                    connection.space("utxos").insert((uuid4().hex, utxo["transaction_id"], utxo["output_index"], utxo))
+                )
+                result.append(output)
+            except Exception as e:
+                logger.info(f"Could not insert unspent output: {e}")
+                raise OperationDataInsertionError()
     return result
 
 
@@ -372,12 +396,18 @@ def store_pre_commit_state(connection, state: dict):
         if _precommit is None or len(_precommit) == 0
         else _precommit[0]
     )
-    connection.run(
-        connection.space("pre_commits").upsert(
-            _precommitTuple, op_list=[("=", 1, state["height"]), ("=", 2, state[TARANT_TABLE_TRANSACTION])], limit=1
-        ),
-        only_data=False,
-    )
+    try:
+        connection.run(
+            connection.space("pre_commits").upsert(
+                _precommitTuple,
+                op_list=[("=", 1, state["height"]), ("=", 2, state[TARANT_TABLE_TRANSACTION])],
+                limit=1,
+            ),
+            only_data=False,
+        )
+    except Exception as e:
+        logger.info(f"Could not insert pre commit state: {e}")
+        raise OperationDataInsertionError()
 
 
 @register_query(TarantoolDBConnection)
@@ -393,14 +423,18 @@ def get_pre_commit_state(connection):
 def store_validator_set(conn, validators_update: dict):
     _validator = conn.run(conn.space("validator_sets").select(validators_update["height"], index="height", limit=1))
     unique_id = uuid4().hex if _validator is None or len(_validator) == 0 else _validator[0][0]
-    conn.run(
-        conn.space("validator_sets").upsert(
-            (unique_id, validators_update["height"], validators_update["validators"]),
-            op_list=[("=", 1, validators_update["height"]), ("=", 2, validators_update["validators"])],
-            limit=1,
-        ),
-        only_data=False,
-    )
+    try:
+        conn.run(
+            conn.space("validator_sets").upsert(
+                (unique_id, validators_update["height"], validators_update["validators"]),
+                op_list=[("=", 1, validators_update["height"]), ("=", 2, validators_update["validators"])],
+                limit=1,
+            ),
+            only_data=False,
+        )
+    except Exception as e:
+        logger.info(f"Could not insert validator set: {e}")
+        raise OperationDataInsertionError()
 
 
 @register_query(TarantoolDBConnection)
@@ -412,23 +446,31 @@ def delete_validator_set(connection, height: int):
 
 @register_query(TarantoolDBConnection)
 def store_election(connection, election_id: str, height: int, is_concluded: bool):
-    connection.run(
-        connection.space("elections").upsert(
-            (election_id, height, is_concluded), op_list=[("=", 1, height), ("=", 2, is_concluded)], limit=1
-        ),
-        only_data=False,
-    )
+    try:
+        connection.run(
+            connection.space("elections").upsert(
+                (election_id, height, is_concluded), op_list=[("=", 1, height), ("=", 2, is_concluded)], limit=1
+            ),
+            only_data=False,
+        )
+    except Exception as e:
+        logger.info(f"Could not insert election: {e}")
+        raise OperationDataInsertionError()
 
 
 @register_query(TarantoolDBConnection)
 def store_elections(connection, elections: list):
-    for election in elections:
-        _election = connection.run(  # noqa: F841
-            connection.space("elections").insert(
-                (election["election_id"], election["height"], election["is_concluded"])
-            ),
-            only_data=False,
-        )
+    try:
+        for election in elections:
+            _election = connection.run(  # noqa: F841
+                connection.space("elections").insert(
+                    (election["election_id"], election["height"], election["is_concluded"])
+                ),
+                only_data=False,
+            )
+    except Exception as e:
+        logger.info(f"Could not insert elections: {e}")
+        raise OperationDataInsertionError()
 
 
 @register_query(TarantoolDBConnection)
@@ -483,13 +525,17 @@ def get_asset_tokens_for_public_key(connection, asset_id: str, public_key: str) 
 
 @register_query(TarantoolDBConnection)
 def store_abci_chain(connection, height: int, chain_id: str, is_synced: bool = True):
-    connection.run(
-        connection.space("abci_chains").upsert(
-            (chain_id, height, is_synced),
-            op_list=[("=", 0, chain_id), ("=", 1, height), ("=", 2, is_synced)],
-        ),
-        only_data=False,
-    )
+    try:
+        connection.run(
+            connection.space("abci_chains").upsert(
+                (chain_id, height, is_synced),
+                op_list=[("=", 0, chain_id), ("=", 1, height), ("=", 2, is_synced)],
+            ),
+            only_data=False,
+        )
+    except Exception as e:
+        logger.info(f"Could not insert abci-chain: {e}")
+        raise OperationDataInsertionError()
 
 
 @register_query(TarantoolDBConnection)
