@@ -28,7 +28,7 @@ class DbTransaction:
             inputs=Input.from_list_dict(transaction["inputs"]),
             assets=Asset.from_list_dict(transaction["assets"]),
             metadata=MetaData.from_dict(transaction["metadata"]),
-            script=Script.from_dict(transaction["script"]),
+            script=Script.from_dict(transaction["script"]) if "script" in transaction else None,
         )
 
     @staticmethod
@@ -53,7 +53,8 @@ class DbTransaction:
     @staticmethod
     def remove_generated_or_none_output_keys(output):
         output["condition"]["details"] = {k: v for k, v in output["condition"]["details"].items() if v is not None}
-        output.pop("id")
+        if "id" in output:
+            output.pop("id")
         return output
 
 
