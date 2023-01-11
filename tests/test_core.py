@@ -89,7 +89,7 @@ def test_get_spent_issue_1271(b, alice, bob, carol):
     assert b.validate_transaction(tx_5)
 
     b.store_bulk_transactions([tx_5])
-    assert b.get_spent(tx_2.id, 0) == tx_5
+    assert  b.get_spent(tx_2.id, 0) == tx_5.to_dict()
     assert not b.get_spent(tx_5.id, 0)
     assert b.get_outputs_filtered(alice.public_key)
     assert b.get_outputs_filtered(alice.public_key, spent=False)
