@@ -308,3 +308,7 @@ function indexed_pattern_search(space_name, field_no, pattern)
     end
     return result_set
 end
+
+function delete_output( id )
+    box.space.outputs:delete(id)
+end

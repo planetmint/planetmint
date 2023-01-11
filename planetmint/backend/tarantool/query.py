@@ -311,7 +311,8 @@ def get_owned_ids(connection, owner: str):
     if len(outputs) == 0:
         return []
     txids = [output[5] for output in outputs]
-    return get_complete_transactions_by_ids(connection, txids)
+    unique_set_txids = set(txids)
+    return get_complete_transactions_by_ids(connection, unique_set_txids)
 
 
 @register_query(TarantoolDBConnection)
@@ -346,16 +347,16 @@ def get_block_with_transaction(connection, txid: str):
 
 @register_query(TarantoolDBConnection)
 def delete_transactions(connection, txn_ids: list):
-    for _id in txn_ids:
-        connection.run(connection.space(TARANT_TABLE_TRANSACTION).delete(_id), only_data=False)
-    for _id in txn_ids:
-        _outputs = connection.run(
-            connection.space(TARANT_TABLE_OUTPUT).select(_id, index=TARANT_ID_SEARCH), only_data=False
-        )
-        for _outpID in _outputs:
-            connection.run(
-                connection.space(TARANT_TABLE_OUTPUT).delete(_outpID[5], index="unique_search"), only_data=False
-            )
+    try:
+        for _id in txn_ids:
+            _outputs = get_outputs_by_tx_id( connection, _id)
+            for x in range(len(_outputs)):
+                connection.connect().call("delete_output", (_outputs[x].id))
+        for _id in txn_ids:
+            connection.run(connection.space(TARANT_TABLE_TRANSACTION).delete(_id), only_data=False)
+    except Exception as e:
+        logger.info(f"Could not insert unspent output: {e}")
+        raise OperationDataInsertionError()
 
 
 @register_query(TarantoolDBConnection)
