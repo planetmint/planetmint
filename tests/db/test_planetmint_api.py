@@ -55,8 +55,7 @@ class TestBigchainApi(object):
         from tarantool.error import DatabaseError
 
         from planetmint.backend.exceptions import OperationError
-        from planetmint.backend.tarantool.connection import \
-            TarantoolDBConnection
+        from planetmint.backend.tarantool.connection import TarantoolDBConnection
 
         tx = Create.generate([alice.public_key], [([alice.public_key], 1)])
         tx = tx.sign([alice.private_key])
@@ -70,8 +69,7 @@ class TestBigchainApi(object):
                 b.store_bulk_transactions([tx])
 
     def test_text_search(self, b, alice):
-        from planetmint.backend.tarantool.connection import \
-            TarantoolDBConnection
+        from planetmint.backend.tarantool.connection import TarantoolDBConnection
 
         if isinstance(b.connection, TarantoolDBConnection):
             warnings.warn(" :::::: This function is used only with  :::::: ")
@@ -166,8 +164,8 @@ class TestMultipleInputs(object):
         user2_sk, user2_pk = crypto.generate_key_pair()
         tx_link = b.fastquery.get_outputs_by_public_key(user_pk).pop()
         input_tx = b.get_transaction(tx_link.txid)
-        tx_converted = Transaction.from_dict( input_tx.to_dict(), True)
-        
+        tx_converted = Transaction.from_dict(input_tx.to_dict(), True)
+
         tx = Transfer.generate(tx_converted.to_inputs(), [([user2_pk], 1)], asset_ids=[input_tx.id])
         tx = tx.sign([user_sk])
 
@@ -182,7 +180,7 @@ class TestMultipleInputs(object):
         tx_link = b.fastquery.get_outputs_by_public_key(user_pk).pop()
 
         input_tx = b.get_transaction(tx_link.txid)
-        tx_converted = Transaction.from_dict( input_tx.to_dict(), True)
+        tx_converted = Transaction.from_dict(input_tx.to_dict(), True)
 
         tx = Transfer.generate(tx_converted.to_inputs(), [([user2_pk, user3_pk], 1)], asset_ids=[input_tx.id])
         tx = tx.sign([user_sk])
@@ -202,8 +200,7 @@ class TestMultipleInputs(object):
 
         owned_input = b.fastquery.get_outputs_by_public_key(user_pk).pop()
         input_tx = b.get_transaction(owned_input.txid)
-        input_tx_converted = Transaction.from_dict( input_tx.to_dict(), True)
-
+        input_tx_converted = Transaction.from_dict(input_tx.to_dict(), True)
 
         transfer_tx = Transfer.generate(input_tx_converted.to_inputs(), [([user3_pk], 1)], asset_ids=[input_tx.id])
         transfer_tx = transfer_tx.sign([user_sk, user2_sk])
@@ -226,8 +223,7 @@ class TestMultipleInputs(object):
         # get input
         tx_link = b.fastquery.get_outputs_by_public_key(user_pk).pop()
         tx_input = b.get_transaction(tx_link.txid)
-        input_tx_converted = Transaction.from_dict( tx_input.to_dict(), True)
-
+        input_tx_converted = Transaction.from_dict(tx_input.to_dict(), True)
 
         tx = Transfer.generate(input_tx_converted.to_inputs(), [([user3_pk, user4_pk], 1)], asset_ids=[tx_input.id])
         tx = tx.sign([user_sk, user2_sk])

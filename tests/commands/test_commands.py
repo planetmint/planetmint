@@ -359,7 +359,7 @@ def test_election_new_chain_migration_with_tendermint(b, priv_validator_path, us
 
     election_id = run_election_new_chain_migration(new_args, b)
 
-    assert b.get_transaction(election_id,TARANT_TABLE_GOVERNANCE)
+    assert b.get_transaction(election_id, TARANT_TABLE_GOVERNANCE)
 
 
 @pytest.mark.bdb
@@ -445,7 +445,7 @@ def test_election_approve_with_tendermint(b, priv_validator_path, user_sk, valid
     args = Namespace(action="approve", election_id=election_id, sk=priv_validator_path, config={})
     approve = run_election_approve(args, b)
 
-    assert b.get_transaction(approve,TARANT_TABLE_GOVERNANCE)
+    assert b.get_transaction(approve, TARANT_TABLE_GOVERNANCE)
 
 
 @pytest.mark.bdb

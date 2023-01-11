@@ -121,7 +121,7 @@ class Output:
             public_keys=output_dict["public_keys"],
             condition=Condition.from_dict(output_dict["condition"]),
             index=index,
-            transaction_id=transaction_id
+            transaction_id=transaction_id,
         )
 
     def to_dict(self) -> dict:

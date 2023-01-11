@@ -6,6 +6,7 @@
 from __future__ import annotations
 from dataclasses import dataclass
 
+
 @dataclass
 class Asset:
     key: str = ""
@@ -16,7 +17,7 @@ class Asset:
         key = "data" if "data" in asset_dict.keys() else "id"
         data = asset_dict[key]
         return Asset(key, data)
-       
+
     def to_dict(self) -> dict:
         return {self.key: self.data}
 

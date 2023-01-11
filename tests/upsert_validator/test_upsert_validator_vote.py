@@ -7,6 +7,8 @@ import pytest
 import codecs
 
 from planetmint.tendermint_utils import public_key_to_base64
+from planetmint.backend.tarantool.const import TARANT_TABLE_GOVERNANCE
+
 from transactions.types.elections.validator_election import ValidatorElection
 from transactions.common.exceptions import AmountError
 from transactions.common.crypto import generate_key_pair
@@ -246,7 +248,7 @@ def test_upsert_validator(b, node_key, node_keys, ed25519_node_keys):
     )
     code, message = b.write_transaction(election, BROADCAST_TX_COMMIT)
     assert code == 202
-    assert b.get_transaction(election.id)
+    assert b.get_transaction(election.id, TARANT_TABLE_GOVERNANCE)
 
     tx_vote = gen_vote(election, 0, ed25519_node_keys)
     assert b.validate_transaction(tx_vote)

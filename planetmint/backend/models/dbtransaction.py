@@ -8,6 +8,7 @@ from dataclasses import dataclass, field
 
 from planetmint.backend.models import Asset, MetaData, Input, Script, Output
 
+
 @dataclass
 class DbTransaction:
     id: str = ""
@@ -42,10 +43,12 @@ class DbTransaction:
             inputs=Input.from_list_dict(transaction[5]),
             script=Script.from_dict(transaction[6]),
         )
-        
+
     @staticmethod
     def remove_generated_fields(tx_dict: dict):
-        tx_dict["outputs"] = [DbTransaction.remove_generated_or_none_output_keys(output) for output in tx_dict["outputs"]]
+        tx_dict["outputs"] = [
+            DbTransaction.remove_generated_or_none_output_keys(output) for output in tx_dict["outputs"]
+        ]
         if "script" in tx_dict and tx_dict["script"] is None:
             tx_dict.pop("script")
         return tx_dict
@@ -57,7 +60,6 @@ class DbTransaction:
             output.pop("id")
         return output
 
-
     def to_dict(self) -> dict:
         tx = {
             "inputs": Input.list_to_dict(self.inputs),
@@ -67,7 +69,7 @@ class DbTransaction:
             "assets": Asset.list_to_dict(self.assets),
             "version": self.version,
             "id": self.id,
-            "script": self.script.to_dict() if self.script is not None else None, 
+            "script": self.script.to_dict() if self.script is not None else None,
         }
         tx = DbTransaction.remove_generated_fields(tx)
         return tx

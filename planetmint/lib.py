@@ -35,13 +35,20 @@ from transactions.common.exceptions import (
     InvalidPowerChange,
 )
 from transactions.common.transaction import VALIDATOR_ELECTION, CHAIN_MIGRATION_ELECTION
-from transactions.common.transaction_mode_types import BROADCAST_TX_COMMIT, BROADCAST_TX_ASYNC, BROADCAST_TX_SYNC
+from transactions.common.transaction_mode_types import (
+    BROADCAST_TX_COMMIT,
+    BROADCAST_TX_ASYNC,
+    BROADCAST_TX_SYNC,
+)
 from transactions.common.output import Output as TransactionOutput
 from transactions.types.elections.election import Election
 from transactions.types.elections.validator_utils import election_id_to_public_key
 
 from planetmint.backend.models import Output, DbTransaction
-from planetmint.backend.tarantool.const import TARANT_TABLE_GOVERNANCE, TARANT_TABLE_TRANSACTION
+from planetmint.backend.tarantool.const import (
+    TARANT_TABLE_GOVERNANCE,
+    TARANT_TABLE_TRANSACTION,
+)
 from planetmint.config import Config
 from planetmint import backend, config_utils, fastquery
 from planetmint.tendermint_utils import (
@@ -103,7 +110,12 @@ class Planetmint(object):
             raise ValidationError("Mode must be one of the following {}.".format(", ".join(self.mode_list)))
 
         tx_dict = transaction.tx_dict if transaction.tx_dict else transaction.to_dict()
-        payload = {"method": mode, "jsonrpc": "2.0", "params": [encode_transaction(tx_dict)], "id": str(uuid4())}
+        payload = {
+            "method": mode,
+            "jsonrpc": "2.0",
+            "params": [encode_transaction(tx_dict)],
+            "id": str(uuid4()),
+        }
         # TODO: handle connection errors!
         return requests.post(self.endpoint, json=payload)
 
@@ -328,7 +340,7 @@ class Planetmint(object):
 
         if block:
             transactions = backend.query.get_transactions(self.connection, block["transactions"])
-            result["transactions"] = [ Transaction.from_dict(t.to_dict()).to_dict() for t in transactions]
+            result["transactions"] = [Transaction.from_dict(t.to_dict()).to_dict() for t in transactions]
 
         return result
 
@@ -391,7 +403,10 @@ class Planetmint(object):
                     if ctxn.id == input_txid:
                         ctxn_dict = ctxn.to_dict()
                         input_tx = DbTransaction.from_dict(ctxn_dict)
-                        _output = [Output.from_dict(output, index, ctxn.id) for index, output in enumerate(ctxn_dict["outputs"])]
+                        _output = [
+                            Output.from_dict(output, index, ctxn.id)
+                            for index, output in enumerate(ctxn_dict["outputs"])
+                        ]
 
             if input_tx is None:
                 raise InputDoesNotExist("input `{}` doesn't exist".format(input_txid))
@@ -417,13 +432,13 @@ class Planetmint(object):
         asset_id = tx.get_asset_id(input_txs)
         if asset_id != tx.assets[0]["id"]:
             raise AssetIdMismatch(("The asset id of the input does not" " match the asset id of the" " transaction"))
-        
+
         # convert planetmint.Output objects to transactions.common.Output objects
         input_conditions_dict = Output.list_to_dict(input_conditions)
         input_conditions_converted = []
         for input_cond in input_conditions_dict:
-            input_conditions_converted.append(TransactionOutput.from_dict( input_cond ))
-        
+            input_conditions_converted.append(TransactionOutput.from_dict(input_cond))
+
         if not tx.inputs_valid(input_conditions_converted):
             raise InvalidSignature("Transaction signature is invalid.")
 
@@ -914,4 +929,3 @@ class Planetmint(object):
 
 
 Block = namedtuple("Block", ("app_hash", "height", "transactions"))
-
