@@ -113,6 +113,17 @@ class Output:
             transaction_id=output[5],
         )
 
+    @staticmethod
+    def from_dict(output_dict: dict, index: int, transaction_id: str) -> Output:
+        return Output(
+            id="placeholder",
+            amount=int(output_dict["amount"]),
+            public_keys=output_dict["public_keys"],
+            condition=Condition.from_dict(output_dict["condition"]),
+            index=index,
+            transaction_id=transaction_id
+        )
+
     def to_dict(self) -> dict:
         return {
             "id": self.id,

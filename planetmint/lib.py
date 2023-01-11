@@ -389,7 +389,9 @@ class Planetmint(object):
             if input_tx is None:
                 for ctxn in current_transactions:
                     if ctxn.id == input_txid:
-                        input_tx = ctxn
+                        ctxn_dict = ctxn.to_dict()
+                        input_tx = DbTransaction.from_dict(ctxn_dict)
+                        _output = [Output.from_dict(output, index, ctxn.id) for index, output in enumerate(ctxn_dict["outputs"])]
 
             if input_tx is None:
                 raise InputDoesNotExist("input `{}` doesn't exist".format(input_txid))
