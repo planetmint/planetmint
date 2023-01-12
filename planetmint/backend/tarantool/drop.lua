@@ -1,8 +1,0 @@
-box.space.abci_chains:drop()
-box.space.blocks:drop()
-box.space.elections:drop()
-box.space.pre_commits:drop()
-box.space.utxos:drop()
-box.space.validators:drop()
-box.space.transactions:drop()
-box.space.outputs:drop()

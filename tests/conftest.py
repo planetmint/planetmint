@@ -27,7 +27,6 @@ from transactions.common.transaction_mode_types import BROADCAST_TX_COMMIT
 from planetmint.tendermint_utils import key_from_base64
 from planetmint.backend import schema, query
 from transactions.common.crypto import key_pair_from_ed25519_key, public_key_from_ed25519_key
-from transactions.common.exceptions import DatabaseDoesNotExist
 from planetmint.lib import Block
 from tests.utils import gen_vote
 from planetmint.config import Config

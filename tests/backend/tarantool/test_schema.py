@@ -3,8 +3,6 @@
 # SPDX-License-Identifier: (Apache-2.0 AND CC-BY-4.0)
 # Code is Apache-2.0 and docs are CC-BY-4.0
 
-from planetmint.backend.tarantool.connection import TarantoolDBConnection
-
 
 def _check_spaces_by_list(conn, space_names):
     _exists = []

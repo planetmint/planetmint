@@ -25,6 +25,10 @@ For reference, the possible headings are:
 * **Known Issues**
 * **Notes**
 
+## [2.0.0] - 2023-12-01
+* **Changed** changed tarantool db schema
+* **Removed** removed text_search routes
+* **Added** metadata / asset cid route for fetching transactions
 
 ## [1.3.2] - 2022-28-11
 * **Changed** new zenroom 2.3.1 support
