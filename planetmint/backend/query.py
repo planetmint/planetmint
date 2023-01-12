@@ -85,13 +85,6 @@ def store_governance_transaction(connection, transaction):
 
 
 @singledispatch
-def get_governance_transaction_by_id(connection, transaction_id):
-    """Get the transaction by transaction id."""
-
-    raise NotImplementedError
-
-
-@singledispatch
 def get_transaction_by_id(connection, transaction_id):
     """Get the transaction by transaction id."""
 

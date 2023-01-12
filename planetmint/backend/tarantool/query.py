@@ -176,14 +176,6 @@ def store_governance_transaction(connection, transaction):
 
 
 @register_query(TarantoolDBConnection)
-def get_governance_transaction_by_id(connection, transaction_id):
-    txs = connection.run(connection.space(TARANT_TABLE_GOVERNANCE).select(transaction_id, index=TARANT_ID_SEARCH))
-    if len(txs) == 0:
-        return None
-    return DbTransaction.from_tuple(txs[0])
-
-
-@register_query(TarantoolDBConnection)
 def get_transaction_by_id(connection, transaction_id, table=TARANT_TABLE_TRANSACTION):
     txs = connection.run(connection.space(table).select(transaction_id, index=TARANT_ID_SEARCH))
     if len(txs) == 0:
