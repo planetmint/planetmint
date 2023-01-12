@@ -9,7 +9,8 @@ import tarantool
 from planetmint.config import Config
 from transactions.common.exceptions import ConfigurationError
 from planetmint.utils import Lazy
-from planetmint.backend.connection import DBConnection, ConnectionError
+from planetmint.backend.connection import DBConnection
+from planetmint.backend.exceptions import ConnectionError
 
 logger = logging.getLogger(__name__)
 

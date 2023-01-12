@@ -31,12 +31,12 @@ def store_asset(connection, asset: dict) -> Asset:
 @singledispatch
 def store_assets(connection, assets: list) -> list[Asset]:
     """Write a list of assets to the assets table.
-    backend
-        Args:
-            assets (list): a list of assets to write.
 
-        Returns:
-            The database response.
+    Args:
+        assets (list): a list of assets to write.
+
+    Returns:
+        The database response.
     """
 
     raise NotImplementedError
@@ -222,6 +222,7 @@ def store_transaction_outputs(connection, output: Output, index: int):
 @singledispatch
 def get_assets(connection, asset_ids) -> list[Asset]:
     """Get a list of assets from the assets table.
+
     Args:
         asset_ids (list): a list of ids for the assets to be retrieved from
         the database.

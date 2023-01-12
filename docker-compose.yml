@@ -41,7 +41,6 @@ services:
       - ./setup.py:/usr/src/app/setup.py
       - ./setup.cfg:/usr/src/app/setup.cfg
       - ./pytest.ini:/usr/src/app/pytest.ini
-      - ./tox.ini:/usr/src/app/tox.ini
     environment:
       PLANETMINT_DATABASE_BACKEND: tarantool_db 
       PLANETMINT_DATABASE_HOST: tarantool

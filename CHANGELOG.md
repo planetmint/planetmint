@@ -30,6 +30,12 @@ For reference, the possible headings are:
 * **Removed** removed text_search routes
 * **Added** metadata / asset cid route for fetching transactions
 
+## [1.4.1] - 2022-21-12
+* **fixed** inconsistent cryptocondition keyring tag handling. Using cryptoconditions > 1.1.0 from now on.
+
+## [1.4.0] - 2022-12-12
+* **Added** added upgrade compatibility to older nodes to support v2.0 TX validity for nodes supporting v3.0 transactions (planetmint-transactions >= 0.4.1)
+
 ## [1.3.2] - 2022-28-11
 * **Changed** new zenroom 2.3.1 support
 * **Changed** integrated new planetmint-cryptoconditions package (via the transactions package)

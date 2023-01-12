@@ -423,7 +423,7 @@ class Planetmint(object):
 
         # validate asset id
         asset_id = tx.get_asset_id(input_txs)
-        if asset_id != tx.assets[0]["id"]:
+        if asset_id != Transaction.read_out_asset_id(tx):
             raise AssetIdMismatch(("The asset id of the input does not" " match the asset id of the" " transaction"))
 
         # convert planetmint.Output objects to transactions.common.Output objects
