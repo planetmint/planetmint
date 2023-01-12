@@ -116,7 +116,7 @@ class Output:
     @staticmethod
     def from_dict(output_dict: dict, index: int, transaction_id: str) -> Output:
         return Output(
-            id="placeholder",
+            id=output_dict["id"] if "id" in output_dict else "placeholder",
             amount=int(output_dict["amount"]),
             public_keys=output_dict["public_keys"],
             condition=Condition.from_dict(output_dict["condition"]),

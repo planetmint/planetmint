@@ -90,6 +90,12 @@ function init()
             { field = 'assets[*].id', type = 'string', is_nullable = true }
         }
     })
+    governance:create_index('spending_governance_by_id_and_output_index', { 
+        if_not_exists = true,
+        parts = {
+            { field = 'inputs[*].fulfills["transaction_id"]', type = 'string', is_nullable = true },
+            { field = 'inputs[*].fulfills["output_index"]', type = 'unsigned', is_nullable = true }
+    }})
 
     -- Outputs
     outputs = box.schema.create_space('outputs', { if_not_exists = true })

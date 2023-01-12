@@ -42,7 +42,9 @@ register_query = module_dispatch_registrar(query)
 def get_complete_transactions_by_ids(connection, txids: list, table=TARANT_TABLE_TRANSACTION) -> list[DbTransaction]:
     _transactions = []
     for txid in txids:
-        tx = get_transaction_by_id(connection, txid, table)
+        tx = get_transaction_by_id(connection, txid, TARANT_TABLE_TRANSACTION)
+        if tx is None:
+            tx = get_transaction_by_id(connection, txid, TARANT_TABLE_GOVERNANCE)
         if tx is None:
             continue
         outputs = get_outputs_by_tx_id(connection, txid)
@@ -354,6 +356,7 @@ def delete_transactions(connection, txn_ids: list):
                 connection.connect().call("delete_output", (_outputs[x].id))
         for _id in txn_ids:
             connection.run(connection.space(TARANT_TABLE_TRANSACTION).delete(_id), only_data=False)
+            connection.run(connection.space(TARANT_TABLE_GOVERNANCE).delete(_id), only_data=False)
     except Exception as e:
         logger.info(f"Could not insert unspent output: {e}")
         raise OperationDataInsertionError()
@@ -446,9 +449,9 @@ def store_validator_set(conn, validators_update: dict):
 
 @register_query(TarantoolDBConnection)
 def delete_validator_set(connection, height: int):
-    _validators = connection.run(connection.space("validators").select(height, index="height_search"))
+    _validators = connection.run(connection.space("validator_sets").select(height, index="height"))
     for _valid in _validators:
-        connection.run(connection.space("validators").delete(_valid[0]), only_data=False)
+        connection.run(connection.space("validator_sets").delete(_valid[0]), only_data=False)
 
 
 @register_query(TarantoolDBConnection)
@@ -548,7 +551,9 @@ def store_abci_chain(connection, height: int, chain_id: str, is_synced: bool = T
 @register_query(TarantoolDBConnection)
 def delete_abci_chain(connection, height: int):
     hash_id_primarykey = sha256(json.dumps(obj={"height": height}).encode()).hexdigest()
-    connection.run(connection.space("abci_chains").delete(hash_id_primarykey), only_data=False)
+    # connection.run(connection.space("abci_chains").delete(hash_id_primarykey), only_data=False)
+    chains = connection.run(connection.space("abci_chains").select(height, index="height"), only_data=False)
+    connection.run(connection.space("abci_chains").delete(chains[0][0], index="id"), only_data=False)
 
 
 @register_query(TarantoolDBConnection)

@@ -22,6 +22,7 @@ from planetmint.lib import Block
 from planetmint.tendermint_utils import new_validator_set
 from planetmint.tendermint_utils import public_key_to_base64
 from planetmint.version import __tm_supported_versions__
+from planetmint.backend.tarantool.const import TARANT_TABLE_GOVERNANCE
 from tests.utils import generate_election, generate_validators
 
 pytestmark = pytest.mark.bdb
@@ -410,7 +411,7 @@ def test_rollback_pre_commit_state_after_crash(b):
     rollback(b)
 
     for tx in txs:
-        assert b.get_transaction(tx.id)
+        assert b.get_transaction(tx.id, TARANT_TABLE_GOVERNANCE)
     assert b.get_latest_abci_chain()
     assert len(b.get_validator_set()["validators"]) == 1
     assert b.get_election(migration_election.id)
@@ -421,7 +422,7 @@ def test_rollback_pre_commit_state_after_crash(b):
     rollback(b)
 
     for tx in txs:
-        assert not b.get_transaction(tx.id)
+        assert not b.get_transaction(tx.id, TARANT_TABLE_GOVERNANCE)
     assert not b.get_latest_abci_chain()
     assert len(b.get_validator_set()["validators"]) == 4
     assert len(b.get_validator_set(2)["validators"]) == 4

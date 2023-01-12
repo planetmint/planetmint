@@ -130,7 +130,7 @@ install_requires = [
     "planetmint-ipld>=0.0.3",
     "pyasn1>=0.4.8",
     "python-decouple",
-    "planetmint-transactions>=0.2.2",
+    # "planetmint-transactions>=0.2.2",
 ]
 
 setup(
