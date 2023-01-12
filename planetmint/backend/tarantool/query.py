@@ -113,9 +113,9 @@ def store_transaction_outputs(connection, output: Output, index: int) -> str:
 
 
 @register_query(TarantoolDBConnection)
-def store_transactions(connection, signed_transactions: list):
+def store_transactions(connection, signed_transactions: list, table = TARANT_TABLE_TRANSACTION):
     for transaction in signed_transactions:
-        store_transaction(connection, transaction)
+        store_transaction(connection, transaction, table)
         [
             store_transaction_outputs(connection, Output.outputs_dict(output, transaction["id"]), index)
             for index, output in enumerate(transaction[TARANT_TABLE_OUTPUT])
@@ -123,7 +123,7 @@ def store_transactions(connection, signed_transactions: list):
 
 
 @register_query(TarantoolDBConnection)
-def store_transaction(connection, transaction):
+def store_transaction(connection, transaction, table = TARANT_TABLE_TRANSACTION):
     scripts = None
     if TARANT_TABLE_SCRIPT in transaction:
         scripts = transaction[TARANT_TABLE_SCRIPT]
@@ -137,42 +137,9 @@ def store_transaction(connection, transaction):
         scripts,
     )
     try:
-        connection.run(connection.space(TARANT_TABLE_TRANSACTION).insert(tx), only_data=False)
+        connection.run(connection.space(table).insert(tx), only_data=False)
     except Exception as e:
         logger.info(f"Could not insert transactions: {e}")
-        if e.args[0] == 3 and e.args[1].startswith('Duplicate key exists in'):
-            raise CriticalDoubleSpend()
-        else:
-            raise OperationDataInsertionError()
-
-
-@register_query(TarantoolDBConnection)
-def store_governance_transactions(connection, signed_transactions: list):
-    for transaction in signed_transactions:
-        store_governance_transaction(connection, transaction)
-        [
-            store_transaction_outputs(connection, Output.outputs_dict(output, transaction["id"]), index)
-            for index, output in enumerate(transaction[TARANT_TABLE_OUTPUT])
-        ]
-
-
-@register_query(TarantoolDBConnection)
-def store_governance_transaction(connection, transaction):
-    scripts = None
-    if TARANT_TABLE_SCRIPT in transaction:
-        scripts = transaction[TARANT_TABLE_SCRIPT]
-    tx = (
-        transaction["id"],
-        transaction["operation"],
-        transaction["version"],
-        transaction["metadata"],
-        transaction["assets"],
-        transaction["inputs"],
-        scripts,
-    )
-    try:
-        connection.run(connection.space(TARANT_TABLE_GOVERNANCE).insert(tx), only_data=False)
-    except Exception as e:
         if e.args[0] == 3 and e.args[1].startswith('Duplicate key exists in'):
             raise CriticalDoubleSpend()
         else:

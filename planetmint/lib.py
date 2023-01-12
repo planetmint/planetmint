@@ -163,8 +163,8 @@ class Planetmint(object):
             else:
                 txns.append(transaction)
 
-        backend.query.store_transactions(self.connection, txns)
-        backend.query.store_governance_transactions(self.connection, gov_txns)
+        backend.query.store_transactions(self.connection, txns, TARANT_TABLE_TRANSACTION)
+        backend.query.store_transactions(self.connection, gov_txns, TARANT_TABLE_GOVERNANCE)
 
     def delete_transactions(self, txs):
         return backend.query.delete_transactions(self.connection, txs)

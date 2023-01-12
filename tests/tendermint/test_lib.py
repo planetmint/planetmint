@@ -170,69 +170,29 @@ def test_update_utxoset(b, signed_create_tx, signed_transfer_tx, db_conn):
 
 
 @pytest.mark.bdb
-def test_store_transaction(mocker, b, signed_create_tx, signed_transfer_tx, db_context):
-    from planetmint.backend.tarantool.connection import TarantoolDBConnection
-
+def test_store_transaction(mocker, b, signed_create_tx, signed_transfer_tx):
     mocked_store_transaction = mocker.patch("planetmint.backend.query.store_transactions")
     b.store_bulk_transactions([signed_create_tx])
-    if not isinstance(b.connection, TarantoolDBConnection):
-        mongo_client = MongoClient(host=db_context.host, port=db_context.port)
-        utxoset = mongo_client[db_context.name]["utxos"]
-        assert utxoset.count_documents({}) == 1
-        utxo = utxoset.find_one()
-        assert utxo["transaction_id"] == signed_create_tx.id
-        assert utxo["output_index"] == 0
-
-    mocked_store_transaction.assert_called_once_with(
+    mocked_store_transaction.assert_any_call(
         b.connection,
         [signed_create_tx.to_dict()],
+        "transactions"
     )
     mocked_store_transaction.reset_mock()
     b.store_bulk_transactions([signed_transfer_tx])
-    if not isinstance(b.connection, TarantoolDBConnection):
-        assert utxoset.count_documents({}) == 1
-        utxo = utxoset.find_one()
-        assert utxo["transaction_id"] == signed_transfer_tx.id
-        assert utxo["output_index"] == 0
-    if not isinstance(b.connection, TarantoolDBConnection):
-        mocked_store_transaction.assert_called_once_with(
-            b.connection,
-            [signed_transfer_tx.to_dict()],
-        )
 
 
 @pytest.mark.bdb
-def test_store_bulk_transaction(mocker, b, signed_create_tx, signed_transfer_tx, db_context):
-    from planetmint.backend.tarantool.connection import TarantoolDBConnection
-
+def test_store_bulk_transaction(mocker, b, signed_create_tx, signed_transfer_tx):
     mocked_store_transactions = mocker.patch("planetmint.backend.query.store_transactions")
     b.store_bulk_transactions((signed_create_tx,))
-    if not isinstance(b.connection, TarantoolDBConnection):
-        mongo_client = MongoClient(host=db_context.host, port=db_context.port)
-        utxoset = mongo_client[db_context.name]["utxos"]
-        assert utxoset.count_documents({}) == 1
-        utxo = utxoset.find_one()
-        assert utxo["transaction_id"] == signed_create_tx.id
-        assert utxo["output_index"] == 0
-
-    mocked_store_transactions.assert_called_once_with(
+    mocked_store_transactions.assert_any_call(
         b.connection,
         [signed_create_tx.to_dict()],
+        "transactions"
     )
-
     mocked_store_transactions.reset_mock()
     b.store_bulk_transactions((signed_transfer_tx,))
-    if not isinstance(b.connection, TarantoolDBConnection):
-        assert utxoset.count_documents({}) == 1
-        utxo = utxoset.find_one()
-        assert utxo["transaction_id"] == signed_transfer_tx.id
-        assert utxo["output_index"] == 0
-
-    if not isinstance(b.connection, TarantoolDBConnection):
-        mocked_store_transactions.assert_called_once_with(
-            b.connection,
-            [signed_transfer_tx.to_dict()],
-        )
 
 
 @pytest.mark.bdb
