@@ -9,7 +9,7 @@ from transactions.types.assets.create import Create
 from transactions.types.assets.transfer import Transfer
 
 
-def test_asset_transfer(b, signed_create_tx, user_pk, user_sk):
+def test_asset_transfer(b, signed_create_tx, user_pk, user_sk, _bdb):
     tx_transfer = Transfer.generate(signed_create_tx.to_inputs(), [([user_pk], 1)], [signed_create_tx.id])
     tx_transfer_signed = tx_transfer.sign([user_sk])
 
@@ -24,7 +24,7 @@ def test_asset_transfer(b, signed_create_tx, user_pk, user_sk):
 #     from planetmint.transactions.common.exceptions import AssetIdMismatch
 
 
-def test_validate_transfer_asset_id_mismatch(b, signed_create_tx, user_pk, user_sk):
+def test_validate_transfer_asset_id_mismatch(b, signed_create_tx, user_pk, user_sk,_bdb):
     from transactions.common.exceptions import AssetIdMismatch
 
     tx_transfer = Transfer.generate(signed_create_tx.to_inputs(), [([user_pk], 1)], [signed_create_tx.id])
@@ -69,22 +69,22 @@ def test_asset_id_mismatch(alice, user_pk):
         Transaction.get_asset_id([tx1, tx2])
 
 
-def test_create_valid_divisible_asset(b, user_pk, user_sk):
+def test_create_valid_divisible_asset(b, user_pk, user_sk, _bdb):
     tx = Create.generate([user_pk], [([user_pk], 2)])
     tx_signed = tx.sign([user_sk])
     assert b.validate_transaction(tx_signed) == tx_signed
 
 
-def test_v_2_0_validation_create(b, signed_2_0_create_tx):
+def test_v_2_0_validation_create(b, signed_2_0_create_tx, _bdb):
     validated = b.validate_transaction(signed_2_0_create_tx)
     assert validated.to_dict() == signed_2_0_create_tx
 
 
-def test_v_2_0_validation_create_invalid(b, signed_2_0_create_tx_assets):
+def test_v_2_0_validation_create_invalid(b, signed_2_0_create_tx_assets, _bdb):
     assert b.validate_transaction(signed_2_0_create_tx_assets)
 
 
-def test_v_2_0_validation_transfer(b, signed_2_0_create_tx, signed_2_0_transfer_tx):
+def test_v_2_0_validation_transfer(b, signed_2_0_create_tx, signed_2_0_transfer_tx, _bdb):
     validated = b.validate_transaction(signed_2_0_create_tx)
     b.store_bulk_transactions([validated])
     assert validated.to_dict() == signed_2_0_create_tx

@@ -36,6 +36,7 @@ from planetmint.backend.tarantool.const import (
 from planetmint.backend.utils import module_dispatch_registrar
 from planetmint.backend.models import Asset, Block, Output
 from planetmint.backend.tarantool.connection import TarantoolDBConnection
+from transactions.common.transaction import Transaction
 
 
 logger = logging.getLogger(__name__)
@@ -127,12 +128,13 @@ def store_transaction(connection, transaction, table = TARANT_TABLE_TRANSACTION)
     scripts = None
     if TARANT_TABLE_SCRIPT in transaction:
         scripts = transaction[TARANT_TABLE_SCRIPT]
+    asset_obj = Transaction.get_assets_tag(transaction["version"])
     tx = (
         transaction["id"],
         transaction["operation"],
         transaction["version"],
         transaction["metadata"],
-        transaction["assets"],
+        transaction[asset_obj],
         transaction["inputs"],
         scripts,
     )
@@ -148,7 +150,7 @@ def store_transaction(connection, transaction, table = TARANT_TABLE_TRANSACTION)
 
 @register_query(TarantoolDBConnection)
 def get_transaction_by_id(connection, transaction_id, table=TARANT_TABLE_TRANSACTION):
-    txs = connection.run(connection.space(table).select(transaction_id, index=TARANT_ID_SEARCH))
+    txs = connection.run(connection.space(table).select(transaction_id, index=TARANT_ID_SEARCH), only_data=False)
     if len(txs) == 0:
         return None
     return DbTransaction.from_tuple(txs[0])
