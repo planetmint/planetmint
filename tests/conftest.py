@@ -27,7 +27,6 @@ from transactions.common.transaction_mode_types import BROADCAST_TX_COMMIT
 from planetmint.tendermint_utils import key_from_base64
 from planetmint.backend import schema, query
 from transactions.common.crypto import key_pair_from_ed25519_key, public_key_from_ed25519_key
-from transactions.common.exceptions import DatabaseDoesNotExist
 from planetmint.lib import Block
 from tests.utils import gen_vote
 from planetmint.config import Config
@@ -120,21 +119,20 @@ def _setup_database(_configure_planetmint):  # TODO Here is located setup databa
     dbname = Config().get()["database"]["name"]
     conn = Connection()
 
-    _drop_db(conn, dbname)
+    schema.drop_database(conn, dbname)
     schema.init_database(conn, dbname)
     print("Finishing init database")
 
     yield
 
     print("Deleting `{}` database".format(dbname))
-    conn = Connection()
-    _drop_db(conn, dbname)
+    schema.drop_database(conn, dbname)
 
     print("Finished deleting `{}`".format(dbname))
 
 
 @pytest.fixture
-def _bdb(_setup_database, _configure_planetmint):
+def _bdb(_setup_database):
     from transactions.common.memoize import to_dict, from_dict
     from transactions.common.transaction import Transaction
     from .utils import flush_db
@@ -339,32 +337,6 @@ def inputs(user_pk, b, alice):
         b.store_bulk_transactions(transactions)
 
 
-# @pytest.fixture
-# def dummy_db(request):
-#     from planetmint.backend import Connection
-#
-#     conn = Connection()
-#     dbname = request.fixturename
-#     xdist_suffix = getattr(request.config, 'slaveinput', {}).get('slaveid')
-#     if xdist_suffix:
-#         dbname = '{}_{}'.format(dbname, xdist_suffix)
-#
-#
-#     _drop_db(conn, dbname)  # make sure we start with a clean DB
-#     schema.init_database(conn, dbname)
-#     yield dbname
-#
-#     _drop_db(conn, dbname)
-
-
-def _drop_db(conn, dbname):
-    print(f"CONNECTION FOR DROPPING {conn}")
-    try:
-        schema.drop_database(conn, dbname)
-    except DatabaseDoesNotExist:
-        pass
-
-
 @pytest.fixture
 def db_config():
     return Config().get()["database"]
@@ -538,13 +510,6 @@ def tarantool_client(db_context):  # TODO Here add TarantoolConnectionClass
     return TarantoolDBConnection(host=db_context.host, port=db_context.port)
 
 
-# @pytest.fixture
-# def mongo_client(db_context):  # TODO Here add TarantoolConnectionClass
-#    return None  # MongoClient(host=db_context.host, port=db_context.port)
-#
-#
-
-
 @pytest.fixture
 def utxo_collection(tarantool_client, _setup_database):
     return tarantool_client.get_space("utxos")
@@ -561,11 +526,11 @@ def dummy_unspent_outputs():
 
 @pytest.fixture
 def utxoset(dummy_unspent_outputs, utxo_collection):
-    from json import dumps
+    from uuid import uuid4
 
     num_rows_before_operation = utxo_collection.select().rowcount
     for utxo in dummy_unspent_outputs:
-        res = utxo_collection.insert((utxo["transaction_id"], utxo["output_index"], dumps(utxo)))
+        res = utxo_collection.insert((uuid4().hex, utxo["transaction_id"], utxo["output_index"], utxo))
         assert res
     num_rows_after_operation = utxo_collection.select().rowcount
     assert num_rows_after_operation == num_rows_before_operation + 3

@@ -3,8 +3,6 @@
 # SPDX-License-Identifier: (Apache-2.0 AND CC-BY-4.0)
 # Code is Apache-2.0 and docs are CC-BY-4.0
 
-from planetmint.backend.tarantool.connection import TarantoolDBConnection
-
 
 def _check_spaces_by_list(conn, space_names):
     _exists = []
@@ -25,5 +23,6 @@ def test_create_tables(db_conn):
 
 def test_drop(db_conn):  # remove dummy_db as argument
     db_conn.drop_database()
+    db_conn.close()
     actual_spaces = _check_spaces_by_list(conn=db_conn, space_names=db_conn.SPACE_NAMES)
     assert [] == actual_spaces

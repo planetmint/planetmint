@@ -13,6 +13,7 @@ import setproctitle
 from packaging import version
 from planetmint.version import __tm_supported_versions__
 from planetmint.tendermint_utils import key_from_base64
+from planetmint.backend.models.output import ConditionDetails
 from transactions.common.crypto import key_pair_from_ed25519_key
 
 
@@ -120,18 +121,17 @@ def condition_details_has_owner(condition_details, owner):
         bool: True if the public key is found in the condition details, False otherwise
 
     """
-    if "subconditions" in condition_details:
-        result = condition_details_has_owner(condition_details["subconditions"], owner)
+    if isinstance(condition_details, ConditionDetails) and condition_details.sub_conditions is not None:
+        result = condition_details_has_owner(condition_details.sub_conditions, owner)
         if result:
             return True
-
     elif isinstance(condition_details, list):
         for subcondition in condition_details:
             result = condition_details_has_owner(subcondition, owner)
             if result:
                 return True
     else:
-        if "public_key" in condition_details and owner == condition_details["public_key"]:
+        if condition_details.public_key is not None and owner == condition_details.public_key:
             return True
     return False
 

@@ -22,6 +22,7 @@ from planetmint.lib import Block
 from planetmint.tendermint_utils import new_validator_set
 from planetmint.tendermint_utils import public_key_to_base64
 from planetmint.version import __tm_supported_versions__
+from planetmint.backend.tarantool.const import TARANT_TABLE_GOVERNANCE
 from tests.utils import generate_election, generate_validators
 
 pytestmark = pytest.mark.bdb

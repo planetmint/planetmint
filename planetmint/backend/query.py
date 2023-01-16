@@ -6,12 +6,16 @@
 """Query interfaces for backends."""
 
 from functools import singledispatch
+
+from planetmint.backend.models import Asset, MetaData, Output, Input, Script
+
 from planetmint.backend.exceptions import OperationError
+from planetmint.backend.interfaces import Block
+from planetmint.backend.models.dbtransaction import DbTransaction
 
 
-# FIXME ADD HERE HINT FOR RETURNING TYPE
 @singledispatch
-def store_asset(asset: dict, connection):
+def store_asset(connection, asset: dict) -> Asset:
     """Write an asset to the asset table.
 
     Args:
@@ -25,7 +29,7 @@ def store_asset(asset: dict, connection):
 
 
 @singledispatch
-def store_assets(assets: list, connection):
+def store_assets(connection, assets: list) -> list[Asset]:
     """Write a list of assets to the assets table.
 
     Args:
@@ -39,7 +43,7 @@ def store_assets(assets: list, connection):
 
 
 @singledispatch
-def store_metadatas(connection, metadata):
+def store_metadatas(connection, metadata) -> MetaData:
     """Write a list of metadata to metadata table.
 
     Args:
@@ -60,7 +64,49 @@ def store_transactions(connection, signed_transactions):
 
 
 @singledispatch
+def store_transaction(connection, transaction):
+    """Store a single transaction."""
+
+    raise NotImplementedError
+
+
+@singledispatch
+def get_transaction_by_id(connection, transaction_id):
+    """Get the transaction by transaction id."""
+
+    raise NotImplementedError
+
+
+@singledispatch
+def get_transaction_single(connection, transaction_id) -> DbTransaction:
+    """Get a single transaction by id."""
+
+    raise NotImplementedError
+
+
+@singledispatch
 def get_transaction(connection, transaction_id):
+    """Get a transaction by id."""
+
+    raise NotImplementedError
+
+
+@singledispatch
+def get_transactions_by_asset(connection, asset):
+    """Get a transaction by id."""
+
+    raise NotImplementedError
+
+
+@singledispatch
+def get_transactions_by_metadata(connection, metadata: str, limit: int = 1000) -> list[DbTransaction]:
+    """Get a transaction by its metadata cid."""
+
+    raise NotImplementedError
+
+
+@singledispatch
+def get_transactions(connection, transactions_ids) -> list[DbTransaction]:
     """Get a transaction from the transactions table.
 
     Args:
@@ -74,21 +120,7 @@ def get_transaction(connection, transaction_id):
 
 
 @singledispatch
-def get_transactions(connection, transaction_ids):
-    """Get transactions from the transactions table.
-
-    Args:
-        transaction_ids (list): list of transaction ids to fetch
-
-    Returns:
-        The result of the operation.
-    """
-
-    raise NotImplementedError
-
-
-@singledispatch
-def get_asset(connection, asset_id):
+def get_asset(connection, asset_id) -> Asset:
     """Get an asset from the assets table.
 
     Args:
@@ -149,7 +181,7 @@ def get_owned_ids(connection, owner):
 
 
 @singledispatch
-def get_block(connection, block_id):
+def get_block(connection, block_id) -> Block:
     """Get a block from the planet table.
 
     Args:
@@ -177,21 +209,18 @@ def get_block_with_transaction(connection, txid):
 
 
 @singledispatch
-def get_metadata(connection, transaction_ids):
-    """Get a list of metadata from the metadata table.
+def store_transaction_outputs(connection, output: Output, index: int):
+    """Store the transaction outputs.
 
     Args:
-        transaction_ids (list): a list of ids for the metadata to be retrieved from
-        the database.
-
-    Returns:
-        metadata (list): the list of returned metadata.
+        output (Output): the output to store.
+        index (int): the index of the output in the transaction.
     """
     raise NotImplementedError
 
 
 @singledispatch
-def get_assets(connection, asset_ids) -> list:
+def get_assets(connection, asset_ids) -> list[Asset]:
     """Get a list of assets from the assets table.
 
     Args:
@@ -439,6 +468,36 @@ def get_latest_abci_chain(conn):
 
 
 @singledispatch
-def _group_transaction_by_ids(txids: list, connection):
+def get_inputs_by_tx_id(connection, tx_id) -> list[Input]:
+    """Retrieve inputs for a transaction by its id"""
+    raise NotImplementedError
+
+
+@singledispatch
+def store_transaction_inputs(connection, inputs: list[Input]):
+    """Store inputs for a transaction"""
+    raise NotImplementedError
+
+
+@singledispatch
+def get_complete_transactions_by_ids(txids: list, connection):
     """Returns the transactions object (JSON TYPE), from list of ids."""
+    raise NotImplementedError
+
+
+@singledispatch
+def get_script_by_tx_id(connection, tx_id: str) -> Script:
+    """Retrieve script for a transaction by its id"""
+    raise NotImplementedError
+
+
+@singledispatch
+def get_outputs_by_tx_id(connection, tx_id: str) -> list[Output]:
+    """Retrieve outputs for a transaction by its id"""
+    raise NotImplementedError
+
+
+@singledispatch
+def get_metadata(conn, transaction_ids):
+    """Retrieve metadata for a list of transactions by their ids"""
     raise NotImplementedError

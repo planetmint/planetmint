@@ -25,6 +25,11 @@ For reference, the possible headings are:
 * **Known Issues**
 * **Notes**
 
+## [2.0.0] - 2023-12-01
+* **Changed** changed tarantool db schema
+* **Removed** removed text_search routes
+* **Added** metadata / asset cid route for fetching transactions
+
 ## [1.4.1] - 2022-21-12
 * **fixed** inconsistent cryptocondition keyring tag handling. Using cryptoconditions > 1.1.0 from now on.
 

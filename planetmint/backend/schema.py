@@ -9,7 +9,6 @@ import logging
 
 from functools import singledispatch
 from planetmint.config import Config
-from planetmint.backend.connection import Connection
 from transactions.common.exceptions import ValidationError
 from transactions.common.utils import (
     validate_all_values_for_key_in_obj,
@@ -119,7 +118,8 @@ def drop_database(connection, dbname):
     raise NotImplementedError
 
 
-def init_database(connection=None, dbname=None):
+@singledispatch
+def init_database(connection, dbname):
     """Initialize the configured backend for use with Planetmint.
 
     Creates a database with :attr:`dbname` with any required tables
@@ -134,11 +134,7 @@ def init_database(connection=None, dbname=None):
             configuration.
     """
 
-    connection = connection or Connection()
-    dbname = dbname or Config().get()["database"]["name"]
-
-    create_database(connection, dbname)
-    create_tables(connection, dbname)
+    raise NotImplementedError
 
 
 def validate_language_key(obj, key):

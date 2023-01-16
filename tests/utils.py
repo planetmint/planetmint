@@ -10,7 +10,7 @@ import random
 from functools import singledispatch
 from planetmint.backend.localmongodb.connection import LocalMongoDBConnection
 from planetmint.backend.tarantool.connection import TarantoolDBConnection
-from planetmint.backend.schema import TABLES, SPACE_NAMES
+from planetmint.backend.schema import TABLES
 from transactions.common import crypto
 from transactions.common.transaction_mode_types import BROADCAST_TX_COMMIT
 from transactions.types.assets.create import Create
@@ -32,32 +32,17 @@ def flush_localmongo_db(connection, dbname):
 
 @flush_db.register(TarantoolDBConnection)
 def flush_tarantool_db(connection, dbname):
-    for s in SPACE_NAMES:
-        _all_data = connection.run(connection.space(s).select([]))
-        if _all_data is None:
-            continue
-        for _id in _all_data:
-            if "assets" == s:
-                connection.run(connection.space(s).delete(_id[1]), only_data=False)
-            elif s == "blocks":
-                connection.run(connection.space(s).delete(_id[2]), only_data=False)
-            elif s == "inputs":
-                connection.run(connection.space(s).delete(_id[-2]), only_data=False)
-            elif s == "outputs":
-                connection.run(connection.space(s).delete(_id[-4]), only_data=False)
-            elif s == "utxos":
-                connection.run(connection.space(s).delete([_id[0], _id[1]]), only_data=False)
-            elif s == "abci_chains":
-                connection.run(connection.space(s).delete(_id[-1]), only_data=False)
-            else:
-                connection.run(connection.space(s).delete(_id[0]), only_data=False)
+    connection.connect().call("drop")
+    connection.connect().call("init")
 
 
 def generate_block(planet):
     from transactions.common.crypto import generate_key_pair
 
     alice = generate_key_pair()
-    tx = Create.generate([alice.public_key], [([alice.public_key], 1)], assets=None).sign([alice.private_key])
+    tx = Create.generate([alice.public_key], [([alice.public_key], 1)], assets=[{"data": None}]).sign(
+        [alice.private_key]
+    )
 
     code, message = planet.write_transaction(tx, BROADCAST_TX_COMMIT)
     assert code == 202

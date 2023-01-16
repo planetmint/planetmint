@@ -12,6 +12,9 @@ import pytest
 # from unittest.mock import patch
 from transactions.types.assets.create import Create
 from transactions.types.assets.transfer import Transfer
+from transactions.common import crypto
+from planetmint import events
+from planetmint.web.websocket_server import init_app, EVENTS_ENDPOINT, EVENTS_ENDPOINT_BLOCKS
 from ipld import multihash, marshal
 
 
@@ -135,9 +138,6 @@ async def test_bridge_sync_async_queue(event_loop):
 
 @pytest.mark.asyncio
 async def test_websocket_block_event(aiohttp_client, event_loop):
-    from planetmint import events
-    from planetmint.web.websocket_server import init_app, EVENTS_ENDPOINT_BLOCKS
-    from transactions.common import crypto
 
     user_priv, user_pub = crypto.generate_key_pair()
     tx = Create.generate([user_pub], [([user_pub], 1)])
@@ -169,9 +169,6 @@ async def test_websocket_block_event(aiohttp_client, event_loop):
 
 @pytest.mark.asyncio
 async def test_websocket_transaction_event(aiohttp_client, event_loop):
-    from planetmint import events
-    from planetmint.web.websocket_server import init_app, EVENTS_ENDPOINT
-    from transactions.common import crypto
 
     user_priv, user_pub = crypto.generate_key_pair()
     tx = Create.generate([user_pub], [([user_pub], 1)])
@@ -239,8 +236,6 @@ def test_integration_from_webapi_to_websocket(monkeypatch, client, loop):
     import json
     import random
     import aiohttp
-
-    from transactions.common import crypto
 
     # TODO processes does not exist anymore, when reactivating this test it
     # will fail because of this

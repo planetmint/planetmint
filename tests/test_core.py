@@ -8,9 +8,6 @@ import pytest
 from planetmint.version import __tm_supported_versions__
 from transactions.types.assets.create import Create
 from transactions.types.assets.transfer import Transfer
-from transactions.common.exceptions import ConfigurationError
-from planetmint.backend.connection import Connection
-from planetmint.backend.exceptions import ConnectionError
 
 
 @pytest.fixture
@@ -22,7 +19,7 @@ def config(request, monkeypatch):
     config = {
         "database": {
             "backend": backend,
-            "host": "tarantool",
+            "host": "localhost",
             "port": 3303,
             "name": "bigchain",
             "replicaset": "bigchain-rs",
@@ -53,7 +50,6 @@ def test_bigchain_class_default_initialization(config):
 
 @pytest.mark.bdb
 def test_get_spent_issue_1271(b, alice, bob, carol):
-    b.connection.close()
     tx_1 = Create.generate(
         [carol.public_key],
         [([carol.public_key], 8)],
@@ -93,7 +89,7 @@ def test_get_spent_issue_1271(b, alice, bob, carol):
     assert b.validate_transaction(tx_5)
 
     b.store_bulk_transactions([tx_5])
-    assert b.get_spent(tx_2.id, 0) == tx_5
+    assert b.get_spent(tx_2.id, 0) == tx_5.to_dict()
     assert not b.get_spent(tx_5.id, 0)
     assert b.get_outputs_filtered(alice.public_key)
     assert b.get_outputs_filtered(alice.public_key, spent=False)

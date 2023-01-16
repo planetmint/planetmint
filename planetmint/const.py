@@ -3,8 +3,8 @@
 # SPDX-License-Identifier: (Apache-2.0 AND CC-BY-4.0)
 # Code is Apache-2.0 and docs are CC-BY-4.0
 
-__version__ = "2.0.0"
-__short_version__ = "2.0"
+CHAIN_MIGRATION_ELECTION = "CHAIN_MIGRATION_ELECTION"
+VALIDATOR_ELECTION = "VALIDATOR_ELECTION"
+VOTE = "VOTE"
 
-# Supported Tendermint versions
-__tm_supported_versions__ = ["0.34.15"]
+GOVERNANCE_TRANSACTION_TYPES = [CHAIN_MIGRATION_ELECTION, VALIDATOR_ELECTION, VOTE]

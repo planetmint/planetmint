@@ -7,6 +7,8 @@ import pytest
 import codecs
 
 from planetmint.tendermint_utils import public_key_to_base64
+from planetmint.backend.tarantool.const import TARANT_TABLE_GOVERNANCE
+
 from transactions.types.elections.validator_election import ValidatorElection
 from transactions.common.exceptions import AmountError
 from transactions.common.crypto import generate_key_pair
@@ -206,7 +208,7 @@ def test_valid_election_conclude(b_mock, valid_upsert_validator_election, ed2551
     # so any invocation of `.has_concluded` for that election should return False
     assert not b_mock.has_election_concluded(valid_upsert_validator_election)
 
-    # Vote is still valid but the election cannot be.has_concludedd as it it assmed that it has
+    # Vote is still valid but the election cannot be.has_concluded as it it assumed that it has
     # been.has_concludedd before
     assert b_mock.validate_transaction(tx_vote3)
     assert not b_mock.has_election_concluded(valid_upsert_validator_election, [tx_vote3])

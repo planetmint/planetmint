@@ -59,8 +59,8 @@ def test_get_block_containing_transaction(b, client, alice):
     block = Block(app_hash="random_utxo", height=13, transactions=[tx.id])
     b.store_block(block._asdict())
     res = client.get("{}?transaction_id={}".format(BLOCKS_ENDPOINT, tx.id))
-    expected_response = [block.height]
-    assert res.json == expected_response
+    expected_height = block.height
+    assert res.json[0][2] == expected_height
     assert res.status_code == 200
 
 

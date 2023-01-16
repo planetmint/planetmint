@@ -8,17 +8,13 @@ MongoDB.
 
 """
 import logging
-from collections import namedtuple
-from uuid import uuid4
 from planetmint.backend.connection import Connection
 
-import rapidjson
-from hashlib import sha3_256
 import json
 import rapidjson
 import requests
-import planetmint
 
+from itertools import chain
 from collections import namedtuple, OrderedDict
 from uuid import uuid4
 from hashlib import sha3_256
@@ -39,9 +35,20 @@ from transactions.common.exceptions import (
     InvalidPowerChange,
 )
 from transactions.common.transaction import VALIDATOR_ELECTION, CHAIN_MIGRATION_ELECTION
-from transactions.common.transaction_mode_types import BROADCAST_TX_COMMIT, BROADCAST_TX_ASYNC, BROADCAST_TX_SYNC
+from transactions.common.transaction_mode_types import (
+    BROADCAST_TX_COMMIT,
+    BROADCAST_TX_ASYNC,
+    BROADCAST_TX_SYNC,
+)
+from transactions.common.output import Output as TransactionOutput
 from transactions.types.elections.election import Election
 from transactions.types.elections.validator_utils import election_id_to_public_key
+
+from planetmint.backend.models import Output, DbTransaction
+from planetmint.backend.tarantool.const import (
+    TARANT_TABLE_GOVERNANCE,
+    TARANT_TABLE_TRANSACTION,
+)
 from planetmint.config import Config
 from planetmint import backend, config_utils, fastquery
 from planetmint.tendermint_utils import (
@@ -54,6 +61,8 @@ from planetmint.tendermint_utils import (
 )
 from planetmint import exceptions as core_exceptions
 from planetmint.validation import BaseValidationRules
+from planetmint.backend.interfaces import Asset, MetaData
+from planetmint.const import GOVERNANCE_TRANSACTION_TYPES
 
 logger = logging.getLogger(__name__)
 
@@ -101,7 +110,12 @@ class Planetmint(object):
             raise ValidationError("Mode must be one of the following {}.".format(", ".join(self.mode_list)))
 
         tx_dict = transaction.tx_dict if transaction.tx_dict else transaction.to_dict()
-        payload = {"method": mode, "jsonrpc": "2.0", "params": [encode_transaction(tx_dict)], "id": str(uuid4())}
+        payload = {
+            "method": mode,
+            "jsonrpc": "2.0",
+            "params": [encode_transaction(tx_dict)],
+            "id": str(uuid4()),
+        }
         # TODO: handle connection errors!
         return requests.post(self.endpoint, json=payload)
 
@@ -140,36 +154,17 @@ class Planetmint(object):
 
     def store_bulk_transactions(self, transactions):
         txns = []
-        assets = []
-        txn_metadatas = []
+        gov_txns = []
 
-        for tx in transactions:
-            transaction = tx.tx_dict if tx.tx_dict else rapidjson.loads(rapidjson.dumps(tx.to_dict()))
+        for t in transactions:
+            transaction = t.tx_dict if t.tx_dict else rapidjson.loads(rapidjson.dumps(t.to_dict()))
+            if transaction["operation"] in GOVERNANCE_TRANSACTION_TYPES:
+                gov_txns.append(transaction)
+            else:
+                txns.append(transaction)
 
-            tx_assets = transaction.pop(Transaction.get_assets_tag(tx.version))
-            metadata = transaction.pop("metadata")
-
-            tx_assets = backend.convert.prepare_asset(
-                self.connection,
-                tx,
-                filter_operation=[
-                    Transaction.CREATE,
-                    Transaction.VALIDATOR_ELECTION,
-                    Transaction.CHAIN_MIGRATION_ELECTION,
-                ],
-                assets=tx_assets,
-            )
-
-            metadata = backend.convert.prepare_metadata(self.connection, tx, metadata=metadata)
-
-            txn_metadatas.append(metadata)
-            assets.append(tx_assets)
-            txns.append(transaction)
-
-        backend.query.store_metadatas(self.connection, txn_metadatas)
-        if assets:
-            backend.query.store_assets(self.connection, assets)
-        return backend.query.store_transactions(self.connection, txns)
+        backend.query.store_transactions(self.connection, txns, TARANT_TABLE_TRANSACTION)
+        backend.query.store_transactions(self.connection, gov_txns, TARANT_TABLE_GOVERNANCE)
 
     def delete_transactions(self, txs):
         return backend.query.delete_transactions(self.connection, txs)
@@ -251,38 +246,23 @@ class Planetmint(object):
             return backend.query.delete_unspent_outputs(self.connection, *unspent_outputs)
 
     def is_committed(self, transaction_id):
-        transaction = backend.query.get_transaction(self.connection, transaction_id)
+        transaction = backend.query.get_transaction_single(self.connection, transaction_id)
         return bool(transaction)
 
     def get_transaction(self, transaction_id):
-        transaction = backend.query.get_transaction(self.connection, transaction_id)
-        if transaction:
-            assets = backend.query.get_assets(self.connection, [transaction_id])
-            metadata = backend.query.get_metadata(self.connection, [transaction_id])
-            # NOTE: assets must not be replaced for transfer transactions
-            # NOTE: assets should be appended for all txs that define new assets otherwise the ids are already stored in tx
-            if transaction["operation"] != "TRANSFER" and transaction["operation"] != "VOTE" and assets:
-                transaction["assets"] = assets[0][0]
-
-            if "metadata" not in transaction:
-                metadata = metadata[0] if metadata else None
-                if metadata:
-                    metadata = metadata.get("metadata")
-
-                transaction.update({"metadata": metadata})
-
-            transaction = Transaction.from_dict(transaction, False)
-
-        return transaction
+        return backend.query.get_transaction_single(self.connection, transaction_id)
 
     def get_transactions(self, txn_ids):
         return backend.query.get_transactions(self.connection, txn_ids)
 
-    def get_transactions_filtered(self, asset_ids, operation=None, last_tx=None):
+    def get_transactions_filtered(self, asset_ids, operation=None, last_tx=False):
         """Get a list of transactions filtered on some criteria"""
         txids = backend.query.get_txids_filtered(self.connection, asset_ids, operation, last_tx)
         for txid in txids:
             yield self.get_transaction(txid)
+
+    def get_outputs_by_tx_id(self, txid):
+        return backend.query.get_outputs_by_tx_id(self.connection, txid)
 
     def get_outputs_filtered(self, owner, spent=None):
         """Get a list of output links filtered on some criteria
@@ -307,11 +287,6 @@ class Planetmint(object):
 
     def get_spent(self, txid, output, current_transactions=[]):
         transactions = backend.query.get_spent(self.connection, txid, output)
-        transactions = list(transactions) if transactions else []
-        if len(transactions) > 1:
-            raise core_exceptions.CriticalDoubleSpend(
-                "`{}` was spent more than once. There is a problem" " with the chain".format(txid)
-            )
 
         current_spent_transactions = []
         for ctxn in current_transactions:
@@ -323,8 +298,9 @@ class Planetmint(object):
         if len(transactions) + len(current_spent_transactions) > 1:
             raise DoubleSpend('tx "{}" spends inputs twice'.format(txid))
         elif transactions:
-            transaction = backend.query.get_transaction(self.connection, transactions[0]["id"])
-            transaction = Transaction.from_dict(transaction, False)
+            tx_id = transactions[0].id
+            tx = backend.query.get_transaction_single(self.connection, tx_id)
+            transaction = tx.to_dict()
         elif current_spent_transactions:
             transaction = current_spent_transactions[0]
 
@@ -361,7 +337,7 @@ class Planetmint(object):
 
         if block:
             transactions = backend.query.get_transactions(self.connection, block["transactions"])
-            result["transactions"] = [t.to_dict() for t in self.tx_from_db(transactions)]
+            result["transactions"] = [Transaction.from_dict(t.to_dict()).to_dict() for t in transactions]
 
         return result
 
@@ -379,19 +355,17 @@ class Planetmint(object):
         if len(blocks) > 1:
             logger.critical("Transaction id %s exists in multiple blocks", txid)
 
-        return [block["height"] for block in blocks]
+        return blocks
 
-    def validate_transaction(self, tx, current_transactions=[]):
+    def validate_transaction(self, transaction, current_transactions=[]):
         """Validate a transaction against the current status of the database."""
-
-        transaction = tx
 
         # CLEANUP: The conditional below checks for transaction in dict format.
         # It would be better to only have a single format for the transaction
         # throught the code base.
         if isinstance(transaction, dict):
             try:
-                transaction = Transaction.from_dict(tx, False)
+                transaction = Transaction.from_dict(transaction, False)
             except SchemaValidationError as e:
                 logger.warning("Invalid transaction schema: %s", e.__cause__.message)
                 return False
@@ -412,13 +386,20 @@ class Planetmint(object):
         # store the inputs so that we can check if the asset ids match
         input_txs = []
         input_conditions = []
+
         for input_ in tx.inputs:
             input_txid = input_.fulfills.txid
             input_tx = self.get_transaction(input_txid)
+            _output = self.get_outputs_by_tx_id(input_txid)
             if input_tx is None:
                 for ctxn in current_transactions:
                     if ctxn.id == input_txid:
-                        input_tx = ctxn
+                        ctxn_dict = ctxn.to_dict()
+                        input_tx = DbTransaction.from_dict(ctxn_dict)
+                        _output = [
+                            Output.from_dict(output, index, ctxn.id)
+                            for index, output in enumerate(ctxn_dict["outputs"])
+                        ]
 
             if input_tx is None:
                 raise InputDoesNotExist("input `{}` doesn't exist".format(input_txid))
@@ -427,9 +408,13 @@ class Planetmint(object):
             if spent:
                 raise DoubleSpend("input `{}` was already spent".format(input_txid))
 
-            output = input_tx.outputs[input_.fulfills.output]
+            output = _output[input_.fulfills.output]
             input_conditions.append(output)
-            input_txs.append(input_tx)
+            tx_dict = input_tx.to_dict()
+            tx_dict["outputs"] = Output.list_to_dict(_output)
+            tx_dict = DbTransaction.remove_generated_fields(tx_dict)
+            pm_transaction = Transaction.from_dict(tx_dict, False)
+            input_txs.append(pm_transaction)
 
         # Validate that all inputs are distinct
         links = [i.fulfills.to_uri() for i in tx.inputs]
@@ -441,7 +426,13 @@ class Planetmint(object):
         if asset_id != Transaction.read_out_asset_id(tx):
             raise AssetIdMismatch(("The asset id of the input does not" " match the asset id of the" " transaction"))
 
-        if not tx.inputs_valid(input_conditions):
+        # convert planetmint.Output objects to transactions.common.Output objects
+        input_conditions_dict = Output.list_to_dict(input_conditions)
+        input_conditions_converted = []
+        for input_cond in input_conditions_dict:
+            input_conditions_converted.append(TransactionOutput.from_dict(input_cond))
+
+        if not tx.inputs_valid(input_conditions_converted):
             raise InvalidSignature("Transaction signature is invalid.")
 
         input_amount = sum([input_condition.amount for input_condition in input_conditions])
@@ -477,7 +468,7 @@ class Planetmint(object):
         """
         return backend.query.text_search(self.connection, search, limit=limit, table=table)
 
-    def get_assets(self, asset_ids):
+    def get_assets(self, asset_ids) -> list[Asset]:
         """Return a list of assets that match the asset_ids
 
         Args:
@@ -489,7 +480,12 @@ class Planetmint(object):
         """
         return backend.query.get_assets(self.connection, asset_ids)
 
-    def get_metadata(self, txn_ids):
+    def get_assets_by_cid(self, asset_cid, **kwargs) -> list[dict]:
+        asset_txs = backend.query.get_transactions_by_asset(self.connection, asset_cid, **kwargs)
+        # flatten and return all found assets
+        return list(chain.from_iterable([Asset.list_to_dict(tx.assets) for tx in asset_txs]))
+
+    def get_metadata(self, txn_ids) -> list[MetaData]:
         """Return a list of metadata that match the transaction ids (txn_ids)
 
         Args:
@@ -500,6 +496,10 @@ class Planetmint(object):
             list: The list of metadata returned from the database.
         """
         return backend.query.get_metadata(self.connection, txn_ids)
+
+    def get_metadata_by_cid(self, metadata_cid, **kwargs) -> list[str]:
+        metadata_txs = backend.query.get_transactions_by_metadata(self.connection, metadata_cid, **kwargs)
+        return [tx.metadata.metadata for tx in metadata_txs]
 
     @property
     def fastquery(self):
@@ -572,54 +572,6 @@ class Planetmint(object):
 
     def delete_elections(self, height):
         return backend.query.delete_elections(self.connection, height)
-
-    def tx_from_db(self, tx_dict_list):
-        """Helper method that reconstructs a transaction dict that was returned
-        from the database. It checks what asset_id to retrieve, retrieves the
-        asset from the asset table and reconstructs the transaction.
-
-        Args:
-            tx_dict_list (:obj:`list` of :dict: or :obj:`dict`): The transaction dict or
-                list of transaction dict as returned from the database.
-
-        Returns:
-            :class:`~Transaction`
-
-        """
-        return_list = True
-        if isinstance(tx_dict_list, dict):
-            tx_dict_list = [tx_dict_list]
-            return_list = False
-
-        tx_map = {}
-        tx_ids = []
-        for tx in tx_dict_list:
-            tx.update({"metadata": None})
-            tx_map[tx["id"]] = tx
-            tx_ids.append(tx["id"])
-
-        assets = list(self.get_assets(tx_ids))
-        for asset in assets:
-            if asset is not None:
-                # This is tarantool specific behaviour needs to be addressed
-                tx = tx_map[asset[1]]
-                tx["asset"] = asset[0]
-
-        tx_ids = list(tx_map.keys())
-        metadata_list = list(self.get_metadata(tx_ids))
-        for metadata in metadata_list:
-            if "id" in metadata:
-                tx = tx_map[metadata["id"]]
-                tx.update({"metadata": metadata.get("metadata")})
-
-        if return_list:
-            tx_list = []
-            for tx_id, tx in tx_map.items():
-                tx_list.append(Transaction.from_dict(tx))
-            return tx_list
-        else:
-            tx = list(tx_map.values())[0]
-            return Transaction.from_dict(tx)
 
     # NOTE: moved here from Election needs to be placed somewhere else
     def get_validators_dict(self, height=None):
@@ -740,7 +692,9 @@ class Planetmint(object):
         return recipients
 
     def show_election_status(self, transaction):
-        data = transaction.assets[0]["data"]
+        data = transaction.assets[0]
+        data = data.to_dict()["data"]
+
         if "public_key" in data.keys():
             data["public_key"] = public_key_to_base64(data["public_key"]["value"])
         response = ""
@@ -789,23 +743,23 @@ class Planetmint(object):
         # validators and their voting power in the network
         return current_topology == voters
 
-    def count_votes(self, election_pk, transactions, getter=getattr):
+    def count_votes(self, election_pk, transactions):
         votes = 0
         for txn in transactions:
-            if getter(txn, "operation") == Vote.OPERATION:
-                for output in getter(txn, "outputs"):
+            if txn.operation == Vote.OPERATION:
+                for output in txn.outputs:
                     # NOTE: We enforce that a valid vote to election id will have only
                     # election_pk in the output public keys, including any other public key
                     # along with election_pk will lead to vote being not considered valid.
-                    if len(getter(output, "public_keys")) == 1 and [election_pk] == getter(output, "public_keys"):
-                        votes = votes + int(getter(output, "amount"))
+                    if len(output.public_keys) == 1 and [election_pk] == output.public_keys:
+                        votes = votes + output.amount
         return votes
 
     def get_commited_votes(self, transaction, election_pk=None):  # TODO: move somewhere else
         if election_pk is None:
             election_pk = election_id_to_public_key(transaction.id)
-        txns = list(backend.query.get_asset_tokens_for_public_key(self.connection, transaction.id, election_pk))
-        return self.count_votes(election_pk, txns, dict.get)
+        txns = backend.query.get_asset_tokens_for_public_key(self.connection, transaction.id, election_pk)
+        return self.count_votes(election_pk, txns)
 
     def _get_initiated_elections(self, height, txns):  # TODO: move somewhere else
         elections = []
@@ -898,7 +852,7 @@ class Planetmint(object):
         votes_committed = self.get_commited_votes(transaction, election_pk)
         votes_current = self.count_votes(election_pk, current_votes)
 
-        total_votes = sum(output.amount for output in transaction.outputs)
+        total_votes = sum(int(output.amount) for output in transaction.outputs)
         if (votes_committed < (2 / 3) * total_votes) and (votes_committed + votes_current >= (2 / 3) * total_votes):
             return True
 
@@ -939,6 +893,8 @@ class Planetmint(object):
 
         txns = [self.get_transaction(tx_id) for tx_id in txn_ids]
 
+        txns = [Transaction.from_dict(tx.to_dict()) for tx in txns]
+
         elections = self._get_votes(txns)
         for election_id in elections:
             election = self.get_transaction(election_id)
@@ -956,7 +912,7 @@ class Planetmint(object):
         if election.operation == CHAIN_MIGRATION_ELECTION:
             self.migrate_abci_chain()
         if election.operation == VALIDATOR_ELECTION:
-            validator_updates = [election.assets[0]["data"]]
+            validator_updates = [election.assets[0].data]
             curr_validator_set = self.get_validators(new_height)
             updated_validator_set = new_validator_set(curr_validator_set, validator_updates)
 
@@ -964,7 +920,7 @@ class Planetmint(object):
 
             # TODO change to `new_height + 2` when upgrading to Tendermint 0.24.0.
             self.store_validator_set(new_height + 1, updated_validator_set)
-            return encode_validator(election.assets[0]["data"])
+            return encode_validator(election.assets[0].data)
 
 
 Block = namedtuple("Block", ("app_hash", "height", "transactions"))

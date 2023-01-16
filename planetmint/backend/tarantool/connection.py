@@ -34,18 +34,12 @@ class TarantoolDBConnection(DBConnection):
             self.connect()
             self.SPACE_NAMES = [
                 "abci_chains",
-                "assets",
                 "blocks",
-                "blocks_tx",
                 "elections",
-                "meta_data",
                 "pre_commits",
-                "validators",
+                "validator_sets",
                 "transactions",
-                "inputs",
                 "outputs",
-                "keys",
-                "scripts",
             ]
         except tarantool.error.NetworkError as network_err:
             logger.info("Host cant be reached")
@@ -102,12 +96,10 @@ class TarantoolDBConnection(DBConnection):
             raise net_error
 
     def drop_database(self):
-        db_config = Config().get()["database"]
-        cmd_resp = self.run_command(command=self.drop_path, config=db_config)  # noqa: F841
+        self.connect().call("drop")
 
     def init_database(self):
-        db_config = Config().get()["database"]
-        cmd_resp = self.run_command(command=self.init_path, config=db_config)  # noqa: F841
+        self.connect().call("init")
 
     def run_command(self, command: str, config: dict):
         from subprocess import run

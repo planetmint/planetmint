@@ -12,9 +12,11 @@ from argparse import Namespace
 from planetmint.config import Config
 from planetmint import ValidatorElection
 from planetmint.commands.planetmint import run_election_show
+from planetmint.commands.planetmint import run_election_new_chain_migration
 from planetmint.backend.connection import Connection
 from planetmint.lib import Block
 from transactions.types.elections.chain_migration_election import ChainMigrationElection
+
 from tests.utils import generate_election, generate_validators
 
 
@@ -352,8 +354,6 @@ def test_election_new_upsert_validator_without_tendermint(caplog, b, priv_valida
 
 @pytest.mark.abci
 def test_election_new_chain_migration_with_tendermint(b, priv_validator_path, user_sk, validators):
-    from planetmint.commands.planetmint import run_election_new_chain_migration
-
     new_args = Namespace(action="new", election_type="migration", sk=priv_validator_path, config={})
 
     election_id = run_election_new_chain_migration(new_args, b)
@@ -363,8 +363,6 @@ def test_election_new_chain_migration_with_tendermint(b, priv_validator_path, us
 
 @pytest.mark.bdb
 def test_election_new_chain_migration_without_tendermint(caplog, b, priv_validator_path, user_sk):
-    from planetmint.commands.planetmint import run_election_new_chain_migration
-
     def mock_write(tx, mode):
         b.store_bulk_transactions([tx])
         return (202, "")
