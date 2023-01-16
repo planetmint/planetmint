@@ -3,11 +3,11 @@
 # SPDX-License-Identifier: (Apache-2.0 AND CC-BY-4.0)
 # Code is Apache-2.0 and docs are CC-BY-4.0
 
-name: Unit tests - with direct ABCI
+name: Unit tests 
 on: [push, pull_request]
 
 jobs:
-  test-with-abci:
+  unified-unit-tests:
     runs-on: ubuntu-latest
     needs: build
     strategy:
