@@ -50,7 +50,6 @@ class TestBigchainApi(object):
         with pytest.raises(CriticalDoubleSpend):
             b.store_bulk_transactions([transfer_tx2])
 
-
     def test_double_inclusion(self, b, alice):
         from tarantool.error import DatabaseError
 

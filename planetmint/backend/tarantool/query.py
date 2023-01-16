@@ -31,7 +31,7 @@ from planetmint.backend.tarantool.const import (
     TARANT_TABLE_VALIDATOR_SETS,
     TARANT_TABLE_UTXOS,
     TARANT_TABLE_PRE_COMMITS,
-    TARANT_TABLE_ELECTIONS
+    TARANT_TABLE_ELECTIONS,
 )
 from planetmint.backend.utils import module_dispatch_registrar
 from planetmint.backend.models import Asset, Block, Output
@@ -114,7 +114,7 @@ def store_transaction_outputs(connection, output: Output, index: int) -> str:
 
 
 @register_query(TarantoolDBConnection)
-def store_transactions(connection, signed_transactions: list, table = TARANT_TABLE_TRANSACTION):
+def store_transactions(connection, signed_transactions: list, table=TARANT_TABLE_TRANSACTION):
     for transaction in signed_transactions:
         store_transaction(connection, transaction, table)
         [
@@ -124,13 +124,13 @@ def store_transactions(connection, signed_transactions: list, table = TARANT_TAB
 
 
 @register_query(TarantoolDBConnection)
-def store_transaction(connection, transaction, table = TARANT_TABLE_TRANSACTION):
+def store_transaction(connection, transaction, table=TARANT_TABLE_TRANSACTION):
     scripts = None
     if TARANT_TABLE_SCRIPT in transaction:
         scripts = transaction[TARANT_TABLE_SCRIPT]
     asset_obj = Transaction.get_assets_tag(transaction["version"])
-    if( transaction["version"] == "2.0"):
-        asset_array = [ transaction[asset_obj] ]
+    if transaction["version"] == "2.0":
+        asset_array = [transaction[asset_obj]]
     else:
         asset_array = transaction[asset_obj]
     tx = (
@@ -146,7 +146,7 @@ def store_transaction(connection, transaction, table = TARANT_TABLE_TRANSACTION)
         connection.run(connection.space(table).insert(tx), only_data=False)
     except Exception as e:
         logger.info(f"Could not insert transactions: {e}")
-        if e.args[0] == 3 and e.args[1].startswith('Duplicate key exists in'):
+        if e.args[0] == 3 and e.args[1].startswith("Duplicate key exists in"):
             raise CriticalDoubleSpend()
         else:
             raise OperationDataInsertionError()
@@ -320,7 +320,7 @@ def get_block_with_transaction(connection, txid: str) -> list[Block]:
 def delete_transactions(connection, txn_ids: list):
     try:
         for _id in txn_ids:
-            _outputs = get_outputs_by_tx_id( connection, _id)
+            _outputs = get_outputs_by_tx_id(connection, _id)
             for x in range(len(_outputs)):
                 connection.connect().call("delete_output", (_outputs[x].id))
         for _id in txn_ids:
@@ -338,7 +338,9 @@ def store_unspent_outputs(connection, *unspent_outputs: list):
         for utxo in unspent_outputs:
             try:
                 output = connection.run(
-                    connection.space(TARANT_TABLE_UTXOS).insert((uuid4().hex, utxo["transaction_id"], utxo["output_index"], utxo))
+                    connection.space(TARANT_TABLE_UTXOS).insert(
+                        (uuid4().hex, utxo["transaction_id"], utxo["output_index"], utxo)
+                    )
                 )
                 result.append(output)
             except Exception as e:
@@ -400,7 +402,9 @@ def get_pre_commit_state(connection) -> dict:
 
 @register_query(TarantoolDBConnection)
 def store_validator_set(conn, validators_update: dict):
-    _validator = conn.run(conn.space(TARANT_TABLE_VALIDATOR_SETS).select(validators_update["height"], index="height", limit=1))
+    _validator = conn.run(
+        conn.space(TARANT_TABLE_VALIDATOR_SETS).select(validators_update["height"], index="height", limit=1)
+    )
     unique_id = uuid4().hex if _validator is None or len(_validator) == 0 else _validator[0][0]
     try:
         conn.run(

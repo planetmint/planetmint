@@ -173,11 +173,7 @@ def test_update_utxoset(b, signed_create_tx, signed_transfer_tx, db_conn):
 def test_store_transaction(mocker, b, signed_create_tx, signed_transfer_tx):
     mocked_store_transaction = mocker.patch("planetmint.backend.query.store_transactions")
     b.store_bulk_transactions([signed_create_tx])
-    mocked_store_transaction.assert_any_call(
-        b.connection,
-        [signed_create_tx.to_dict()],
-        "transactions"
-    )
+    mocked_store_transaction.assert_any_call(b.connection, [signed_create_tx.to_dict()], "transactions")
     mocked_store_transaction.reset_mock()
     b.store_bulk_transactions([signed_transfer_tx])
 
@@ -186,11 +182,7 @@ def test_store_transaction(mocker, b, signed_create_tx, signed_transfer_tx):
 def test_store_bulk_transaction(mocker, b, signed_create_tx, signed_transfer_tx):
     mocked_store_transactions = mocker.patch("planetmint.backend.query.store_transactions")
     b.store_bulk_transactions((signed_create_tx,))
-    mocked_store_transactions.assert_any_call(
-        b.connection,
-        [signed_create_tx.to_dict()],
-        "transactions"
-    )
+    mocked_store_transactions.assert_any_call(b.connection, [signed_create_tx.to_dict()], "transactions")
     mocked_store_transactions.reset_mock()
     b.store_bulk_transactions((signed_transfer_tx,))
 
