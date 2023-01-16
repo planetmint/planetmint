@@ -34,14 +34,13 @@ class DbTransaction:
 
     @staticmethod
     def from_tuple(transaction: tuple) -> DbTransaction:
+        assets = Asset.from_list_dict(transaction[4])
         return DbTransaction(
             id=transaction[0],
             operation=transaction[1],
             version=transaction[2],
             metadata=MetaData.from_dict(transaction[3]),
-            assets=Asset.from_list_dict(transaction[4])
-            if transaction[2] != "2.0"
-            else Asset.from_dict(transaction[4][0]),
+            assets=assets if transaction[2] != "2.0" else [assets[0]],
             inputs=Input.from_list_dict(transaction[5]),
             script=Script.from_dict(transaction[6]),
         )
@@ -63,12 +62,13 @@ class DbTransaction:
         return output
 
     def to_dict(self) -> dict:
+        assets = Asset.list_to_dict(self.assets)
         tx = {
             "inputs": Input.list_to_dict(self.inputs),
             "outputs": Output.list_to_dict(self.outputs),
             "operation": self.operation,
             "metadata": self.metadata.to_dict() if self.metadata is not None else None,
-            "assets": Asset.list_to_dict(self.assets) if self.version != "2.0" else Asset.to_dict(self.assets),
+            "assets": assets if self.version != "2.0" else assets[0],
             "version": self.version,
             "id": self.id,
             "script": self.script.to_dict() if self.script is not None else None,

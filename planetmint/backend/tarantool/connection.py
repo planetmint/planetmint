@@ -97,13 +97,9 @@ class TarantoolDBConnection(DBConnection):
 
     def drop_database(self):
         self.connect().call("drop")
-        # db_config = Config().get()["database"]
-        # cmd_resp = self.run_command(command=self.drop_path, config=db_config)  # noqa: F841
 
     def init_database(self):
         self.connect().call("init")
-        # db_config = Config().get()["database"]
-        # cmd_resp = self.run_command(command=self.init_path, config=db_config)  # noqa: F841
 
     def run_command(self, command: str, config: dict):
         from subprocess import run
