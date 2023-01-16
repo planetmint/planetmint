@@ -25,5 +25,9 @@ jobs:
       - name: Get Tendermint
         run: wget https://github.com/tendermint/tendermint/releases/download/v0.34.15/tendermint_0.34.15_linux_amd64.tar.gz && tar zxf tendermint_0.34.15_linux_amd64.tar.gz
 
+      - name: Install Planetmint
+        run: pip install -e '.[dev]'
+
+
       - name: Start containers
         run: make test
