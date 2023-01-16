@@ -4,15 +4,13 @@ Content-Type: application/json
 {
   "assets": [
     {
-      "data": {
-        "msg": "Hello Planetmint!"
-      }
+      "data": "QmQP5C3PmhH9oB84n7YqSY4WVqmYatdoo1BdwhH4zmcwqM"
     }
   ],
-  "id": "61e1312b80705e0dabb948c9d78dae7f62d64832abda822b13d89c4a7305d4ac",
+  "id": "0fdeb547670bbea980389df53cf5a91e60159339084c6b0b5cc0b5494a679530",
   "inputs": [
     {
-      "fulfillment": "pGSAIDE5i63cn4X8T8N1sZ2mGkJD5lNRnBM4PZgI_zvzbr-cgUCWcUaLa2U-nkmZ6oYj14aeV6B4TJH2NvZ8k2ZTwcGiaiCGXDQT2dEPfMCFwM8lwSousafCu4c7EgVZ1GzUDjsN",
+      "fulfillment": "pGSAIDE5i63cn4X8T8N1sZ2mGkJD5lNRnBM4PZgI_zvzbr-cgUDklzRb5aUQz9slbaqSWap1AfC-cacTCN3CGtFy2LPK7JKEqKG2b0KQXnUcFksk_KH_v6ImFXHsclKSp1OJkIEI",
       "fulfills": null,
       "owners_before": [
         "4K9sWUMFwTgaDGPfdynrbxWqWS6sWmKbZoTjxLtVUibD"
@@ -36,5 +34,5 @@ Content-Type: application/json
       ]
     }
   ],
-  "version": "2.0"
+  "version": "3.0"
 }

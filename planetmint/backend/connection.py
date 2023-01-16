@@ -3,14 +3,12 @@
 # SPDX-License-Identifier: (Apache-2.0 AND CC-BY-4.0)
 # Code is Apache-2.0 and docs are CC-BY-4.0
 
-import tarantool
 import logging
 
 from itertools import repeat
 from importlib import import_module
 from transactions.common.exceptions import ConfigurationError
 from planetmint.config import Config
-from planetmint.backend.exceptions import ConnectionError
 
 BACKENDS = {
     "tarantool_db": "planetmint.backend.tarantool.connection.TarantoolDBConnection",
@@ -69,6 +67,7 @@ class DBConnection(metaclass=DBSingleton):
         **kwargs
     ):
         """Create a new :class:`~.Connection` instance.
+
         Args:
             host (str): the host to connect to.
             port (int): the port to connect to.

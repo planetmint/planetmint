@@ -7,8 +7,8 @@
 import json
 import logging
 from uuid import uuid4
-from hashlib import sha256
 from operator import itemgetter
+from typing import Union
 
 
 from planetmint.backend import query
@@ -18,9 +18,7 @@ from planetmint.exceptions import CriticalDoubleSpend
 from planetmint.backend.tarantool.const import (
     TARANT_TABLE_META_DATA,
     TARANT_TABLE_ASSETS,
-    TARANT_TABLE_KEYS,
     TARANT_TABLE_TRANSACTION,
-    TARANT_TABLE_INPUT,
     TARANT_TABLE_OUTPUT,
     TARANT_TABLE_SCRIPT,
     TARANT_TX_ID_SEARCH,
@@ -28,10 +26,17 @@ from planetmint.backend.tarantool.const import (
     TARANT_INDEX_TX_BY_ASSET_ID,
     TARANT_INDEX_SPENDING_BY_ID_AND_OUTPUT_INDEX,
     TARANT_TABLE_GOVERNANCE,
+    TARANT_TABLE_ABCI_CHAINS,
+    TARANT_TABLE_BLOCKS,
+    TARANT_TABLE_VALIDATOR_SETS,
+    TARANT_TABLE_UTXOS,
+    TARANT_TABLE_PRE_COMMITS,
+    TARANT_TABLE_ELECTIONS,
 )
 from planetmint.backend.utils import module_dispatch_registrar
-from planetmint.backend.models import Asset, Block, MetaData, Input, Script, Output
+from planetmint.backend.models import Asset, Block, Output
 from planetmint.backend.tarantool.connection import TarantoolDBConnection
+from transactions.common.transaction import Transaction
 
 
 logger = logging.getLogger(__name__)
@@ -39,7 +44,7 @@ register_query = module_dispatch_registrar(query)
 
 
 @register_query(TarantoolDBConnection)
-def get_complete_transactions_by_ids(connection, txids: list, table=TARANT_TABLE_TRANSACTION) -> list[DbTransaction]:
+def get_complete_transactions_by_ids(connection, txids: list) -> list[DbTransaction]:
     _transactions = []
     for txid in txids:
         tx = get_transaction_by_id(connection, txid, TARANT_TABLE_TRANSACTION)
@@ -61,7 +66,7 @@ def get_outputs_by_tx_id(connection, tx_id: str) -> list[Output]:
 
 
 @register_query(TarantoolDBConnection)
-def get_transaction(connection, tx_id: str) -> DbTransaction:
+def get_transaction(connection, tx_id: str) -> Union[DbTransaction, None]:
     transactions = get_complete_transactions_by_ids(connection, (tx_id))
     if len(transactions) > 1 or len(transactions) == 0:
         return None
@@ -109,9 +114,9 @@ def store_transaction_outputs(connection, output: Output, index: int) -> str:
 
 
 @register_query(TarantoolDBConnection)
-def store_transactions(connection, signed_transactions: list):
+def store_transactions(connection, signed_transactions: list, table=TARANT_TABLE_TRANSACTION):
     for transaction in signed_transactions:
-        store_transaction(connection, transaction)
+        store_transaction(connection, transaction, table)
         [
             store_transaction_outputs(connection, Output.outputs_dict(output, transaction["id"]), index)
             for index, output in enumerate(transaction[TARANT_TABLE_OUTPUT])
@@ -119,81 +124,45 @@ def store_transactions(connection, signed_transactions: list):
 
 
 @register_query(TarantoolDBConnection)
-def store_transaction(connection, transaction):
+def store_transaction(connection, transaction, table=TARANT_TABLE_TRANSACTION):
     scripts = None
     if TARANT_TABLE_SCRIPT in transaction:
         scripts = transaction[TARANT_TABLE_SCRIPT]
+    asset_obj = Transaction.get_assets_tag(transaction["version"])
+    if transaction["version"] == "2.0":
+        asset_array = [transaction[asset_obj]]
+    else:
+        asset_array = transaction[asset_obj]
     tx = (
         transaction["id"],
         transaction["operation"],
         transaction["version"],
         transaction["metadata"],
-        transaction["assets"],
+        asset_array,
         transaction["inputs"],
         scripts,
     )
     try:
-        connection.run(connection.space(TARANT_TABLE_TRANSACTION).insert(tx), only_data=False)
+        connection.run(connection.space(table).insert(tx), only_data=False)
     except Exception as e:
         logger.info(f"Could not insert transactions: {e}")
-        if e.args[0] == 3 and e.args[1].startswith('Duplicate key exists in'):
+        if e.args[0] == 3 and e.args[1].startswith("Duplicate key exists in"):
             raise CriticalDoubleSpend()
         else:
             raise OperationDataInsertionError()
-
-
-@register_query(TarantoolDBConnection)
-def store_governance_transactions(connection, signed_transactions: list):
-    for transaction in signed_transactions:
-        store_governance_transaction(connection, transaction)
-        [
-            store_transaction_outputs(connection, Output.outputs_dict(output, transaction["id"]), index)
-            for index, output in enumerate(transaction[TARANT_TABLE_OUTPUT])
-        ]
-
-
-@register_query(TarantoolDBConnection)
-def store_governance_transaction(connection, transaction):
-    scripts = None
-    if TARANT_TABLE_SCRIPT in transaction:
-        scripts = transaction[TARANT_TABLE_SCRIPT]
-    tx = (
-        transaction["id"],
-        transaction["operation"],
-        transaction["version"],
-        transaction["metadata"],
-        transaction["assets"],
-        transaction["inputs"],
-        scripts,
-    )
-    try:
-        connection.run(connection.space(TARANT_TABLE_GOVERNANCE).insert(tx), only_data=False)
-    except Exception as e:
-        if e.args[0] == 3 and e.args[1].startswith('Duplicate key exists in'):
-            raise CriticalDoubleSpend()
-        else:
-            raise OperationDataInsertionError()
-
-
-@register_query(TarantoolDBConnection)
-def get_governance_transaction_by_id(connection, transaction_id):
-    txs = connection.run(connection.space(TARANT_TABLE_GOVERNANCE).select(transaction_id, index=TARANT_ID_SEARCH))
-    if len(txs) == 0:
-        return None
-    return DbTransaction.from_tuple(txs[0])
 
 
 @register_query(TarantoolDBConnection)
 def get_transaction_by_id(connection, transaction_id, table=TARANT_TABLE_TRANSACTION):
-    txs = connection.run(connection.space(table).select(transaction_id, index=TARANT_ID_SEARCH))
+    txs = connection.run(connection.space(table).select(transaction_id, index=TARANT_ID_SEARCH), only_data=False)
     if len(txs) == 0:
         return None
     return DbTransaction.from_tuple(txs[0])
 
 
 @register_query(TarantoolDBConnection)
-def get_transaction_single(connection, transaction_id, table=TARANT_TABLE_TRANSACTION) -> DbTransaction:
-    txs = get_complete_transactions_by_ids(txids=[transaction_id], connection=connection, table=table)
+def get_transaction_single(connection, transaction_id) -> Union[DbTransaction, None]:
+    txs = get_complete_transactions_by_ids(txids=[transaction_id], connection=connection)
     return txs[0] if len(txs) == 1 else None
 
 
@@ -224,7 +193,7 @@ def get_assets(connection, assets_ids: list) -> list[Asset]:
 
 
 @register_query(TarantoolDBConnection)
-def get_spent(connection, fullfil_transaction_id: str, fullfil_output_index: str):
+def get_spent(connection, fullfil_transaction_id: str, fullfil_output_index: str) -> list[DbTransaction]:
     _inputs = connection.run(
         connection.space(TARANT_TABLE_TRANSACTION).select(
             [fullfil_transaction_id, fullfil_output_index], index=TARANT_INDEX_SPENDING_BY_ID_AND_OUTPUT_INDEX
@@ -234,8 +203,8 @@ def get_spent(connection, fullfil_transaction_id: str, fullfil_output_index: str
 
 
 @register_query(TarantoolDBConnection)
-def get_latest_block(connection):
-    blocks = connection.run(connection.space("blocks").select())
+def get_latest_block(connection) -> Union[dict, None]:
+    blocks = connection.run(connection.space(TARANT_TABLE_BLOCKS).select())
     if not blocks:
         return None
 
@@ -249,7 +218,7 @@ def store_block(connection, block: dict):
     block_unique_id = uuid4().hex
     try:
         connection.run(
-            connection.space("blocks").insert(
+            connection.space(TARANT_TABLE_BLOCKS).insert(
                 (block_unique_id, block["app_hash"], block["height"], block[TARANT_TABLE_TRANSACTION])
             ),
             only_data=False,
@@ -260,7 +229,7 @@ def store_block(connection, block: dict):
 
 
 @register_query(TarantoolDBConnection)
-def get_txids_filtered(connection, asset_ids: list[str], operation: str = "", last_tx: bool = False):
+def get_txids_filtered(connection, asset_ids: list[str], operation: str = "", last_tx: bool = False) -> list[str]:
     transactions = []
     if operation == "CREATE":
         transactions = connection.run(
@@ -308,7 +277,7 @@ def text_search(conn, search, table=TARANT_TABLE_ASSETS, limit=0):
 
 
 @register_query(TarantoolDBConnection)
-def get_owned_ids(connection, owner: str):
+def get_owned_ids(connection, owner: str) -> list[DbTransaction]:
     outputs = connection.run(connection.space(TARANT_TABLE_OUTPUT).select(owner, index="public_keys"))
     if len(outputs) == 0:
         return []
@@ -333,8 +302,8 @@ def get_spending_transactions(connection, inputs):
 
 
 @register_query(TarantoolDBConnection)
-def get_block(connection, block_id=None):
-    _block = connection.run(connection.space("blocks").select(block_id, index="height", limit=1))
+def get_block(connection, block_id=None) -> Union[dict, None]:
+    _block = connection.run(connection.space(TARANT_TABLE_BLOCKS).select(block_id, index="height", limit=1))
     if len(_block) == 0:
         return
     _block = Block.from_tuple(_block[0])
@@ -342,8 +311,8 @@ def get_block(connection, block_id=None):
 
 
 @register_query(TarantoolDBConnection)
-def get_block_with_transaction(connection, txid: str):
-    _block = connection.run(connection.space("blocks").select(txid, index="block_by_transaction_id"))
+def get_block_with_transaction(connection, txid: str) -> list[Block]:
+    _block = connection.run(connection.space(TARANT_TABLE_BLOCKS).select(txid, index="block_by_transaction_id"))
     return _block if len(_block) > 0 else []
 
 
@@ -351,7 +320,7 @@ def get_block_with_transaction(connection, txid: str):
 def delete_transactions(connection, txn_ids: list):
     try:
         for _id in txn_ids:
-            _outputs = get_outputs_by_tx_id( connection, _id)
+            _outputs = get_outputs_by_tx_id(connection, _id)
             for x in range(len(_outputs)):
                 connection.connect().call("delete_output", (_outputs[x].id))
         for _id in txn_ids:
@@ -369,7 +338,9 @@ def store_unspent_outputs(connection, *unspent_outputs: list):
         for utxo in unspent_outputs:
             try:
                 output = connection.run(
-                    connection.space("utxos").insert((uuid4().hex, utxo["transaction_id"], utxo["output_index"], utxo))
+                    connection.space(TARANT_TABLE_UTXOS).insert(
+                        (uuid4().hex, utxo["transaction_id"], utxo["output_index"], utxo)
+                    )
                 )
                 result.append(output)
             except Exception as e:
@@ -384,7 +355,7 @@ def delete_unspent_outputs(connection, *unspent_outputs: list):
     if unspent_outputs:
         for utxo in unspent_outputs:
             output = connection.run(
-                connection.space("utxos").delete(
+                connection.space(TARANT_TABLE_UTXOS).delete(
                     (utxo["transaction_id"], utxo["output_index"]), index="utxo_by_transaction_id_and_output_index"
                 )
             )
@@ -394,13 +365,13 @@ def delete_unspent_outputs(connection, *unspent_outputs: list):
 
 @register_query(TarantoolDBConnection)
 def get_unspent_outputs(connection, query=None):  # for now we don't have implementation for 'query'.
-    _utxos = connection.run(connection.space("utxos").select([]))
+    _utxos = connection.run(connection.space(TARANT_TABLE_UTXOS).select([]))
     return [utx[3] for utx in _utxos]
 
 
 @register_query(TarantoolDBConnection)
 def store_pre_commit_state(connection, state: dict):
-    _precommit = connection.run(connection.space("pre_commits").select([], limit=1))
+    _precommit = connection.run(connection.space(TARANT_TABLE_PRE_COMMITS).select([], limit=1))
     _precommitTuple = (
         (uuid4().hex, state["height"], state[TARANT_TABLE_TRANSACTION])
         if _precommit is None or len(_precommit) == 0
@@ -408,7 +379,7 @@ def store_pre_commit_state(connection, state: dict):
     )
     try:
         connection.run(
-            connection.space("pre_commits").upsert(
+            connection.space(TARANT_TABLE_PRE_COMMITS).upsert(
                 _precommitTuple,
                 op_list=[("=", 1, state["height"]), ("=", 2, state[TARANT_TABLE_TRANSACTION])],
                 limit=1,
@@ -421,8 +392,8 @@ def store_pre_commit_state(connection, state: dict):
 
 
 @register_query(TarantoolDBConnection)
-def get_pre_commit_state(connection):
-    _commit = connection.run(connection.space("pre_commits").select([], index=TARANT_ID_SEARCH))
+def get_pre_commit_state(connection) -> dict:
+    _commit = connection.run(connection.space(TARANT_TABLE_PRE_COMMITS).select([], index=TARANT_ID_SEARCH))
     if _commit is None or len(_commit) == 0:
         return None
     _commit = sorted(_commit, key=itemgetter(1), reverse=False)[0]
@@ -431,11 +402,13 @@ def get_pre_commit_state(connection):
 
 @register_query(TarantoolDBConnection)
 def store_validator_set(conn, validators_update: dict):
-    _validator = conn.run(conn.space("validator_sets").select(validators_update["height"], index="height", limit=1))
+    _validator = conn.run(
+        conn.space(TARANT_TABLE_VALIDATOR_SETS).select(validators_update["height"], index="height", limit=1)
+    )
     unique_id = uuid4().hex if _validator is None or len(_validator) == 0 else _validator[0][0]
     try:
         conn.run(
-            conn.space("validator_sets").upsert(
+            conn.space(TARANT_TABLE_VALIDATOR_SETS).upsert(
                 (unique_id, validators_update["height"], validators_update["validators"]),
                 op_list=[("=", 1, validators_update["height"]), ("=", 2, validators_update["validators"])],
                 limit=1,
@@ -449,16 +422,16 @@ def store_validator_set(conn, validators_update: dict):
 
 @register_query(TarantoolDBConnection)
 def delete_validator_set(connection, height: int):
-    _validators = connection.run(connection.space("validator_sets").select(height, index="height"))
+    _validators = connection.run(connection.space(TARANT_TABLE_VALIDATOR_SETS).select(height, index="height"))
     for _valid in _validators:
-        connection.run(connection.space("validator_sets").delete(_valid[0]), only_data=False)
+        connection.run(connection.space(TARANT_TABLE_VALIDATOR_SETS).delete(_valid[0]), only_data=False)
 
 
 @register_query(TarantoolDBConnection)
 def store_election(connection, election_id: str, height: int, is_concluded: bool):
     try:
         connection.run(
-            connection.space("elections").upsert(
+            connection.space(TARANT_TABLE_ELECTIONS).upsert(
                 (election_id, height, is_concluded), op_list=[("=", 1, height), ("=", 2, is_concluded)], limit=1
             ),
             only_data=False,
@@ -473,7 +446,7 @@ def store_elections(connection, elections: list):
     try:
         for election in elections:
             _election = connection.run(  # noqa: F841
-                connection.space("elections").insert(
+                connection.space(TARANT_TABLE_ELECTIONS).insert(
                     (election["election_id"], election["height"], election["is_concluded"])
                 ),
                 only_data=False,
@@ -485,14 +458,14 @@ def store_elections(connection, elections: list):
 
 @register_query(TarantoolDBConnection)
 def delete_elections(connection, height: int):
-    _elections = connection.run(connection.space("elections").select(height, index="height"))
+    _elections = connection.run(connection.space(TARANT_TABLE_ELECTIONS).select(height, index="height"))
     for _elec in _elections:
-        connection.run(connection.space("elections").delete(_elec[0]), only_data=False)
+        connection.run(connection.space(TARANT_TABLE_ELECTIONS).delete(_elec[0]), only_data=False)
 
 
 @register_query(TarantoolDBConnection)
 def get_validator_set(connection, height: int = None):
-    _validators = connection.run(connection.space("validator_sets").select())
+    _validators = connection.run(connection.space(TARANT_TABLE_VALIDATOR_SETS).select())
     if height is not None and _validators is not None:
         _validators = [
             {"height": validator[1], "validators": validator[2]} for validator in _validators if validator[1] <= height
@@ -505,8 +478,8 @@ def get_validator_set(connection, height: int = None):
 
 
 @register_query(TarantoolDBConnection)
-def get_election(connection, election_id: str):
-    _elections = connection.run(connection.space("elections").select(election_id, index=TARANT_ID_SEARCH))
+def get_election(connection, election_id: str) -> dict:
+    _elections = connection.run(connection.space(TARANT_TABLE_ELECTIONS).select(election_id, index=TARANT_ID_SEARCH))
     if _elections is None or len(_elections) == 0:
         return None
     _election = sorted(_elections, key=itemgetter(0), reverse=True)[0]
@@ -515,29 +488,19 @@ def get_election(connection, election_id: str):
 
 @register_query(TarantoolDBConnection)
 def get_asset_tokens_for_public_key(connection, asset_id: str, public_key: str) -> list[DbTransaction]:
-    # FIXME Something can be wrong with this function ! (public_key) is not used  # noqa: E501
-    # space = connection.space("keys")
-    # _keys = space.select([public_key], index="keys_search")
-    # _transactions = connection.run(connection.space(TARANT_TABLE_ASSETS).select([asset_id], index="assetid_search"))
-    # _transactions = _transactions
-    # _keys = _keys.data
     id_transactions = connection.run(connection.space(TARANT_TABLE_GOVERNANCE).select([asset_id]))
     asset_id_transactions = connection.run(
         connection.space(TARANT_TABLE_GOVERNANCE).select([asset_id], index="governance_by_asset_id")
     )
     transactions = id_transactions + asset_id_transactions
-
-    # TODO return transaction class
-    # return transactions
-    return get_complete_transactions_by_ids(connection, [_tx[0] for _tx in transactions], TARANT_TABLE_GOVERNANCE)
-    # return get_complete_transactions_by_ids(connection=connection, txids=[_tx[1] for _tx in transactions])
+    return get_complete_transactions_by_ids(connection, [_tx[0] for _tx in transactions])
 
 
 @register_query(TarantoolDBConnection)
 def store_abci_chain(connection, height: int, chain_id: str, is_synced: bool = True):
     try:
         connection.run(
-            connection.space("abci_chains").upsert(
+            connection.space(TARANT_TABLE_ABCI_CHAINS).upsert(
                 (chain_id, height, is_synced),
                 op_list=[("=", 0, chain_id), ("=", 1, height), ("=", 2, is_synced)],
             ),
@@ -550,15 +513,13 @@ def store_abci_chain(connection, height: int, chain_id: str, is_synced: bool = T
 
 @register_query(TarantoolDBConnection)
 def delete_abci_chain(connection, height: int):
-    hash_id_primarykey = sha256(json.dumps(obj={"height": height}).encode()).hexdigest()
-    # connection.run(connection.space("abci_chains").delete(hash_id_primarykey), only_data=False)
-    chains = connection.run(connection.space("abci_chains").select(height, index="height"), only_data=False)
-    connection.run(connection.space("abci_chains").delete(chains[0][0], index="id"), only_data=False)
+    chains = connection.run(connection.space(TARANT_TABLE_ABCI_CHAINS).select(height, index="height"), only_data=False)
+    connection.run(connection.space(TARANT_TABLE_ABCI_CHAINS).delete(chains[0][0], index="id"), only_data=False)
 
 
 @register_query(TarantoolDBConnection)
-def get_latest_abci_chain(connection):
-    _all_chains = connection.run(connection.space("abci_chains").select())
+def get_latest_abci_chain(connection) -> Union[dict, None]:
+    _all_chains = connection.run(connection.space(TARANT_TABLE_ABCI_CHAINS).select())
     if _all_chains is None or len(_all_chains) == 0:
         return None
     _chain = sorted(_all_chains, key=itemgetter(1), reverse=True)[0]

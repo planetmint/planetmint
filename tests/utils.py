@@ -10,7 +10,7 @@ import random
 from functools import singledispatch
 from planetmint.backend.localmongodb.connection import LocalMongoDBConnection
 from planetmint.backend.tarantool.connection import TarantoolDBConnection
-from planetmint.backend.schema import TABLES, SPACE_NAMES
+from planetmint.backend.schema import TABLES
 from transactions.common import crypto
 from transactions.common.transaction_mode_types import BROADCAST_TX_COMMIT
 from transactions.types.assets.create import Create
@@ -40,7 +40,9 @@ def generate_block(planet):
     from transactions.common.crypto import generate_key_pair
 
     alice = generate_key_pair()
-    tx = Create.generate([alice.public_key], [([alice.public_key], 1)], assets=[{"data":None}]).sign([alice.private_key])
+    tx = Create.generate([alice.public_key], [([alice.public_key], 1)], assets=[{"data": None}]).sign(
+        [alice.private_key]
+    )
 
     code, message = planet.write_transaction(tx, BROADCAST_TX_COMMIT)
     assert code == 202

@@ -4,16 +4,16 @@ Content-Type: application/json
 [{
   "assets": [
     {
-      "id": "61e1312b80705e0dabb948c9d78dae7f62d64832abda822b13d89c4a7305d4ac"
+      "id": "0fdeb547670bbea980389df53cf5a91e60159339084c6b0b5cc0b5494a679530"
     }
   ],
-  "id": "b6e1ab3d48bbbbb0e40b952e70ec5d439b2745e0ba0c44b4ee877657e9ac33f0",
+  "id": "8d11fe2bd91c4747a41e0c3dbe1400c511175be42f008d6cff92cbfa9e04f799",
   "inputs": [
     {
-      "fulfillment": "pGSAIDE5i63cn4X8T8N1sZ2mGkJD5lNRnBM4PZgI_zvzbr-cgUA4BB4fxDXK3CQTbKpH5gTAN76NG-iopNuuDEfBbZ1Fl-ipNU46t8VCvK9ghm9Q53aFRW6DDiW5wcWXxY0sS4EJ",
+      "fulfillment": "pGSAIDE5i63cn4X8T8N1sZ2mGkJD5lNRnBM4PZgI_zvzbr-cgUCh-rpO-xqDm2fngjzxnKc39G16FpFMo0y50sHT7_uo1Itzvh4jsxnSGco2HjG6ZF-lSiGsASZ4uIIHuPM57yUI",
       "fulfills": {
         "output_index": 0,
-        "transaction_id": "61e1312b80705e0dabb948c9d78dae7f62d64832abda822b13d89c4a7305d4ac"
+        "transaction_id": "0fdeb547670bbea980389df53cf5a91e60159339084c6b0b5cc0b5494a679530"
       },
       "owners_before": [
         "4K9sWUMFwTgaDGPfdynrbxWqWS6sWmKbZoTjxLtVUibD"
@@ -37,21 +37,21 @@ Content-Type: application/json
       ]
     }
   ],
-  "version": "2.0"
+  "version": "3.0"
 },
 {
   "assets": [
     {
-      "id": "61e1312b80705e0dabb948c9d78dae7f62d64832abda822b13d89c4a7305d4ac"
+      "id": "0fdeb547670bbea980389df53cf5a91e60159339084c6b0b5cc0b5494a679530"
     }
   ],
-  "id": "e43d3f93d90d22ef11c21607e3415bfcda4e0c7dd60412fbb55daf32978a3126",
+  "id": "45c929b66d1b10db6c3c3e6b1adddc0778b473fced4a1f403c2646b25f3fd983",
   "inputs": [
     {
-      "fulfillment": "pGSAICw7Ul-c2lG6NFbHp3FbKRC7fivQcNGO7GS4wV3A-1QggUBjj_XTjB3yJdG8JMNKnkkHvcX_BTOkl-YacRD4yKqxUCeL-VTgbrLgi5a3gGxNJcTkZP1gF0nsby8cgV4xmOcB",
+      "fulfillment": "pGSAICw7Ul-c2lG6NFbHp3FbKRC7fivQcNGO7GS4wV3A-1QggUAc6OAQcXppDxCazw0UK2nwghctKNiZYDDsSOkAn0eQE8QjZ7GLzJpVb92oGXw_4FF7cLE0gg3nNxu7taQ8xakE",
       "fulfills": {
         "output_index": 0,
-        "transaction_id": "b6e1ab3d48bbbbb0e40b952e70ec5d439b2745e0ba0c44b4ee877657e9ac33f0"
+        "transaction_id": "8d11fe2bd91c4747a41e0c3dbe1400c511175be42f008d6cff92cbfa9e04f799"
       },
       "owners_before": [
         "3yfQPHeWAa1MxTX9Zf9176QqcpcnWcanVZZbaHb8B3h9"
@@ -75,5 +75,5 @@ Content-Type: application/json
       ]
     }
   ],
-  "version": "2.0"
+  "version": "3.0"
 }]

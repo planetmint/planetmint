@@ -11,6 +11,13 @@ TARANT_TABLE_GOVERNANCE = "governance"
 TARANT_TABLE_INPUT = "inputs"
 TARANT_TABLE_OUTPUT = "outputs"
 TARANT_TABLE_SCRIPT = "scripts"
+TARANT_TABLE_BLOCKS = "blocks"
+TARANT_TABLE_VALIDATOR_SETS = "validator_sets"
+TARANT_TABLE_ABCI_CHAINS = "abci_chains"
+TARANT_TABLE_UTXOS = "utxos"
+TARANT_TABLE_PRE_COMMITS = "pre_commits"
+TARANT_TABLE_ELECTIONS = "elections"
+
 TARANT_TX_ID_SEARCH = "transaction_id"
 TARANT_ID_SEARCH = "id"
 

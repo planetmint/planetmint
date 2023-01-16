@@ -163,8 +163,8 @@ class Planetmint(object):
             else:
                 txns.append(transaction)
 
-        backend.query.store_transactions(self.connection, txns)
-        backend.query.store_governance_transactions(self.connection, gov_txns)
+        backend.query.store_transactions(self.connection, txns, TARANT_TABLE_TRANSACTION)
+        backend.query.store_transactions(self.connection, gov_txns, TARANT_TABLE_GOVERNANCE)
 
     def delete_transactions(self, txs):
         return backend.query.delete_transactions(self.connection, txs)
@@ -245,12 +245,12 @@ class Planetmint(object):
         if unspent_outputs:
             return backend.query.delete_unspent_outputs(self.connection, *unspent_outputs)
 
-    def is_committed(self, transaction_id, table=TARANT_TABLE_TRANSACTION):
-        transaction = backend.query.get_transaction_by_id(self.connection, transaction_id, table)
+    def is_committed(self, transaction_id):
+        transaction = backend.query.get_transaction_single(self.connection, transaction_id)
         return bool(transaction)
 
-    def get_transaction(self, transaction_id, table=TARANT_TABLE_TRANSACTION):
-        return backend.query.get_transaction_single(self.connection, transaction_id, table)
+    def get_transaction(self, transaction_id):
+        return backend.query.get_transaction_single(self.connection, transaction_id)
 
     def get_transactions(self, txn_ids):
         return backend.query.get_transactions(self.connection, txn_ids)
@@ -260,9 +260,6 @@ class Planetmint(object):
         txids = backend.query.get_txids_filtered(self.connection, asset_ids, operation, last_tx)
         for txid in txids:
             yield self.get_transaction(txid)
-
-    def get_governance_transaction(self, transaction_id):
-        return backend.query.get_governance_transaction_by_id(self.connection, transaction_id)
 
     def get_outputs_by_tx_id(self, txid):
         return backend.query.get_outputs_by_tx_id(self.connection, txid)
@@ -390,13 +387,9 @@ class Planetmint(object):
         input_txs = []
         input_conditions = []
 
-        table = TARANT_TABLE_TRANSACTION
-        if tx.operation in GOVERNANCE_TRANSACTION_TYPES:
-            table = TARANT_TABLE_GOVERNANCE
-
         for input_ in tx.inputs:
             input_txid = input_.fulfills.txid
-            input_tx = self.get_transaction(input_txid, table)
+            input_tx = self.get_transaction(input_txid)
             _output = self.get_outputs_by_tx_id(input_txid)
             if input_tx is None:
                 for ctxn in current_transactions:
@@ -430,7 +423,7 @@ class Planetmint(object):
 
         # validate asset id
         asset_id = tx.get_asset_id(input_txs)
-        if asset_id != tx.assets[0]["id"]:
+        if asset_id != Transaction.read_out_asset_id(tx):
             raise AssetIdMismatch(("The asset id of the input does not" " match the asset id of the" " transaction"))
 
         # convert planetmint.Output objects to transactions.common.Output objects
@@ -614,7 +607,7 @@ class Planetmint(object):
         """
 
         duplicates = any(txn for txn in current_transactions if txn.id == transaction.id)
-        if self.is_committed(transaction.id, TARANT_TABLE_GOVERNANCE) or duplicates:
+        if self.is_committed(transaction.id) or duplicates:
             raise DuplicateTransaction("transaction `{}` already exists".format(transaction.id))
 
         current_validators = self.get_validators_dict()
@@ -823,7 +816,7 @@ class Planetmint(object):
 
         validator_update = None
         for election_id, votes in elections.items():
-            election = self.get_transaction(election_id, TARANT_TABLE_GOVERNANCE)
+            election = self.get_transaction(election_id)
             if election is None:
                 continue
 
@@ -899,7 +892,7 @@ class Planetmint(object):
         self.delete_elections(new_height)
 
         txns = [self.get_transaction(tx_id) for tx_id in txn_ids]
-        
+
         txns = [Transaction.from_dict(tx.to_dict()) for tx in txns]
 
         elections = self._get_votes(txns)

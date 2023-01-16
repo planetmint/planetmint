@@ -31,12 +31,12 @@ def store_asset(connection, asset: dict) -> Asset:
 @singledispatch
 def store_assets(connection, assets: list) -> list[Asset]:
     """Write a list of assets to the assets table.
-    backend
-        Args:
-            assets (list): a list of assets to write.
 
-        Returns:
-            The database response.
+    Args:
+        assets (list): a list of assets to write.
+
+    Returns:
+        The database response.
     """
 
     raise NotImplementedError
@@ -66,27 +66,6 @@ def store_transactions(connection, signed_transactions):
 @singledispatch
 def store_transaction(connection, transaction):
     """Store a single transaction."""
-
-    raise NotImplementedError
-
-
-@singledispatch
-def store_governance_transactions(connection, transactions):
-    """Store the list of governance transactions."""
-
-    raise NotImplementedError
-
-
-@singledispatch
-def store_governance_transaction(connection, transaction):
-    """Store a single governance transaction."""
-
-    raise NotImplementedError
-
-
-@singledispatch
-def get_governance_transaction_by_id(connection, transaction_id):
-    """Get the transaction by transaction id."""
 
     raise NotImplementedError
 
@@ -243,6 +222,7 @@ def store_transaction_outputs(connection, output: Output, index: int):
 @singledispatch
 def get_assets(connection, asset_ids) -> list[Asset]:
     """Get a list of assets from the assets table.
+
     Args:
         asset_ids (list): a list of ids for the assets to be retrieved from
         the database.
