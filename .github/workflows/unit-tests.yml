@@ -1,0 +1,42 @@
+# Copyright © 2020 Interplanetary Database Association e.V.,
+# Planetmint and IPDB software contributors.
+# SPDX-License-Identifier: (Apache-2.0 AND CC-BY-4.0)
+# Code is Apache-2.0 and docs are CC-BY-4.0
+
+name: Unit tests 
+on: [push, pull_request]
+
+jobs:
+  unified-unit-tests:
+    runs-on: ubuntu-latest
+    env:
+      PLANETMINT_DATABASE_BACKEND: tarantool_db
+      PLANETMINT_DATABASE_HOST: localhost
+      PLANETMINT_DATABASE_PORT: 3303
+      PLANETMINT_SERVER_BIND: 0.0.0.0:9984
+      PLANETMINT_WSSERVER_HOST: 0.0.0.0
+      PLANETMINT_WSSERVER_ADVERTISED_HOST: localhost
+      PLANETMINT_TENDERMINT_HOST: localhost
+      PLANETMINT_TENDERMINT_PORT: 26657
+
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3
+
+      - name: Setup python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.9
+
+      - name: Prepare OS
+        run: sudo apt-get update && sudo apt-get install -y git zsh curl tarantool-common vim build-essential cmake 
+
+      - name: Get Tendermint
+        run: wget https://github.com/tendermint/tendermint/releases/download/v0.34.15/tendermint_0.34.15_linux_amd64.tar.gz && tar zxf tendermint_0.34.15_linux_amd64.tar.gz
+
+      - name: Install Planetmint
+        run: pip install -e '.[dev]'
+
+
+      - name: Execute Tests
+        run: make test
