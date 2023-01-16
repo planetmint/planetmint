@@ -20,7 +20,7 @@ jobs:
           python-version: 3.9
 
       - name: Prepare OS
-        run: apt-get update && apt-get install -y git zsh curl tarantool-common vim build-essential cmake 
+        run: sudo apt-get update && apt-get install -y git zsh curl tarantool-common vim build-essential cmake 
 
       - name: Get Tendermint
         run: wget https://github.com/tendermint/tendermint/releases/download/v0.34.15/tendermint_0.34.15_linux_amd64.tar.gz && tar zxf tendermint_0.34.15_linux_amd64.tar.gz
