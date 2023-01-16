@@ -9,14 +9,6 @@ on: [push, pull_request]
 jobs:
   unified-unit-tests:
     runs-on: ubuntu-latest
-    needs: build
-    strategy:
-      matrix:
-        include:
-          - db: "Tarantool with ABCI"
-            host: "tarantool"
-            port: 3303
-            abci: "enabled"
 
     steps:
       - name: Check out repository code
