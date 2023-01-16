@@ -19,7 +19,7 @@ def config(request, monkeypatch):
     config = {
         "database": {
             "backend": backend,
-            "host": "tarantool",
+            "host": "localhost",
             "port": 3303,
             "name": "bigchain",
             "replicaset": "bigchain-rs",

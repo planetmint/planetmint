@@ -7,28 +7,6 @@ name: Unit tests - with direct ABCI
 on: [push, pull_request]
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Check out repository code
-        uses: actions/checkout@v3
-
-      - name: Build container
-        run: |
-          docker-compose -f docker-compose.yml build --no-cache --build-arg abci_status=enable planetmint
-
-      - name: Save image
-        run: docker save -o planetmint.tar planetmint_planetmint
-
-      - name: Upload image
-        uses: actions/upload-artifact@v3
-        with:
-          name: planetmint-abci
-          path: planetmint.tar
-          retention-days: 5
-
-
   test-with-abci:
     runs-on: ubuntu-latest
     needs: build
@@ -44,16 +22,16 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v3
 
-      - name: Download planetmint
-        uses: actions/download-artifact@v3
+      - name: Setup python
+        uses: actions/setup-python@v4
         with:
-          name: planetmint-abci
+          python-version: 3.9
 
-      - name: Load planetmint
-        run: docker load -i planetmint.tar
+      - name: Prepare OS
+        run: apt-get update && apt-get install -y git zsh curl tarantool-commonvim build-essential cmake 
+
+      - name: Get Tendermint
+        run: wget https://github.com/tendermint/tendermint/releases/download/v0.34.15/tendermint_0.34.15_linux_amd64.tar.gz && tar zxf tendermint_0.34.15_linux_amd64.tar.gz
 
       - name: Start containers
-        run: docker-compose -f docker-compose.yml up -d planetmint
-
-      - name: Run tests
-        run: docker exec planetmint_planetmint_1 pytest -v -m abci
+        run: make test
