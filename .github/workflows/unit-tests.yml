@@ -9,6 +9,15 @@ on: [push, pull_request]
 jobs:
   unified-unit-tests:
     runs-on: ubuntu-latest
+    env:
+      PLANETMINT_DATABASE_BACKEND: tarantool_db
+      PLANETMINT_DATABASE_HOST: localhost
+      PLANETMINT_DATABASE_PORT: 3303
+      PLANETMINT_SERVER_BIND: 0.0.0.0:9984
+      PLANETMINT_WSSERVER_HOST: 0.0.0.0
+      PLANETMINT_WSSERVER_ADVERTISED_HOST: localhost
+      PLANETMINT_TENDERMINT_HOST: localhost
+      PLANETMINT_TENDERMINT_PORT: 26657
 
     steps:
       - name: Check out repository code
