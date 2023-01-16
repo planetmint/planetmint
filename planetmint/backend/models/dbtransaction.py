@@ -39,7 +39,7 @@ class DbTransaction:
             operation=transaction[1],
             version=transaction[2],
             metadata=MetaData.from_dict(transaction[3]),
-            assets=Asset.from_list_dict(transaction[4]),
+            assets=Asset.from_list_dict(transaction[4]) if transaction[2] != "2.0" else Asset.from_dict(transaction[4][0]),
             inputs=Input.from_list_dict(transaction[5]),
             script=Script.from_dict(transaction[6]),
         )
@@ -66,7 +66,7 @@ class DbTransaction:
             "outputs": Output.list_to_dict(self.outputs),
             "operation": self.operation,
             "metadata": self.metadata.to_dict() if self.metadata is not None else None,
-            "assets": Asset.list_to_dict(self.assets),
+            "assets": Asset.list_to_dict(self.assets) if self.version!="2.0" else Asset.to_dict(self.assets),
             "version": self.version,
             "id": self.id,
             "script": self.script.to_dict() if self.script is not None else None,

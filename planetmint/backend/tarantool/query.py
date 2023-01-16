@@ -129,12 +129,16 @@ def store_transaction(connection, transaction, table = TARANT_TABLE_TRANSACTION)
     if TARANT_TABLE_SCRIPT in transaction:
         scripts = transaction[TARANT_TABLE_SCRIPT]
     asset_obj = Transaction.get_assets_tag(transaction["version"])
+    if( transaction["version"] == "2.0"):
+        asset_array = [ transaction[asset_obj] ]
+    else:
+        asset_array = transaction[asset_obj]
     tx = (
         transaction["id"],
         transaction["operation"],
         transaction["version"],
         transaction["metadata"],
-        transaction[asset_obj],
+        asset_array,
         transaction["inputs"],
         scripts,
     )
