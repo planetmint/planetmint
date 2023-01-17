@@ -22,7 +22,7 @@ def make_error(status_code, message=None):
     request_info = {"method": request.method, "path": request.path}
     request_info.update(response_content)
 
-    logger.error("HTTP API error: %(status)s - %(method)s:%(path)s - %(message)s", request_info)
+    logger.debug("HTTP API error: %(status)s - %(method)s:%(path)s - %(message)s", request_info)
 
     response = jsonify(response_content)
     response.status_code = status_code
