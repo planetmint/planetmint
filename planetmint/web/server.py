@@ -9,7 +9,7 @@ The application is implemented in Flask and runs using Gunicorn.
 """
 
 import copy
-import multiprocessing
+from multiprocessing import cpu_count
 import gunicorn.app.base
 
 from flask import Flask
@@ -102,7 +102,7 @@ def create_server(settings, log_config=None, planetmint_factory=None):
     settings = copy.deepcopy(settings)
 
     if not settings.get("workers"):
-        settings["workers"] = (multiprocessing.cpu_count() * 2) + 1
+        settings["workers"] = (cpu_count() * 2) + 1
 
     if not settings.get("threads"):
         # Note: Threading is not recommended currently, as the frontend workload

@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: (Apache-2.0 AND CC-BY-4.0)
 # Code is Apache-2.0 and docs are CC-BY-4.0
 
-import multiprocessing as mp
+import multiprocessing
 
 from collections import defaultdict
 from planetmint import App
@@ -44,17 +44,17 @@ EXIT = "exit"
 
 
 class ParallelValidator:
-    def __init__(self, number_of_workers=mp.cpu_count()):
+    def __init__(self, number_of_workers=multiprocessing.cpu_count()):
         self.number_of_workers = number_of_workers
         self.transaction_index = 0
-        self.routing_queues = [mp.Queue() for _ in range(self.number_of_workers)]
+        self.routing_queues = [multiprocessing.Queue() for _ in range(self.number_of_workers)]
         self.workers = []
-        self.results_queue = mp.Queue()
+        self.results_queue = multiprocessing.Queue()
 
     def start(self):
         for routing_queue in self.routing_queues:
             worker = ValidationWorker(routing_queue, self.results_queue)
-            process = mp.Process(target=worker.run)
+            process = multiprocessing.Process(target=worker.run)
             process.start()
             self.workers.append(process)
 
