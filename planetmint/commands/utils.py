@@ -10,7 +10,7 @@ for ``argparse.ArgumentParser``.
 import argparse
 import builtins
 import functools
-from multiprocessing import cpu_count
+import multiprocessing
 import sys
 import planetmint
 import planetmint.config_utils
@@ -132,7 +132,7 @@ def start(parser, argv, scope):
     if args.multiprocess is False:
         args.multiprocess = 1
     elif args.multiprocess is None:
-        args.multiprocess = cpu_count()
+        args.multiprocess = multiprocessing.cpu_count()
 
     return func(args)
 
