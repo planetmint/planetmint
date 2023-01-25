@@ -34,4 +34,3 @@ COPY . /usr/src/app/
 WORKDIR /usr/src/app
 RUN pip install -e .[dev]
 RUN pip install flask-cors
-RUN pip install planetmint-transactions@git+https://git@github.com/planetmint/transactions.git@cybnon/adapt-class-access-to-new-schema
