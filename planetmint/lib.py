@@ -405,22 +405,14 @@ class Planetmint(object):
 
         return True
     
-    def validate_compose_inputs(self, tx, current_transactions=[]) -> bool:
-        compose_inputs = [i for i in tx.inputs if i.fulfills is not None]
-        
-        if len(compose_inputs) == len(tx.inputs):
-            raise ValidationError("compose transaction must have on input that fulfills None")
-        
-        input_txs, input_conditions = self.get_input_txs_and_conditions(compose_inputs, current_transactions)
+    def validate_compose_inputs(self, tx, current_transactions=[]) -> bool:        
+        input_txs, input_conditions = self.get_input_txs_and_conditions(tx.inputs, current_transactions)
         
         self.validate_input_conditions(tx, input_conditions)
         
         self.validate_asset_id(tx, input_txs)
         
         self.validate_inputs_distinct(tx)
-        
-        if len(tx.outputs) > 1:
-            raise ValidationError("compose transactions only allow a single ouptut")
         
         return True
     
