@@ -385,12 +385,12 @@ class Planetmint(object):
         return transaction
 
     def validate_transfer_inputs(self, tx, current_transactions=[]):
-        input_txs, input_conditions = self.get_input_txs_and_conditions(tx.inputs, current_transactions)        
+        input_txs, input_conditions = self.get_input_txs_and_conditions(tx.inputs, current_transactions)
 
         self.validate_input_conditions(tx, input_conditions)
-        
+
         self.validate_asset_id(tx, input_txs)
-        
+
         self.validate_inputs_distinct(tx)
 
         input_amount = sum([input_condition.amount for input_condition in input_conditions])
@@ -404,23 +404,23 @@ class Planetmint(object):
             )
 
         return True
-    
-    def validate_compose_inputs(self, tx, current_transactions=[]) -> bool:        
+
+    def validate_compose_inputs(self, tx, current_transactions=[]) -> bool:
         input_txs, input_conditions = self.get_input_txs_and_conditions(tx.inputs, current_transactions)
-        
+
         self.validate_input_conditions(tx, input_conditions)
-        
+
         self.validate_asset_id(tx, input_txs)
-        
+
         self.validate_inputs_distinct(tx)
-        
+
         return True
-    
+
     def get_input_txs_and_conditions(self, inputs, current_transactions=[]):
         # store the inputs so that we can check if the asset ids match
         input_txs = []
         input_conditions = []
-        
+
         for input_ in inputs:
             input_txid = input_.fulfills.txid
             input_tx = self.get_transaction(input_txid)
@@ -449,9 +449,9 @@ class Planetmint(object):
             tx_dict = DbTransaction.remove_generated_fields(tx_dict)
             pm_transaction = Transaction.from_dict(tx_dict, False)
             input_txs.append(pm_transaction)
-                
+
         return (input_txs, input_conditions)
-    
+
     def validate_input_conditions(self, tx, input_conditions):
         # convert planetmint.Output objects to transactions.common.Output objects
         input_conditions_dict = Output.list_to_dict(input_conditions)
@@ -461,19 +461,20 @@ class Planetmint(object):
 
         if not tx.inputs_valid(input_conditions_converted):
             raise InvalidSignature("Transaction signature is invalid.")
-    
-    def validate_asset_id(self, tx: Transaction, input_txs:list):
-        # validate asset 
+
+    def validate_asset_id(self, tx: Transaction, input_txs: list):
+        # validate asset
         if tx.operation != Transaction.COMPOSE:
             asset_id = tx.get_asset_id(input_txs)
             if asset_id != Transaction.read_out_asset_id(tx):
-                raise AssetIdMismatch(("The asset id of the input does not" " match the asset id of the" " transaction"))
+                raise AssetIdMismatch(
+                    ("The asset id of the input does not" " match the asset id of the" " transaction")
+                )
         else:
-            asset_ids = Transaction.get_asset_ids( input_txs )
+            asset_ids = Transaction.get_asset_ids(input_txs)
             if Transaction.read_out_asset_id(tx) in asset_ids:
                 raise AssetIdMismatch(("The asset ID of the compose must be different to all of its input asset IDs"))
-            
-        
+
     def validate_inputs_distinct(self, tx):
         # Validate that all inputs are distinct
         links = [i.fulfills.to_uri() for i in tx.inputs]

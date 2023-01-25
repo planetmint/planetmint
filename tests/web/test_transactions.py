@@ -32,6 +32,7 @@ from transactions.common.crypto import generate_key_pair
 
 TX_ENDPOINT = "/api/v1/transactions/"
 
+
 @pytest.mark.abci
 def test_get_transaction_endpoint(client, posted_create_tx):
     res = client.get(TX_ENDPOINT + posted_create_tx.id)
@@ -473,31 +474,40 @@ def test_post_transaction_invalid_mode(client):
     assert "400 BAD REQUEST" in response.status
     assert 'Mode must be "async", "sync" or "commit"' == json.loads(response.data.decode("utf8"))["message"]["mode"]
 
+
 def test_post_transaction_compose_valid_wo_abci(b, _bdb):
     alice = generate_key_pair()
-    tx = Create.generate([alice.public_key], [([alice.public_key], 1)], assets=[{"data":"QmW5GVMW98D3mktSDfWHS8nX2UiCd8gP1uCiujnFX4yK97"}]).sign([alice.private_key])
+    tx = Create.generate(
+        [alice.public_key],
+        [([alice.public_key], 1)],
+        assets=[{"data": "QmW5GVMW98D3mktSDfWHS8nX2UiCd8gP1uCiujnFX4yK97"}],
+    ).sign([alice.private_key])
     validated = b.validate_transaction(tx)
     b.store_bulk_transactions([validated])
-    
+
     tx_obj = tx
     tx = tx.to_dict()
     compose_asset_cid = "bafkreignwcoye67vn6edp23mj4llhpzzkgyuefu7xesjzjxcv2bz3p4nfm"
     inputs_ = tx_obj.to_inputs()
 
-    assets_ = [ tx["id"], compose_asset_cid]
+    assets_ = [tx["id"], compose_asset_cid]
     compose_transaction = Compose.generate(inputs=inputs_, recipients=[([alice.public_key], 1)], assets=assets_)
-    signed_compose_tx  = compose_transaction.sign( [alice.private_key])
+    signed_compose_tx = compose_transaction.sign([alice.private_key])
     compose_dict = signed_compose_tx.to_dict()
-    compose_obj = Transaction.from_dict( compose_dict)
+    compose_obj = Transaction.from_dict(compose_dict)
     validated_compose = b.validate_transaction(compose_obj)
     b.store_bulk_transactions([validated_compose])
 
-    
-@pytest.mark.abci 
-def test_post_transaction_compose_valid(client,b):
+
+@pytest.mark.abci
+def test_post_transaction_compose_valid(client, b):
     mode = ("?mode=commit", BROADCAST_TX_COMMIT)
     alice = generate_key_pair()
-    tx = Create.generate([alice.public_key], [([alice.public_key], 1)], assets=[{"data":"QmW5GVMW98D3mktSDfWHS8nX2UiCd8gP1uCiujnFX4yK97"}]).sign([alice.private_key])
+    tx = Create.generate(
+        [alice.public_key],
+        [([alice.public_key], 1)],
+        assets=[{"data": "QmW5GVMW98D3mktSDfWHS8nX2UiCd8gP1uCiujnFX4yK97"}],
+    ).sign([alice.private_key])
     mode_endpoint = TX_ENDPOINT + mode[0]
     response = client.post(mode_endpoint, data=json.dumps(tx.to_dict()))
     assert "202 ACCEPTED" in response.status
@@ -506,9 +516,9 @@ def test_post_transaction_compose_valid(client,b):
     compose_asset_cid = "bafkreignwcoye67vn6edp23mj4llhpzzkgyuefu7xesjzjxcv2bz3p4nfm"
     inputs_ = tx_obj.to_inputs()
 
-    assets_ = [ tx["id"], compose_asset_cid]
+    assets_ = [tx["id"], compose_asset_cid]
     compose_transaction = Compose.generate(inputs=inputs_, recipients=[([alice.public_key], 1)], assets=assets_)
-    signed_tx  = compose_transaction.sign( [alice.private_key])
+    signed_tx = compose_transaction.sign([alice.private_key])
     validated_compose = b.validate_transaction(signed_tx)
     mode_endpoint = TX_ENDPOINT + "?mode=commit"
     response = client.post(mode_endpoint, data=json.dumps(signed_tx.to_dict()))
