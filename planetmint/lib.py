@@ -462,12 +462,18 @@ class Planetmint(object):
         if not tx.inputs_valid(input_conditions_converted):
             raise InvalidSignature("Transaction signature is invalid.")
     
-    def validate_asset_id(self, tx, input_txs):
-        # validate asset id
-        asset_id = tx.get_asset_id(input_txs)
-        if asset_id != Transaction.read_out_asset_id(tx):
-            raise AssetIdMismatch(("The asset id of the input does not" " match the asset id of the" " transaction"))
-    
+    def validate_asset_id(self, tx: Transaction, input_txs:list):
+        # validate asset 
+        if tx.operation != Transaction.COMPOSE:
+            asset_id = tx.get_asset_id(input_txs)
+            if asset_id != Transaction.read_out_asset_id(tx):
+                raise AssetIdMismatch(("The asset id of the input does not" " match the asset id of the" " transaction"))
+        else:
+            asset_ids = Transaction.get_asset_ids( input_txs )
+            if Transaction.read_out_asset_id(tx) in asset_ids:
+                raise AssetIdMismatch(("The asset ID of the compose must be different to all of its input asset IDs"))
+            
+        
     def validate_inputs_distinct(self, tx):
         # Validate that all inputs are distinct
         links = [i.fulfills.to_uri() for i in tx.inputs]

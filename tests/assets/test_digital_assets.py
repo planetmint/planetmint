@@ -68,6 +68,17 @@ def test_asset_id_mismatch(alice, user_pk):
     with pytest.raises(AssetIdMismatch):
         Transaction.get_asset_id([tx1, tx2])
 
+def test_compose_valid_transactions(b, user_pk, user_sk, alice, signed_create_tx, _bdb):
+    from transactions.types.assets.compose import Compose
+ 
+    validated = b.validate_transaction(signed_create_tx)
+    b.store_bulk_transactions([validated])
+        
+    inputs = signed_create_tx.to_inputs()
+    assets = [signed_create_tx.id, "QmW5GVMW98D3mktSDfWHS8nX2UiCd8gP1uCiujnFX4yK8n"]
+    compose_transaction = Compose.generate(inputs=inputs, recipients=[([user_pk], 1)], assets=assets)
+    compose_transaction.sign([user_sk])
+    assert b.validate_transaction( compose_transaction)
 
 def test_create_valid_divisible_asset(b, user_pk, user_sk, _bdb):
     tx = Create.generate([user_pk], [([user_pk], 2)])
