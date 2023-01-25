@@ -481,6 +481,8 @@ def test_post_transaction_compose_valid( client):
     tx = Create.generate([alice.public_key], [([alice.public_key], 1)], assets=[{"data":"QmW5GVMW98D3mktSDfWHS8nX2UiCd8gP1uCiujnFX4yK97"}]).sign([alice.private_key])
     mode_endpoint = TX_ENDPOINT + mode[0]
     response = client.post(mode_endpoint, data=json.dumps(tx.to_dict()))
+    assert "202 ACCEPTED" in response.status
+
     tx = tx.to_dict()
 
     compose_asset_cid = "QmW5GVMW98D3mktSDfWHS8nX2UiCd8gP1uCiujnFX4yK8n"
@@ -502,6 +504,6 @@ def test_post_transaction_compose_valid( client):
     signed_tx  = compose_transaction.sign( [alice.private_key])
     mode_endpoint = TX_ENDPOINT + "?mode=commit"
     response = client.post(mode_endpoint, data=json.dumps(signed_tx.to_dict()))
-    assert "400 BAD REQUEST" in response.status
+    assert "202 ACCEPTED" in response.status
 
 
