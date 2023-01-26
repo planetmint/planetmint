@@ -15,7 +15,7 @@ services:
     command: mongod
     restart: always
   tarantool:
-    image: tarantool/tarantool:2.10.0-beta1
+    image: tarantool/tarantool:2.10.4
     ports:
       - "5200:5200"
       - "3301:3301"
