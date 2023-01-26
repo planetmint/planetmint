@@ -374,9 +374,7 @@ class Planetmint(object):
                 return False
 
         if transaction.operation == Transaction.CREATE:
-            duplicates = any(txn for txn in current_transactions if txn.id == transaction.id)
-            if self.is_committed(transaction.id) or duplicates:
-                raise DuplicateTransaction("transaction `{}` already exists".format(transaction.id))
+            self.validate_create_inputs(transaction, current_transactions)
         elif transaction.operation in [Transaction.TRANSFER, Transaction.VOTE]:
             self.validate_transfer_inputs(transaction, current_transactions)
         elif transaction.operation in [Transaction.COMPOSE]:
@@ -384,7 +382,28 @@ class Planetmint(object):
 
         return transaction
 
-    def validate_transfer_inputs(self, tx, current_transactions=[]):
+    def validate_create_inputs(self, tx, current_transactions=[]) -> bool:
+        duplicates = any(txn for txn in current_transactions if txn.id == tx.id)
+        if self.is_committed(tx.id) or duplicates:
+            raise DuplicateTransaction("transaction `{}` already exists".format(tx.id))
+        
+        fulfilling_inputs = [i for i in tx.inputs if i.fulfills is not None and i.fulfills.txid is not None]
+         
+        if len(fulfilling_inputs) > 0:
+            input_txs, input_conditions = self.get_input_txs_and_conditions(fulfilling_inputs, current_transactions)
+             
+            create_asset = tx.assets[0]
+            input_asset = input_txs[0].assets[tx.inputs[0].fulfills.output_index]          
+            if create_asset != input_asset:
+                raise ValidationError("CREATE must have matching asset description with input transaction")
+            
+            if input_txs[0].operation is not Transaction.DECOMPOSE:
+                raise SchemaValidationError("CREATE can only consume DECOMPOSE outputs")
+        
+        return True
+        
+
+    def validate_transfer_inputs(self, tx, current_transactions=[]) -> bool:
         input_txs, input_conditions = self.get_input_txs_and_conditions(tx.inputs, current_transactions)
 
         self.validate_input_conditions(tx, input_conditions)
