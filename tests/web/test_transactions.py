@@ -544,9 +544,9 @@ def test_post_transaction_decompose_valid(client, b):
 
     assets = [
         tx["id"],
-        {"data": "bafkreiawyk3ou5qzqec4ggbvrs56dv5ske2viwprf6he5wj5gr4yv5orsu"},
-        {"data": "bafkreibncbonglm6mi3znbrqbchk56wmgftk4gfevxqlgeif3g5jdotcka"},
-        {"data": "bafkreibkokzihpnnyqf3xslcievqkadf2ozkdi72wyibijih447vq42kjm"},
+        "bafkreiawyk3ou5qzqec4ggbvrs56dv5ske2viwprf6he5wj5gr4yv5orsu",
+        "bafkreibncbonglm6mi3znbrqbchk56wmgftk4gfevxqlgeif3g5jdotcka",
+        "bafkreibkokzihpnnyqf3xslcievqkadf2ozkdi72wyibijih447vq42kjm",
     ]
     recipients = [([alice.public_key], 1), ([alice.public_key], 2), ([alice.public_key], 3)]
     decompose_transaction = Decompose.generate(inputs=inputs_, recipients=recipients, assets=assets)
