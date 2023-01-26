@@ -8,8 +8,6 @@ name: publish-docker
 on:
   workflow_dispatch:
 
-permissions: 
-  packages: write
 
 jobs:
   publish-docker:
