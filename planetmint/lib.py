@@ -374,20 +374,70 @@ class Planetmint(object):
                 return False
 
         if transaction.operation == Transaction.CREATE:
-            duplicates = any(txn for txn in current_transactions if txn.id == transaction.id)
-            if self.is_committed(transaction.id) or duplicates:
-                raise DuplicateTransaction("transaction `{}` already exists".format(transaction.id))
+            self.validate_create_inputs(transaction, current_transactions)
         elif transaction.operation in [Transaction.TRANSFER, Transaction.VOTE]:
             self.validate_transfer_inputs(transaction, current_transactions)
+        elif transaction.operation in [Transaction.COMPOSE]:
+            self.validate_compose_inputs(transaction, current_transactions)
 
         return transaction
 
-    def validate_transfer_inputs(self, tx, current_transactions=[]):
+    def validate_create_inputs(self, tx, current_transactions=[]) -> bool:
+        duplicates = any(txn for txn in current_transactions if txn.id == tx.id)
+        if self.is_committed(tx.id) or duplicates:
+            raise DuplicateTransaction("transaction `{}` already exists".format(tx.id))
+
+        fulfilling_inputs = [i for i in tx.inputs if i.fulfills is not None and i.fulfills.txid is not None]
+
+        if len(fulfilling_inputs) > 0:
+            input_txs, input_conditions = self.get_input_txs_and_conditions(fulfilling_inputs, current_transactions)
+            create_asset = tx.assets[0]
+            input_asset = input_txs[0].assets[tx.inputs[0].fulfills.output]["data"]
+            if create_asset != input_asset:
+                raise ValidationError("CREATE must have matching asset description with input transaction")
+            if input_txs[0].operation != Transaction.DECOMPOSE:
+                raise SchemaValidationError("CREATE can only consume DECOMPOSE outputs")
+
+        return True
+
+    def validate_transfer_inputs(self, tx, current_transactions=[]) -> bool:
+        input_txs, input_conditions = self.get_input_txs_and_conditions(tx.inputs, current_transactions)
+
+        self.validate_input_conditions(tx, input_conditions)
+
+        self.validate_asset_id(tx, input_txs)
+
+        self.validate_inputs_distinct(tx)
+
+        input_amount = sum([input_condition.amount for input_condition in input_conditions])
+        output_amount = sum([output_condition.amount for output_condition in tx.outputs])
+
+        if output_amount != input_amount:
+            raise AmountError(
+                (
+                    "The amount used in the inputs `{}`" " needs to be same as the amount used" " in the outputs `{}`"
+                ).format(input_amount, output_amount)
+            )
+
+        return True
+
+    def validate_compose_inputs(self, tx, current_transactions=[]) -> bool:
+        input_txs, input_conditions = self.get_input_txs_and_conditions(tx.inputs, current_transactions)
+
+        self.validate_input_conditions(tx, input_conditions)
+
+        self.validate_asset_id(tx, input_txs)
+
+        self.validate_inputs_distinct(tx)
+
+        return True
+
+    def get_input_txs_and_conditions(self, inputs, current_transactions=[]):
         # store the inputs so that we can check if the asset ids match
         input_txs = []
         input_conditions = []
 
-        for input_ in tx.inputs:
+        for input_ in inputs:
             input_txid = input_.fulfills.txid
             input_tx = self.get_transaction(input_txid)
             _output = self.get_outputs_by_tx_id(input_txid)
@@ -416,16 +466,9 @@ class Planetmint(object):
             pm_transaction = Transaction.from_dict(tx_dict, False)
             input_txs.append(pm_transaction)
 
-        # Validate that all inputs are distinct
-        links = [i.fulfills.to_uri() for i in tx.inputs]
-        if len(links) != len(set(links)):
-            raise DoubleSpend('tx "{}" spends inputs twice'.format(tx.id))
+        return (input_txs, input_conditions)
 
-        # validate asset id
-        asset_id = tx.get_asset_id(input_txs)
-        if asset_id != Transaction.read_out_asset_id(tx):
-            raise AssetIdMismatch(("The asset id of the input does not" " match the asset id of the" " transaction"))
-
+    def validate_input_conditions(self, tx, input_conditions):
         # convert planetmint.Output objects to transactions.common.Output objects
         input_conditions_dict = Output.list_to_dict(input_conditions)
         input_conditions_converted = []
@@ -435,17 +478,24 @@ class Planetmint(object):
         if not tx.inputs_valid(input_conditions_converted):
             raise InvalidSignature("Transaction signature is invalid.")
 
-        input_amount = sum([input_condition.amount for input_condition in input_conditions])
-        output_amount = sum([output_condition.amount for output_condition in tx.outputs])
+    def validate_asset_id(self, tx: Transaction, input_txs: list):
+        # validate asset
+        if tx.operation != Transaction.COMPOSE:
+            asset_id = tx.get_asset_id(input_txs)
+            if asset_id != Transaction.read_out_asset_id(tx):
+                raise AssetIdMismatch(
+                    ("The asset id of the input does not" " match the asset id of the" " transaction")
+                )
+        else:
+            asset_ids = Transaction.get_asset_ids(input_txs)
+            if Transaction.read_out_asset_id(tx) in asset_ids:
+                raise AssetIdMismatch(("The asset ID of the compose must be different to all of its input asset IDs"))
 
-        if output_amount != input_amount:
-            raise AmountError(
-                (
-                    "The amount used in the inputs `{}`" " needs to be same as the amount used" " in the outputs `{}`"
-                ).format(input_amount, output_amount)
-            )
-
-        return True
+    def validate_inputs_distinct(self, tx):
+        # Validate that all inputs are distinct
+        links = [i.fulfills.to_uri() for i in tx.inputs]
+        if len(links) != len(set(links)):
+            raise DoubleSpend('tx "{}" spends inputs twice'.format(tx.id))
 
     def is_valid_transaction(self, tx, current_transactions=[]):
         # NOTE: the function returns the Transaction object in case

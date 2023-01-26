@@ -25,6 +25,9 @@ For reference, the possible headings are:
 * **Known Issues**
 * **Notes**
 
+## [2.1.0] - 2023-26-01
+* **Added** validation for compose and decompose transaction types
+
 ## [2.0.0] - 2023-12-01
 * **Changed** changed tarantool db schema
 * **Removed** removed text_search routes
