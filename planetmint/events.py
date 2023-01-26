@@ -5,7 +5,7 @@
 
 from queue import Empty
 from collections import defaultdict
-from multiprocessing import Queue
+import multiprocessing
 
 
 POISON_PILL = "POISON_PILL"
@@ -46,8 +46,8 @@ class Exchange:
     """Dispatch events to subscribers."""
 
     def __init__(self):
-        self.publisher_queue = Queue()
-        self.started_queue = Queue()
+        self.publisher_queue = multiprocessing.Queue()
+        self.started_queue = multiprocessing.Queue()
 
         # Map <event_types -> queues>
         self.queues = defaultdict(list)
@@ -80,7 +80,7 @@ class Exchange:
         if event_types is None:
             event_types = EventTypes.ALL
 
-        queue = Queue()
+        queue = multiprocessing.Queue()
         self.queues[event_types].append(queue)
         return queue
 

@@ -6,7 +6,7 @@
 import contextlib
 import threading
 import queue
-import multiprocessing as mp
+import multiprocessing
 import json
 import setproctitle
 
@@ -19,7 +19,7 @@ from transactions.common.crypto import key_pair_from_ed25519_key
 
 class ProcessGroup(object):
     def __init__(self, concurrency=None, group=None, target=None, name=None, args=None, kwargs=None, daemon=None):
-        self.concurrency = concurrency or mp.cpu_count()
+        self.concurrency = concurrency or multiprocessing.cpu_count()
         self.group = group
         self.target = target
         self.name = name
@@ -30,7 +30,7 @@ class ProcessGroup(object):
 
     def start(self):
         for i in range(self.concurrency):
-            proc = mp.Process(
+            proc = multiprocessing.Process(
                 group=self.group,
                 target=self.target,
                 name=self.name,
@@ -42,7 +42,7 @@ class ProcessGroup(object):
             self.processes.append(proc)
 
 
-class Process(mp.Process):
+class Process(multiprocessing.Process):
     """Wrapper around multiprocessing.Process that uses
     setproctitle to set the name of the process when running
     the target task.

@@ -86,17 +86,6 @@ services:
     image: appropriate/curl
     command: /bin/sh -c "curl -s http://planetmint:9984/ > /dev/null && curl -s http://tendermint:26657/ > /dev/null"
 
-  # Planetmint setup to do acceptance testing with Python
-  python-acceptance:
-    build:
-      context: .
-      dockerfile: ./acceptance/python/Dockerfile
-    volumes:
-      - ./acceptance/python/docs:/docs
-      - ./acceptance/python/src:/src
-    environment:
-      - PLANETMINT_ENDPOINT=planetmint
-
   # Build docs only
   # docker-compose build bdocs
   # docker-compose up -d bdocs

@@ -1,4 +1,4 @@
-.PHONY: help run start stop logs lint test test-unit test-unit-watch test-acceptance test-integration cov docs docs-acceptance clean reset release dist check-deps clean-build clean-pyc clean-test
+.PHONY: help run start stop logs lint test test-unit test-unit-watch test-integration cov docs clean reset release dist check-deps clean-build clean-pyc clean-test
 
 .DEFAULT_GOAL := help
 
@@ -77,7 +77,7 @@ lint: check-py-deps ## Lint the project
 format: check-py-deps ## Format the project
 	black -l 119 .
 
-test: check-deps test-unit #test-acceptance ## Run unit and acceptance tests
+test: check-deps test-unit  ## Run unit 
 
 test-unit: check-deps ## Run all tests once or specify a file/test with TEST=tests/file.py::Class::test
 	@$(DC) up -d tarantool
@@ -93,8 +93,7 @@ test-unit: check-deps ## Run all tests once or specify a file/test with TEST=tes
 test-unit-watch: check-deps ## Run all tests and wait. Every time you change code, tests will be run again
 	@$(DC) run --rm --no-deps planetmint pytest -f
 
-test-acceptance: check-deps ## Run all acceptance tests
-	@./scripts/run-acceptance-test.sh
+
 
 test-integration: check-deps ## Run all integration tests
 	@./scripts/run-integration-test.sh
@@ -106,10 +105,6 @@ cov: check-deps ## Check code coverage and open the result in the browser
 docs: check-deps ## Generate HTML documentation and open it in the browser
 	@$(DC) run --rm --no-deps bdocs make -C docs/root html
 	$(BROWSER) docs/root/build/html/index.html
-
-docs-acceptance: check-deps ## Create documentation for acceptance tests
-	@$(DC) run --rm python-acceptance pycco -i -s /src -d /docs
-	$(BROWSER) acceptance/python/docs/index.html
 
 docs-integration: check-deps ## Create documentation for integration tests
 	@$(DC) run --rm python-integration pycco -i -s /src -d /docs
