@@ -7,6 +7,8 @@ import pytest
 
 from transactions.types.assets.create import Create
 from transactions.types.assets.transfer import Transfer
+from transactions.types.assets.compose import Compose
+from transactions.types.assets.decompose import Decompose
 
 
 def test_asset_transfer(b, signed_create_tx, user_pk, user_sk, _bdb):
@@ -70,8 +72,6 @@ def test_asset_id_mismatch(alice, user_pk):
 
 
 def test_compose_valid_transactions(b, user_pk, user_sk, alice, signed_create_tx, _bdb):
-    from transactions.types.assets.compose import Compose
-
     validated = b.validate_transaction(signed_create_tx)
     b.store_bulk_transactions([validated])
 
@@ -83,17 +83,15 @@ def test_compose_valid_transactions(b, user_pk, user_sk, alice, signed_create_tx
 
 
 def test_decompose_valid_transactions(b, user_pk, user_sk, alice, signed_create_tx, _bdb):
-    from transactions.types.assets.decompose import Decompose
-
     validated = b.validate_transaction(signed_create_tx)
     b.store_bulk_transactions([validated])
 
     inputs = signed_create_tx.to_inputs()
     assets = [
         signed_create_tx.id,
-        {"data": "bafkreiawyk3ou5qzqec4ggbvrs56dv5ske2viwprf6he5wj5gr4yv5orsu"},
-        {"data": "bafkreibncbonglm6mi3znbrqbchk56wmgftk4gfevxqlgeif3g5jdotcka"},
-        {"data": "bafkreibkokzihpnnyqf3xslcievqkadf2ozkdi72wyibijih447vq42kjm"},
+        "bafkreiawyk3ou5qzqec4ggbvrs56dv5ske2viwprf6he5wj5gr4yv5orsu",
+        "bafkreibncbonglm6mi3znbrqbchk56wmgftk4gfevxqlgeif3g5jdotcka",
+        "bafkreibkokzihpnnyqf3xslcievqkadf2ozkdi72wyibijih447vq42kjm",
     ]
     decompose_transaction = Decompose.generate(
         inputs=inputs, recipients=[([user_pk], 1), ([user_pk], 2), ([user_pk], 3)], assets=assets
@@ -101,6 +99,31 @@ def test_decompose_valid_transactions(b, user_pk, user_sk, alice, signed_create_
     decompose_transaction.sign([user_sk])
     assert b.validate_transaction(decompose_transaction)
 
+
+def test_create_decompose_output(b, user_pk, user_sk, signed_create_tx, _bdb):
+    validated = b.validate_transaction(signed_create_tx)
+    b.store_bulk_transactions([validated])
+
+    inputs = signed_create_tx.to_inputs()
+    assets = [
+        "bafkreiawyk3ou5qzqec4ggbvrs56dv5ske2viwprf6he5wj5gr4yv5orsu",
+        "bafkreibncbonglm6mi3znbrqbchk56wmgftk4gfevxqlgeif3g5jdotcka",
+        "bafkreibkokzihpnnyqf3xslcievqkadf2ozkdi72wyibijih447vq42kjm",
+        signed_create_tx.id,
+    ]
+    decompose_transaction = Decompose.generate(
+        inputs=inputs, recipients=[([user_pk], 1), ([user_pk], 2), ([user_pk], 3)], assets=assets
+    )
+    decompose_transaction.sign([user_sk])
+    validated_decompose = b.validate_transaction(decompose_transaction)
+    b.store_bulk_transactions([validated_decompose])
+    
+    create_inputs = decompose_transaction.to_inputs([0])
+    create_tx = Create.generate([user_pk], recipients=[([user_pk], 1)], assets=[assets[0]], inputs=create_inputs)
+    signed_decompose_create_tx = create_tx.sign([user_sk])
+    assert b.validate_transaction(signed_decompose_create_tx)
+    
+    
 
 def test_create_valid_divisible_asset(b, user_pk, user_sk, _bdb):
     tx = Create.generate([user_pk], [([user_pk], 2)])

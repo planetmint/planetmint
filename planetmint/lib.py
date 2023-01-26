@@ -391,13 +391,11 @@ class Planetmint(object):
          
         if len(fulfilling_inputs) > 0:
             input_txs, input_conditions = self.get_input_txs_and_conditions(fulfilling_inputs, current_transactions)
-             
             create_asset = tx.assets[0]
-            input_asset = input_txs[0].assets[tx.inputs[0].fulfills.output_index]          
+            input_asset = input_txs[0].assets[tx.inputs[0].fulfills.output]["data"]
             if create_asset != input_asset:
                 raise ValidationError("CREATE must have matching asset description with input transaction")
-            
-            if input_txs[0].operation is not Transaction.DECOMPOSE:
+            if input_txs[0].operation != Transaction.DECOMPOSE:
                 raise SchemaValidationError("CREATE can only consume DECOMPOSE outputs")
         
         return True
