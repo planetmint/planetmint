@@ -16,6 +16,7 @@ from transactions.common import crypto
 from transactions.common.transaction import Transaction
 from transactions.types.assets.create import Create
 from transactions.types.assets.compose import Compose
+from transactions.types.assets.decompose import Decompose
 from transactions.types.assets.transfer import Transfer
 from transactions.common.transaction_mode_types import (
     BROADCAST_TX_COMMIT,
@@ -523,3 +524,30 @@ def test_post_transaction_compose_valid(client, b):
     mode_endpoint = TX_ENDPOINT + "?mode=commit"
     response = client.post(mode_endpoint, data=json.dumps(signed_tx.to_dict()))
     assert "202 ACCEPTED" in response.status
+
+
+@pytest.mark.abci
+def test_post_transaction_decompose_valid(client, b):
+    mode = ("?mode=commit", BROADCAST_TX_COMMIT)
+    alice = generate_key_pair()
+    tx = Create.generate(
+        [alice.public_key],
+        [([alice.public_key], 1)],
+        assets=[{"data": "QmW5GVMW98D3mktSDfWHS8nX2UiCd8gP1uCiujnFX4yK97"}],
+    ).sign([alice.private_key])
+    mode_endpoint = TX_ENDPOINT + mode[0]
+    response = client.post(mode_endpoint, data=json.dumps(tx.to_dict()))
+    assert "202 ACCEPTED" in response.status
+    tx_obj = tx
+    tx = tx.to_dict()
+    inputs_ = tx_obj.to_inputs()
+    
+    assets_ = [tx["id"]]
+    decompose_transaction = Decompose.generate(inputs=inputs_, recipients=[([alice.public_key], 1)], assets=assets_)
+    signed_tx = decompose_transaction.sign([alice.private_key])
+    validated_decompose = b.validate_transaction(signed_tx)
+    mode_endpoint = TX_ENDPOINT + "?mode=commit"
+    response = client.post(mode_endpoint, data=json.dumps(signed_tx.to_dict()))
+    assert "202 ACCEPTED" in response.status
+    
+    
