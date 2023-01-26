@@ -7,7 +7,7 @@
 name: publish-docker
 on:
   workflow_dispatch:
-
+  push: -- Add this here
 
 jobs:
   publish-docker:
