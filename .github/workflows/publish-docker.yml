@@ -4,11 +4,9 @@
 # Code is Apache-2.0 and docs are CC-BY-4.0
 
 ---
-name: publish-image
+name: publish-docker
 on:
   workflow_dispatch:
-    branches:
-      - "*"
 
 permissions: 
   packages: write
