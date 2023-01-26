@@ -5,5 +5,6 @@
 
 import pytest
 
+
 def test_something():
     return True

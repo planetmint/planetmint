@@ -117,13 +117,12 @@ def test_create_decompose_output(b, user_pk, user_sk, signed_create_tx, _bdb):
     decompose_transaction.sign([user_sk])
     validated_decompose = b.validate_transaction(decompose_transaction)
     b.store_bulk_transactions([validated_decompose])
-    
+
     create_inputs = decompose_transaction.to_inputs([0])
     create_tx = Create.generate([user_pk], recipients=[([user_pk], 1)], assets=[assets[0]], inputs=create_inputs)
     signed_decompose_create_tx = create_tx.sign([user_sk])
     assert b.validate_transaction(signed_decompose_create_tx)
-    
-    
+
 
 def test_create_valid_divisible_asset(b, user_pk, user_sk, _bdb):
     tx = Create.generate([user_pk], [([user_pk], 2)])
