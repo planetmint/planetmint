@@ -541,13 +541,17 @@ def test_post_transaction_decompose_valid(client, b):
     tx_obj = tx
     tx = tx.to_dict()
     inputs_ = tx_obj.to_inputs()
-    
-    assets_ = [tx["id"]]
-    decompose_transaction = Decompose.generate(inputs=inputs_, recipients=[([alice.public_key], 1)], assets=assets_)
+
+    assets = [
+        tx["id"],
+        {"data": "bafkreiawyk3ou5qzqec4ggbvrs56dv5ske2viwprf6he5wj5gr4yv5orsu"},
+        {"data": "bafkreibncbonglm6mi3znbrqbchk56wmgftk4gfevxqlgeif3g5jdotcka"},
+        {"data": "bafkreibkokzihpnnyqf3xslcievqkadf2ozkdi72wyibijih447vq42kjm"},
+    ]
+    recipients = [([alice.public_key], 1), ([alice.public_key], 2), ([alice.public_key], 3)]
+    decompose_transaction = Decompose.generate(inputs=inputs_, recipients=recipients, assets=assets)
     signed_tx = decompose_transaction.sign([alice.private_key])
     validated_decompose = b.validate_transaction(signed_tx)
     mode_endpoint = TX_ENDPOINT + "?mode=commit"
     response = client.post(mode_endpoint, data=json.dumps(signed_tx.to_dict()))
     assert "202 ACCEPTED" in response.status
-    
-    
