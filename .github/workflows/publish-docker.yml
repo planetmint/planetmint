@@ -29,7 +29,7 @@ jobs:
         with:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          password: ${{ secrets.GH_PACKAGE_DEPLOYMENT }}
       - name: Docker meta
         id: semver # you'll use this in the next step
         uses: docker/metadata-action@v3
