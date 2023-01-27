@@ -531,6 +531,28 @@ def test_post_transaction_compose_valid(client, b):
 
 
 @pytest.mark.abci
+def test_post_transaction_compose_invalid(client, b):
+    mode = ("?mode=commit", BROADCAST_TX_COMMIT)
+    alice = generate_key_pair()
+    tx = Create.generate(
+        [alice.public_key],
+        [([alice.public_key], 1)],
+        assets=[{"data": "QmW5GVMW98D3mktSDfWHS8nX2UiCd8gP1uCiujnFX4yK97"}],
+    ).sign([alice.private_key])
+    tx_obj = tx
+    tx = tx.to_dict()
+    compose_asset_cid = "bafkreignwcoye67vn6edp23mj4llhpzzkgyuefu7xesjzjxcv2bz3p4nfm"
+    inputs_ = tx_obj.to_inputs()
+
+    assets_ = [tx["id"], compose_asset_cid]
+    compose_transaction = Compose.generate(inputs=inputs_, recipients=[([alice.public_key], 1)], assets=assets_)
+    signed_tx = compose_transaction.sign([alice.private_key])
+
+    mode_endpoint = TX_ENDPOINT + "?mode=commit"
+    response = client.post(mode_endpoint, data=json.dumps(signed_tx.to_dict()))
+    assert "400 BAD REQUEST" in response.status
+
+@pytest.mark.abci
 def test_post_transaction_decompose_valid(client, b):
     mode = ("?mode=commit", BROADCAST_TX_COMMIT)
     alice = generate_key_pair()

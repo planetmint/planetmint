@@ -81,6 +81,16 @@ def test_compose_valid_transactions(b, user_pk, user_sk, alice, signed_create_tx
     compose_transaction.sign([user_sk])
     assert b.validate_transaction(compose_transaction)
 
+def test_compose_invalid_transactions(b, user_pk, user_sk, alice, signed_create_tx, _bdb):
+    validated = b.validate_transaction(signed_create_tx)
+    #b.store_bulk_transactions([validated])
+
+    inputs = signed_create_tx.to_inputs()
+    assets = [signed_create_tx.id, "QmW5GVMW98D3mktSDfWHS8nX2UiCd8gP1uCiujnFX4yK8n"]
+    compose_transaction = Compose.generate(inputs=inputs, recipients=[([user_pk], 1)], assets=assets)
+    compose_transaction.sign([user_sk])
+    with pytest.raises(Exception):
+        assert b.validate_transaction(compose_transaction)
 
 def test_decompose_valid_transactions(b, user_pk, user_sk, alice, signed_create_tx, _bdb):
     validated = b.validate_transaction(signed_create_tx)
