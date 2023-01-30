@@ -335,7 +335,6 @@ class Planetmint(object):
 
         return block
 
-
     def get_block_containing_tx(self, txid):
         """Retrieve the list of blocks (block ids) containing a
            transaction with transaction id `txid`

@@ -25,6 +25,9 @@ For reference, the possible headings are:
 * **Known Issues**
 * **Notes**
 
+## [2.2.0] - 2023-31-01
+* **Changed** standardized blocks API
+
 ## [2.1.0] - 2023-26-01
 * **Added** validation for compose and decompose transaction types
 
