@@ -22,7 +22,7 @@ jobs:
           python-version: 3.9
 
       - name: Install pip-audit
-        run: pip install --upgrade pip pip-audit
+        run: pip install --upgrade pip pip-audit setuptools
 
       - name: Install dependencies
         run: pip install .
