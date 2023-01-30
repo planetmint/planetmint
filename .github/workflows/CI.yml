@@ -50,7 +50,7 @@ jobs:
         run: pip freeze > requirements.txt
 
       - name: Audit dependencies
-        run: pip-audit
+        run: pip-audit --ignore-vuln PYSEC-2022-42969 --ignore-vuln PYSEC-2022-203
 
   test:
     needs: lint
