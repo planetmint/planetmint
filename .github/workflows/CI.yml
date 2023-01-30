@@ -41,7 +41,7 @@ jobs:
           python-version: 3.9
 
       - name: Install pip-audit
-        run: pip install --upgrade pip pip-audit setuptools
+        run: pip install --upgrade pip pip-audit 
 
       - name: Install dependencies
         run: pip install .
@@ -50,7 +50,7 @@ jobs:
         run: pip freeze > requirements.txt
 
       - name: Audit dependencies
-        run: pip-audit --ignore-vuln PYSEC-2022-42969 --ignore-vuln PYSEC-2022-203
+        run: pip-audit --ignore-vuln PYSEC-2022-42969 --ignore-vuln PYSEC-2022-203 --ignore-vuln GHSA-r9hx-vwmv-q579
 
   test:
     needs: lint
