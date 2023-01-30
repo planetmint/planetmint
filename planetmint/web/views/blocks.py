@@ -71,6 +71,9 @@ class BlockListApi(Resource):
         pool = current_app.config["bigchain_pool"]
 
         with pool() as planet:
-            blocks = planet.get_block_containing_tx(tx_id)
+            block = planet.get_block_containing_tx(tx_id)
 
-        return blocks
+        if not block:
+            return make_error(404)
+
+        return block

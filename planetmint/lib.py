@@ -311,12 +311,12 @@ class Planetmint(object):
 
         return backend.query.store_block(self.connection, block)
 
-    def get_latest_block(self):
+    def get_latest_block(self) -> dict:
         """Get the block with largest height."""
 
         return backend.query.get_latest_block(self.connection)
 
-    def get_block(self, block_id):
+    def get_block(self, block_id) -> dict:
         """Get the block with the specified `block_id`.
 
         Returns the block corresponding to `block_id` or None if no match is
@@ -333,13 +333,8 @@ class Planetmint(object):
         if not block and block_id > latest_block_height:
             return
 
-        result = {"height": block_id, "transactions": []}
+        return block
 
-        if block:
-            transactions = backend.query.get_transactions(self.connection, block["transactions"])
-            result["transactions"] = [Transaction.from_dict(t.to_dict()).to_dict() for t in transactions]
-
-        return result
 
     def get_block_containing_tx(self, txid):
         """Retrieve the list of blocks (block ids) containing a
@@ -351,11 +346,9 @@ class Planetmint(object):
         Returns:
             Block id list (list(int))
         """
-        blocks = list(backend.query.get_block_with_transaction(self.connection, txid))
-        if len(blocks) > 1:
-            logger.critical("Transaction id %s exists in multiple blocks", txid)
+        block = backend.query.get_block_with_transaction(self.connection, txid)
 
-        return blocks
+        return block
 
     def validate_transaction(self, transaction, current_transactions=[]):
         """Validate a transaction against the current status of the database."""

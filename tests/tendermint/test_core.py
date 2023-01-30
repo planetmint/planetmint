@@ -57,7 +57,7 @@ def test_init_chain_successfully_registers_chain(b):
     assert query.get_latest_block(b.connection) == {
         "height": 0,
         "app_hash": "",
-        "transactions": [],
+        "transaction_ids": [],
     }
 
 
@@ -87,7 +87,7 @@ def test_init_chain_ignores_invalid_init_chain_requests(b):
         assert query.get_latest_block(b.connection) == {
             "height": 0,
             "app_hash": "",
-            "transactions": [],
+            "transaction_ids": [],
         }
 
 
@@ -134,7 +134,7 @@ def test_init_chain_recognizes_new_chain_after_migration(b):
     assert query.get_latest_block(b.connection) == {
         "height": 2,
         "app_hash": "",
-        "transactions": [],
+        "transaction_ids": [],
     }
 
     # requests with old chain ID and other requests are ignored
@@ -156,7 +156,7 @@ def test_init_chain_recognizes_new_chain_after_migration(b):
         assert query.get_latest_block(b.connection) == {
             "height": 2,
             "app_hash": "",
-            "transactions": [],
+            "transaction_ids": [],
         }
 
 
