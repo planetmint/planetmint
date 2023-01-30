@@ -53,7 +53,7 @@ jobs:
         run: pip-audit
 
   test:
-    needs: lint, audit
+    needs: lint
     runs-on: ubuntu-latest
     env:
       PLANETMINT_DATABASE_BACKEND: tarantool_db
