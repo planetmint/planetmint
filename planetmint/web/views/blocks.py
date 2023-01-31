@@ -74,6 +74,6 @@ class BlockListApi(Resource):
             block = planet.get_block_containing_tx(tx_id)
 
         if not block:
-            return make_error(404)
+            return make_error(404, "Block containing transaction with id: {} not found.".format(tx_id))
 
         return block
