@@ -3,15 +3,8 @@
 # SPDX-License-Identifier: (Apache-2.0 AND CC-BY-4.0)
 # Code is Apache-2.0 and docs are CC-BY-4.0
 
-from copy import deepcopy
-
 import pytest
-import json
 from transactions.common.transaction import Transaction
-from transactions.types.assets.create import Create
-from transactions.types.assets.transfer import Transfer
-from planetmint.backend.interfaces import Asset, MetaData
-from planetmint.backend.models import DbTransaction
 
 pytestmark = pytest.mark.bdb
 

@@ -32,8 +32,6 @@ from planetmint.commands.election_types import elections
 from planetmint.version import __tm_supported_versions__
 from planetmint.config import Config
 
-from planetmint.backend.tarantool.const import TARANT_TABLE_GOVERNANCE
-
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
