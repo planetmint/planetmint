@@ -33,7 +33,7 @@ def test_get_block_endpoint(b, client, alice):
     b.store_block(block._asdict())
 
     res = client.get(BLOCKS_ENDPOINT + str(block.height))
-    expected_response = {"height": block.height, "transactions": [tx_dict]}
+    expected_response = {"app_hash": "random_utxo", "height": block.height, "transaction_ids": [tx.id]}
     assert res.json == expected_response
     assert res.status_code == 200
 
@@ -60,16 +60,14 @@ def test_get_block_containing_transaction(b, client, alice):
     b.store_block(block._asdict())
     res = client.get("{}?transaction_id={}".format(BLOCKS_ENDPOINT, tx.id))
     expected_height = block.height
-    assert res.json[0][2] == expected_height
+    assert res.json["height"] == expected_height
     assert res.status_code == 200
 
 
 @pytest.mark.bdb
 def test_get_blocks_by_txid_endpoint_returns_empty_list_not_found(client):
     res = client.get(BLOCKS_ENDPOINT + "?transaction_id=")
-    assert res.status_code == 200
-    assert len(res.json) == 0
+    assert res.status_code == 404
 
     res = client.get(BLOCKS_ENDPOINT + "?transaction_id=123")
-    assert res.status_code == 200
-    assert len(res.json) == 0
+    assert res.status_code == 404

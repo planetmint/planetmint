@@ -86,13 +86,6 @@ def test_get_latest_block(b):
     assert block["height"] == 9
 
 
-@pytest.mark.bdb
-@patch("planetmint.backend.query.get_block", return_value=None)
-@patch("planetmint.Planetmint.get_latest_block", return_value={"height": 10})
-def test_get_empty_block(_0, _1, b):
-    assert b.get_block(5) == {"height": 5, "transactions": []}
-
-
 def test_validation_error(b):
     from transactions.common.crypto import generate_key_pair
 

@@ -311,9 +311,12 @@ def get_block(connection, block_id=None) -> Union[dict, None]:
 
 
 @register_query(TarantoolDBConnection)
-def get_block_with_transaction(connection, txid: str) -> list[Block]:
+def get_block_with_transaction(connection, txid: str) -> Union[dict, None]:
     _block = connection.run(connection.space(TARANT_TABLE_BLOCKS).select(txid, index="block_by_transaction_id"))
-    return _block if len(_block) > 0 else []
+    if len(_block) == 0:
+        return
+    _block = Block.from_tuple(_block[0])
+    return _block.to_dict()
 
 
 @register_query(TarantoolDBConnection)
