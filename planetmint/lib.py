@@ -44,7 +44,7 @@ from transactions.common.output import Output as TransactionOutput
 from transactions.types.elections.election import Election
 from transactions.types.elections.validator_utils import election_id_to_public_key
 
-from planetmint.backend.models import Output, DbTransaction
+from planetmint.backend.models import Output, DbTransaction, Asset, MetaData
 from planetmint.backend.tarantool.const import (
     TARANT_TABLE_GOVERNANCE,
     TARANT_TABLE_TRANSACTION,
@@ -59,9 +59,7 @@ from planetmint.tendermint_utils import (
     encode_validator,
     new_validator_set,
 )
-from planetmint import exceptions as core_exceptions
 from planetmint.validation import BaseValidationRules
-from planetmint.backend.interfaces import Asset, MetaData
 from planetmint.const import GOVERNANCE_TRANSACTION_TYPES
 
 logger = logging.getLogger(__name__)

@@ -7,10 +7,9 @@
 
 from functools import singledispatch
 
-from planetmint.backend.models import Asset, MetaData, Output, Input, Script
+from planetmint.backend.models import Asset, Block, MetaData, Output, Input, Script
 
 from planetmint.backend.exceptions import OperationError
-from planetmint.backend.interfaces import Block
 from planetmint.backend.models.dbtransaction import DbTransaction
 
 

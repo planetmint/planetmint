@@ -7,7 +7,6 @@ import pytest
 import codecs
 
 from planetmint.tendermint_utils import public_key_to_base64
-from planetmint.backend.tarantool.const import TARANT_TABLE_GOVERNANCE
 
 from transactions.types.elections.validator_election import ValidatorElection
 from transactions.common.exceptions import AmountError
