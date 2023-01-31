@@ -106,7 +106,6 @@ jobs:
 
       - name: Install dependencies
         run: pip install -e '.[dev]' && pip install wheel && python setup.py bdist_wheel sdist
-        #run: poetry install --with dev
 
       - name: Upload to PyPI
         run: |
@@ -115,9 +114,6 @@ jobs:
         env:
           TWINE_USERNAME: __token__
           TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
-        #run: |
-        #  poetry build
-        #  poetry publish -u __token__ -p ${{ secrets.PYPI_TOKEN }}
 
       - name: Upload to GitHub
         uses: softprops/action-gh-release@v1
