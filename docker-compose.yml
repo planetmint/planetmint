@@ -32,7 +32,7 @@ services:
       - tarantool
     build:
       context: .
-      dockerfile: Dockerfile-dev
+      dockerfile: Dockerfile
     volumes:
       - ./planetmint:/usr/src/app/planetmint
       - ./tests:/usr/src/app/tests
@@ -60,7 +60,7 @@ services:
       interval: 3s
       timeout: 5s
       retries: 5
-    command: 'scripts/entrypoint.sh'
+    command: 'planetmint -l DEBUG start'
     restart: always
   
   tendermint:
@@ -94,7 +94,7 @@ services:
       - vdocs
     build:
       context: .
-      dockerfile: Dockerfile-dev
+      dockerfile: Dockerfile
       args:
         backend: tarantool
     volumes:
