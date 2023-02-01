@@ -20,15 +20,6 @@ permissions:
   contents: write
 
 jobs:
-  lint:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: psf/black@stable
-        with:
-          options: "--check -l 119"
-          src: "."
-
   audit:
     runs-on: ubuntu-latest
     
@@ -53,8 +44,14 @@ jobs:
       - name: Audit dependencies
         run: pip-audit --ignore-vuln PYSEC-2022-42969 --ignore-vuln PYSEC-2022-203 --ignore-vuln GHSA-r9hx-vwmv-q579
 
+      - name: Install black
+        run: pip install black
+
+      - name: Lint - black
+        run: black --check -l 119 .
+
   test:
-    needs: lint
+    needs: audit
     runs-on: ubuntu-latest
     env:
       PLANETMINT_DATABASE_BACKEND: tarantool_db
