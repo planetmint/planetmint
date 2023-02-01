@@ -340,7 +340,6 @@ def test_post_invalid_transaction(
 
 @pytest.mark.abci
 def test_post_transfer_transaction_endpoint(client, user_pk, user_sk, posted_create_tx):
-
     transfer_tx = Transfer.generate(posted_create_tx.to_inputs(), [([user_pk], 1)], asset_ids=[posted_create_tx.id])
     transfer_tx = transfer_tx.sign([user_sk])
 

@@ -138,7 +138,6 @@ async def test_bridge_sync_async_queue(event_loop):
 
 @pytest.mark.asyncio
 async def test_websocket_block_event(aiohttp_client, event_loop):
-
     user_priv, user_pub = crypto.generate_key_pair()
     tx = Create.generate([user_pub], [([user_pub], 1)])
     tx = tx.sign([user_priv])
@@ -169,7 +168,6 @@ async def test_websocket_block_event(aiohttp_client, event_loop):
 
 @pytest.mark.asyncio
 async def test_websocket_transaction_event(aiohttp_client, event_loop):
-
     user_priv, user_pub = crypto.generate_key_pair()
     tx = Create.generate([user_pub], [([user_pub], 1)])
     tx = tx.sign([user_priv])

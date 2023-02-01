@@ -52,7 +52,6 @@ metadata = {"units": 300, "type": "KG"}
 
 
 def test_zenroom_signing():
-
     biolabs = generate_key_pair()
     version = "3.0"
 

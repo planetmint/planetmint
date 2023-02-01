@@ -315,7 +315,6 @@ def test_write_config():
     ),
 )
 def test_database_envs(env_name, env_value, config_key, monkeypatch):
-
     monkeypatch.setattr("os.environ", {env_name: env_value})
     planetmint.config_utils.autoconfigure()
 
