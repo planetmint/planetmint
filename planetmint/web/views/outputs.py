@@ -6,6 +6,7 @@
 from flask import current_app
 from flask_restful import reqparse, Resource
 from planetmint.web.views import parameters
+from planetmint.web.views.base import make_error
 
 
 class OutputListApi(Resource):
@@ -23,5 +24,12 @@ class OutputListApi(Resource):
 
         pool = current_app.config["bigchain_pool"]
         with pool() as planet:
-            outputs = planet.get_outputs_filtered(args["public_key"], args["spent"])
+            try:
+                outputs = planet.get_outputs_filtered(args["public_key"], args["spent"])
+            except Exception as e:
+                return make_error(
+                    500,
+                    "Invalid output ({}): {} : {} - {}".format(type(e).__name__, e, args["public_key"], args["spent"]),
+                    level="error",
+                )
             return [{"transaction_id": output.txid, "output_index": output.output} for output in outputs]
