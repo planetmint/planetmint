@@ -14,7 +14,7 @@ from planetmint.config import Config
 logger = logging.getLogger(__name__)
 
 
-def make_error(status_code, message=None):
+def make_error(status_code, message=None, level: str = "debug"):
     if status_code == 404 and message is None:
         message = "Not found"
 
@@ -22,7 +22,10 @@ def make_error(status_code, message=None):
     request_info = {"method": request.method, "path": request.path}
     request_info.update(response_content)
 
-    logger.debug("HTTP API error: %(status)s - %(method)s:%(path)s - %(message)s", request_info)
+    if level == "error":
+        logger.error("HTTP API error: %(status)s - %(method)s:%(path)s - %(message)s", request_info)
+    else:
+        logger.debug("HTTP API error: %(status)s - %(method)s:%(path)s - %(message)s", request_info)
 
     response = jsonify(response_content)
     response.status_code = status_code

@@ -106,7 +106,6 @@ class TestBigchainApi(object):
             b.validate_transaction(tx)
 
     def test_write_transaction(self, b, user_sk, user_pk, alice, create_tx):
-
         asset1 = {"data": "QmaozNR7DZHQK1ZcU9p7QdrshMvXqWK6gpu5rmrkPdT3L4"}
 
         tx = Create.generate([alice.public_key], [([alice.public_key], 1)], assets=[asset1]).sign([alice.private_key])

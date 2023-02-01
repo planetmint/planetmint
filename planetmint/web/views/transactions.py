@@ -73,7 +73,6 @@ class TransactionListApi(Resource):
         # `force` will try to format the body of the POST request even if the
         # `content-type` header is not set to `application/json`
         tx = request.get_json(force=True)
-
         try:
             tx_obj = Transaction.from_dict(tx, False)
         except SchemaValidationError as e:
@@ -85,12 +84,18 @@ class TransactionListApi(Resource):
             return make_error(400, "Invalid transaction ({}): {}".format(type(e).__name__, e))
         except ValidationError as e:
             return make_error(400, "Invalid transaction ({}): {}".format(type(e).__name__, e))
+        except Exception as e:
+            return make_error(500, "Invalid transaction ({}): {} - {}".format(type(e).__name__, e, tx), level="error")
 
         with pool() as planet:
             try:
                 planet.validate_transaction(tx_obj)
             except ValidationError as e:
                 return make_error(400, "Invalid transaction ({}): {}".format(type(e).__name__, e))
+            except Exception as e:
+                return make_error(
+                    500, "Invalid transaction ({}): {} : {}".format(type(e).__name__, e, tx), level="error"
+                )
             else:
                 if tx_obj.version != Transaction.VERSION:
                     return make_error(

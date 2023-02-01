@@ -25,6 +25,9 @@ For reference, the possible headings are:
 * **Known Issues**
 * **Notes**
 
+## [2.2.2] - 2023-31-01
+* **Fixed** catching tarantool exceptions in case tarantool drivers throw execeptions due to concurrency issues. This issue got idenitfied during the testing of the planetmint-driver-ts. 
+
 ## [2.2.0] - 2023-31-01
 * **Changed** standardized blocks API
 

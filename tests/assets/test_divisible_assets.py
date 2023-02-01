@@ -34,7 +34,6 @@ def test_single_in_single_own_single_out_single_own_create(alice, user_pk, b):
 # Multiple outputs
 # Single owners_after per output
 def test_single_in_single_own_multiple_out_single_own_create(alice, user_pk, b):
-
     tx = Create.generate(
         [alice.public_key],
         [([user_pk], 50), ([user_pk], 50)],
@@ -55,7 +54,6 @@ def test_single_in_single_own_multiple_out_single_own_create(alice, user_pk, b):
 # Single output
 # Multiple owners_after
 def test_single_in_single_own_single_out_multiple_own_create(alice, user_pk, b):
-
     tx = Create.generate(
         [alice.public_key],
         [([user_pk, user_pk], 100)],
@@ -81,7 +79,6 @@ def test_single_in_single_own_single_out_multiple_own_create(alice, user_pk, b):
 # Mix: one output with a single owners_after, one output with multiple
 #      owners_after
 def test_single_in_single_own_multiple_out_mix_own_create(alice, user_pk, b):
-
     tx = Create.generate(
         [alice.public_key],
         [([user_pk], 50), ([user_pk, user_pk], 50)],
@@ -130,7 +127,6 @@ def test_single_in_multiple_own_single_out_single_own_create(alice, b, user_pk, 
 # Single output
 # Single owners_after
 def test_single_in_single_own_single_out_single_own_transfer(alice, b, user_pk, user_sk):
-
     # CREATE divisible asset
     tx_create = Create.generate(
         [alice.public_key], [([user_pk], 100)], assets=[{"data": "QmaozNR7DZHQK1ZcU9p7QdrshMvXqWK6gpu5rmrkPdT3L4"}]
@@ -155,7 +151,6 @@ def test_single_in_single_own_single_out_single_own_transfer(alice, b, user_pk, 
 # Multiple output
 # Single owners_after
 def test_single_in_single_own_multiple_out_single_own_transfer(alice, b, user_pk, user_sk):
-
     # CREATE divisible asset
     tx_create = Create.generate(
         [alice.public_key], [([user_pk], 100)], assets=[{"data": "QmaozNR7DZHQK1ZcU9p7QdrshMvXqWK6gpu5rmrkPdT3L4"}]
@@ -183,7 +178,6 @@ def test_single_in_single_own_multiple_out_single_own_transfer(alice, b, user_pk
 # Single output
 # Multiple owners_after
 def test_single_in_single_own_single_out_multiple_own_transfer(alice, b, user_pk, user_sk):
-
     # CREATE divisible asset
     tx_create = Create.generate(
         [alice.public_key], [([user_pk], 100)], assets=[{"data": "QmaozNR7DZHQK1ZcU9p7QdrshMvXqWK6gpu5rmrkPdT3L4"}]
@@ -219,7 +213,6 @@ def test_single_in_single_own_single_out_multiple_own_transfer(alice, b, user_pk
 # Mix: one output with a single owners_after, one output with multiple
 #      owners_after
 def test_single_in_single_own_multiple_out_mix_own_transfer(alice, b, user_pk, user_sk):
-
     # CREATE divisible asset
     tx_create = Create.generate(
         [alice.public_key], [([user_pk], 100)], assets=[{"data": "QmaozNR7DZHQK1ZcU9p7QdrshMvXqWK6gpu5rmrkPdT3L4"}]
@@ -448,7 +441,6 @@ def test_muiltiple_in_mix_own_multiple_out_mix_own_transfer(alice, b, user_pk, u
 # Single output
 # Single owners_after
 def test_multiple_in_different_transactions(alice, b, user_pk, user_sk):
-
     # CREATE divisible asset
     # `b` creates a divisible asset and assigns 50 shares to `b` and
     # 50 shares to `user_pk`
@@ -549,7 +541,6 @@ def test_threshold_same_public_key(alice, b, user_pk, user_sk):
 
 
 def test_sum_amount(alice, b, user_pk, user_sk):
-
     # CREATE divisible asset with 3 outputs with amount 1
     tx_create = Create.generate(
         [alice.public_key],
@@ -575,7 +566,6 @@ def test_sum_amount(alice, b, user_pk, user_sk):
 
 
 def test_divide(alice, b, user_pk, user_sk):
-
     # CREATE divisible asset with 1 output with amount 3
     tx_create = Create.generate(
         [alice.public_key], [([user_pk], 3)], assets=[{"data": "QmaozNR7DZHQK1ZcU9p7QdrshMvXqWK6gpu5rmrkPdT3L4"}]

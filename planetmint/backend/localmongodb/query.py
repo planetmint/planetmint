@@ -102,7 +102,6 @@ def store_block(conn, block):
 
 @register_query(LocalMongoDBConnection)
 def get_txids_filtered(conn, asset_ids, operation=None, last_tx=None):
-
     match = {
         Transaction.CREATE: {"operation": "CREATE", "id": {"$in": asset_ids}},
         Transaction.TRANSFER: {"operation": "TRANSFER", "asset.id": {"$in": asset_ids}},
