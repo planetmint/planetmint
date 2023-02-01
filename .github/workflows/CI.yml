@@ -45,7 +45,7 @@ jobs:
         run: pip-audit --ignore-vuln PYSEC-2022-42969 --ignore-vuln PYSEC-2022-203 --ignore-vuln GHSA-r9hx-vwmv-q579
 
       - name: Install black
-        run: pip install black
+        run: pip install black==22.12.0
 
       - name: Lint - black
         run: black --check -l 119 .
