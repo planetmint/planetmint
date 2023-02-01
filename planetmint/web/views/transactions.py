@@ -81,17 +81,17 @@ class TransactionListApi(Resource):
                 message="Invalid transaction schema: {}".format(e.__cause__.message),
             )
         except KeyError as e:
-            return make_error(400, "Invalid transaction ({}): {} : {}".format(type(e).__name__, e, tx))
+            return make_error(400, "Invalid transaction ({}): {}".format(type(e).__name__, e))
         except ValidationError as e:
-            return make_error(400, "Invalid transaction ({}): {} : {}".format(type(e).__name__, e, tx))
+            return make_error(400, "Invalid transaction ({}): {}".format(type(e).__name__, e))
         except Exception as e:
-            return make_error(500, "Invalid transaction ({}): {} : {}".format(type(e).__name__, e, tx), level="error")
+            return make_error(500, "Invalid transaction ({}): {} - {}".format(type(e).__name__, e, tx), level="error")
 
         with pool() as planet:
             try:
                 planet.validate_transaction(tx_obj)
             except ValidationError as e:
-                return make_error(400, "Invalid transaction ({}): {} :{}".format(type(e).__name__, e, tx))
+                return make_error(400, "Invalid transaction ({}): {}".format(type(e).__name__, e))
             except Exception as e:
                 return make_error(
                     500, "Invalid transaction ({}): {} : {}".format(type(e).__name__, e, tx), level="error"
