@@ -43,4 +43,4 @@ base58>=2.1.1
 pynacl==1.4.0
 zenroom==2.1.0.dev1655293214
 pyasn1==0.4.8
-cryptography==3.4.7
+cryptography==39.0.1
