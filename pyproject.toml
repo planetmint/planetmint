@@ -5,6 +5,21 @@ description = "Planetmint: The Blockchain Database"
 authors = ["Planetmint contributors"]
 license = "AGPLv3"
 readme = "README.md"
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Developers",
+  "Topic :: Database",
+  "Topic :: Database :: Database Engines/Servers",
+  "Topic :: Software Development",
+  "Natural Language :: English",
+  "License :: OSI Approved :: Apache Software License",
+  "Programming Language :: Python :: 3.9",
+  "Operating System :: MacOS :: MacOS X",
+  "Operating System :: POSIX :: Linux"
+]
+
+[tool.poetry.scripts]
+planetmint = "planetmint.commands.planetmint:main"
 
 [tool.poetry.dependencies]
 python = "^3.9"
