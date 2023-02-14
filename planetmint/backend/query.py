@@ -27,12 +27,12 @@ def store_asset(asset: dict, connection):
 @singledispatch
 def store_assets(assets: list, connection):
     """Write a list of assets to the assets table.
-    backend
-        Args:
-            assets (list): a list of assets to write.
 
-        Returns:
-            The database response.
+    Args:
+        assets (list): a list of assets to write.
+
+    Returns:
+        The database response.
     """
 
     raise NotImplementedError
@@ -193,6 +193,7 @@ def get_metadata(connection, transaction_ids):
 @singledispatch
 def get_assets(connection, asset_ids) -> list:
     """Get a list of assets from the assets table.
+
     Args:
         asset_ids (list): a list of ids for the assets to be retrieved from
         the database.

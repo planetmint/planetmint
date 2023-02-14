@@ -7,7 +7,7 @@ import pytest
 
 
 def test_get_connection_raises_a_configuration_error(monkeypatch):
-    from planetmint.backend.connection import ConnectionError
+    from planetmint.backend.exceptions import ConnectionError
     from planetmint.backend.tarantool.connection import TarantoolDBConnection
 
     with pytest.raises(ConnectionError):

@@ -579,7 +579,7 @@ class Planetmint(object):
         asset from the asset table and reconstructs the transaction.
 
         Args:
-            tx_dict_list (:list:`dict` or :obj:`dict`): The transaction dict or
+            tx_dict_list (:obj:`list` of :dict: or :obj:`dict`): The transaction dict or
                 list of transaction dict as returned from the database.
 
         Returns:

@@ -54,13 +54,13 @@ import sphinx_rtd_theme
 
 extensions = [
     "myst_parser",
+    "sphinx.ext.napoleon",
     "sphinx.ext.autosectionlabel",
     "sphinx.ext.autodoc",
     "sphinx.ext.intersphinx",
     "sphinx.ext.coverage",
     "sphinx.ext.viewcode",
     "sphinx.ext.todo",
-    "sphinx.ext.napoleon",
     "sphinxcontrib.httpdomain",
     "aafigure.sphinxext",
     #'sphinx_toolbox.collapse',
