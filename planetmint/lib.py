@@ -684,7 +684,7 @@ class Planetmint(object):
         current_validators = self.get_validators_dict()
 
         # NOTE: change more than 1/3 of the current power is not allowed
-        if transaction.assets[0]["data"]["power"] >= (1 / 3) * sum(current_validators.values()):
+        if Transaction.get_asset_array( transaction )[0]["data"]["power"] >= (1 / 3) * sum(current_validators.values()):
             raise InvalidPowerChange("`power` change must be less than 1/3 of total power")
 
     def get_election_status(self, transaction):
@@ -740,7 +740,7 @@ class Planetmint(object):
         return recipients
 
     def show_election_status(self, transaction):
-        data = transaction.assets[0]["data"]
+        data = transaction.get_assets()[0]["data"]
         if "public_key" in data.keys():
             data["public_key"] = public_key_to_base64(data["public_key"]["value"])
         response = ""
@@ -821,8 +821,7 @@ class Planetmint(object):
         for tx in txns:
             if not isinstance(tx, Vote):
                 continue
-
-            election_id = tx.assets[0]["id"]
+            election_id = Transaction.read_out_asset_id(tx)
             if election_id not in elections:
                 elections[election_id] = []
             elections[election_id].append(tx)
@@ -956,7 +955,7 @@ class Planetmint(object):
         if election.operation == CHAIN_MIGRATION_ELECTION:
             self.migrate_abci_chain()
         if election.operation == VALIDATOR_ELECTION:
-            validator_updates = [election.assets[0]["data"]]
+            validator_updates = [election.get_assets()[0]["data"]]
             curr_validator_set = self.get_validators(new_height)
             updated_validator_set = new_validator_set(curr_validator_set, validator_updates)
 
@@ -964,7 +963,7 @@ class Planetmint(object):
 
             # TODO change to `new_height + 2` when upgrading to Tendermint 0.24.0.
             self.store_validator_set(new_height + 1, updated_validator_set)
-            return encode_validator(election.assets[0]["data"])
+            return encode_validator(election.get_assets()[0]["data"])
 
 
 Block = namedtuple("Block", ("app_hash", "height", "transactions"))
