@@ -169,7 +169,7 @@ def test_create_tx_no_fulfills(b, create_tx, alice):
     tx["inputs"][0]["fulfills"] = {"transaction_id": "a" * 64, "output_index": 0}
     tx = Transaction.from_dict(tx).sign([alice.private_key]).to_dict()
     # Schema validation does not lookup inputs. this is only done by the node with DB/consensus context
-    #validate_raises(tx)
+    # validate_raises(tx)
     validate(tx)
 
 
