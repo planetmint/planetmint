@@ -684,7 +684,7 @@ class Planetmint(object):
         current_validators = self.get_validators_dict()
 
         # NOTE: change more than 1/3 of the current power is not allowed
-        if Transaction.get_asset_array(transaction)[0]["data"]["power"] >= (1 / 3) * sum(current_validators.values()):
+        if transaction.get_assets()[0]["data"]["power"] >= (1 / 3) * sum(current_validators.values()):
             raise InvalidPowerChange("`power` change must be less than 1/3 of total power")
 
     def get_election_status(self, transaction):
