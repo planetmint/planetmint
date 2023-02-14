@@ -25,6 +25,9 @@ For reference, the possible headings are:
 * **Known Issues**
 * **Notes**
 
+## [1.4.2] - 2023-14-02
+* **fixed** fixed voting/election backward compatibility issue (using planetmint-transactions >= 0.7.0)
+
 ## [1.4.1] - 2022-21-12
 * **fixed** inconsistent cryptocondition keyring tag handling. Using cryptoconditions > 1.1.0 from now on.
 
