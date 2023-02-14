@@ -115,7 +115,6 @@ def send_naughty_tx(assets, metadata):
 
 @pytest.mark.parametrize("naughty_string", naughty_strings, ids=naughty_strings)
 def test_naughty_keys(naughty_string):
-
     assets = [{"data": {naughty_string: "nice_value"}}]
     metadata = {naughty_string: "nice_value"}
 
@@ -124,7 +123,6 @@ def test_naughty_keys(naughty_string):
 
 @pytest.mark.parametrize("naughty_string", naughty_strings, ids=naughty_strings)
 def test_naughty_values(naughty_string):
-
     assets = [{"data": {"nice_key": naughty_string}}]
     metadata = {"nice_key": naughty_string}
 

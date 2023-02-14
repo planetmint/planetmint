@@ -155,7 +155,6 @@ def test_valid_election_votes_received(b_mock, valid_upsert_validator_election, 
 
 @pytest.mark.bdb
 def test_valid_election_conclude(b_mock, valid_upsert_validator_election, ed25519_node_keys):
-
     # Node 0: cast vote
     tx_vote0 = gen_vote(valid_upsert_validator_election, 0, ed25519_node_keys)
 
@@ -214,7 +213,6 @@ def test_valid_election_conclude(b_mock, valid_upsert_validator_election, ed2551
 
 @pytest.mark.abci
 def test_upsert_validator(b, node_key, node_keys, ed25519_node_keys):
-
     if b.get_latest_block()["height"] == 0:
         generate_block(b)
 
@@ -343,6 +341,6 @@ def test_get_validator_update(b, node_keys, node_key, ed25519_node_keys):
 
 def reset_validator_set(b, node_keys, height):
     validators = []
-    for (node_pub, _) in node_keys.items():
+    for node_pub, _ in node_keys.items():
         validators.append({"public_key": {"type": "ed25519-base64", "value": node_pub}, "voting_power": 10})
     b.store_validator_set(height, validators)

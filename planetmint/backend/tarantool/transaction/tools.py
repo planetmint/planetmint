@@ -47,7 +47,6 @@ class TransactionDecompose:
         }
 
     def get_map(self, dictionary: dict = None):
-
         return (
             _save_keys_order(dictionary=dictionary)
             if dictionary is not None
@@ -75,7 +74,6 @@ class TransactionDecompose:
         _inputs = []
         input_index = 0
         for _input in self._transaction["inputs"]:
-
             _inputs.append(
                 (
                     self._transaction["id"],

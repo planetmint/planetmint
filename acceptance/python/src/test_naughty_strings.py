@@ -67,6 +67,7 @@ skipped_naughty_strings = [
 
 naughty_strings = [naughty for naughty in naughty_strings if naughty not in skipped_naughty_strings]
 
+
 # This is our base test case, but we'll reuse it to send naughty strings as both keys and values.
 def send_naughty_tx(assets, metadata):
     # ## Set up a connection to Planetmint
@@ -118,7 +119,6 @@ def send_naughty_tx(assets, metadata):
 
 @pytest.mark.parametrize("naughty_string", naughty_strings, ids=naughty_strings)
 def test_naughty_keys(naughty_string):
-
     assets = [{"data": multihash(marshal({naughty_string: "nice_value"}))}]
     metadata = multihash(marshal({naughty_string: "nice_value"}))
 
@@ -127,7 +127,6 @@ def test_naughty_keys(naughty_string):
 
 @pytest.mark.parametrize("naughty_string", naughty_strings, ids=naughty_strings)
 def test_naughty_values(naughty_string):
-
     assets = [{"data": multihash(marshal({"nice_key": naughty_string}))}]
     metadata = multihash(marshal({"nice_key": naughty_string}))
 

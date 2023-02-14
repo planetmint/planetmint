@@ -19,7 +19,6 @@ def test_zenroom_signing(
     zenroom_script_input,
     condition_script_zencode,
 ):
-
     biolabs = generate_keypair()
     version = "2.0"
 
@@ -47,7 +46,6 @@ def test_zenroom_signing(
     zenroom_house_assets,
     condition_script_zencode,
 ):
-
     biolabs = generate_keypair()
     version = "2.0"
 

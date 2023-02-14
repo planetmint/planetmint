@@ -48,7 +48,6 @@ def test_get_metadata_tendermint(client, b, alice):
 
 @pytest.mark.bdb
 def test_get_metadata_limit_tendermint(client, b, alice):
-
     # create two assets
     assets1 = [{"data": multihash(marshal({"msg": "abc 1"}))}]
     meta1 = multihash(marshal({"key": "meta 1"}))
