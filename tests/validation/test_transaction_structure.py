@@ -262,6 +262,86 @@ def test_validate_version(b, create_tx, alice):
 
 
 def test_upgrade_issue_validation(b):
-    tx_dict = {"inputs": [{"owners_before": ["HY2gviZVW1fvsshx21kRCcGUJFBKQwf37xA959cTNFzP"], "fulfills": None, "fulfillment": "pGSAIPWt56ud3H3z0qf6hPKcMsJtOSc_goPAo3AXkH8T4mzAgUBuGTrhGQQ0oePAgxC_9pHNWzHiykddAuhMSnSDoatPExkDp2nAmq8D6pvc3ECqMUUj04GBEq2aROmAylDBKrgG"}], "outputs": [{"public_keys": ["6G8TmxcbRgYuQviBg9Us5h4B8D94fNJ4kbMMKRwmY5sy"], "condition": {"details": {"type": "ed25519-sha-256", "public_key": "6G8TmxcbRgYuQviBg9Us5h4B8D94fNJ4kbMMKRwmY5sy"}, "uri": "ni:///sha-256;jf_gG_7GnA7bTzelkz_Du2kMHzw7OS20TVNHD8XZSq4?fpt=ed25519-sha-256&cost=131072"}, "amount": "10"}, {"public_keys": ["CwHvbpvaWQu9wBuVVLRsc2rxUcGM7j1tR3RsVPWtgbXj"], "condition": {"details": {"type": "ed25519-sha-256", "public_key": "CwHvbpvaWQu9wBuVVLRsc2rxUcGM7j1tR3RsVPWtgbXj"}, "uri": "ni:///sha-256;4VrA0c8Pvb4DA7Bvrx7or0JBKExRCfWyKSFiLYxpr7A?fpt=ed25519-sha-256&cost=131072"}, "amount": "10"}, {"public_keys": ["HY2gviZVW1fvsshx21kRCcGUJFBKQwf37xA959cTNFzP"], "condition": {"details": {"type": "ed25519-sha-256", "public_key": "HY2gviZVW1fvsshx21kRCcGUJFBKQwf37xA959cTNFzP"}, "uri": "ni:///sha-256;-uhNj2-VQAytXDoz0z2n9PHUbJrzME4syF1EJCQ9cKw?fpt=ed25519-sha-256&cost=131072"}, "amount": "10"}, {"public_keys": ["2mxYGVViSHfTFJNydAKQQZaz8HAUjUSCDobPCF2q1hjk"], "condition": {"details": {"type": "ed25519-sha-256", "public_key": "2mxYGVViSHfTFJNydAKQQZaz8HAUjUSCDobPCF2q1hjk"}, "uri": "ni:///sha-256;fTF2N2feWDvfEeMoTXss5KlWkYwnP4g2jUWKF2cmFRI?fpt=ed25519-sha-256&cost=131072"}, "amount": "10"}, {"public_keys": ["Dxy87xVCbGueayzmzo1csFFp47mhsvCYqX7dJJSTZmvB"], "condition": {"details": {"type": "ed25519-sha-256", "public_key": "Dxy87xVCbGueayzmzo1csFFp47mhsvCYqX7dJJSTZmvB"}, "uri": "ni:///sha-256;Ga2y8alLY9f1tQ-Jvly68UZZ7csLLWbL7v7240_-uvo?fpt=ed25519-sha-256&cost=131072"}, "amount": "10"}], "operation": "VALIDATOR_ELECTION", "metadata": None, "asset": {"data": {"public_key": {"value": "EEE57EEEE18BCC60B951C0672B09D70F52B20AC8C8DE9A191F956BB09083BF96", "type": "ed25519-base16"}, "power": 10, "node_id": "a4ee5afed56efbfbc0d08c1d030b1d0291451c59", "seed": "99430bfa-26e7-422d-a816-37166a05818c"}}, "version": "2.0", "id": "d2a58e4bb788e6594b4e8570b881b8b9859be34881fd4cba40b49481b0af2e98"}
+    tx_dict = {
+        "inputs": [
+            {
+                "owners_before": ["HY2gviZVW1fvsshx21kRCcGUJFBKQwf37xA959cTNFzP"],
+                "fulfills": None,
+                "fulfillment": "pGSAIPWt56ud3H3z0qf6hPKcMsJtOSc_goPAo3AXkH8T4mzAgUBuGTrhGQQ0oePAgxC_9pHNWzHiykddAuhMSnSDoatPExkDp2nAmq8D6pvc3ECqMUUj04GBEq2aROmAylDBKrgG",
+            }
+        ],
+        "outputs": [
+            {
+                "public_keys": ["6G8TmxcbRgYuQviBg9Us5h4B8D94fNJ4kbMMKRwmY5sy"],
+                "condition": {
+                    "details": {
+                        "type": "ed25519-sha-256",
+                        "public_key": "6G8TmxcbRgYuQviBg9Us5h4B8D94fNJ4kbMMKRwmY5sy",
+                    },
+                    "uri": "ni:///sha-256;jf_gG_7GnA7bTzelkz_Du2kMHzw7OS20TVNHD8XZSq4?fpt=ed25519-sha-256&cost=131072",
+                },
+                "amount": "10",
+            },
+            {
+                "public_keys": ["CwHvbpvaWQu9wBuVVLRsc2rxUcGM7j1tR3RsVPWtgbXj"],
+                "condition": {
+                    "details": {
+                        "type": "ed25519-sha-256",
+                        "public_key": "CwHvbpvaWQu9wBuVVLRsc2rxUcGM7j1tR3RsVPWtgbXj",
+                    },
+                    "uri": "ni:///sha-256;4VrA0c8Pvb4DA7Bvrx7or0JBKExRCfWyKSFiLYxpr7A?fpt=ed25519-sha-256&cost=131072",
+                },
+                "amount": "10",
+            },
+            {
+                "public_keys": ["HY2gviZVW1fvsshx21kRCcGUJFBKQwf37xA959cTNFzP"],
+                "condition": {
+                    "details": {
+                        "type": "ed25519-sha-256",
+                        "public_key": "HY2gviZVW1fvsshx21kRCcGUJFBKQwf37xA959cTNFzP",
+                    },
+                    "uri": "ni:///sha-256;-uhNj2-VQAytXDoz0z2n9PHUbJrzME4syF1EJCQ9cKw?fpt=ed25519-sha-256&cost=131072",
+                },
+                "amount": "10",
+            },
+            {
+                "public_keys": ["2mxYGVViSHfTFJNydAKQQZaz8HAUjUSCDobPCF2q1hjk"],
+                "condition": {
+                    "details": {
+                        "type": "ed25519-sha-256",
+                        "public_key": "2mxYGVViSHfTFJNydAKQQZaz8HAUjUSCDobPCF2q1hjk",
+                    },
+                    "uri": "ni:///sha-256;fTF2N2feWDvfEeMoTXss5KlWkYwnP4g2jUWKF2cmFRI?fpt=ed25519-sha-256&cost=131072",
+                },
+                "amount": "10",
+            },
+            {
+                "public_keys": ["Dxy87xVCbGueayzmzo1csFFp47mhsvCYqX7dJJSTZmvB"],
+                "condition": {
+                    "details": {
+                        "type": "ed25519-sha-256",
+                        "public_key": "Dxy87xVCbGueayzmzo1csFFp47mhsvCYqX7dJJSTZmvB",
+                    },
+                    "uri": "ni:///sha-256;Ga2y8alLY9f1tQ-Jvly68UZZ7csLLWbL7v7240_-uvo?fpt=ed25519-sha-256&cost=131072",
+                },
+                "amount": "10",
+            },
+        ],
+        "operation": "VALIDATOR_ELECTION",
+        "metadata": None,
+        "asset": {
+            "data": {
+                "public_key": {
+                    "value": "EEE57EEEE18BCC60B951C0672B09D70F52B20AC8C8DE9A191F956BB09083BF96",
+                    "type": "ed25519-base16",
+                },
+                "power": 10,
+                "node_id": "a4ee5afed56efbfbc0d08c1d030b1d0291451c59",
+                "seed": "99430bfa-26e7-422d-a816-37166a05818c",
+            }
+        },
+        "version": "2.0",
+        "id": "d2a58e4bb788e6594b4e8570b881b8b9859be34881fd4cba40b49481b0af2e98",
+    }
     tx = Transaction.from_dict(tx_dict, False)
     print(tx)
