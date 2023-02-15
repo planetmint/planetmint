@@ -66,7 +66,7 @@ docs_require = [
     "pyparsing==3.0.8",
     "pytz==2022.1",
     "PyYAML>=5.4.0",
-    "requests>=2.25i.1",
+    "requests>=2.25.1",
     "six==1.16.0",
     "snowballstemmer==2.2.0",
     "Sphinx==4.5.0",
@@ -129,7 +129,7 @@ install_requires = [
     "planetmint-ipld>=0.0.3",
     "pyasn1>=0.4.8",
     "python-decouple",
-    "planetmint-transactions>=0.6.0",
+    "planetmint-transactions>=0.7.0",
 ]
 
 setup(
