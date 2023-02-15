@@ -25,8 +25,12 @@ For reference, the possible headings are:
 * **Known Issues**
 * **Notes**
 
+## [2.2.4] - 2023-15-02
+* **Changed** migrated dependency management to poetry
+
 ## [2.2.3] - 2023-14-02
-* **fixed** fixed voting/election backward compatibility issue (using planetmint-transactions >= 0.7.0) on the 2.2 main branch
+* **Fixed** fixed voting/election backward compatibility issue (using planetmint-transactions >= 0.7.0) on the 2.2 main branch
+* **Changed** migrated dependency management to poetry
 
 ## [2.2.2] - 2023-31-01
 * **Fixed** catching tarantool exceptions in case tarantool drivers throw execeptions due to concurrency issues. This issue got idenitfied during the testing of the planetmint-driver-ts. 

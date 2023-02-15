@@ -32,5 +32,5 @@ ENV PLANETMINT_CI_ABCI ${abci_status}
 RUN mkdir -p /usr/src/app
 COPY . /usr/src/app/
 WORKDIR /usr/src/app
-RUN pip install -e .[dev]
-RUN pip install flask-cors
+RUN pip install poetry
+RUN poetry install --with dev
