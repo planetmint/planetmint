@@ -116,41 +116,6 @@ def get_txids_filtered(conn, asset_ids, operation=None, last_tx=None):
     return (elem["id"] for elem in cursor)
 
 
-@register_query(LocalMongoDBConnection)
-def text_search(
-    conn,
-    search,
-    *,
-    language="english",
-    case_sensitive=False,
-    diacritic_sensitive=False,
-    text_score=False,
-    limit=0,
-    table="assets"
-):
-    cursor = conn.run(
-        conn.collection(table)
-        .find(
-            {
-                "$text": {
-                    "$search": search,
-                    "$language": language,
-                    "$caseSensitive": case_sensitive,
-                    "$diacriticSensitive": diacritic_sensitive,
-                }
-            },
-            {"score": {"$meta": "textScore"}, "_id": False},
-        )
-        .sort([("score", {"$meta": "textScore"})])
-        .limit(limit)
-    )
-
-    if text_score:
-        return cursor
-
-    return (_remove_text_score(obj) for obj in cursor)
-
-
 def _remove_text_score(asset):
     asset.pop("score", None)
     return asset

@@ -496,18 +496,6 @@ class Planetmint(object):
             logger.warning("Invalid transaction (%s): %s", type(e).__name__, e)
             return False
 
-    def text_search(self, search, *, limit=0, table="assets"):
-        """Return an iterator of assets that match the text search
-
-        Args:
-            search (str): Text search string to query the text index
-            limit (int, optional): Limit the number of returned documents.
-
-        Returns:
-            iter: An iterator of assets that match the text search.
-        """
-        return backend.query.text_search(self.connection, search, limit=limit, table=table)
-
     def get_assets(self, asset_ids) -> list[Asset]:
         """Return a list of assets that match the asset_ids
 

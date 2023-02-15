@@ -27,6 +27,7 @@ For reference, the possible headings are:
 
 ## [2.2.4] - 2023-15-02
 * **Changed** migrated dependency management to poetry
+* **Removed** removed unused text_search related code
 
 ## [2.2.3] - 2023-14-02
 * **Fixed** fixed voting/election backward compatibility issue (using planetmint-transactions >= 0.7.0) on the 2.2 main branch

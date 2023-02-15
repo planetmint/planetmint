@@ -258,25 +258,6 @@ def get_txids_filtered(connection, asset_ids: list[str], operation: str = "", la
 
 
 @register_query(TarantoolDBConnection)
-def text_search(conn, search, table=TARANT_TABLE_ASSETS, limit=0):
-    pattern = ".{}.".format(search)
-    field_no = 1 if table == TARANT_TABLE_ASSETS else 2  # 2 for meta_data
-    res = conn.run(conn.space(table).call("indexed_pattern_search", (table, field_no, pattern)))
-
-    to_return = []
-
-    if len(res[0]):  # NEEDS BEAUTIFICATION
-        if table == TARANT_TABLE_ASSETS:
-            for result in res[0]:
-                to_return.append({"data": json.loads(result[0])["data"], "id": result[1]})
-        else:
-            for result in res[0]:
-                to_return.append({TARANT_TABLE_META_DATA: json.loads(result[1]), "id": result[0]})
-
-    return to_return if limit == 0 else to_return[:limit]
-
-
-@register_query(TarantoolDBConnection)
 def get_owned_ids(connection, owner: str) -> list[DbTransaction]:
     outputs = connection.run(connection.space(TARANT_TABLE_OUTPUT).select(owner, index="public_keys"))
     if len(outputs) == 0:
