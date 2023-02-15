@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "planetmint"
-version = "2.2.2"
+version = "2.2.3"
 description = "Planetmint: The Blockchain Database"
 authors = ["Planetmint contributors"]
 license = "AGPLv3"
