@@ -22,13 +22,16 @@ jobs:
           python-version: 3.9
 
       - name: Install pip-audit
-        run: pip install --upgrade pip pip-audit
+        run: pip install --upgrade pip
+
+      - name: Setup poetry
+        uses: Gr1N/setup-poetry@v7
 
       - name: Install dependencies
-        run: pip install .
+        run: poetry install
 
       - name: Create requirements.txt
-        run: pip freeze > requirements.txt
+        run: poetry run pip freeze > requirements.txt
 
       - name: Audit dependencies
-        run: pip-audit --ignore-vuln PYSEC-2022-42969 --ignore-vuln PYSEC-2022-203 --ignore-vuln GHSA-r9hx-vwmv-q579
+        run: poetry run pip-audit --ignore-vuln PYSEC-2022-42969 --ignore-vuln PYSEC-2022-203 --ignore-vuln GHSA-r9hx-vwmv-q579
