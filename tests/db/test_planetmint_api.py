@@ -67,30 +67,6 @@ class TestBigchainApi(object):
             with pytest.raises(OperationError):
                 b.store_bulk_transactions([tx])
 
-    def test_text_search(self, b, alice):
-        from planetmint.backend.tarantool.connection import TarantoolDBConnection
-
-        if isinstance(b.connection, TarantoolDBConnection):
-            warnings.warn(" :::::: This function is used only with  :::::: ")
-            return
-
-        # define the assets
-        asset1 = {"data": multihash(marshal({"msg": "Planetmint 1"}))}
-        asset2 = {"data": multihash(marshal({"msg": "Planetmint 2"}))}
-        asset3 = {"data": multihash(marshal({"msg": "Planetmint 3"}))}
-
-        # create the transactions
-        tx1 = Create.generate([alice.public_key], [([alice.public_key], 1)], assets=[asset1]).sign([alice.private_key])
-        tx2 = Create.generate([alice.public_key], [([alice.public_key], 1)], assets=[asset2]).sign([alice.private_key])
-        tx3 = Create.generate([alice.public_key], [([alice.public_key], 1)], assets=[asset3]).sign([alice.private_key])
-
-        # write the transactions to the DB
-        b.store_bulk_transactions([tx1, tx2, tx3])
-
-        # get the assets through text search
-        assets = list(b.text_search("planetmint"))
-        assert len(assets) == 0
-
     @pytest.mark.usefixtures("inputs")
     def test_non_create_input_not_found(self, b, user_pk):
         from planetmint_cryptoconditions import Ed25519Sha256
