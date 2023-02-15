@@ -46,7 +46,7 @@ protobuf = "3.20.2"
 planetmint-ipld = ">=0.0.3"
 pyasn1 = ">=0.4.8"
 python-decouple = "^3.7"
-planetmint-transactions = ">=0.6.0"
+planetmint-transactions = ">=0.7.0"
 
 [tool.poetry.group.dev.dependencies]
 aafigure = "0.6"
