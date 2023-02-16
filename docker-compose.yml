@@ -96,7 +96,7 @@ services:
       context: .
       dockerfile: Dockerfile
       args:
-        backend: tarantool
+        backend: tarantool_db
     volumes:
       - .:/usr/src/app/
     command: make -C docs/root html
