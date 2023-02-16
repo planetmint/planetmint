@@ -3,21 +3,6 @@
 .DEFAULT_GOAL := help
 
 
-#############################
-# Open a URL in the browser #
-#############################
-define BROWSER_PYSCRIPT
-import os, webbrowser, sys
-try:
-	from urllib import pathname2url
-except:
-	from urllib.request import pathname2url
-
-webbrowser.open("file://" + pathname2url(os.path.abspath(sys.argv[1])))
-endef
-export BROWSER_PYSCRIPT
-
-
 ##################################
 # Display help for this makefile #
 ##################################
@@ -42,7 +27,6 @@ export PRINT_HELP_PYSCRIPT
 ##################
 DOCKER := docker
 DC := docker-compose
-BROWSER := python -c "$$BROWSER_PYSCRIPT"
 HELP := python -c "$$PRINT_HELP_PYSCRIPT"
 ECHO := /usr/bin/env echo
 
@@ -100,15 +84,9 @@ test-integration: check-deps ## Run all integration tests
 
 cov: check-deps ## Check code coverage and open the result in the browser
 	@$(DC) run --rm planetmint pytest -v --cov=planetmint --cov-report html
-	$(BROWSER) htmlcov/index.html
 
 docs: check-deps ## Generate HTML documentation and open it in the browser
 	@$(DC) run --rm --no-deps bdocs make -C docs/root html
-	$(BROWSER) docs/root/build/html/index.html
-
-docs-integration: check-deps ## Create documentation for integration tests
-	@$(DC) run --rm python-integration pycco -i -s /src -d /docs
-	$(BROWSER) integration/python/docs/index.html
 
 clean: check-deps ## Remove all build, test, coverage and Python artifacts
 	@$(DC) up clean
