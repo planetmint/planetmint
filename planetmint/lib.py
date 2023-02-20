@@ -919,10 +919,10 @@ class Planetmint(object):
 
         txids = [self.get_transaction(tx_id) for tx_id in txn_ids]
         txns = []
-        if len( txids ) > 0:
+        if len(txids) > 0:
             for tx in txids:
                 if tx:
-                    txns.append(Transaction.from_dict(tx.to_dict()) )
+                    txns.append(Transaction.from_dict(tx.to_dict()))
 
         elections = self._get_votes(txns)
         for election_id in elections:
