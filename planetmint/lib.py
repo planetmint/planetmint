@@ -917,12 +917,9 @@ class Planetmint(object):
         # elections concluded at this height
         self.delete_elections(new_height)
 
-        txids = [self.get_transaction(tx_id) for tx_id in txn_ids]
-        txns = []
-        if len(txids) > 0:
-            for tx in txids:
-                if tx:
-                    txns.append(Transaction.from_dict(tx.to_dict()))
+        txns = [self.get_transaction(tx_id) for tx_id in txn_ids]
+        
+        txns = [Transaction.from_dict(tx.to_dict()) for tx in txns if tx]
 
         elections = self._get_votes(txns)
         for election_id in elections:
