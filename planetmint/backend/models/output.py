@@ -14,20 +14,17 @@ class ConditionDetails:
     public_key: str = ""
     threshold: int = None
     sub_conditions: List[ConditionDetails] = field(default_factory=list)
-    
+
     def to_dict(self) -> dict:
         if self.sub_conditions is None:
-            return {
-                "type": self.type,
-                "public_key": self.public_key
-            }
+            return {"type": self.type, "public_key": self.public_key}
         else:
             return {
                 "type": self.type,
                 "threshold": self.threshold,
-                "subconditions": [sub_condition.to_dict() for sub_condition in self.sub_conditions]
+                "subconditions": [sub_condition.to_dict() for sub_condition in self.sub_conditions],
             }
-    
+
     @staticmethod
     def from_dict(details: dict) -> ConditionDetails:
         sub_conditions = None
@@ -121,8 +118,7 @@ def output_with_public_key(output, transaction_id) -> Output:
         public_keys=output["public_keys"],
         amount=output["amount"],
         condition=Condition(
-            uri=output["condition"]["uri"],
-            details=ConditionDetails.from_dict(output["condition"]["details"])
+            uri=output["condition"]["uri"], details=ConditionDetails.from_dict(output["condition"]["details"])
         ),
     )
 
@@ -133,7 +129,6 @@ def output_with_sub_conditions(output, transaction_id) -> Output:
         public_keys=output["public_keys"],
         amount=output["amount"],
         condition=Condition(
-            uri=output["condition"]["uri"],
-            details=ConditionDetails.from_dict(output["condition"]["details"])
+            uri=output["condition"]["uri"], details=ConditionDetails.from_dict(output["condition"]["details"])
         ),
     )
