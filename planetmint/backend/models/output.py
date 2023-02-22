@@ -9,56 +9,31 @@ from typing import List
 
 
 @dataclass
-class SubCondition:
-    type: str
-    public_key: str
-
-    def to_tuple(self) -> tuple:
-        return self.type, self.public_key
-
-    def to_dict(self) -> dict:
-        return {"type": self.type, "public_key": self.public_key}
-
-    @staticmethod
-    def from_dict(subcondition_dict: dict) -> SubCondition:
-        return SubCondition(subcondition_dict["type"], subcondition_dict["public_key"])
-
-    @staticmethod
-    def list_to_dict(subconditions: List[SubCondition]) -> List[dict] | None:
-        if subconditions is None:
-            return None
-        return [subcondition.to_dict() for subcondition in subconditions]
-
-
-@dataclass
 class ConditionDetails:
     type: str = ""
     public_key: str = ""
     threshold: int = None
-    sub_conditions: list[SubCondition] = None
+    sub_conditions: List[ConditionDetails] = field(default_factory=list)
 
     def to_dict(self) -> dict:
         if self.sub_conditions is None:
-            return {
-                "type": self.type,
-                "public_key": self.public_key,
-            }
+            return {"type": self.type, "public_key": self.public_key}
         else:
             return {
                 "type": self.type,
                 "threshold": self.threshold,
-                "subconditions": [subcondition.to_dict() for subcondition in self.sub_conditions],
+                "subconditions": [sub_condition.to_dict() for sub_condition in self.sub_conditions],
             }
 
     @staticmethod
-    def from_dict(data: dict) -> ConditionDetails:
+    def from_dict(details: dict) -> ConditionDetails:
         sub_conditions = None
-        if "subconditions" in data:
-            sub_conditions = [SubCondition.from_dict(sub_condition) for sub_condition in data["subconditions"]]
+        if "subconditions" in details:
+            sub_conditions = [ConditionDetails.from_dict(sub_condition) for sub_condition in details["subconditions"]]
         return ConditionDetails(
-            type=data.get("type"),
-            public_key=data.get("public_key"),
-            threshold=data.get("threshold"),
+            type=details.get("type"),
+            public_key=details.get("public_key"),
+            threshold=details.get("threshold"),
             sub_conditions=sub_conditions,
         )
 
@@ -126,17 +101,9 @@ class Output:
 
     def to_dict(self) -> dict:
         return {
-            "id": self.id,
+            # "id": self.id,
             "public_keys": self.public_keys,
-            "condition": {
-                "details": {
-                    "type": self.condition.details.type,
-                    "public_key": self.condition.details.public_key,
-                    "threshold": self.condition.details.threshold,
-                    "subconditions": SubCondition.list_to_dict(self.condition.details.sub_conditions),
-                },
-                "uri": self.condition.uri,
-            },
+            "condition": self.condition.to_dict(),
             "amount": str(self.amount),
         }
 
@@ -151,11 +118,7 @@ def output_with_public_key(output, transaction_id) -> Output:
         public_keys=output["public_keys"],
         amount=output["amount"],
         condition=Condition(
-            uri=output["condition"]["uri"],
-            details=ConditionDetails(
-                type=output["condition"]["details"]["type"],
-                public_key=output["condition"]["details"]["public_key"],
-            ),
+            uri=output["condition"]["uri"], details=ConditionDetails.from_dict(output["condition"]["details"])
         ),
     )
 
@@ -166,17 +129,6 @@ def output_with_sub_conditions(output, transaction_id) -> Output:
         public_keys=output["public_keys"],
         amount=output["amount"],
         condition=Condition(
-            uri=output["condition"]["uri"],
-            details=ConditionDetails(
-                type=output["condition"]["details"]["type"],
-                threshold=output["condition"]["details"]["threshold"],
-                sub_conditions=[
-                    SubCondition(
-                        type=sub_condition["type"],
-                        public_key=sub_condition["public_key"],
-                    )
-                    for sub_condition in output["condition"]["details"]["subconditions"]
-                ],
-            ),
+            uri=output["condition"]["uri"], details=ConditionDetails.from_dict(output["condition"]["details"])
         ),
     )
