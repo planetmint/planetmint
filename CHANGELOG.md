@@ -26,6 +26,7 @@ For reference, the possible headings are:
 * **Notes**
 
 ## [2.2.4] - 2023-15-02
+* **Fixed** subcondition instantiation now works recursively
 * **Changed** migrated dependency management to poetry
 * **Removed** removed unused text_search related code
 * **Changed** docs are now built using poetry
