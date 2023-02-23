@@ -8,6 +8,8 @@ import base64
 import random
 
 from functools import singledispatch
+
+from planetmint.abci.rpc import ABCI_RPC
 from planetmint.backend.localmongodb.connection import LocalMongoDBConnection
 from planetmint.backend.tarantool.connection import TarantoolDBConnection
 from planetmint.backend.schema import TABLES
@@ -17,7 +19,7 @@ from transactions.types.assets.create import Create
 from transactions.types.elections.vote import Vote
 from transactions.types.elections.validator_utils import election_id_to_public_key
 from planetmint.abci.tendermint_utils import key_to_base64
-
+from planetmint.abci.rpc import MODE_COMMIT, MODE_LIST
 
 @singledispatch
 def flush_db(connection, dbname):
@@ -44,7 +46,7 @@ def generate_block(planet):
         [alice.private_key]
     )
 
-    code, message = planet.write_transaction(tx, BROADCAST_TX_COMMIT)
+    code, message = ABCI_RPC().write_transaction(MODE_LIST, planet.tendermint_rpc_endpoint, MODE_COMMIT, tx, BROADCAST_TX_COMMIT)
     assert code == 202
 
 

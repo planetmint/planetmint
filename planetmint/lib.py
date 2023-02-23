@@ -8,15 +8,14 @@ MongoDB.
 
 """
 import logging
+
 from planetmint.backend.connection import Connection
 
 import json
 import rapidjson
-import requests
 
 from itertools import chain
 from collections import OrderedDict
-from uuid import uuid4
 from hashlib import sha3_256
 from transactions import Transaction, Vote
 from transactions.common.crypto import public_key_from_ed25519_key
@@ -35,11 +34,7 @@ from transactions.common.exceptions import (
     InvalidPowerChange,
 )
 from transactions.common.transaction import VALIDATOR_ELECTION, CHAIN_MIGRATION_ELECTION
-from transactions.common.transaction_mode_types import (
-    BROADCAST_TX_COMMIT,
-    BROADCAST_TX_ASYNC,
-    BROADCAST_TX_SYNC,
-)
+
 from transactions.common.output import Output as TransactionOutput
 from transactions.types.elections.election import Election
 from transactions.types.elections.validator_utils import election_id_to_public_key
@@ -52,7 +47,6 @@ from planetmint.backend.tarantool.const import (
 from planetmint.config import Config
 from planetmint import backend, fastquery, config_utils
 from planetmint.abci.tendermint_utils import (
-    encode_transaction,
     merkleroot,
     key_from_base64,
     public_key_to_base64,
@@ -88,11 +82,9 @@ class Planetmint(object):
                 A connection to the database.
         """
         config_utils.autoconfigure()
-        self.mode_commit = BROADCAST_TX_COMMIT
-        self.mode_list = (BROADCAST_TX_ASYNC, BROADCAST_TX_SYNC, self.mode_commit)
         self.tendermint_host = Config().get()["tendermint"]["host"]
         self.tendermint_port = Config().get()["tendermint"]["port"]
-        self.endpoint = "http://{}:{}/".format(self.tendermint_host, self.tendermint_port)
+        self.tendermint_rpc_endpoint = "http://{}:{}/".format(self.tendermint_host, self.tendermint_port)
 
         validationPlugin = Config().get().get("validation_plugin")
 
@@ -101,54 +93,6 @@ class Planetmint(object):
         else:
             self.validation = BaseValidationRules
         self.connection = connection if connection is not None else Connection()
-
-    def post_transaction(self, transaction, mode):
-        """Submit a valid transaction to the mempool."""
-        if not mode or mode not in self.mode_list:
-            raise ValidationError("Mode must be one of the following {}.".format(", ".join(self.mode_list)))
-
-        tx_dict = transaction.tx_dict if transaction.tx_dict else transaction.to_dict()
-        payload = {
-            "method": mode,
-            "jsonrpc": "2.0",
-            "params": [encode_transaction(tx_dict)],
-            "id": str(uuid4()),
-        }
-        # TODO: handle connection errors!
-        return requests.post(self.endpoint, json=payload)
-
-    def write_transaction(self, transaction, mode):
-        # This method offers backward compatibility with the Web API.
-        """Submit a valid transaction to the mempool."""
-        response = self.post_transaction(transaction, mode)
-        return self._process_post_response(response.json(), mode)
-
-    def _process_post_response(self, response, mode):
-        logger.debug(response)
-
-        error = response.get("error")
-        if error:
-            status_code = 500
-            message = error.get("message", "Internal Error")
-            data = error.get("data", "")
-
-            if "Tx already exists in cache" in data:
-                status_code = 400
-
-            return (status_code, message + " - " + data)
-
-        result = response["result"]
-        if mode == self.mode_commit:
-            check_tx_code = result.get("check_tx", {}).get("code", 0)
-            deliver_tx_code = result.get("deliver_tx", {}).get("code", 0)
-            error_code = check_tx_code or deliver_tx_code
-        else:
-            error_code = result.get("code", 0)
-
-        if error_code:
-            return (500, "Transaction validation failed")
-
-        return (202, "")
 
     def store_bulk_transactions(self, transactions):
         txns = []

@@ -16,10 +16,12 @@ from transactions.common.exceptions import (
     SchemaValidationError,
     ValidationError,
 )
+
+from planetmint.abci.rpc import ABCI_RPC
 from planetmint.web.views.base import make_error
 from planetmint.web.views import parameters
 from transactions.common.transaction import Transaction
-
+from planetmint.abci.rpc import MODE_COMMIT, MODE_LIST
 
 logger = logging.getLogger(__name__)
 
@@ -104,7 +106,8 @@ class TransactionListApi(Resource):
                             but this node only accepts transaction with higher \
                             schema version number.",
                     )
-                status_code, message = planet.write_transaction(tx_obj, mode)
+                status_code, message = ABCI_RPC().write_transaction(MODE_LIST, planet.tendermint_rpc_endpoint, MODE_COMMIT, tx_obj,
+                                                         mode)
 
         if status_code == 202:
             response = jsonify(tx)

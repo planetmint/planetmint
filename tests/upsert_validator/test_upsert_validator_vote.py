@@ -6,6 +6,7 @@
 import pytest
 import codecs
 
+from planetmint.abci.rpc import ABCI_RPC, MODE_LIST, MODE_COMMIT
 from planetmint.abci.tendermint_utils import public_key_to_base64
 
 from transactions.types.elections.validator_election import ValidatorElection
@@ -243,13 +244,13 @@ def test_upsert_validator(b, node_key, node_keys, ed25519_node_keys):
     election = ValidatorElection.generate([node_key.public_key], voters, new_validator, None).sign(
         [node_key.private_key]
     )
-    code, message = b.write_transaction(election, BROADCAST_TX_COMMIT)
+    code, message = ABCI_RPC().write_transaction(MODE_LIST, b.tendermint_rpc_endpoint, MODE_COMMIT, election, BROADCAST_TX_COMMIT)
     assert code == 202
     assert b.get_transaction(election.id)
 
     tx_vote = gen_vote(election, 0, ed25519_node_keys)
     assert b.validate_transaction(tx_vote)
-    code, message = b.write_transaction(tx_vote, BROADCAST_TX_COMMIT)
+    code, message = ABCI_RPC().write_transaction(MODE_LIST, b.tendermint_rpc_endpoint, MODE_COMMIT, tx_vote, BROADCAST_TX_COMMIT)
     assert code == 202
 
     resp = b.get_validators()

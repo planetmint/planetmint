@@ -21,6 +21,9 @@ from planetmint.abci.block import Block
 from ipld import marshal, multihash
 from uuid import uuid4
 
+from planetmint.abci.rpc import ABCI_RPC
+from planetmint.abci.rpc import MODE_COMMIT, MODE_LIST
+
 
 @pytest.mark.bdb
 def test_asset_is_separated_from_transaciton(b):
@@ -107,7 +110,7 @@ def test_write_and_post_transaction(mock_post, b):
     )
 
     tx = b.validate_transaction(tx)
-    b.write_transaction(tx, BROADCAST_TX_ASYNC)
+    ABCI_RPC().write_transaction(MODE_LIST, b.tendermint_rpc_endpoint, MODE_COMMIT, tx, BROADCAST_TX_ASYNC)
 
     assert mock_post.called
     args, kwargs = mock_post.call_args
@@ -126,7 +129,7 @@ def test_post_transaction_valid_modes(mock_post, b, mode):
         Create.generate([alice.public_key], [([alice.public_key], 1)], assets=None).sign([alice.private_key]).to_dict()
     )
     tx = b.validate_transaction(tx)
-    b.write_transaction(tx, mode)
+    ABCI_RPC().write_transaction(MODE_LIST, b.tendermint_rpc_endpoint, MODE_COMMIT, tx, mode)
 
     args, kwargs = mock_post.call_args
     assert mode == kwargs["json"]["method"]
@@ -142,7 +145,7 @@ def test_post_transaction_invalid_mode(b):
     )
     tx = b.validate_transaction(tx)
     with pytest.raises(ValidationError):
-        b.write_transaction(tx, "nope")
+        ABCI_RPC().write_transaction(MODE_LIST, b.tendermint_rpc_endpoint, MODE_COMMIT, tx, "nope")
 
 
 @pytest.mark.bdb

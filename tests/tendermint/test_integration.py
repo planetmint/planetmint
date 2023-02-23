@@ -13,6 +13,9 @@ from tendermint.abci import types_pb2 as types
 from abci.server import ProtocolHandler
 from abci.utils import read_messages
 from transactions.common.transaction_mode_types import BROADCAST_TX_COMMIT, BROADCAST_TX_SYNC
+
+from planetmint.abci.rpc import ABCI_RPC
+from planetmint.abci.rpc import MODE_COMMIT, MODE_LIST
 from planetmint.version import __tm_supported_versions__
 from io import BytesIO
 
@@ -118,14 +121,14 @@ def test_post_transaction_responses(tendermint_ws_url, b):
         assets=[{"data": "QmaozNR7DZHQK1ZcU9p7QdrshMvXqWK6gpu5rmrkPdT3L4"}],
     ).sign([alice.private_key])
 
-    code, message = b.write_transaction(tx, BROADCAST_TX_COMMIT)
+    code, message = ABCI_RPC().write_transaction(MODE_LIST, b.tendermint_rpc_endpoint, MODE_COMMIT, tx, BROADCAST_TX_COMMIT)
     assert code == 202
 
     tx_transfer = Transfer.generate(tx.to_inputs(), [([bob.public_key], 1)], asset_ids=[tx.id]).sign(
         [alice.private_key]
     )
 
-    code, message = b.write_transaction(tx_transfer, BROADCAST_TX_COMMIT)
+    code, message = ABCI_RPC().write_transaction(MODE_LIST, b.tendermint_rpc_endpoint, MODE_COMMIT, tx_transfer, BROADCAST_TX_COMMIT)
     assert code == 202
 
     carly = generate_key_pair()
@@ -135,6 +138,6 @@ def test_post_transaction_responses(tendermint_ws_url, b):
         asset_ids=[tx.id],
     ).sign([alice.private_key])
     for mode in (BROADCAST_TX_SYNC, BROADCAST_TX_COMMIT):
-        code, message = b.write_transaction(double_spend, mode)
+        code, message = ABCI_RPC().write_transaction(MODE_LIST, b.tendermint_rpc_endpoint, MODE_COMMIT, double_spend, mode)
         assert code == 500
         assert message == "Transaction validation failed"

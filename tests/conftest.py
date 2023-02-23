@@ -20,6 +20,8 @@ from ipld import marshal, multihash
 from collections import namedtuple
 from logging import getLogger
 from logging.config import dictConfig
+
+from planetmint.abci.rpc import ABCI_RPC
 from planetmint.backend.connection import Connection
 from planetmint.backend.tarantool.connection import TarantoolDBConnection
 from transactions.common import crypto
@@ -28,6 +30,7 @@ from planetmint.abci.tendermint_utils import key_from_base64
 from planetmint.backend import schema, query
 from transactions.common.crypto import key_pair_from_ed25519_key, public_key_from_ed25519_key
 from planetmint.abci.block import Block
+from planetmint.abci.rpc import MODE_LIST
 from tests.utils import gen_vote
 from planetmint.config import Config
 from transactions.types.elections.validator_election import ValidatorElection  # noqa
@@ -291,7 +294,7 @@ def signed_create_tx(alice, create_tx):
 
 @pytest.fixture
 def posted_create_tx(b, signed_create_tx):
-    res = b.post_transaction(signed_create_tx, BROADCAST_TX_COMMIT)
+    res = ABCI_RPC().post_transaction(MODE_LIST, b.tendermint_rpc_endpoint, signed_create_tx, BROADCAST_TX_COMMIT)
     assert res.status_code == 200
     return signed_create_tx
 

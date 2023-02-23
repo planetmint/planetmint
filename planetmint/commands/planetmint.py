@@ -15,6 +15,7 @@ import sys
 import planetmint
 
 from planetmint.abci.core import rollback
+from planetmint.abci.rpc import ABCI_RPC
 from planetmint.abci.utils import load_node_key
 from transactions.common.transaction_mode_types import BROADCAST_TX_COMMIT
 from transactions.common.exceptions import DatabaseDoesNotExist, ValidationError
@@ -28,6 +29,7 @@ from planetmint.commands import utils
 from planetmint.commands.utils import configure_planetmint, input_on_stderr
 from planetmint.config_utils import setup_logging
 from planetmint.abci.tendermint_utils import public_key_from_base64
+from planetmint.abci.rpc import MODE_COMMIT, MODE_LIST
 from planetmint.commands.election_types import elections
 from planetmint.version import __tm_supported_versions__
 from planetmint.config import Config
@@ -131,7 +133,7 @@ def create_new_election(sk, planet, election_class, data):
         logger.error(fd_404)
         return False
 
-    resp = planet.write_transaction(election, BROADCAST_TX_COMMIT)
+    resp = ABCI_RPC().write_transaction(MODE_LIST, planet.tendermint_rpc_endpoint, MODE_COMMIT, election, BROADCAST_TX_COMMIT)
     if resp == (202, ""):
         logger.info("[SUCCESS] Submitted proposal with id: {}".format(election.id))
         return election.id
@@ -208,7 +210,7 @@ def run_election_approve(args, planet):
     approval = Vote.generate(inputs, [([election_pub_key], voting_power)], [tx.id]).sign([key.private_key])
     planet.validate_transaction(approval)
 
-    resp = planet.write_transaction(approval, BROADCAST_TX_COMMIT)
+    resp = ABCI_RPC().write_transaction(MODE_LIST, planet.tendermint_rpc_endpoint, MODE_COMMIT, approval, BROADCAST_TX_COMMIT)
 
     if resp == (202, ""):
         logger.info("[SUCCESS] Your vote has been submitted")
