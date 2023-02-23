@@ -14,7 +14,7 @@ from planetmint import ValidatorElection
 from planetmint.commands.planetmint import run_election_show
 from planetmint.commands.planetmint import run_election_new_chain_migration
 from planetmint.backend.connection import Connection
-from planetmint.lib import Block
+from planetmint.abci.block import Block
 from transactions.types.elections.chain_migration_election import ChainMigrationElection
 
 from tests.utils import generate_election, generate_validators
@@ -62,7 +62,7 @@ def test_main_entrypoint(mock_start):
     assert mock_start.called
 
 
-@patch("planetmint.log.setup_logging")
+@patch("planetmint.config_utils.setup_logging")
 @patch("planetmint.commands.planetmint._run_init")
 @patch("planetmint.config_utils.autoconfigure")
 def test_bigchain_run_start(mock_setup_logging, mock_run_init, mock_autoconfigure, mock_processes_start):
@@ -261,7 +261,7 @@ def test_recover_db_on_start(mock_run_recover, mock_start, mocked_setup_logging)
 def test_run_recover(b, alice, bob):
     from planetmint.commands.planetmint import run_recover
     from transactions.types.assets.create import Create
-    from planetmint.lib import Block
+    from planetmint.abci.block import Block
     from planetmint.backend import query
 
     tx1 = Create.generate(

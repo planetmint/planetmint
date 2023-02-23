@@ -15,7 +15,7 @@ import sys
 import planetmint
 
 from planetmint.abci.core import rollback
-from planetmint.utils import load_node_key
+from planetmint.abci.utils import load_node_key
 from transactions.common.transaction_mode_types import BROADCAST_TX_COMMIT
 from transactions.common.exceptions import DatabaseDoesNotExist, ValidationError
 from transactions.types.elections.vote import Vote
@@ -26,7 +26,7 @@ from planetmint import ValidatorElection, Planetmint
 from planetmint.backend import schema
 from planetmint.commands import utils
 from planetmint.commands.utils import configure_planetmint, input_on_stderr
-from planetmint.log import setup_logging
+from planetmint.config_utils import setup_logging
 from planetmint.abci.tendermint_utils import public_key_from_base64
 from planetmint.commands.election_types import elections
 from planetmint.version import __tm_supported_versions__

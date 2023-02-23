@@ -17,7 +17,7 @@ from transactions.common.transaction_mode_types import (
     BROADCAST_TX_ASYNC,
     BROADCAST_TX_SYNC,
 )
-from planetmint.lib import Block
+from planetmint.abci.block import Block
 from ipld import marshal, multihash
 from uuid import uuid4
 
@@ -72,7 +72,7 @@ def test_asset_is_separated_from_transaciton(b):
 
 @pytest.mark.bdb
 def test_get_latest_block(b):
-    from planetmint.lib import Block
+    from planetmint.abci.block import Block
 
     for i in range(10):
         app_hash = os.urandom(16).hex()

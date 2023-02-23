@@ -6,7 +6,7 @@
 import pytest
 
 from transactions.types.assets.create import Create
-from planetmint.lib import Block
+from planetmint.abci.block import Block
 from ipld import marshal, multihash
 
 BLOCKS_ENDPOINT = "/api/v1/blocks/"

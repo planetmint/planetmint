@@ -18,7 +18,7 @@ from transactions.types.assets.transfer import Transfer
 from planetmint import App
 from planetmint.backend import query
 from planetmint.abci.core import OkCode, CodeTypeError, rollback
-from planetmint.lib import Block
+from planetmint.abci.block import Block
 from planetmint.abci.tendermint_utils import new_validator_set
 from planetmint.abci.tendermint_utils import public_key_to_base64
 from planetmint.version import __tm_supported_versions__

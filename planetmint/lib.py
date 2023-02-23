@@ -15,7 +15,7 @@ import rapidjson
 import requests
 
 from itertools import chain
-from collections import namedtuple, OrderedDict
+from collections import OrderedDict
 from uuid import uuid4
 from hashlib import sha3_256
 from transactions import Transaction, Vote
@@ -948,5 +948,3 @@ class Planetmint(object):
             self.store_validator_set(new_height + 1, updated_validator_set)
             return encode_validator(election.assets[0].data)
 
-
-Block = namedtuple("Block", ("app_hash", "height", "transactions"))

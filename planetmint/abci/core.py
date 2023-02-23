@@ -23,7 +23,7 @@ from tendermint.abci.types_pb2 import (
 )
 from planetmint import Planetmint
 from planetmint.abci.tendermint_utils import decode_transaction, calculate_hash, decode_validator
-from planetmint.lib import Block
+from planetmint.abci.block import Block
 from planetmint.ipc.events import EventTypes, Event
 
 

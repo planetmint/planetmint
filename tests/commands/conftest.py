@@ -63,7 +63,7 @@ def run_start_args(request):
 @pytest.fixture
 def mocked_setup_logging(mocker):
     return mocker.patch(
-        "planetmint.log.setup_logging",
+        "planetmint.config_utils.setup_logging",
         autospec=True,
         spec_set=True,
     )
