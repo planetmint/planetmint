@@ -27,7 +27,7 @@ Base class for validation methods (verification of votes, blocks, and transactio
 
 Entry point for the Planetmint process, after initialization.  All subprocesses are started here: processes to handle new blocks, votes, etc.
 
-### [`config_utils.py`](./config_utils.py)
+### [`config_utils.py`](config_utils.py)
 
 Methods for managing the configuration, including loading configuration files, automatically generating the configuration, and keeping the configuration consistent across Planetmint instances.
 

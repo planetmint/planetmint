@@ -24,7 +24,7 @@ from planetmint.backend.connection import Connection
 from planetmint.backend.tarantool.connection import TarantoolDBConnection
 from transactions.common import crypto
 from transactions.common.transaction_mode_types import BROADCAST_TX_COMMIT
-from planetmint.tendermint_utils import key_from_base64
+from planetmint.abci.tendermint_utils import key_from_base64
 from planetmint.backend import schema, query
 from transactions.common.crypto import key_pair_from_ed25519_key, public_key_from_ed25519_key
 from planetmint.lib import Block
@@ -427,7 +427,7 @@ def abci_server():
     from abci.server import ABCIServer
 
     # from tendermint.abci import types_pb2 as types_v0_34_11
-    from planetmint.core import App
+    from planetmint.abci.core import App
     from planetmint.utils import Process
 
     app = ABCIServer(app=App())

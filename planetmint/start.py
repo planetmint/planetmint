@@ -8,10 +8,11 @@ import setproctitle
 
 from planetmint.config import Config
 from planetmint.lib import Planetmint
-from planetmint.core import App
-from planetmint.parallel_validation import ParallelValidationApp
+from planetmint.abci.core import App
+from planetmint.abci.parallel_validation import ParallelValidationApp
 from planetmint.web import server, websocket_server
-from planetmint.events import Exchange, EventTypes
+from planetmint.ipc.events import EventTypes
+from planetmint.ipc.exchange import Exchange
 from planetmint.utils import Process
 from planetmint.version import __version__
 

@@ -10,9 +10,7 @@ import pytest
 from unittest.mock import patch
 from transactions.types.assets.create import Create
 from transactions.types.assets.transfer import Transfer
-from operator import index
 from hashlib import sha3_256
-from pymongo import MongoClient
 from planetmint import backend
 from transactions.common.transaction_mode_types import (
     BROADCAST_TX_COMMIT,
@@ -101,7 +99,7 @@ def test_validation_error(b):
 @patch("requests.post")
 def test_write_and_post_transaction(mock_post, b):
     from transactions.common.crypto import generate_key_pair
-    from planetmint.tendermint_utils import encode_transaction
+    from planetmint.abci.tendermint_utils import encode_transaction
 
     alice = generate_key_pair()
     tx = (

@@ -51,7 +51,7 @@ def test_load_validation_plugin_raises_with_invalid_subclass(monkeypatch):
 
     monkeypatch.setattr(
         config_utils, "iter_entry_points", lambda *args: [type("entry_point", (object,), {"load": lambda: object})]
-    )
+    )my_config
 
     with pytest.raises(TypeError):
         # Since the function is decorated with `lru_cache`, we need to
@@ -317,8 +317,8 @@ def test_write_config():
 def test_database_envs(env_name, env_value, config_key, monkeypatch):
     monkeypatch.setattr("os.environ", {env_name: env_value})
     planetmint.config_utils.autoconfigure()
-
+Config
     expected_config = Config().get()
     expected_config["database"][config_key] = env_value
 
-    assert planetmint.config == expected_config
+    assert planetmint.config.Config().get() == expected_config

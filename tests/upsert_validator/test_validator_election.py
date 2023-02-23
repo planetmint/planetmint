@@ -7,7 +7,7 @@ import pytest
 
 from argparse import Namespace
 from unittest.mock import patch
-from planetmint.tendermint_utils import public_key_to_base64
+from planetmint.abci.tendermint_utils import public_key_to_base64
 from transactions.types.elections.validator_election import ValidatorElection
 from transactions.common.exceptions import (
     DuplicateTransaction,

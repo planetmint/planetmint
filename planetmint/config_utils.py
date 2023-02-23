@@ -25,8 +25,8 @@ import collections.abc
 from functools import lru_cache
 from pkg_resources import iter_entry_points, ResolutionError
 from planetmint.config import Config
-from transactions.common import exceptions
 from planetmint.validation import BaseValidationRules
+from transactions.common import exceptions
 
 # TODO: move this to a proper configuration file for logging
 logging.getLogger("requests").setLevel(logging.WARNING)

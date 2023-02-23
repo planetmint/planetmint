@@ -22,9 +22,9 @@ from tendermint.abci.types_pb2 import (
     ResponseCommit,
 )
 from planetmint import Planetmint
-from planetmint.tendermint_utils import decode_transaction, calculate_hash, decode_validator
+from planetmint.abci.tendermint_utils import decode_transaction, calculate_hash, decode_validator
 from planetmint.lib import Block
-from planetmint.events import EventTypes, Event
+from planetmint.ipc.events import EventTypes, Event
 
 
 CodeTypeError = 1

@@ -50,8 +50,8 @@ from planetmint.backend.tarantool.const import (
     TARANT_TABLE_TRANSACTION,
 )
 from planetmint.config import Config
-from planetmint import backend, config_utils, fastquery
-from planetmint.tendermint_utils import (
+from planetmint import backend, fastquery, config_utils
+from planetmint.abci.tendermint_utils import (
     encode_transaction,
     merkleroot,
     key_from_base64,

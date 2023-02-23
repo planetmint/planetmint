@@ -12,7 +12,7 @@ import setproctitle
 
 from packaging import version
 from planetmint.version import __tm_supported_versions__
-from planetmint.tendermint_utils import key_from_base64
+from planetmint.abci.tendermint_utils import key_from_base64
 from planetmint.backend.models.output import ConditionDetails
 from transactions.common.crypto import key_pair_from_ed25519_key
 

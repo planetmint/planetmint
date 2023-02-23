@@ -6,8 +6,8 @@
 
 import json
 
-from planetmint.events import EventTypes
-from planetmint.events import POISON_PILL
+from planetmint.ipc.events import EventTypes
+from planetmint.ipc.events import POISON_PILL
 
 
 class Dispatcher:

@@ -16,7 +16,7 @@ from transactions.common.transaction_mode_types import BROADCAST_TX_COMMIT
 from transactions.types.assets.create import Create
 from transactions.types.elections.vote import Vote
 from transactions.types.elections.validator_utils import election_id_to_public_key
-from planetmint.tendermint_utils import key_to_base64
+from planetmint.abci.tendermint_utils import key_to_base64
 
 
 @singledispatch

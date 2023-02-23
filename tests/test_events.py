@@ -5,10 +5,9 @@
 
 import pytest
 
-
+from planetmint.ipc.events import EventTypes, Event, POISON_PILL
+from planetmint.ipc.exchange import Exchange
 def test_event_handler():
-    from planetmint.events import EventTypes, Event, Exchange
-
     # create and event
     event_data = {"msg": "some data"}
     event = Event(EventTypes.BLOCK_VALID, event_data)
@@ -43,8 +42,6 @@ def test_event_handler():
 
 
 def test_event_handler_raises_when_called_after_start():
-    from planetmint.events import Exchange, POISON_PILL
-
     exchange = Exchange()
     publisher_queue = exchange.get_publisher_queue()
     publisher_queue.put(POISON_PILL)
@@ -55,8 +52,6 @@ def test_event_handler_raises_when_called_after_start():
 
 
 def test_exchange_stops_with_poison_pill():
-    from planetmint.events import EventTypes, Event, Exchange, POISON_PILL
-
     # create and event
     event_data = {"msg": "some data"}
     event = Event(EventTypes.BLOCK_VALID, event_data)
