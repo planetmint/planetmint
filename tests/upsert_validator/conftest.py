@@ -25,15 +25,15 @@ def fixed_seed_election(b_mock, node_key, new_validator):
 
 @pytest.fixture
 def concluded_election(b, ongoing_validator_election, ed25519_node_keys):
-    query.store_election(b.connection, ongoing_validator_election.id, 2, is_concluded=True)
+    query.store_election(b.models.connection, ongoing_validator_election.id, 2, is_concluded=True)
     return ongoing_validator_election
 
 
 @pytest.fixture
 def inconclusive_election(b, ongoing_validator_election, new_validator):
-    validators = b.get_validators(height=1)
+    validators = b.models.get_validators(height=1)
     validators[0]["voting_power"] = 15
     validator_update = {"validators": validators, "height": 2, "election_id": "some_other_election"}
 
-    query.store_validator_set(b.connection, validator_update)
+    query.store_validator_set(b.models.connection, validator_update)
     return ongoing_validator_election

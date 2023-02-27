@@ -7,7 +7,7 @@ import multiprocessing
 
 from collections import defaultdict
 from planetmint import App
-from planetmint.lib import Planetmint
+from planetmint.application.validation import Validator
 from planetmint.abci.tendermint_utils import decode_transaction
 from abci.application import OkCode
 from tendermint.abci.types_pb2 import (
@@ -93,7 +93,7 @@ class ValidationWorker:
     def __init__(self, in_queue, results_queue):
         self.in_queue = in_queue
         self.results_queue = results_queue
-        self.planetmint = Planetmint()
+        self.validator = Validator()
         self.reset()
 
     def reset(self):
@@ -112,7 +112,7 @@ class ValidationWorker:
         except TypeError:
             asset_id = dict_transaction["id"]
 
-        transaction = self.planetmint.is_valid_transaction(dict_transaction, self.validated_transactions[asset_id])
+        transaction = self.validator.is_valid_transaction(dict_transaction, self.validated_transactions[asset_id])
 
         if transaction:
             self.validated_transactions[asset_id].append(transaction)

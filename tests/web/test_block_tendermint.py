@@ -9,6 +9,7 @@ from transactions.types.assets.create import Create
 from planetmint.abci.block import Block
 from ipld import marshal, multihash
 
+
 BLOCKS_ENDPOINT = "/api/v1/blocks/"
 
 
@@ -22,15 +23,15 @@ def test_get_block_endpoint(b, client, alice):
     )
     tx = tx.sign([alice.private_key])
 
-    # with store_bulk_transactions we use `insert_many` where PyMongo
+    # with b.models.store_bulk_transactions we use `insert_many` where PyMongo
     # automatically adds an `_id` field to the tx, therefore we need the
     # deepcopy, for more info see:
     # https://api.mongodb.com/python/current/faq.html#writes-and-ids
     tx_dict = copy.deepcopy(tx.to_dict())
-    b.store_bulk_transactions([tx])
+    b.models.store_bulk_transactions( [tx])
 
     block = Block(app_hash="random_utxo", height=31, transactions=[tx.id])
-    b.store_block(block._asdict())
+    b.models.store_block(block._asdict())
 
     res = client.get(BLOCKS_ENDPOINT + str(block.height))
     expected_response = {"app_hash": "random_utxo", "height": block.height, "transaction_ids": [tx.id]}
@@ -54,10 +55,10 @@ def test_get_block_containing_transaction(b, client, alice):
         [alice.public_key], [([alice.public_key], 1)], assets=[{"data": multihash(marshal({"cycle": "hero"}))}]
     )
     tx = tx.sign([alice.private_key])
-    b.store_bulk_transactions([tx])
+    b.models.store_bulk_transactions( [tx])
 
     block = Block(app_hash="random_utxo", height=13, transactions=[tx.id])
-    b.store_block(block._asdict())
+    b.models.store_block(block._asdict())
     res = client.get("{}?transaction_id={}".format(BLOCKS_ENDPOINT, tx.id))
     expected_height = block.height
     assert res.json["height"] == expected_height

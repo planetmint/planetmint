@@ -35,6 +35,3 @@ class Event:
 
         self.type = event_type
         self.data = event_data
-
-
-

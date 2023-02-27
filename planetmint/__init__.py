@@ -7,7 +7,8 @@ from transactions.common.transaction import Transaction  # noqa
 from transactions.types.elections.validator_election import ValidatorElection  # noqa
 from transactions.types.elections.vote import Vote  # noqa
 from transactions.types.elections.chain_migration_election import ChainMigrationElection
-from planetmint.lib import Planetmint
+
+from planetmint.application.validation import Validator
 from planetmint.abci.core import App
 
 

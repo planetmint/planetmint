@@ -21,6 +21,7 @@ from transactions.types.elections.validator_utils import election_id_to_public_k
 from planetmint.abci.tendermint_utils import key_to_base64
 from planetmint.abci.rpc import MODE_COMMIT, MODE_LIST
 
+
 @singledispatch
 def flush_db(connection, dbname):
     raise NotImplementedError
@@ -38,7 +39,7 @@ def flush_tarantool_db(connection, dbname):
     connection.connect().call("init")
 
 
-def generate_block(planet):
+def generate_block(planet, test_abci_rpc):
     from transactions.common.crypto import generate_key_pair
 
     alice = generate_key_pair()
@@ -46,7 +47,9 @@ def generate_block(planet):
         [alice.private_key]
     )
 
-    code, message = ABCI_RPC().write_transaction(MODE_LIST, planet.tendermint_rpc_endpoint, MODE_COMMIT, tx, BROADCAST_TX_COMMIT)
+    code, message = test_abci_rpc.write_transaction(
+        MODE_LIST, test_abci_rpc.tendermint_rpc_endpoint, MODE_COMMIT, tx, BROADCAST_TX_COMMIT
+    )
     assert code == 202
 
 

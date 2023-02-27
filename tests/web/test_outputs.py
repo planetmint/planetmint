@@ -9,7 +9,6 @@ from transactions.types.assets.create import Create
 from transactions.types.assets.transfer import Transfer
 from unittest.mock import MagicMock, patch
 
-
 OUTPUTS_ENDPOINT = "/api/v1/outputs/"
 
 
@@ -19,7 +18,7 @@ def test_get_outputs_endpoint(client, user_pk):
     m = MagicMock()
     m.txid = "a"
     m.output = 0
-    with patch("planetmint.Planetmint.get_outputs_filtered") as gof:
+    with patch("planetmint.model.models.Models.get_outputs_filtered") as gof:
         gof.return_value = [m, m]
         res = client.get(OUTPUTS_ENDPOINT + "?public_key={}".format(user_pk))
         assert res.json == [{"transaction_id": "a", "output_index": 0}, {"transaction_id": "a", "output_index": 0}]
@@ -31,7 +30,7 @@ def test_get_outputs_endpoint_unspent(client, user_pk):
     m = MagicMock()
     m.txid = "a"
     m.output = 0
-    with patch("planetmint.Planetmint.get_outputs_filtered") as gof:
+    with patch("planetmint.model.models.Models.get_outputs_filtered") as gof:
         gof.return_value = [m]
         params = "?spent=False&public_key={}".format(user_pk)
         res = client.get(OUTPUTS_ENDPOINT + params)
@@ -46,7 +45,7 @@ def test_get_outputs_endpoint_spent(client, user_pk):
     m = MagicMock()
     m.txid = "a"
     m.output = 0
-    with patch("planetmint.Planetmint.get_outputs_filtered") as gof:
+    with patch("planetmint.model.models.Models.get_outputs_filtered") as gof:
         gof.return_value = [m]
         params = "?spent=true&public_key={}".format(user_pk)
         res = client.get(OUTPUTS_ENDPOINT + params)
@@ -92,7 +91,7 @@ def test_get_divisble_transactions_returns_500_phase_one(b, client):
     TX_ENDPOINT = "/api/v1/transactions"
 
     def mine(tx_list):
-        b.store_bulk_transactions(tx_list)
+        b.models.store_bulk_transactions( tx_list)
 
     alice_priv, alice_pub = crypto.generate_key_pair()
     # bob_priv, bob_pub = crypto.generate_key_pair()
@@ -119,7 +118,7 @@ def test_get_divisble_transactions_returns_500(b, client):
     TX_ENDPOINT = "/api/v1/transactions"
 
     def mine(tx_list):
-        b.store_bulk_transactions(tx_list)
+        b.models.store_bulk_transactions( tx_list)
 
     alice_priv, alice_pub = crypto.generate_key_pair()
     bob_priv, bob_pub = crypto.generate_key_pair()

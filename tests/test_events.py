@@ -7,6 +7,8 @@ import pytest
 
 from planetmint.ipc.events import EventTypes, Event, POISON_PILL
 from planetmint.ipc.exchange import Exchange
+
+
 def test_event_handler():
     # create and event
     event_data = {"msg": "some data"}

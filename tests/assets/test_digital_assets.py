@@ -10,12 +10,11 @@ from transactions.types.assets.transfer import Transfer
 from transactions.types.assets.compose import Compose
 from transactions.types.assets.decompose import Decompose
 
-
 def test_asset_transfer(b, signed_create_tx, user_pk, user_sk, _bdb):
     tx_transfer = Transfer.generate(signed_create_tx.to_inputs(), [([user_pk], 1)], [signed_create_tx.id])
     tx_transfer_signed = tx_transfer.sign([user_sk])
 
-    b.store_bulk_transactions([signed_create_tx])
+    b.models.store_bulk_transactions( [signed_create_tx])
 
     assert b.validate_transaction(tx_transfer_signed) == tx_transfer_signed
     assert tx_transfer_signed.assets[0]["id"] == signed_create_tx.id
@@ -33,7 +32,7 @@ def test_validate_transfer_asset_id_mismatch(b, signed_create_tx, user_pk, user_
     tx_transfer.assets[0]["id"] = "a" * 64
     tx_transfer_signed = tx_transfer.sign([user_sk])
 
-    b.store_bulk_transactions([signed_create_tx])
+    b.models.store_bulk_transactions( [signed_create_tx])
 
     with pytest.raises(AssetIdMismatch):
         b.validate_transaction(tx_transfer_signed)
@@ -73,7 +72,7 @@ def test_asset_id_mismatch(alice, user_pk):
 
 def test_compose_valid_transactions(b, user_pk, user_sk, alice, signed_create_tx, _bdb):
     validated = b.validate_transaction(signed_create_tx)
-    b.store_bulk_transactions([validated])
+    b.models.store_bulk_transactions( [validated])
 
     inputs = signed_create_tx.to_inputs()
     assets = [signed_create_tx.id, "QmW5GVMW98D3mktSDfWHS8nX2UiCd8gP1uCiujnFX4yK8n"]
@@ -84,7 +83,7 @@ def test_compose_valid_transactions(b, user_pk, user_sk, alice, signed_create_tx
 
 def test_decompose_valid_transactions(b, user_pk, user_sk, alice, signed_create_tx, _bdb):
     validated = b.validate_transaction(signed_create_tx)
-    b.store_bulk_transactions([validated])
+    b.models.store_bulk_transactions( [validated])
 
     inputs = signed_create_tx.to_inputs()
     assets = [
@@ -102,7 +101,7 @@ def test_decompose_valid_transactions(b, user_pk, user_sk, alice, signed_create_
 
 def test_create_decompose_output(b, user_pk, user_sk, signed_create_tx, _bdb):
     validated = b.validate_transaction(signed_create_tx)
-    b.store_bulk_transactions([validated])
+    b.models.store_bulk_transactions( [validated])
 
     inputs = signed_create_tx.to_inputs()
     assets = [
@@ -116,7 +115,7 @@ def test_create_decompose_output(b, user_pk, user_sk, signed_create_tx, _bdb):
     )
     decompose_transaction.sign([user_sk])
     validated_decompose = b.validate_transaction(decompose_transaction)
-    b.store_bulk_transactions([validated_decompose])
+    b.models.store_bulk_transactions( [validated_decompose])
 
     create_inputs = decompose_transaction.to_inputs([0])
     create_tx = Create.generate([user_pk], recipients=[([user_pk], 1)], assets=[assets[0]], inputs=create_inputs)
@@ -141,6 +140,6 @@ def test_v_2_0_validation_create_invalid(b, signed_2_0_create_tx_assets, _bdb):
 
 def test_v_2_0_validation_transfer(b, signed_2_0_create_tx, signed_2_0_transfer_tx, _bdb):
     validated = b.validate_transaction(signed_2_0_create_tx)
-    b.store_bulk_transactions([validated])
+    b.models.store_bulk_transactions( [validated])
     assert validated.to_dict() == signed_2_0_create_tx
     assert b.validate_transaction(signed_2_0_transfer_tx).to_dict() == signed_2_0_transfer_tx

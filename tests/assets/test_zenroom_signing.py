@@ -51,7 +51,7 @@ SCRIPT_INPUT = {
 metadata = {"units": 300, "type": "KG"}
 
 
-def test_zenroom_signing():
+def test_zenroom_signing(b):
     biolabs = generate_key_pair()
     version = "3.0"
 
@@ -149,7 +149,6 @@ def test_zenroom_signing():
     tx["id"] = shared_creation_txid
 
     from transactions.common.transaction import Transaction
-    from planetmint.lib import Planetmint
     from transactions.common.exceptions import (
         SchemaValidationError,
         ValidationError,
@@ -164,9 +163,9 @@ def test_zenroom_signing():
     except ValidationError as e:
         print(e)
         assert ()
-    planet = Planetmint()
+
     try:
-        planet.validate_transaction(tx_obj)
+        b.validate_transaction(tx_obj)
     except ValidationError as e:
         print("Invalid transaction ({}): {}".format(type(e).__name__, e))
         assert ()

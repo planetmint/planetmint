@@ -7,7 +7,7 @@ import logging
 import setproctitle
 
 from planetmint.config import Config
-from planetmint.lib import Planetmint
+from planetmint.application.validation import Validator
 from planetmint.abci.core import App
 from planetmint.abci.parallel_validation import ParallelValidationApp
 from planetmint.web import server, websocket_server
@@ -41,7 +41,7 @@ def start(args):
     exchange = Exchange()
     # start the web api
     app_server = server.create_server(
-        settings=Config().get()["server"], log_config=Config().get()["log"], planetmint_factory=Planetmint
+        settings=Config().get()["server"], log_config=Config().get()["log"], planetmint_factory=Validator
     )
     p_webapi = Process(name="planetmint_webapi", target=app_server.run, daemon=True)
     p_webapi.start()

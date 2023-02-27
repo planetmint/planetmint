@@ -15,7 +15,7 @@ import gunicorn.app.base
 from flask import Flask
 from flask_cors import CORS
 from planetmint import utils
-from planetmint import Planetmint
+from planetmint.application.validation import Validator
 from planetmint.web.routes import add_routes
 from planetmint.web.strip_content_type_middleware import StripContentTypeMiddleware
 
@@ -72,7 +72,7 @@ def create_app(*, debug=False, threads=1, planetmint_factory=None):
     """
 
     if not planetmint_factory:
-        planetmint_factory = Planetmint
+        planetmint_factory = Validator
 
     app = Flask(__name__)
     app.wsgi_app = StripContentTypeMiddleware(app.wsgi_app)

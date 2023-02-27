@@ -14,16 +14,20 @@ import json
 import sys
 import planetmint
 
-from planetmint.abci.core import rollback
-from planetmint.abci.rpc import ABCI_RPC
-from planetmint.abci.utils import load_node_key
+
+
+
 from transactions.common.transaction_mode_types import BROADCAST_TX_COMMIT
 from transactions.common.exceptions import DatabaseDoesNotExist, ValidationError
 from transactions.types.elections.vote import Vote
 from transactions.types.elections.chain_migration_election import ChainMigrationElection
 from transactions.types.elections.validator_utils import election_id_to_public_key
 from transactions.common.transaction import Transaction
-from planetmint import ValidatorElection, Planetmint
+
+from planetmint.abci.rpc import ABCI_RPC
+from planetmint.abci.utils import load_node_key
+from planetmint import ValidatorElection
+from planetmint.application.validation import Validator
 from planetmint.backend import schema
 from planetmint.commands import utils
 from planetmint.commands.utils import configure_planetmint, input_on_stderr
@@ -33,6 +37,7 @@ from planetmint.abci.rpc import MODE_COMMIT, MODE_LIST
 from planetmint.commands.election_types import elections
 from planetmint.version import __tm_supported_versions__
 from planetmint.config import Config
+from planetmint.model.models import Models
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -133,7 +138,9 @@ def create_new_election(sk, planet, election_class, data):
         logger.error(fd_404)
         return False
 
-    resp = ABCI_RPC().write_transaction(MODE_LIST, planet.tendermint_rpc_endpoint, MODE_COMMIT, election, BROADCAST_TX_COMMIT)
+    resp = ABCI_RPC().write_transaction(
+        MODE_LIST, ABCI_RPC().tendermint_rpc_endpoint, MODE_COMMIT, election, BROADCAST_TX_COMMIT
+    )
     if resp == (202, ""):
         logger.info("[SUCCESS] Submitted proposal with id: {}".format(election.id))
         return election.id
@@ -183,7 +190,7 @@ def run_election_new_chain_migration(args, planet):
     return create_new_election(args.sk, planet, ChainMigrationElection, [{"data": {}}])
 
 
-def run_election_approve(args, planet):
+def run_election_approve(args, validator: Validator):
     """Approve an election
 
     :param args: dict
@@ -196,7 +203,7 @@ def run_election_approve(args, planet):
     """
 
     key = load_node_key(args.sk)
-    tx = planet.get_transaction(args.election_id)
+    tx = validator.models.get_transaction(args.election_id)
     voting_powers = [v.amount for v in tx.outputs if key.public_key in v.public_keys]
     if len(voting_powers) > 0:
         voting_power = voting_powers[0]
@@ -208,9 +215,11 @@ def run_election_approve(args, planet):
     inputs = [i for i in tx_converted.to_inputs() if key.public_key in i.owners_before]
     election_pub_key = election_id_to_public_key(tx.id)
     approval = Vote.generate(inputs, [([election_pub_key], voting_power)], [tx.id]).sign([key.private_key])
-    planet.validate_transaction(approval)
+    validator.validate_transaction(approval)
 
-    resp = ABCI_RPC().write_transaction(MODE_LIST, planet.tendermint_rpc_endpoint, MODE_COMMIT, approval, BROADCAST_TX_COMMIT)
+    resp = ABCI_RPC().write_transaction(
+        MODE_LIST, ABCI_RPC().tendermint_rpc_endpoint, MODE_COMMIT, approval, BROADCAST_TX_COMMIT
+    )
 
     if resp == (202, ""):
         logger.info("[SUCCESS] Your vote has been submitted")
@@ -220,7 +229,7 @@ def run_election_approve(args, planet):
         return False
 
 
-def run_election_show(args, planet):
+def run_election_show(args, validator:Validator):
     """Retrieves information about an election
 
     :param args: dict
@@ -230,12 +239,12 @@ def run_election_show(args, planet):
     :param planet: an instance of Planetmint
     """
 
-    election = planet.get_transaction(args.election_id)
+    election = validator.models.get_transaction(args.election_id)
     if not election:
         logger.error(f"No election found with election_id {args.election_id}")
         return
 
-    response = planet.show_election_status(election)
+    response = validator.show_election_status(election)
 
     logger.info(response)
 
@@ -243,8 +252,8 @@ def run_election_show(args, planet):
 
 
 def _run_init():
-    bdb = planetmint.Planetmint()
-    schema.init_database(bdb.connection)
+    validator = Validator()
+    schema.init_database(validator.models.connection)
 
 
 @configure_planetmint
@@ -271,23 +280,20 @@ def run_drop(args):
         print("Drop was executed, but spaces doesn't exist.", file=sys.stderr)
 
 
-def run_recover(b):
-    rollback(b)
-
-
 @configure_planetmint
 def run_start(args):
     """Start the processes to run the node"""
-
+    logger.info("Planetmint Version %s", planetmint.version.__version__)
+    
     # Configure Logging
     setup_logging()
 
     if not args.skip_initialize_database:
         logger.info("Initializing database")
         _run_init()
-
-    logger.info("Planetmint Version %s", planetmint.version.__version__)
-    run_recover(planetmint.lib.Planetmint())
+    
+    validator = Validator()
+    validator.rollback()
 
     logger.info("Starting Planetmint main process.")
     from planetmint.start import start

@@ -46,7 +46,7 @@ class DbTransaction:
         )
 
     @staticmethod
-    def remove_generated_fields(tx_dict: dict):
+    def remove_generated_fields(tx_dict: dict) -> dict:
         tx_dict["outputs"] = [
             DbTransaction.remove_generated_or_none_output_keys(output) for output in tx_dict["outputs"]
         ]
@@ -55,13 +55,19 @@ class DbTransaction:
         return tx_dict
 
     @staticmethod
-    def remove_generated_or_none_output_keys(output):
+    def remove_generated_or_none_output_keys(output: dict) -> dict:
         output["condition"]["details"] = {k: v for k, v in output["condition"]["details"].items() if v is not None}
         if "id" in output:
             output.pop("id")
         return output
 
     def to_dict(self) -> dict:
+        """
+
+        Returns
+        -------
+        object
+        """
         assets = Asset.list_to_dict(self.assets)
         tx = {
             "inputs": Input.list_to_dict(self.inputs),

@@ -17,6 +17,7 @@ from transactions.common.exceptions import (
     InvalidPowerChange,
 )
 
+
 pytestmark = pytest.mark.bdb
 
 
@@ -82,7 +83,7 @@ def test_upsert_validator_invalid_election(b_mock, new_validator, node_key, fixe
     with pytest.raises(DuplicateTransaction):
         b_mock.validate_election(fixed_seed_election, [duplicate_election])
 
-    b_mock.store_bulk_transactions([fixed_seed_election])
+    b_mock.models.store_bulk_transactions([fixed_seed_election])
 
     with pytest.raises(DuplicateTransaction):
         b_mock.validate_election(duplicate_election)
@@ -166,8 +167,8 @@ def test_get_status_inconclusive(b, inconclusive_election, new_validator):
                 },
             ]
 
-    b.get_validators = custom_mock_get_validators
-    b.get_latest_block = set_block_height_to_3
+    b.models.get_validators = custom_mock_get_validators
+    b.models.get_latest_block = set_block_height_to_3
     status = ValidatorElection.INCONCLUSIVE
     resp = b.get_election_status(inconclusive_election)
     assert resp == status

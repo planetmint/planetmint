@@ -145,4 +145,3 @@ class Lazy:
 
         self.stack = []
         return last
-

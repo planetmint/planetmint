@@ -14,7 +14,7 @@ def test_get_validators_endpoint(b, client):
             "voting_power": 10,
         }
     ]
-    b.store_validator_set(23, validator_set)
+    b.models.store_validator_set(23, validator_set)
 
     res = client.get(VALIDATORS_ENDPOINT)
     assert is_validator(res.json[0])

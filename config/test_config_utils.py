@@ -30,7 +30,7 @@ def test_bigchain_instance_is_initialized_when_conf_provided():
 
 def test_load_validation_plugin_loads_default_rules_without_name():
     from planetmint import config_utils
-    from planetmint.validation import BaseValidationRules
+    from planetmint.application.basevalidationrules import BaseValidationRules
 
     assert config_utils.load_validation_plugin() == BaseValidationRules
 

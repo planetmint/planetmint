@@ -1,19 +1,28 @@
-from uuid import uuid4
-
 import requests
+from uuid import uuid4
 from transactions.common.exceptions import ValidationError
-
-from planetmint.abci.tendermint_utils import encode_transaction
-from planetmint.lib import logger
 from transactions.common.transaction_mode_types import (
     BROADCAST_TX_COMMIT,
     BROADCAST_TX_ASYNC,
     BROADCAST_TX_SYNC,
 )
+
+from planetmint.abci.tendermint_utils import encode_transaction
+from planetmint.application.validation import logger
+from planetmint.config_utils import autoconfigure
+from planetmint.config import Config
+
 MODE_COMMIT = BROADCAST_TX_COMMIT
 MODE_LIST = (BROADCAST_TX_ASYNC, BROADCAST_TX_SYNC, MODE_COMMIT)
 
+
 class ABCI_RPC:
+    def __init__(self):
+        autoconfigure()
+        self.tendermint_host = Config().get()["tendermint"]["host"]
+        self.tendermint_port = Config().get()["tendermint"]["port"]
+        self.tendermint_rpc_endpoint = "http://{}:{}/".format(self.tendermint_host, self.tendermint_port)
+
     @staticmethod
     def _process_post_response(mode_commit, response, mode):
         logger.debug(response)
@@ -42,13 +51,11 @@ class ABCI_RPC:
 
         return (202, "")
 
-
     def write_transaction(self, mode_list, endpoint, mode_commit, transaction, mode):
         # This method offers backward compatibility with the Web API.
         """Submit a valid transaction to the mempool."""
         response = self.post_transaction(mode_list, endpoint, transaction, mode)
         return ABCI_RPC._process_post_response(mode_commit, response.json(), mode)
-
 
     def post_transaction(self, mode_list, endpoint, transaction, mode):
         """Submit a valid transaction to the mempool."""

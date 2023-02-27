@@ -29,7 +29,7 @@ from pkg_resources import iter_entry_points, ResolutionError
 from transactions.common.exceptions import ConfigurationError
 
 from planetmint.config import Config, DEFAULT_LOGGING_CONFIG
-from planetmint.validation import BaseValidationRules
+from planetmint.application.basevalidationrules import BaseValidationRules
 from transactions.common import exceptions
 
 # TODO: move this to a proper configuration file for logging

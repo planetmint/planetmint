@@ -16,6 +16,7 @@ from transactions.common.exceptions import ValidationError
 from transactions.common.transaction_mode_types import BROADCAST_TX_COMMIT
 from transactions.types.elections.vote import Vote
 from transactions.types.elections.validator_utils import election_id_to_public_key
+
 from tests.utils import generate_block, gen_vote
 
 pytestmark = [pytest.mark.execute]
@@ -23,7 +24,7 @@ pytestmark = [pytest.mark.execute]
 
 @pytest.mark.bdb
 def test_upsert_validator_valid_election_vote(b_mock, valid_upsert_validator_election, ed25519_node_keys):
-    b_mock.store_bulk_transactions([valid_upsert_validator_election])
+    b_mock.models.store_bulk_transactions([valid_upsert_validator_election])
 
     input0 = valid_upsert_validator_election.to_inputs()[0]
     votes = valid_upsert_validator_election.outputs[0].amount
@@ -40,7 +41,7 @@ def test_upsert_validator_valid_election_vote(b_mock, valid_upsert_validator_ele
 
 @pytest.mark.bdb
 def test_upsert_validator_valid_non_election_vote(b_mock, valid_upsert_validator_election, ed25519_node_keys):
-    b_mock.store_bulk_transactions([valid_upsert_validator_election])
+    b_mock.models.store_bulk_transactions([valid_upsert_validator_election])
 
     input0 = valid_upsert_validator_election.to_inputs()[0]
     votes = valid_upsert_validator_election.outputs[0].amount
@@ -60,7 +61,7 @@ def test_upsert_validator_valid_non_election_vote(b_mock, valid_upsert_validator
 def test_upsert_validator_delegate_election_vote(b_mock, valid_upsert_validator_election, ed25519_node_keys):
     alice = generate_key_pair()
 
-    b_mock.store_bulk_transactions([valid_upsert_validator_election])
+    b_mock.models.store_bulk_transactions( [valid_upsert_validator_election])
 
     input0 = valid_upsert_validator_election.to_inputs()[0]
     votes = valid_upsert_validator_election.outputs[0].amount
@@ -75,7 +76,7 @@ def test_upsert_validator_delegate_election_vote(b_mock, valid_upsert_validator_
 
     assert b_mock.validate_transaction(delegate_vote)
 
-    b_mock.store_bulk_transactions([delegate_vote])
+    b_mock.models.store_bulk_transactions([delegate_vote])
     election_pub_key = election_id_to_public_key(valid_upsert_validator_election.id)
 
     alice_votes = delegate_vote.to_inputs()[0]
@@ -93,7 +94,7 @@ def test_upsert_validator_delegate_election_vote(b_mock, valid_upsert_validator_
 
 @pytest.mark.bdb
 def test_upsert_validator_invalid_election_vote(b_mock, valid_upsert_validator_election, ed25519_node_keys):
-    b_mock.store_bulk_transactions([valid_upsert_validator_election])
+    b_mock.models.store_bulk_transactions([valid_upsert_validator_election])
 
     input0 = valid_upsert_validator_election.to_inputs()[0]
     votes = valid_upsert_validator_election.outputs[0].amount
@@ -113,7 +114,7 @@ def test_upsert_validator_invalid_election_vote(b_mock, valid_upsert_validator_e
 @pytest.mark.bdb
 def test_valid_election_votes_received(b_mock, valid_upsert_validator_election, ed25519_node_keys):
     alice = generate_key_pair()
-    b_mock.store_bulk_transactions([valid_upsert_validator_election])
+    b_mock.models.store_bulk_transactions( [valid_upsert_validator_election])
     assert b_mock.get_commited_votes(valid_upsert_validator_election) == 0
 
     input0 = valid_upsert_validator_election.to_inputs()[0]
@@ -127,7 +128,7 @@ def test_valid_election_votes_received(b_mock, valid_upsert_validator_election, 
         [([alice.public_key], 4), ([key0.public_key], votes - 4)],
         election_ids=[valid_upsert_validator_election.id],
     ).sign([key0.private_key])
-    b_mock.store_bulk_transactions([delegate_vote])
+    b_mock.models.store_bulk_transactions([delegate_vote])
     assert b_mock.get_commited_votes(valid_upsert_validator_election) == 0
 
     election_public_key = election_id_to_public_key(valid_upsert_validator_election.id)
@@ -141,7 +142,7 @@ def test_valid_election_votes_received(b_mock, valid_upsert_validator_election, 
     ).sign([alice.private_key])
 
     assert b_mock.validate_transaction(alice_casted_vote)
-    b_mock.store_bulk_transactions([alice_casted_vote])
+    b_mock.models.store_bulk_transactions( [alice_casted_vote])
 
     # Check if the delegated vote is count as valid vote
     assert b_mock.get_commited_votes(valid_upsert_validator_election) == 2
@@ -151,7 +152,7 @@ def test_valid_election_votes_received(b_mock, valid_upsert_validator_election, 
     ).sign([key0.private_key])
 
     assert b_mock.validate_transaction(key0_casted_vote)
-    b_mock.store_bulk_transactions([key0_casted_vote])
+    b_mock.models.store_bulk_transactions([key0_casted_vote])
     assert b_mock.get_commited_votes(valid_upsert_validator_election) == votes - 2
 
 
@@ -165,7 +166,7 @@ def test_valid_election_conclude(b_mock, valid_upsert_validator_election, ed2551
         assert b_mock.validate_transaction(tx_vote0)
 
     # store election
-    b_mock.store_bulk_transactions([valid_upsert_validator_election])
+    b_mock.models.store_bulk_transactions([valid_upsert_validator_election])
     # cannot conclude election as not votes exist
     assert not b_mock.has_election_concluded(valid_upsert_validator_election)
 
@@ -173,7 +174,7 @@ def test_valid_election_conclude(b_mock, valid_upsert_validator_election, ed2551
     assert b_mock.validate_transaction(tx_vote0)
     assert not b_mock.has_election_concluded(valid_upsert_validator_election, [tx_vote0])
 
-    b_mock.store_bulk_transactions([tx_vote0])
+    b_mock.models.store_bulk_transactions( [tx_vote0])
     assert not b_mock.has_election_concluded(valid_upsert_validator_election)
 
     # Node 1: cast vote
@@ -191,7 +192,7 @@ def test_valid_election_conclude(b_mock, valid_upsert_validator_election, ed2551
     # 2/3 is achieved in the same block so the election can be.has_concludedd
     assert b_mock.has_election_concluded(valid_upsert_validator_election, [tx_vote1, tx_vote2])
 
-    b_mock.store_bulk_transactions([tx_vote1])
+    b_mock.models.store_bulk_transactions([tx_vote1])
     assert not b_mock.has_election_concluded(valid_upsert_validator_election)
 
     assert b_mock.validate_transaction(tx_vote2)
@@ -201,7 +202,7 @@ def test_valid_election_conclude(b_mock, valid_upsert_validator_election, ed2551
     assert b_mock.has_election_concluded(valid_upsert_validator_election, [tx_vote2])
     assert b_mock.has_election_concluded(valid_upsert_validator_election, [tx_vote2, tx_vote3])
 
-    b_mock.store_bulk_transactions([tx_vote2])
+    b_mock.models.store_bulk_transactions( [tx_vote2])
 
     # Once the blockchain records >2/3 of the votes the election is assumed to be.has_concludedd
     # so any invocation of `.has_concluded` for that election should return False
@@ -214,18 +215,18 @@ def test_valid_election_conclude(b_mock, valid_upsert_validator_election, ed2551
 
 
 @pytest.mark.abci
-def test_upsert_validator(b, node_key, node_keys, ed25519_node_keys):
-    if b.get_latest_block()["height"] == 0:
-        generate_block(b)
+def test_upsert_validator(b, node_key, node_keys, ed25519_node_keys, test_abci_rpc):
+    if b.models.get_latest_block()["height"] == 0:
+        generate_block(b, test_abci_rpc)
 
     (node_pub, _) = list(node_keys.items())[0]
 
     validators = [{"public_key": {"type": "ed25519-base64", "value": node_pub}, "voting_power": 10}]
 
-    latest_block = b.get_latest_block()
+    latest_block = b.models.get_latest_block()
     # reset the validator set
-    b.store_validator_set(latest_block["height"], validators)
-    generate_block(b)
+    b.models.store_validator_set(latest_block["height"], validators)
+    generate_block(b, test_abci_rpc)
 
     power = 1
     public_key = "9B3119650DF82B9A5D8A12E38953EA47475C09F0C48A4E6A0ECE182944B24403"
@@ -244,22 +245,26 @@ def test_upsert_validator(b, node_key, node_keys, ed25519_node_keys):
     election = ValidatorElection.generate([node_key.public_key], voters, new_validator, None).sign(
         [node_key.private_key]
     )
-    code, message = ABCI_RPC().write_transaction(MODE_LIST, b.tendermint_rpc_endpoint, MODE_COMMIT, election, BROADCAST_TX_COMMIT)
+    code, message = test_abci_rpc.write_transaction(
+        MODE_LIST, test_abci_rpc.tendermint_rpc_endpoint, MODE_COMMIT, election, BROADCAST_TX_COMMIT
+    )
     assert code == 202
-    assert b.get_transaction(election.id)
+    assert b.models.get_transaction(election.id)
 
     tx_vote = gen_vote(election, 0, ed25519_node_keys)
     assert b.validate_transaction(tx_vote)
-    code, message = ABCI_RPC().write_transaction(MODE_LIST, b.tendermint_rpc_endpoint, MODE_COMMIT, tx_vote, BROADCAST_TX_COMMIT)
+    code, message = test_abci_rpc.write_transaction(
+        MODE_LIST, test_abci_rpc.tendermint_rpc_endpoint, MODE_COMMIT, tx_vote, BROADCAST_TX_COMMIT
+    )
     assert code == 202
 
-    resp = b.get_validators()
+    resp = b.models.get_validators()
     validator_pub_keys = []
     for v in resp:
         validator_pub_keys.append(v["public_key"]["value"])
 
     assert public_key64 in validator_pub_keys
-    new_validator_set = b.get_validators()
+    new_validator_set = b.models.get_validators()
     validator_pub_keys = []
     for v in new_validator_set:
         validator_pub_keys.append(v["public_key"]["value"])
@@ -286,7 +291,7 @@ def test_get_validator_update(b, node_keys, node_key, ed25519_node_keys):
     voters = b.get_recipients_list()
     election = ValidatorElection.generate([node_key.public_key], voters, new_validator).sign([node_key.private_key])
     # store election
-    b.store_bulk_transactions([election])
+    b.models.store_bulk_transactions( [election])
 
     tx_vote0 = gen_vote(election, 0, ed25519_node_keys)
     tx_vote1 = gen_vote(election, 1, ed25519_node_keys)
@@ -318,13 +323,13 @@ def test_get_validator_update(b, node_keys, node_key, ed25519_node_keys):
     voters = b.get_recipients_list()
     election = ValidatorElection.generate([node_key.public_key], voters, new_validator).sign([node_key.private_key])
     # store election
-    b.store_bulk_transactions([election])
+    b.models.store_bulk_transactions( [election])
 
     tx_vote0 = gen_vote(election, 0, ed25519_node_keys)
     tx_vote1 = gen_vote(election, 1, ed25519_node_keys)
     tx_vote2 = gen_vote(election, 2, ed25519_node_keys)
 
-    b.store_bulk_transactions([tx_vote0, tx_vote1])
+    b.models.store_bulk_transactions( [tx_vote0, tx_vote1])
 
     update = b.process_block(9, [tx_vote2])
     assert len(update) == 1
@@ -332,7 +337,7 @@ def test_get_validator_update(b, node_keys, node_key, ed25519_node_keys):
     assert update_public_key == public_key64
 
     # assert that the public key is not a part of the current validator set
-    for v in b.get_validators(10):
+    for v in b.models.get_validators(10):
         assert not v["public_key"]["value"] == public_key64
 
 
@@ -345,4 +350,4 @@ def reset_validator_set(b, node_keys, height):
     validators = []
     for node_pub, _ in node_keys.items():
         validators.append({"public_key": {"type": "ed25519-base64", "value": node_pub}, "voting_power": 10})
-    b.store_validator_set(height, validators)
+    b.models.store_validator_set(height, validators)

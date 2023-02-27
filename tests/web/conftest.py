@@ -9,10 +9,10 @@ import pytest
 @pytest.fixture
 def app(request):
     from planetmint.web import server
-    from planetmint.lib import Planetmint
+    from planetmint.application.validation import Validator
 
     if request.config.getoption("--database-backend") == "localmongodb":
-        app = server.create_app(debug=True, planetmint_factory=Planetmint)
+        app = server.create_app(debug=True, planetmint_factory=Validator)
     else:
         app = server.create_app(debug=True)
 

@@ -4,6 +4,7 @@ import multiprocessing
 
 from planetmint.ipc.events import EventTypes, POISON_PILL
 
+
 class Exchange:
     """Dispatch events to subscribers."""
 

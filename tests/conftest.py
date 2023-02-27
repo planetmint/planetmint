@@ -31,6 +31,7 @@ from planetmint.backend import schema, query
 from transactions.common.crypto import key_pair_from_ed25519_key, public_key_from_ed25519_key
 from planetmint.abci.block import Block
 from planetmint.abci.rpc import MODE_LIST
+from planetmint.model.models import Models
 from tests.utils import gen_vote
 from planetmint.config import Config
 from transactions.types.elections.validator_election import ValidatorElection  # noqa
@@ -249,10 +250,25 @@ def abci_fixture():
 
 
 @pytest.fixture
-def b():
-    from planetmint import Planetmint
+def test_models():
+    from planetmint.model.models import Models
 
-    return Planetmint()
+    return Models()
+
+@pytest.fixture
+def test_validator():
+    from planetmint.application.validation import Validator
+    return Validator()
+
+@pytest.fixture
+def test_abci_rpc():
+    from planetmint.abci.rpc import ABCI_RPC
+    return ABCI_RPC()
+
+@pytest.fixture
+def b():
+    from planetmint.application.validation import Validator
+    return Validator()
 
 
 @pytest.fixture
@@ -264,7 +280,7 @@ def eventqueue_fixture():
 
 @pytest.fixture
 def b_mock(b, network_validators):
-    b.get_validators = mock_get_validators(network_validators)
+    b.models.get_validators = mock_get_validators(network_validators)
     return b
 
 
@@ -293,8 +309,8 @@ def signed_create_tx(alice, create_tx):
 
 
 @pytest.fixture
-def posted_create_tx(b, signed_create_tx):
-    res = ABCI_RPC().post_transaction(MODE_LIST, b.tendermint_rpc_endpoint, signed_create_tx, BROADCAST_TX_COMMIT)
+def posted_create_tx(b, signed_create_tx, test_abci_rpc):
+    res = test_abci_rpc.post_transaction(MODE_LIST, test_abci_rpc.tendermint_rpc_endpoint, signed_create_tx, BROADCAST_TX_COMMIT)
     assert res.status_code == 200
     return signed_create_tx
 
@@ -318,7 +334,7 @@ def double_spend_tx(signed_create_tx, carol_pubkey, user_sk):
 
 
 def _get_height(b):
-    maybe_block = b.get_latest_block()
+    maybe_block = b.models.get_latest_block()
     return 0 if maybe_block is None else maybe_block["height"]
 
 
@@ -336,8 +352,8 @@ def inputs(user_pk, b, alice):
         ]
         tx_ids = [tx.id for tx in transactions]
         block = Block(app_hash="hash" + str(height), height=height, transactions=tx_ids)
-        b.store_block(block._asdict())
-        b.store_bulk_transactions(transactions)
+        b.models.store_block(block._asdict())
+        b.models.store_bulk_transactions( transactions)
 
 
 @pytest.fixture
@@ -633,7 +649,7 @@ def validators(b, node_keys):
 
     height = get_block_height(b)
 
-    original_validators = b.get_validators()
+    original_validators = b.models.get_validators()
 
     (public_key, private_key) = list(node_keys.items())[0]
 
@@ -647,7 +663,7 @@ def validators(b, node_keys):
 
     validator_update = {"validators": validator_set, "height": height + 1, "election_id": f"setup_at_{timestamp()}"}
 
-    query.store_validator_set(b.connection, validator_update)
+    query.store_validator_set(b.models.connection, validator_update)
 
     yield
 
@@ -659,12 +675,12 @@ def validators(b, node_keys):
         "election_id": f"teardown_at_{timestamp()}",
     }
 
-    query.store_validator_set(b.connection, validator_update)
+    query.store_validator_set(b.models.connection, validator_update)
 
 
 def get_block_height(b):
-    if b.get_latest_block():
-        height = b.get_latest_block()["height"]
+    if b.models.get_latest_block():
+        height = b.models.get_latest_block()["height"]
     else:
         height = 0
 
@@ -696,25 +712,25 @@ def valid_upsert_validator_election_2(b_mock, node_key, new_validator):
 
 @pytest.fixture
 def ongoing_validator_election(b, valid_upsert_validator_election, ed25519_node_keys):
-    validators = b.get_validators(height=1)
+    validators = b.models.get_validators(height=1)
     genesis_validators = {"validators": validators, "height": 0}
-    query.store_validator_set(b.connection, genesis_validators)
-    b.store_bulk_transactions([valid_upsert_validator_election])
-    query.store_election(b.connection, valid_upsert_validator_election.id, 1, is_concluded=False)
+    query.store_validator_set(b.models.connection, genesis_validators)
+    b.models.store_bulk_transactions( [valid_upsert_validator_election])
+    query.store_election(b.models.connection, valid_upsert_validator_election.id, 1, is_concluded=False)
     block_1 = Block(app_hash="hash_1", height=1, transactions=[valid_upsert_validator_election.id])
-    b.store_block(block_1._asdict())
+    b.models.store_block(block_1._asdict())
     return valid_upsert_validator_election
 
 
 @pytest.fixture
 def ongoing_validator_election_2(b, valid_upsert_validator_election_2, ed25519_node_keys):
-    validators = b.get_validators(height=1)
+    validators = b.models.get_validators(height=1)
     genesis_validators = {"validators": validators, "height": 0, "election_id": None}
-    query.store_validator_set(b.connection, genesis_validators)
+    query.store_validator_set(b.models.connection, genesis_validators)
 
-    b.store_bulk_transactions([valid_upsert_validator_election_2])
+    b.models.store_bulk_transactions( [valid_upsert_validator_election_2])
     block_1 = Block(app_hash="hash_2", height=1, transactions=[valid_upsert_validator_election_2.id])
-    b.store_block(block_1._asdict())
+    b.models.store_block(block_1._asdict())
     return valid_upsert_validator_election_2
 
 
