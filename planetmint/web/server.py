@@ -81,7 +81,7 @@ def create_app(*, debug=False, threads=1, planetmint_factory=None):
 
     app.debug = debug
 
-    app.config["validator_obj"] = utils.pool(planetmint_factory, size=threads)
+    app.config["validator_class_name"] = utils.pool(planetmint_factory, size=threads)
 
     add_routes(app)
 

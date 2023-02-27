@@ -22,8 +22,8 @@ class OutputListApi(Resource):
         parser.add_argument("spent", type=parameters.valid_bool)
         args = parser.parse_args(strict=True)
 
-        pool = current_app.config["validator_obj"]
-        with pool() as validator:
+        validator_class = current_app.config["validator_class_name"]
+        with validator_class() as validator:
             try:
                 outputs = validator.models.get_outputs_filtered(args["public_key"], args["spent"])
             except Exception as e:

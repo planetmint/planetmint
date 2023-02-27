@@ -15,9 +15,9 @@ class ValidatorsApi(Resource):
             A JSON string containing the validator set of the current node.
         """
 
-        pool = current_app.config["validator_obj"]
+        validator_class = current_app.config["validator_class_name"]
 
-        with pool() as validator:
+        with validator_class() as validator:
             validators = validator.models.get_validators()
 
         return validators

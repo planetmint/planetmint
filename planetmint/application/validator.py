@@ -23,7 +23,6 @@ from transactions.types.elections.election import Election
 from transactions.types.elections.validator_utils import election_id_to_public_key
 
 from planetmint.abci.tendermint_utils import (
-    merkleroot,
     key_from_base64,
     public_key_to_base64,
     encode_validator,
@@ -39,7 +38,8 @@ logger = logging.getLogger(__name__)
 
 
 class Validator:
-    def __init__(self):
+    def __init__(self, async_io: bool = False):
+        self.async_io = async_io
         self.models = Models()
         self.validation = Validator._get_validationmethod()
 
