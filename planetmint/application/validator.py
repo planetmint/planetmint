@@ -40,11 +40,11 @@ logger = logging.getLogger(__name__)
 class Validator:
     def __init__(self, async_io: bool = False):
         self.async_io = async_io
-        self.models = Models()
-        self.validation = Validator._get_validationmethod()
+        self.models = Models(async_io=async_io)
+        self.validation = Validator._get_validation_method()
 
     @staticmethod
-    def _get_validationmethod():
+    def _get_validation_method():
         validationPlugin = Config().get().get("validation_plugin")
 
         if validationPlugin:
