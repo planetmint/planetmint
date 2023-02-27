@@ -26,7 +26,7 @@ class AssetListApi(Resource):
         if not args["limit"]:
             del args["limit"]
 
-        pool = current_app.config["bigchain_pool"]
+        pool = current_app.config["validator_obj"]
 
         with pool() as validator:
             assets = validator.models.get_assets_by_cid(cid, **args)

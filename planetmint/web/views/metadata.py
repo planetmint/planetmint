@@ -34,7 +34,7 @@ class MetadataApi(Resource):
         if not args["limit"]:
             del args["limit"]
 
-        pool = current_app.config["bigchain_pool"]
+        pool = current_app.config["validator_obj"]
 
         with pool() as validator:
             metadata = validator.models.get_metadata_by_cid(cid, **args)

@@ -22,7 +22,7 @@ class OutputListApi(Resource):
         parser.add_argument("spent", type=parameters.valid_bool)
         args = parser.parse_args(strict=True)
 
-        pool = current_app.config["bigchain_pool"]
+        pool = current_app.config["validator_obj"]
         with pool() as validator:
             try:
                 outputs = validator.models.get_outputs_filtered(args["public_key"], args["spent"])
