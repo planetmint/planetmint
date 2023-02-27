@@ -10,16 +10,17 @@ import pytest
 from unittest.mock import Mock, patch
 from argparse import Namespace
 
+from transactions.types.elections.validator_election import ValidatorElection
+from transactions.types.elections.chain_migration_election import ChainMigrationElection
+
 from planetmint.abci.rpc import ABCI_RPC
 from planetmint.abci.block import Block
 from planetmint.config import Config
-from planetmint import ValidatorElection
 from planetmint.commands.planetmint import run_election_show
 from planetmint.commands.planetmint import run_election_new_chain_migration
 from planetmint.commands.planetmint import run_election_approve
 from planetmint.backend.connection import Connection
 
-from transactions.types.elections.chain_migration_election import ChainMigrationElection
 
 from tests.utils import generate_election, generate_validators
 

@@ -22,11 +22,12 @@ from transactions.common.exceptions import DatabaseDoesNotExist, ValidationError
 from transactions.types.elections.vote import Vote
 from transactions.types.elections.chain_migration_election import ChainMigrationElection
 from transactions.types.elections.validator_utils import election_id_to_public_key
+from transactions.types.elections.validator_election import ValidatorElection
 from transactions.common.transaction import Transaction
+
 
 from planetmint.abci.rpc import ABCI_RPC
 from planetmint.abci.utils import load_node_key
-from planetmint import ValidatorElection
 from planetmint.application.validator import Validator
 from planetmint.backend import schema
 from planetmint.commands import utils
