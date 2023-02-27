@@ -21,7 +21,6 @@ from collections import namedtuple
 from logging import getLogger
 from logging.config import dictConfig
 
-from planetmint.abci.rpc import ABCI_RPC
 from planetmint.backend.connection import Connection
 from planetmint.backend.tarantool.connection import TarantoolDBConnection
 from transactions.common import crypto

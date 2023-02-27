@@ -14,7 +14,6 @@ from abci.server import ProtocolHandler
 from abci.utils import read_messages
 from transactions.common.transaction_mode_types import BROADCAST_TX_COMMIT, BROADCAST_TX_SYNC
 
-from planetmint.abci.rpc import ABCI_RPC
 from planetmint.abci.rpc import MODE_COMMIT, MODE_LIST
 from planetmint.version import __tm_supported_versions__
 from io import BytesIO

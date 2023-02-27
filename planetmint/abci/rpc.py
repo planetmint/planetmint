@@ -17,7 +17,7 @@ MODE_COMMIT = BROADCAST_TX_COMMIT
 MODE_LIST = (BROADCAST_TX_ASYNC, BROADCAST_TX_SYNC, MODE_COMMIT)
 
 
-class ABCI_RPC(metaclass=Singleton):
+class ABCI_RPC:
     def __init__(self):
         autoconfigure()
         self.tendermint_host = Config().get()["tendermint"]["host"]

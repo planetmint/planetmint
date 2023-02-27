@@ -124,7 +124,7 @@ def run_election_new(args, planet):
     globals()[f"run_election_new_{election_type}"](args, planet)
 
 
-def create_new_election(sk, planet, election_class, data):
+def create_new_election(sk, planet, election_class, data, abci_rpc):
     try:
         key = load_node_key(sk)
         voters = planet.get_recipients_list()
@@ -137,8 +137,8 @@ def create_new_election(sk, planet, election_class, data):
         logger.error(fd_404)
         return False
 
-    resp = ABCI_RPC().write_transaction(
-        MODE_LIST, ABCI_RPC().tendermint_rpc_endpoint, MODE_COMMIT, election, BROADCAST_TX_COMMIT
+    resp = abci_rpc.write_transaction(
+        MODE_LIST, abci_rpc.tendermint_rpc_endpoint, MODE_COMMIT, election, BROADCAST_TX_COMMIT
     )
     if resp == (202, ""):
         logger.info("[SUCCESS] Submitted proposal with id: {}".format(election.id))
@@ -148,7 +148,7 @@ def create_new_election(sk, planet, election_class, data):
         return False
 
 
-def run_election_new_upsert_validator(args, planet):
+def run_election_new_upsert_validator(args, planet, abci_rpc):
     """Initiates an election to add/update/remove a validator to an existing Planetmint network
 
     :param args: dict
@@ -172,10 +172,10 @@ def run_election_new_upsert_validator(args, planet):
         }
     ]
 
-    return create_new_election(args.sk, planet, ValidatorElection, new_validator)
+    return create_new_election(args.sk, planet, ValidatorElection, new_validator, abci_rpc)
 
 
-def run_election_new_chain_migration(args, planet):
+def run_election_new_chain_migration(args, planet, abci_rpc):
     """Initiates an election to halt block production
 
     :param args: dict
@@ -186,10 +186,10 @@ def run_election_new_chain_migration(args, planet):
     :return: election_id or `False` in case of failure
     """
 
-    return create_new_election(args.sk, planet, ChainMigrationElection, [{"data": {}}])
+    return create_new_election(args.sk, planet, ChainMigrationElection, [{"data": {}}], abci_rpc)
 
 
-def run_election_approve(args, validator: Validator):
+def run_election_approve(args, validator: Validator, abci_rpc):
     """Approve an election
 
     :param args: dict
@@ -216,8 +216,8 @@ def run_election_approve(args, validator: Validator):
     approval = Vote.generate(inputs, [([election_pub_key], voting_power)], [tx.id]).sign([key.private_key])
     validator.validate_transaction(approval)
 
-    resp = ABCI_RPC().write_transaction(
-        MODE_LIST, ABCI_RPC().tendermint_rpc_endpoint, MODE_COMMIT, approval, BROADCAST_TX_COMMIT
+    resp = abci_rpc.write_transaction(
+        MODE_LIST, abci_rpc.tendermint_rpc_endpoint, MODE_COMMIT, approval, BROADCAST_TX_COMMIT
     )
 
     if resp == (202, ""):

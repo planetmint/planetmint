@@ -19,6 +19,7 @@ from planetmint.config import Config
 from planetmint.commands.planetmint import run_election_show
 from planetmint.commands.planetmint import run_election_new_chain_migration
 from planetmint.commands.planetmint import run_election_approve
+from planetmint.commands.planetmint import run_election_new_upsert_validator
 from planetmint.backend.connection import Connection
 
 
@@ -311,9 +312,7 @@ class MockResponse:
 
 
 @pytest.mark.abci
-def test_election_new_upsert_validator_with_tendermint(b, priv_validator_path, user_sk, validators):
-    from planetmint.commands.planetmint import run_election_new_upsert_validator
-
+def test_election_new_upsert_validator_with_tendermint(b, priv_validator_path, user_sk, validators, test_abci_rpc):
     new_args = Namespace(
         action="new",
         election_type="upsert-validator",
@@ -324,23 +323,19 @@ def test_election_new_upsert_validator_with_tendermint(b, priv_validator_path, u
         config={},
     )
 
-    election_id = run_election_new_upsert_validator(new_args, b)
+    election_id = run_election_new_upsert_validator(new_args, b, test_abci_rpc)
 
     assert b.models.get_transaction(election_id)
 
 
 @pytest.mark.bdb
-def test_election_new_upsert_validator_without_tendermint(caplog, b, priv_validator_path, user_sk):
-    from planetmint.commands.planetmint import run_election_new_upsert_validator
-
-    # from planetmint.abci.rpc import write_transaction
-
+def test_election_new_upsert_validator_without_tendermint(caplog, b, priv_validator_path, user_sk, test_abci_rpc):
     def mock_write(modelist, endpoint, mode_commit, transaction, mode):
         b.models.store_bulk_transactions([transaction])
         return (202, "")
 
     b.models.get_validators = mock_get_validators
-    ABCI_RPC().write_transaction = mock_write
+    test_abci_rpc.write_transaction = mock_write
 
     args = Namespace(
         action="new",
@@ -353,41 +348,39 @@ def test_election_new_upsert_validator_without_tendermint(caplog, b, priv_valida
     )
 
     with caplog.at_level(logging.INFO):
-        election_id = run_election_new_upsert_validator(args, b)
-        assert caplog.records[1].msg == "[SUCCESS] Submitted proposal with id: " + election_id
+        election_id = run_election_new_upsert_validator(args, b, test_abci_rpc)
+        assert caplog.records[0].msg == "[SUCCESS] Submitted proposal with id: " + election_id
         assert b.models.get_transaction(election_id)
 
 
 @pytest.mark.abci
-def test_election_new_chain_migration_with_tendermint(b, priv_validator_path, user_sk, validators):
+def test_election_new_chain_migration_with_tendermint(b, priv_validator_path, user_sk, validators, test_abci_rpc):
     new_args = Namespace(action="new", election_type="migration", sk=priv_validator_path, config={})
 
-    election_id = run_election_new_chain_migration(new_args, b)
+    election_id = run_election_new_chain_migration(new_args, b, test_abci_rpc)
 
     assert b.models.get_transaction(election_id)
 
 
 @pytest.mark.bdb
-def test_election_new_chain_migration_without_tendermint(caplog, b, priv_validator_path, user_sk):
+def test_election_new_chain_migration_without_tendermint(caplog, b, priv_validator_path, user_sk, test_abci_rpc):
     def mock_write(modelist, endpoint, mode_commit, transaction, mode):
         b.models.store_bulk_transactions([transaction])
         return (202, "")
 
     b.models.get_validators = mock_get_validators
-    ABCI_RPC().write_transaction = mock_write
+    test_abci_rpc.write_transaction = mock_write
 
     args = Namespace(action="new", election_type="migration", sk=priv_validator_path, config={})
 
     with caplog.at_level(logging.INFO):
-        election_id = run_election_new_chain_migration(args, b)
+        election_id = run_election_new_chain_migration(args, b, test_abci_rpc)
         assert caplog.records[0].msg == "[SUCCESS] Submitted proposal with id: " + election_id
         assert b.models.get_transaction(election_id)
 
 
 @pytest.mark.bdb
-def test_election_new_upsert_validator_invalid_election(caplog, b, priv_validator_path, user_sk):
-    from planetmint.commands.planetmint import run_election_new_upsert_validator
-
+def test_election_new_upsert_validator_invalid_election(caplog, b, priv_validator_path, user_sk, test_abci_rpc):
     args = Namespace(
         action="new",
         election_type="upsert-validator",
@@ -399,20 +392,19 @@ def test_election_new_upsert_validator_invalid_election(caplog, b, priv_validato
     )
 
     with caplog.at_level(logging.ERROR):
-        assert not run_election_new_upsert_validator(args, b)
+        assert not run_election_new_upsert_validator(args, b, test_abci_rpc)
         assert caplog.records[0].msg.__class__ == FileNotFoundError
 
 
 @pytest.mark.bdb
-def test_election_new_upsert_validator_invalid_power(caplog, b, priv_validator_path, user_sk):
-    from planetmint.commands.planetmint import run_election_new_upsert_validator
+def test_election_new_upsert_validator_invalid_power(caplog, b, priv_validator_path, user_sk, test_abci_rpc):
     from transactions.common.exceptions import InvalidPowerChange
 
     def mock_write(modelist, endpoint, mode_commit, transaction, mode):
         b.models.store_bulk_transactions([transaction])
         return (400, "")
 
-    ABCI_RPC().write_transaction = mock_write
+    test_abci_rpc.write_transaction = mock_write
     b.models.get_validators = mock_get_validators
     args = Namespace(
         action="new",
@@ -425,14 +417,12 @@ def test_election_new_upsert_validator_invalid_power(caplog, b, priv_validator_p
     )
 
     with caplog.at_level(logging.ERROR):
-        assert not run_election_new_upsert_validator(args, b)
+        assert not run_election_new_upsert_validator(args, b, test_abci_rpc)
         assert caplog.records[0].msg.__class__ == InvalidPowerChange
 
 
 @pytest.mark.abci
-def test_election_approve_with_tendermint(b, priv_validator_path, user_sk, validators):
-    from planetmint.commands.planetmint import run_election_new_upsert_validator
-
+def test_election_approve_with_tendermint(b, priv_validator_path, user_sk, validators, test_abci_rpc):
     public_key = "CJxdItf4lz2PwEf4SmYNAu/c/VpmX39JEgC5YpH7fxg="
     new_args = Namespace(
         action="new",
@@ -444,65 +434,63 @@ def test_election_approve_with_tendermint(b, priv_validator_path, user_sk, valid
         config={},
     )
 
-    election_id = run_election_new_upsert_validator(new_args, b)
+    election_id = run_election_new_upsert_validator(new_args, b, test_abci_rpc)
     assert election_id
 
     args = Namespace(action="approve", election_id=election_id, sk=priv_validator_path, config={})
-    approve = run_election_approve(args, b)
+    approve = run_election_approve(args, b, test_abci_rpc)
 
     assert b.models.get_transaction(approve)
 
 
 @pytest.mark.bdb
-def test_election_approve_without_tendermint(caplog, b, priv_validator_path, new_validator, node_key):
+def test_election_approve_without_tendermint(caplog, b, priv_validator_path, new_validator, node_key, test_abci_rpc):
     from planetmint.commands.planetmint import run_election_approve
     from argparse import Namespace
 
-    b, election_id = call_election(b, new_validator, node_key)
+    b, election_id = call_election(b, new_validator, node_key, test_abci_rpc)
 
     # call run_election_approve with args that point to the election
     args = Namespace(action="approve", election_id=election_id, sk=priv_validator_path, config={})
 
     # assert returned id is in the db
     with caplog.at_level(logging.INFO):
-        approval_id = run_election_approve(args, b)
+        approval_id = run_election_approve(args, b, test_abci_rpc)
         assert caplog.records[0].msg == "[SUCCESS] Your vote has been submitted"
         assert b.models.get_transaction(approval_id)
 
 
 @pytest.mark.bdb
-def test_election_approve_failure(caplog, b, priv_validator_path, new_validator, node_key):
-    from planetmint.commands.planetmint import run_election_approve
+def test_election_approve_failure(caplog, b, priv_validator_path, new_validator, node_key, test_abci_rpc):
     from argparse import Namespace
 
-    b, election_id = call_election(b, new_validator, node_key)
+    b, election_id = call_election(b, new_validator, node_key, test_abci_rpc)
 
     def mock_write(modelist, endpoint, mode_commit, transaction, mode):
         b.models.store_bulk_transactions([transaction])
         return (400, "")
 
-    ABCI_RPC().write_transaction = mock_write
+    test_abci_rpc.write_transaction = mock_write
 
     # call run_upsert_validator_approve with args that point to the election
     args = Namespace(action="approve", election_id=election_id, sk=priv_validator_path, config={})
 
     with caplog.at_level(logging.ERROR):
-        assert not run_election_approve(args, b)
+        assert not run_election_approve(args, b, test_abci_rpc)
         assert caplog.records[0].msg == "Failed to commit vote"
 
 
 @pytest.mark.bdb
-def test_election_approve_called_with_bad_key(caplog, b, bad_validator_path, new_validator, node_key):
-    from planetmint.commands.planetmint import run_election_approve
+def test_election_approve_called_with_bad_key(caplog, b, bad_validator_path, new_validator, node_key, test_abci_rpc):
     from argparse import Namespace
 
-    b, election_id = call_election(b, new_validator, node_key)
+    b, election_id = call_election(b, new_validator, node_key, test_abci_rpc)
 
     # call run_upsert_validator_approve with args that point to the election, but a bad signing key
     args = Namespace(action="approve", election_id=election_id, sk=bad_validator_path, config={})
 
     with caplog.at_level(logging.ERROR):
-        assert not run_election_approve(args, b)
+        assert not run_election_approve(args, b, test_abci_rpc)
         assert (
             caplog.records[0].msg == "The key you provided does not match any of "
             "the eligible voters in this election."
@@ -599,14 +587,14 @@ def mock_get_validators(height):
     ]
 
 
-def call_election(b, new_validator, node_key):
+def call_election(b, new_validator, node_key, abci_rpc):
     def mock_write(modelist, endpoint, mode_commit, transaction, mode):
         b.models.store_bulk_transactions([transaction])
         return (202, "")
 
     # patch the validator set. We now have one validator with power 10
     b.models.get_validators = mock_get_validators
-    ABCI_RPC().write_transaction = mock_write
+    abci_rpc.write_transaction = mock_write
 
     # our voters is a list of length 1, populated from our mocked validator
     voters = b.get_recipients_list()

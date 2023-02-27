@@ -12,7 +12,6 @@ import random
 from functools import singledispatch
 
 from planetmint import backend
-from planetmint.abci.rpc import ABCI_RPC
 from planetmint.backend.localmongodb.connection import LocalMongoDBConnection
 from planetmint.backend.tarantool.connection import TarantoolDBConnection
 from planetmint.backend.schema import TABLES

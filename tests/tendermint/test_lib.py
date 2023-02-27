@@ -21,7 +21,6 @@ from planetmint.abci.block import Block
 from ipld import marshal, multihash
 from uuid import uuid4
 
-from planetmint.abci.rpc import ABCI_RPC
 from planetmint.abci.rpc import MODE_COMMIT, MODE_LIST
 from tests.utils import delete_unspent_outputs, get_utxoset_merkle_root, store_unspent_outputs, update_utxoset
 
