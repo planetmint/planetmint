@@ -15,7 +15,7 @@ import gunicorn.app.base
 from flask import Flask
 from flask_cors import CORS
 from planetmint import utils
-from planetmint.application.validation import Validator
+from planetmint.application.validator import Validator
 from planetmint.web.routes import add_routes
 from planetmint.web.strip_content_type_middleware import StripContentTypeMiddleware
 

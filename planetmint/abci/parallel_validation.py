@@ -7,7 +7,7 @@ import multiprocessing
 
 from collections import defaultdict
 from planetmint import App
-from planetmint.application.validation import Validator
+from planetmint.application.validator import Validator
 from planetmint.abci.tendermint_utils import decode_transaction
 from abci.application import OkCode
 from tendermint.abci.types_pb2 import (

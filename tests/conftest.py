@@ -257,7 +257,7 @@ def test_models():
 
 @pytest.fixture
 def test_validator():
-    from planetmint.application.validation import Validator
+    from planetmint.application import Validator
     return Validator()
 
 @pytest.fixture
@@ -267,7 +267,7 @@ def test_abci_rpc():
 
 @pytest.fixture
 def b():
-    from planetmint.application.validation import Validator
+    from planetmint.application import Validator
     return Validator()
 
 

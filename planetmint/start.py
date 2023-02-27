@@ -7,7 +7,7 @@ import logging
 import setproctitle
 
 from planetmint.config import Config
-from planetmint.application.validation import Validator
+from planetmint.application.validator import Validator
 from planetmint.abci.core import App
 from planetmint.abci.parallel_validation import ParallelValidationApp
 from planetmint.web import server, websocket_server

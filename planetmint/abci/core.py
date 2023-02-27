@@ -22,7 +22,7 @@ from tendermint.abci.types_pb2 import (
     ResponseCommit,
 )
 
-from planetmint.application.validation import Validator
+from planetmint.application.validator import Validator
 from planetmint.model.models import Models
 from planetmint.abci.tendermint_utils import decode_transaction, calculate_hash, decode_validator
 from planetmint.abci.block import Block

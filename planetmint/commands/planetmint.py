@@ -27,7 +27,7 @@ from transactions.common.transaction import Transaction
 from planetmint.abci.rpc import ABCI_RPC
 from planetmint.abci.utils import load_node_key
 from planetmint import ValidatorElection
-from planetmint.application.validation import Validator
+from planetmint.application.validator import Validator
 from planetmint.backend import schema
 from planetmint.commands import utils
 from planetmint.commands.utils import configure_planetmint, input_on_stderr

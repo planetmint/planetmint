@@ -249,7 +249,7 @@ def test_calling_main(start_mock, monkeypatch):
     assert start_mock.called is True
 
 
-@patch("planetmint.application.validation.Validator.rollback")
+@patch("planetmint.application.validator.Validator.rollback")
 @patch("planetmint.start.start")
 def test_recover_db_on_start(mock_rollback, mock_start, mocked_setup_logging):
     from planetmint.commands.planetmint import run_start

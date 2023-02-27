@@ -38,7 +38,7 @@ def config(request, monkeypatch):
 
 
 def test_bigchain_class_default_initialization(config):
-    from planetmint.application.validation import Validator
+    from planetmint.application import Validator
     from planetmint.application.basevalidationrules import BaseValidationRules
 
     validator = Validator()

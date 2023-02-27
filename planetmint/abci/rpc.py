@@ -8,7 +8,7 @@ from transactions.common.transaction_mode_types import (
 )
 
 from planetmint.abci.tendermint_utils import encode_transaction
-from planetmint.application.validation import logger
+from planetmint.application.validator import logger
 from planetmint.config_utils import autoconfigure
 from planetmint.config import Config
 
