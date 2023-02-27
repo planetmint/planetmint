@@ -32,7 +32,7 @@ def test_process_block_concludes_all_elections(b):
     b.models.store_abci_chain(1, "chain-X")
     b.process_block(1, txs)
     b.models.store_block(Block(height=1, transactions=[tx.id for tx in txs], app_hash="")._asdict())
-    b.models.store_bulk_transactions( txs)
+    b.models.store_bulk_transactions(txs)
 
     b.process_block(2, total_votes)
 
@@ -79,7 +79,7 @@ def test_process_block_approves_only_one_validator_update(b):
 
     b.process_block(1, txs)
     b.models.store_block(Block(height=1, transactions=[tx.id for tx in txs], app_hash="")._asdict())
-    b.models.store_bulk_transactions( txs)
+    b.models.store_bulk_transactions(txs)
 
     b.process_block(2, total_votes)
 
@@ -125,7 +125,7 @@ def test_process_block_approves_after_pending_validator_update(b):
     b.models.store_abci_chain(1, "chain-X")
     b.process_block(1, txs)
     b.models.store_block(Block(height=1, transactions=[tx.id for tx in txs], app_hash="")._asdict())
-    b.models.store_bulk_transactions( txs)
+    b.models.store_bulk_transactions(txs)
 
     b.process_block(2, total_votes)
 
@@ -138,7 +138,11 @@ def test_process_block_approves_after_pending_validator_update(b):
     assert not b.models.get_election(txs[1].id)["is_concluded"]
     assert b.models.get_election(txs[2].id)["is_concluded"]
 
-    assert b.models.get_latest_abci_chain() == {"height": 2, "chain_id": "chain-X-migrated-at-height-1", "is_synced": False}
+    assert b.models.get_latest_abci_chain() == {
+        "height": 2,
+        "chain_id": "chain-X-migrated-at-height-1",
+        "is_synced": False,
+    }
 
 
 @pytest.mark.bdb
@@ -160,7 +164,7 @@ def test_process_block_does_not_approve_after_validator_update(b):
 
     b.models.store_block(Block(height=1, transactions=[tx.id for tx in txs], app_hash="")._asdict())
     b.process_block(1, txs)
-    b.models.store_bulk_transactions( txs)
+    b.models.store_bulk_transactions(txs)
 
     second_election, second_votes = generate_election(
         b, ChainMigrationElection, public_key, private_key, [{"data": {}}], voter_keys
@@ -168,7 +172,9 @@ def test_process_block_does_not_approve_after_validator_update(b):
 
     b.process_block(2, total_votes + [second_election])
 
-    b.models.store_block(Block(height=2, transactions=[v.id for v in total_votes + [second_election]], app_hash="")._asdict())
+    b.models.store_block(
+        Block(height=2, transactions=[v.id for v in total_votes + [second_election]], app_hash="")._asdict()
+    )
 
     b.models.store_abci_chain(1, "chain-X")
     b.process_block(3, second_votes)
@@ -198,7 +204,7 @@ def test_process_block_applies_only_one_migration(b):
     b.models.store_abci_chain(1, "chain-X")
     b.process_block(1, txs)
     b.models.store_block(Block(height=1, transactions=[tx.id for tx in txs], app_hash="")._asdict())
-    b.models.store_bulk_transactions( txs)
+    b.models.store_bulk_transactions(txs)
 
     b.process_block(1, total_votes)
     chain = b.models.get_latest_abci_chain()

@@ -29,7 +29,7 @@ class TestBigchainApi(object):
         tx = Create.generate([alice.public_key], [([alice.public_key], 1)])
         tx = tx.sign([alice.private_key])
 
-        b.models.store_bulk_transactions( [tx])
+        b.models.store_bulk_transactions([tx])
 
         transfer_tx = Transfer.generate(tx.to_inputs(), [([alice.public_key], 1)], asset_ids=[tx.id])
         transfer_tx = transfer_tx.sign([alice.private_key])
@@ -39,13 +39,13 @@ class TestBigchainApi(object):
         with pytest.raises(DoubleSpend):
             b.validate_transaction(transfer_tx2, [transfer_tx])
 
-        b.models.store_bulk_transactions( [transfer_tx])
+        b.models.store_bulk_transactions([transfer_tx])
 
         with pytest.raises(DoubleSpend):
             b.validate_transaction(transfer_tx2)
 
         with pytest.raises(CriticalDoubleSpend):
-            b.models.store_bulk_transactions( [transfer_tx2])
+            b.models.store_bulk_transactions([transfer_tx2])
 
     def test_double_inclusion(self, b, alice):
         from tarantool.error import DatabaseError
@@ -56,13 +56,13 @@ class TestBigchainApi(object):
         tx = Create.generate([alice.public_key], [([alice.public_key], 1)])
         tx = tx.sign([alice.private_key])
 
-        b.models.store_bulk_transactions( [tx])
+        b.models.store_bulk_transactions([tx])
         if isinstance(b.models.connection, TarantoolDBConnection):
             with pytest.raises(CriticalDoubleSpend):
-                b.models.store_bulk_transactions( [tx])
+                b.models.store_bulk_transactions([tx])
         else:
             with pytest.raises(OperationError):
-                b.models.store_bulk_transactions( [tx])
+                b.models.store_bulk_transactions([tx])
 
     @pytest.mark.usefixtures("inputs")
     def test_non_create_input_not_found(self, b, user_pk):
@@ -82,7 +82,7 @@ class TestBigchainApi(object):
         asset1 = {"data": "QmaozNR7DZHQK1ZcU9p7QdrshMvXqWK6gpu5rmrkPdT3L4"}
 
         tx = Create.generate([alice.public_key], [([alice.public_key], 1)], assets=[asset1]).sign([alice.private_key])
-        b.models.store_bulk_transactions( [tx])
+        b.models.store_bulk_transactions([tx])
 
         tx_from_db = b.models.get_transaction(tx.id)
 
@@ -124,7 +124,7 @@ class TestTransactionValidation(object):
     def test_non_create_double_spend(self, b, signed_create_tx, signed_transfer_tx, double_spend_tx):
         from transactions.common.exceptions import DoubleSpend
 
-        b.models.store_bulk_transactions( [signed_create_tx, signed_transfer_tx])
+        b.models.store_bulk_transactions([signed_create_tx, signed_transfer_tx])
 
         with pytest.raises(DoubleSpend):
             b.validate_transaction(double_spend_tx)
@@ -167,7 +167,7 @@ class TestMultipleInputs(object):
 
         tx = Create.generate([alice.public_key], [([user_pk, user2_pk], 1)])
         tx = tx.sign([alice.private_key])
-        b.models.store_bulk_transactions( [tx])
+        b.models.store_bulk_transactions([tx])
 
         owned_input = b.models.fastquery.get_outputs_by_public_key(user_pk).pop()
         input_tx = b.models.get_transaction(owned_input.txid)
@@ -189,7 +189,7 @@ class TestMultipleInputs(object):
 
         tx = Create.generate([alice.public_key], [([user_pk, user2_pk], 1)])
         tx = tx.sign([alice.private_key])
-        b.models.store_bulk_transactions( [tx])
+        b.models.store_bulk_transactions([tx])
 
         # get input
         tx_link = b.models.fastquery.get_outputs_by_public_key(user_pk).pop()
@@ -208,7 +208,7 @@ class TestMultipleInputs(object):
 
         tx = Create.generate([alice.public_key], [([user_pk], 1)])
         tx = tx.sign([alice.private_key])
-        b.models.store_bulk_transactions( [tx])
+        b.models.store_bulk_transactions([tx])
 
         owned_inputs_user1 = b.models.fastquery.get_outputs_by_public_key(user_pk)
         owned_inputs_user2 = b.models.fastquery.get_outputs_by_public_key(user2_pk)
@@ -217,7 +217,7 @@ class TestMultipleInputs(object):
 
         tx_transfer = Transfer.generate(tx.to_inputs(), [([user2_pk], 1)], asset_ids=[tx.id])
         tx_transfer = tx_transfer.sign([user_sk])
-        b.models.store_bulk_transactions( [tx_transfer])
+        b.models.store_bulk_transactions([tx_transfer])
 
         owned_inputs_user1 = b.models.fastquery.get_outputs_by_public_key(user_pk)
         owned_inputs_user2 = b.models.fastquery.get_outputs_by_public_key(user2_pk)
@@ -231,7 +231,7 @@ class TestMultipleInputs(object):
         # create divisible asset
         tx_create = Create.generate([alice.public_key], [([user_pk], 1), ([user_pk], 1)])
         tx_create_signed = tx_create.sign([alice.private_key])
-        b.models.store_bulk_transactions( [tx_create_signed])
+        b.models.store_bulk_transactions([tx_create_signed])
 
         # get input
         owned_inputs_user1 = b.models.fastquery.get_outputs_by_public_key(user_pk)
@@ -246,7 +246,7 @@ class TestMultipleInputs(object):
             tx_create.to_inputs(), [([user2_pk], 1), ([user2_pk], 1)], asset_ids=[tx_create.id]
         )
         tx_transfer_signed = tx_transfer.sign([user_sk])
-        b.models.store_bulk_transactions( [tx_transfer_signed])
+        b.models.store_bulk_transactions([tx_transfer_signed])
 
         owned_inputs_user1 = b.models.fastquery.get_outputs_by_public_key(user_pk)
         owned_inputs_user2 = b.models.fastquery.get_outputs_by_public_key(user2_pk)
@@ -260,7 +260,7 @@ class TestMultipleInputs(object):
         tx = Create.generate([alice.public_key], [([user_pk, user2_pk], 1)])
         tx = tx.sign([alice.private_key])
 
-        b.models.store_bulk_transactions( [tx])
+        b.models.store_bulk_transactions([tx])
 
         owned_inputs_user1 = b.models.fastquery.get_outputs_by_public_key(user_pk)
         owned_inputs_user2 = b.models.fastquery.get_outputs_by_public_key(user_pk)
@@ -271,7 +271,7 @@ class TestMultipleInputs(object):
 
         tx = Transfer.generate(tx.to_inputs(), [([user3_pk], 1)], asset_ids=[tx.id])
         tx = tx.sign([user_sk, user2_sk])
-        b.models.store_bulk_transactions( [tx])
+        b.models.store_bulk_transactions([tx])
 
         owned_inputs_user1 = b.models.fastquery.get_outputs_by_public_key(user_pk)
         owned_inputs_user2 = b.models.fastquery.get_outputs_by_public_key(user2_pk)
@@ -285,7 +285,7 @@ class TestMultipleInputs(object):
 
         tx = Create.generate([alice.public_key], [([user_pk], 1)])
         tx = tx.sign([alice.private_key])
-        b.models.store_bulk_transactions( [tx])
+        b.models.store_bulk_transactions([tx])
 
         owned_inputs_user1 = b.models.fastquery.get_outputs_by_public_key(user_pk).pop()
 
@@ -297,7 +297,7 @@ class TestMultipleInputs(object):
         # create a transaction and send it
         tx = Transfer.generate(tx.to_inputs(), [([user2_pk], 1)], asset_ids=[tx.id])
         tx = tx.sign([user_sk])
-        b.models.store_bulk_transactions( [tx])
+        b.models.store_bulk_transactions([tx])
 
         spent_inputs_user1 = b.models.get_spent(input_txid, 0)
         assert spent_inputs_user1 == tx.to_dict()
@@ -309,7 +309,7 @@ class TestMultipleInputs(object):
         # create a divisible asset with 3 outputs
         tx_create = Create.generate([alice.public_key], [([user_pk], 1), ([user_pk], 1), ([user_pk], 1)])
         tx_create_signed = tx_create.sign([alice.private_key])
-        b.models.store_bulk_transactions( [tx_create_signed])
+        b.models.store_bulk_transactions([tx_create_signed])
 
         owned_inputs_user1 = b.models.fastquery.get_outputs_by_public_key(user_pk)
 
@@ -322,7 +322,7 @@ class TestMultipleInputs(object):
             tx_create.to_inputs()[:2], [([user2_pk], 1), ([user2_pk], 1)], asset_ids=[tx_create.id]
         )
         tx_transfer_signed = tx_transfer.sign([user_sk])
-        b.models.store_bulk_transactions( [tx_transfer_signed])
+        b.models.store_bulk_transactions([tx_transfer_signed])
 
         # check that used inputs are marked as spent
         for ffill in tx_create.to_inputs()[:2]:
@@ -344,7 +344,7 @@ class TestMultipleInputs(object):
             tx = tx.sign([alice.private_key])
             transactions.append(tx)
 
-        b.models.store_bulk_transactions( transactions)
+        b.models.store_bulk_transactions(transactions)
 
         owned_inputs_user1 = b.models.fastquery.get_outputs_by_public_key(user_pk)
         # check spents
@@ -354,7 +354,7 @@ class TestMultipleInputs(object):
         # create a transaction
         tx = Transfer.generate(transactions[0].to_inputs(), [([user3_pk], 1)], asset_ids=[transactions[0].id])
         tx = tx.sign([user_sk, user2_sk])
-        b.models.store_bulk_transactions( [tx])
+        b.models.store_bulk_transactions([tx])
 
         # check that used inputs are marked as spent
         assert b.models.get_spent(transactions[0].id, 0) == tx.to_dict()
@@ -365,6 +365,7 @@ class TestMultipleInputs(object):
 
 def test_get_outputs_filtered_only_unspent(b):
     from transactions.common.transaction import TransactionLink
+
     go = "planetmint.model.fastquery.FastQuery.get_outputs_by_public_key"
     with patch(go) as get_outputs:
         get_outputs.return_value = [TransactionLink("a", 1), TransactionLink("b", 2)]
@@ -378,6 +379,7 @@ def test_get_outputs_filtered_only_unspent(b):
 
 def test_get_outputs_filtered_only_spent(b):
     from transactions.common.transaction import TransactionLink
+
     go = "planetmint.model.fastquery.FastQuery.get_outputs_by_public_key"
     with patch(go) as get_outputs:
         get_outputs.return_value = [TransactionLink("a", 1), TransactionLink("b", 2)]
@@ -389,12 +391,15 @@ def test_get_outputs_filtered_only_spent(b):
     assert out == [TransactionLink("b", 2)]
 
 
-#@patch("planetmint.model.fastquery.FastQuery.filter_unspent_outputs")
-#@patch("planetmint.model.fastquery.FastQuery.filter_spent_outputs")
-def test_get_outputs_filtered(b, mocker,):
+# @patch("planetmint.model.fastquery.FastQuery.filter_unspent_outputs")
+# @patch("planetmint.model.fastquery.FastQuery.filter_spent_outputs")
+def test_get_outputs_filtered(
+    b,
+    mocker,
+):
     from transactions.common.transaction import TransactionLink
-    
-    mock_filter_spent_outputs  = mocker.patch("planetmint.model.fastquery.FastQuery.filter_spent_outputs")
+
+    mock_filter_spent_outputs = mocker.patch("planetmint.model.fastquery.FastQuery.filter_spent_outputs")
     mock_filter_unspent_outputs = mocker.patch("planetmint.model.fastquery.FastQuery.filter_unspent_outputs")
 
     go = "planetmint.model.fastquery.FastQuery.get_outputs_by_public_key"
@@ -417,7 +422,7 @@ def test_cant_spend_same_input_twice_in_tx(b, alice):
     tx_create = Create.generate([alice.public_key], [([alice.public_key], 100)])
     tx_create_signed = tx_create.sign([alice.private_key])
     assert b.validate_transaction(tx_create_signed) == tx_create_signed
-    b.models.store_bulk_transactions( [tx_create_signed])
+    b.models.store_bulk_transactions([tx_create_signed])
 
     # Create a transfer transaction with duplicated fulfillments
     dup_inputs = tx_create.to_inputs() + tx_create.to_inputs()
@@ -442,6 +447,6 @@ def test_transaction_unicode(b, alice):
     )
 
     tx_1 = copy.deepcopy(tx)
-    b.models.store_bulk_transactions( [tx])
+    b.models.store_bulk_transactions([tx])
 
     assert beer_json["data"] in serialize(tx_1.to_dict())

@@ -91,7 +91,7 @@ def test_get_divisble_transactions_returns_500_phase_one(b, client):
     TX_ENDPOINT = "/api/v1/transactions"
 
     def mine(tx_list):
-        b.models.store_bulk_transactions( tx_list)
+        b.models.store_bulk_transactions(tx_list)
 
     alice_priv, alice_pub = crypto.generate_key_pair()
     # bob_priv, bob_pub = crypto.generate_key_pair()
@@ -118,7 +118,7 @@ def test_get_divisble_transactions_returns_500(b, client):
     TX_ENDPOINT = "/api/v1/transactions"
 
     def mine(tx_list):
-        b.models.store_bulk_transactions( tx_list)
+        b.models.store_bulk_transactions(tx_list)
 
     alice_priv, alice_pub = crypto.generate_key_pair()
     bob_priv, bob_pub = crypto.generate_key_pair()

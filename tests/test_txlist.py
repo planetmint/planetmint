@@ -23,7 +23,7 @@ def txlist(b, user_pk, user2_pk, user_sk, user2_sk):
     # Create a TRANSFER transactions
     transfer1 = Transfer.generate(create1.to_inputs(), [([user_pk], 8)], [create1.id]).sign([user2_sk])
 
-    b.models.store_bulk_transactions( [create1, create2, transfer1])
+    b.models.store_bulk_transactions([create1, create2, transfer1])
 
     return type(
         "",

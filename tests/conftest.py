@@ -255,19 +255,25 @@ def test_models():
 
     return Models()
 
+
 @pytest.fixture
 def test_validator():
     from planetmint.application import Validator
+
     return Validator()
+
 
 @pytest.fixture
 def test_abci_rpc():
     from planetmint.abci.rpc import ABCI_RPC
+
     return ABCI_RPC()
+
 
 @pytest.fixture
 def b():
     from planetmint.application import Validator
+
     return Validator()
 
 
@@ -310,7 +316,9 @@ def signed_create_tx(alice, create_tx):
 
 @pytest.fixture
 def posted_create_tx(b, signed_create_tx, test_abci_rpc):
-    res = test_abci_rpc.post_transaction(MODE_LIST, test_abci_rpc.tendermint_rpc_endpoint, signed_create_tx, BROADCAST_TX_COMMIT)
+    res = test_abci_rpc.post_transaction(
+        MODE_LIST, test_abci_rpc.tendermint_rpc_endpoint, signed_create_tx, BROADCAST_TX_COMMIT
+    )
     assert res.status_code == 200
     return signed_create_tx
 
@@ -353,7 +361,7 @@ def inputs(user_pk, b, alice):
         tx_ids = [tx.id for tx in transactions]
         block = Block(app_hash="hash" + str(height), height=height, transactions=tx_ids)
         b.models.store_block(block._asdict())
-        b.models.store_bulk_transactions( transactions)
+        b.models.store_bulk_transactions(transactions)
 
 
 @pytest.fixture
@@ -715,7 +723,7 @@ def ongoing_validator_election(b, valid_upsert_validator_election, ed25519_node_
     validators = b.models.get_validators(height=1)
     genesis_validators = {"validators": validators, "height": 0}
     query.store_validator_set(b.models.connection, genesis_validators)
-    b.models.store_bulk_transactions( [valid_upsert_validator_election])
+    b.models.store_bulk_transactions([valid_upsert_validator_election])
     query.store_election(b.models.connection, valid_upsert_validator_election.id, 1, is_concluded=False)
     block_1 = Block(app_hash="hash_1", height=1, transactions=[valid_upsert_validator_election.id])
     b.models.store_block(block_1._asdict())
@@ -728,7 +736,7 @@ def ongoing_validator_election_2(b, valid_upsert_validator_election_2, ed25519_n
     genesis_validators = {"validators": validators, "height": 0, "election_id": None}
     query.store_validator_set(b.models.connection, genesis_validators)
 
-    b.models.store_bulk_transactions( [valid_upsert_validator_election_2])
+    b.models.store_bulk_transactions([valid_upsert_validator_election_2])
     block_1 = Block(app_hash="hash_2", height=1, transactions=[valid_upsert_validator_election_2.id])
     b.models.store_block(block_1._asdict())
     return valid_upsert_validator_election_2

@@ -23,8 +23,7 @@ from uuid import uuid4
 
 from planetmint.abci.rpc import ABCI_RPC
 from planetmint.abci.rpc import MODE_COMMIT, MODE_LIST
-from tests.utils import delete_unspent_outputs, get_utxoset_merkle_root, store_unspent_outputs, \
-    update_utxoset
+from tests.utils import delete_unspent_outputs, get_utxoset_merkle_root, store_unspent_outputs, update_utxoset
 
 
 @pytest.mark.bdb
@@ -69,7 +68,7 @@ def test_asset_is_separated_from_transaciton(b):
     # https://api.mongodb.com/python/current/faq.html#writes-and-ids
     tx_dict = copy.deepcopy(tx.to_dict())
 
-    b.models.store_bulk_transactions( [tx])
+    b.models.store_bulk_transactions([tx])
     assert "asset" not in backend.query.get_transaction_single(b.models.connection, tx.id)
     assert backend.query.get_asset(b.models.connection, tx.id).data == assets[0]
     assert b.models.get_transaction(tx.id).to_dict() == tx_dict
@@ -112,7 +111,9 @@ def test_write_and_post_transaction(mock_post, b, test_abci_rpc):
     )
 
     tx = b.validate_transaction(tx)
-    test_abci_rpc.write_transaction(MODE_LIST, test_abci_rpc.tendermint_rpc_endpoint, MODE_COMMIT, tx, BROADCAST_TX_ASYNC)
+    test_abci_rpc.write_transaction(
+        MODE_LIST, test_abci_rpc.tendermint_rpc_endpoint, MODE_COMMIT, tx, BROADCAST_TX_ASYNC
+    )
 
     assert mock_post.called
     args, kwargs = mock_post.call_args
@@ -168,19 +169,19 @@ def test_update_utxoset(b, signed_create_tx, signed_transfer_tx, db_conn):
 @pytest.mark.bdb
 def test_store_transaction(mocker, b, signed_create_tx, signed_transfer_tx):
     mocked_store_transaction = mocker.patch("planetmint.backend.query.store_transactions")
-    b.models.store_bulk_transactions( [signed_create_tx])
+    b.models.store_bulk_transactions([signed_create_tx])
     mocked_store_transaction.assert_any_call(b.models.connection, [signed_create_tx.to_dict()], "transactions")
     mocked_store_transaction.reset_mock()
-    b.models.store_bulk_transactions( [signed_transfer_tx])
+    b.models.store_bulk_transactions([signed_transfer_tx])
 
 
 @pytest.mark.bdb
 def test_store_bulk_transaction(mocker, b, signed_create_tx, signed_transfer_tx):
     mocked_store_transactions = mocker.patch("planetmint.backend.query.store_transactions")
-    b.models.store_bulk_transactions( (signed_create_tx,))
+    b.models.store_bulk_transactions((signed_create_tx,))
     mocked_store_transactions.assert_any_call(b.models.connection, [signed_create_tx.to_dict()], "transactions")
     mocked_store_transactions.reset_mock()
-    b.models.store_bulk_transactions( (signed_transfer_tx,))
+    b.models.store_bulk_transactions((signed_transfer_tx,))
 
 
 @pytest.mark.bdb
@@ -303,7 +304,7 @@ def test_get_spent_transaction_double_spend(b, alice, bob, carol):
         tx.to_inputs() + tx.to_inputs(), [([bob.public_key], 1)], asset_ids=[tx.id]
     ).sign([alice.private_key])
 
-    b.models.store_bulk_transactions( [tx])
+    b.models.store_bulk_transactions([tx])
 
     with pytest.raises(DoubleSpend):
         b.validate_transaction(same_input_double_spend)
@@ -313,7 +314,7 @@ def test_get_spent_transaction_double_spend(b, alice, bob, carol):
     with pytest.raises(DoubleSpend):
         b.models.get_spent(tx.id, tx_transfer.inputs[0].fulfills.output, [tx_transfer, double_spend])
 
-    b.models.store_bulk_transactions( [tx_transfer])
+    b.models.store_bulk_transactions([tx_transfer])
 
     with pytest.raises(DoubleSpend):
         b.models.get_spent(tx.id, tx_transfer.inputs[0].fulfills.output, [double_spend])
@@ -380,13 +381,13 @@ def test_get_spent_key_order(b, user_pk, user_sk, user2_pk, user2_sk):
     bob = generate_key_pair()
 
     tx1 = Create.generate([user_pk], [([alice.public_key], 3), ([user_pk], 2)]).sign([user_sk])
-    b.models.store_bulk_transactions( [tx1])
+    b.models.store_bulk_transactions([tx1])
 
     inputs = tx1.to_inputs()
     tx2 = Transfer.generate([inputs[1]], [([user2_pk], 2)], [tx1.id]).sign([user_sk])
     assert b.validate_transaction(tx2)
 
-    b.models.store_bulk_transactions( [tx2])
+    b.models.store_bulk_transactions([tx2])
 
     tx3 = Transfer.generate([inputs[1]], [([bob.public_key], 2)], [tx1.id]).sign([user_sk])
 

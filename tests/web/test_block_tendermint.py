@@ -28,7 +28,7 @@ def test_get_block_endpoint(b, client, alice):
     # deepcopy, for more info see:
     # https://api.mongodb.com/python/current/faq.html#writes-and-ids
     tx_dict = copy.deepcopy(tx.to_dict())
-    b.models.store_bulk_transactions( [tx])
+    b.models.store_bulk_transactions([tx])
 
     block = Block(app_hash="random_utxo", height=31, transactions=[tx.id])
     b.models.store_block(block._asdict())
@@ -55,7 +55,7 @@ def test_get_block_containing_transaction(b, client, alice):
         [alice.public_key], [([alice.public_key], 1)], assets=[{"data": multihash(marshal({"cycle": "hero"}))}]
     )
     tx = tx.sign([alice.private_key])
-    b.models.store_bulk_transactions( [tx])
+    b.models.store_bulk_transactions([tx])
 
     block = Block(app_hash="random_utxo", height=13, transactions=[tx.id])
     b.models.store_block(block._asdict())

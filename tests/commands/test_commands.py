@@ -282,7 +282,7 @@ def test_run_recover(b, alice, bob, test_models):
     ).sign([bob.private_key])
 
     # store the transactions
-    b.models.store_bulk_transactions( [tx1, tx2])
+    b.models.store_bulk_transactions([tx1, tx2])
 
     # create a random block
     block8 = Block(app_hash="random_app_hash1", height=8, transactions=["txid_doesnt_matter"])._asdict()
@@ -337,7 +337,7 @@ def test_election_new_upsert_validator_without_tendermint(caplog, b, priv_valida
     # from planetmint.abci.rpc import write_transaction
 
     def mock_write(modelist, endpoint, mode_commit, transaction, mode):
-        b.models.store_bulk_transactions( [transaction])
+        b.models.store_bulk_transactions([transaction])
         return (202, "")
 
     b.models.get_validators = mock_get_validators
@@ -372,7 +372,7 @@ def test_election_new_chain_migration_with_tendermint(b, priv_validator_path, us
 @pytest.mark.skip(reason="mock_write overwrite doesn't work")
 def test_election_new_chain_migration_without_tendermint(caplog, b, priv_validator_path, user_sk):
     def mock_write(tx, mode):
-        b.models.store_bulk_transactions( [tx])
+        b.models.store_bulk_transactions([tx])
         return (202, "")
 
     b.models.get_validators = mock_get_validators
@@ -527,7 +527,7 @@ def test_chain_migration_election_show_shows_inconclusive(b):
     assert not run_election_show(Namespace(election_id=election.id), b)
 
     b.process_block(1, [election])
-    b.models.store_bulk_transactions( [election])
+    b.models.store_bulk_transactions([election])
 
     assert run_election_show(Namespace(election_id=election.id), b) == "status=ongoing"
 
@@ -555,7 +555,7 @@ def test_chain_migration_election_show_shows_concluded(b):
 
     assert not run_election_show(Namespace(election_id=election.id), b)
 
-    b.models.store_bulk_transactions( [election])
+    b.models.store_bulk_transactions([election])
     b.process_block(1, [election])
 
     assert run_election_show(Namespace(election_id=election.id), b) == "status=ongoing"
@@ -605,7 +605,7 @@ def mock_get_validators(height):
 
 def call_election(b, new_validator, node_key):
     def mock_write(tx, mode):
-        b.models.store_bulk_transactions( [tx])
+        b.models.store_bulk_transactions([tx])
         return (202, "")
 
     # patch the validator set. We now have one validator with power 10
@@ -620,6 +620,6 @@ def call_election(b, new_validator, node_key):
 
     # patch in an election with a vote issued to the user
     election_id = valid_election.id
-    b.models.store_bulk_transactions( [valid_election])
+    b.models.store_bulk_transactions([valid_election])
 
     return b, election_id

@@ -169,9 +169,7 @@ class App(BaseApplication):
         self.abort_if_abci_chain_is_not_synced()
 
         logger.debug("deliver_tx: %s", raw_transaction)
-        transaction = self.validator.is_valid_transaction(
-            decode_transaction(raw_transaction), self.block_transactions
-        )
+        transaction = self.validator.is_valid_transaction(decode_transaction(raw_transaction), self.block_transactions)
 
         if not transaction:
             logger.debug("deliver_tx: INVALID")
@@ -225,7 +223,7 @@ class App(BaseApplication):
 
         # register a new block only when new transactions are received
         if self.block_txn_ids:
-            self.models.store_bulk_transactions( self.block_transactions)
+            self.models.store_bulk_transactions(self.block_transactions)
 
         block = Block(app_hash=self.block_txn_hash, height=self.new_height, transactions=self.block_txn_ids)
         # NOTE: storing the block should be the last operation during commit
@@ -247,4 +245,3 @@ class App(BaseApplication):
             self.events_queue.put(event)
 
         return ResponseCommit(data=data)
-

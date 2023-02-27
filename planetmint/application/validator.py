@@ -43,7 +43,6 @@ class Validator:
         self.models = Models()
         self.validation = Validator._get_validationmethod()
 
-
     @staticmethod
     def _get_validationmethod():
         validationPlugin = Config().get().get("validation_plugin")
@@ -323,7 +322,7 @@ class Validator:
 
     def count_votes(self, election_pk, transactions):
         votes = 0
-        for txn in transactions :
+        for txn in transactions:
             if txn.operation == Vote.OPERATION:
                 for output in txn.outputs:
                     # NOTE: We enforce that a valid vote to election id will have only

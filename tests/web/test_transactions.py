@@ -486,7 +486,7 @@ def test_post_transaction_compose_valid_wo_abci(b, _bdb):
         assets=[{"data": "QmW5GVMW98D3mktSDfWHS8nX2UiCd8gP1uCiujnFX4yK97"}],
     ).sign([alice.private_key])
     validated = b.validate_transaction(tx)
-    b.models.store_bulk_transactions( [validated])
+    b.models.store_bulk_transactions([validated])
 
     tx_obj = tx
     tx = tx.to_dict()
@@ -499,7 +499,7 @@ def test_post_transaction_compose_valid_wo_abci(b, _bdb):
     compose_dict = signed_compose_tx.to_dict()
     compose_obj = Transaction.from_dict(compose_dict)
     validated_compose = b.validate_transaction(compose_obj)
-    b.models.store_bulk_transactions( [validated_compose])
+    b.models.store_bulk_transactions([validated_compose])
 
 
 @pytest.mark.abci

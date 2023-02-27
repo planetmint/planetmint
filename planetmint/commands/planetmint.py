@@ -15,8 +15,6 @@ import sys
 import planetmint
 
 
-
-
 from transactions.common.transaction_mode_types import BROADCAST_TX_COMMIT
 from transactions.common.exceptions import DatabaseDoesNotExist, ValidationError
 from transactions.types.elections.vote import Vote
@@ -230,7 +228,7 @@ def run_election_approve(args, validator: Validator):
         return False
 
 
-def run_election_show(args, validator:Validator):
+def run_election_show(args, validator: Validator):
     """Retrieves information about an election
 
     :param args: dict
@@ -285,14 +283,14 @@ def run_drop(args):
 def run_start(args):
     """Start the processes to run the node"""
     logger.info("Planetmint Version %s", planetmint.version.__version__)
-    
+
     # Configure Logging
     setup_logging()
 
     if not args.skip_initialize_database:
         logger.info("Initializing database")
         _run_init()
-    
+
     validator = Validator()
     validator.rollback()
 

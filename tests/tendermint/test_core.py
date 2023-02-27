@@ -398,7 +398,7 @@ def test_rollback_pre_commit_state_after_crash(b, test_models):
     total_votes += votes
     txs += [validator_election, *votes]
 
-    b.models.store_bulk_transactions( txs)
+    b.models.store_bulk_transactions(txs)
     b.models.store_abci_chain(2, "new_chain")
     b.models.store_validator_set(2, [v["storage"] for v in validators])
     # TODO change to `4` when upgrading to Tendermint 0.22.4.

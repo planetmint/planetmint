@@ -54,7 +54,7 @@ def test_get_spent_issue_1271(b, alice, bob, carol):
         [([carol.public_key], 8)],
     ).sign([carol.private_key])
     assert b.validate_transaction(tx_1)
-    b.models.store_bulk_transactions( [tx_1])
+    b.models.store_bulk_transactions([tx_1])
 
     tx_2 = Transfer.generate(
         tx_1.to_inputs(),
@@ -62,7 +62,7 @@ def test_get_spent_issue_1271(b, alice, bob, carol):
         asset_ids=[tx_1.id],
     ).sign([carol.private_key])
     assert b.validate_transaction(tx_2)
-    b.models.store_bulk_transactions( [tx_2])
+    b.models.store_bulk_transactions([tx_2])
 
     tx_3 = Transfer.generate(
         tx_2.to_inputs()[2:3],
@@ -70,7 +70,7 @@ def test_get_spent_issue_1271(b, alice, bob, carol):
         asset_ids=[tx_1.id],
     ).sign([carol.private_key])
     assert b.validate_transaction(tx_3)
-    b.models.store_bulk_transactions( [tx_3])
+    b.models.store_bulk_transactions([tx_3])
 
     tx_4 = Transfer.generate(
         tx_2.to_inputs()[1:2] + tx_3.to_inputs()[0:1],
@@ -78,7 +78,7 @@ def test_get_spent_issue_1271(b, alice, bob, carol):
         asset_ids=[tx_1.id],
     ).sign([alice.private_key])
     assert b.validate_transaction(tx_4)
-    b.models.store_bulk_transactions( [tx_4])
+    b.models.store_bulk_transactions([tx_4])
 
     tx_5 = Transfer.generate(
         tx_2.to_inputs()[0:1],
@@ -87,7 +87,7 @@ def test_get_spent_issue_1271(b, alice, bob, carol):
     ).sign([bob.private_key])
     assert b.validate_transaction(tx_5)
 
-    b.models.store_bulk_transactions( [tx_5])
+    b.models.store_bulk_transactions([tx_5])
     assert b.models.get_spent(tx_2.id, 0) == tx_5.to_dict()
     assert not b.models.get_spent(tx_5.id, 0)
     assert b.models.get_outputs_filtered(alice.public_key)

@@ -21,7 +21,7 @@ from planetmint.backend.models.dbtransaction import DbTransaction
 
 
 class Models:
-    def __init__(self, database_connection = None):
+    def __init__(self, database_connection=None):
         config_utils.autoconfigure()
         self.connection = database_connection if database_connection is not None else Connection()
 
@@ -81,8 +81,6 @@ class Models:
             return self.fastquery.filter_unspent_outputs(outputs)
         elif spent is False:
             return self.fastquery.filter_spent_outputs(outputs)
-
-
 
     def store_block(self, block):
         """Create a new block."""
@@ -230,7 +228,6 @@ class Models:
         # flatten and return all found assets
         return list(chain.from_iterable([Asset.list_to_dict(tx.assets) for tx in asset_txs]))
 
-
     def get_metadata(self, txn_ids) -> list[MetaData]:
         """Return a list of metadata that match the transaction ids (txn_ids)
 
@@ -277,11 +274,10 @@ class Models:
     def store_abci_chain(self, height, chain_id, is_synced=True):
         return backend.query.store_abci_chain(self.connection, height, chain_id, is_synced)
 
-    def get_asset_tokens_for_public_key(self, transaction_id, election_pk ):
+    def get_asset_tokens_for_public_key(self, transaction_id, election_pk):
         txns = backend.query.get_asset_tokens_for_public_key(self.connection, transaction_id, election_pk)
         return txns
 
     @property
     def fastquery(self):
         return FastQuery(self.connection)
-
