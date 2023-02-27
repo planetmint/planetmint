@@ -1,19 +1,10 @@
 import copy
 import logging
 import os
-
-# from planetmint.log import DEFAULT_LOGGING_CONFIG as log_config
-from planetmint.version import __version__  # noqa
 from decouple import config
 
-
-class Singleton(type):
-    _instances = {}
-
-    def __call__(cls, *args, **kwargs):
-        if cls not in cls._instances:
-            cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
-        return cls._instances[cls]
+from planetmint.utils import Singleton
+from planetmint.version import __version__
 
 
 class Config(metaclass=Singleton):

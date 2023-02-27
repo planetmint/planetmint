@@ -48,7 +48,7 @@ def test_get_owned_ids(signed_create_tx, user_pk, db_conn):
 
 
 def test_store_block(db_conn):
-    from planetmint.lib import Block
+    from planetmint.abci.block import Block
     from planetmint.backend.tarantool import query
 
     block = Block(app_hash="random_utxo", height=3, transactions=[])
@@ -59,7 +59,7 @@ def test_store_block(db_conn):
 
 
 def test_get_block(db_conn):
-    from planetmint.lib import Block
+    from planetmint.abci.block import Block
     from planetmint.backend.tarantool import query
 
     block = Block(app_hash="random_utxo", height=3, transactions=[])

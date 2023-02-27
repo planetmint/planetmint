@@ -118,7 +118,7 @@ def test_pool_raises_empty_exception_when_timeout(mock_queue):
 
 @patch("multiprocessing.Process")
 def test_process_group_instantiates_and_start_processes(mock_process):
-    from planetmint.utils import ProcessGroup
+    from tests.utils import ProcessGroup
 
     def noop():
         pass

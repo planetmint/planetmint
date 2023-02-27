@@ -22,8 +22,8 @@ class LatestBlock(Resource):
 
         pool = current_app.config["bigchain_pool"]
 
-        with pool() as planet:
-            block = planet.get_latest_block()
+        with pool() as validator:
+            block = validator.models.get_latest_block()
 
         if not block:
             return make_error(404)
@@ -44,8 +44,8 @@ class BlockApi(Resource):
 
         pool = current_app.config["bigchain_pool"]
 
-        with pool() as planet:
-            block = planet.get_block(block_id=block_id)
+        with pool() as validator:
+            block = validator.models.get_block(block_id=block_id)
 
         if not block:
             return make_error(404)
@@ -70,8 +70,8 @@ class BlockListApi(Resource):
 
         pool = current_app.config["bigchain_pool"]
 
-        with pool() as planet:
-            block = planet.get_block_containing_tx(tx_id)
+        with pool() as validator:
+            block = validator.models.get_block_containing_tx(tx_id)
 
         if not block:
             return make_error(404, "Block containing transaction with id: {} not found.".format(tx_id))

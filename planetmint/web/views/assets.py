@@ -28,8 +28,8 @@ class AssetListApi(Resource):
 
         pool = current_app.config["bigchain_pool"]
 
-        with pool() as planet:
-            assets = planet.get_assets_by_cid(cid, **args)
+        with pool() as validator:
+            assets = validator.models.get_assets_by_cid(cid, **args)
 
         try:
             # This only works with MongoDB as the backend

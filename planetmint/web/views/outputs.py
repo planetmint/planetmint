@@ -23,9 +23,9 @@ class OutputListApi(Resource):
         args = parser.parse_args(strict=True)
 
         pool = current_app.config["bigchain_pool"]
-        with pool() as planet:
+        with pool() as validator:
             try:
-                outputs = planet.get_outputs_filtered(args["public_key"], args["spent"])
+                outputs = validator.models.get_outputs_filtered(args["public_key"], args["spent"])
             except Exception as e:
                 return make_error(
                     500,

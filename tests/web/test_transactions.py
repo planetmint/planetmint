@@ -30,7 +30,6 @@ from transactions.common.transaction import (
 from transactions.common.utils import _fulfillment_from_details
 from transactions.common.crypto import generate_key_pair
 
-
 TX_ENDPOINT = "/api/v1/transactions/"
 
 
@@ -107,7 +106,7 @@ def test_post_create_transaction_endpoint(b, client):
 def test_post_create_transaction_with_language(b, client, nested, language, expected_status_code):
     from planetmint.backend.localmongodb.connection import LocalMongoDBConnection
 
-    if isinstance(b.connection, LocalMongoDBConnection):
+    if isinstance(b.models.connection, LocalMongoDBConnection):
         user_priv, user_pub = crypto.generate_key_pair()
         lang_obj = {"language": language}
 
@@ -148,7 +147,7 @@ def test_post_create_transaction_with_invalid_key(b, client, field, value, err_k
 
     user_priv, user_pub = crypto.generate_key_pair()
 
-    if isinstance(b.connection, LocalMongoDBConnection):
+    if isinstance(b.models.connection, LocalMongoDBConnection):
         if field == "asset":
             tx = Create.generate([user_pub], [([user_pub], 1)], assets=value)
         elif field == "metadata":
@@ -405,7 +404,7 @@ def test_transactions_get_list_good(client):
 
     asset_ids = ["1" * 64]
 
-    with patch("planetmint.Planetmint.get_transactions_filtered", get_txs_patched):
+    with patch("planetmint.model.models.Models.get_transactions_filtered", get_txs_patched):
         url = TX_ENDPOINT + "?asset_ids=" + ",".join(asset_ids)
         assert client.get(url).json == [
             ["asset_ids", asset_ids],
@@ -431,7 +430,7 @@ def test_transactions_get_list_bad(client):
         assert False
 
     with patch(
-        "planetmint.Planetmint.get_transactions_filtered",
+        "planetmint.model.models.Models.get_transactions_filtered",
         lambda *_, **__: should_not_be_called(),
     ):
         # Test asset id validated
@@ -487,7 +486,7 @@ def test_post_transaction_compose_valid_wo_abci(b, _bdb):
         assets=[{"data": "QmW5GVMW98D3mktSDfWHS8nX2UiCd8gP1uCiujnFX4yK97"}],
     ).sign([alice.private_key])
     validated = b.validate_transaction(tx)
-    b.store_bulk_transactions([validated])
+    b.models.store_bulk_transactions([validated])
 
     tx_obj = tx
     tx = tx.to_dict()
@@ -500,7 +499,7 @@ def test_post_transaction_compose_valid_wo_abci(b, _bdb):
     compose_dict = signed_compose_tx.to_dict()
     compose_obj = Transaction.from_dict(compose_dict)
     validated_compose = b.validate_transaction(compose_obj)
-    b.store_bulk_transactions([validated_compose])
+    b.models.store_bulk_transactions([validated_compose])
 
 
 @pytest.mark.abci

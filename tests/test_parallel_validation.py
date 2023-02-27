@@ -25,7 +25,7 @@ def generate_create_and_transfer(keypair=None):
 
 def test_validation_worker_process_multiple_transactions(b):
     import multiprocessing as mp
-    from planetmint.parallel_validation import ValidationWorker, RESET, EXIT
+    from planetmint.abci.parallel_validation import ValidationWorker, RESET, EXIT
 
     keypair = generate_key_pair()
     create_tx, transfer_tx = generate_create_and_transfer(keypair)
@@ -73,7 +73,7 @@ def test_parallel_validator_routes_transactions_correctly(b, monkeypatch):
     from collections import defaultdict
     import multiprocessing as mp
     from json import dumps
-    from planetmint.parallel_validation import ParallelValidator
+    from planetmint.abci.parallel_validation import ParallelValidator
 
     # We want to make sure that the load is distributed across all workers.
     # Since introspection on an object running on a different process is
@@ -87,7 +87,7 @@ def test_parallel_validator_routes_transactions_correctly(b, monkeypatch):
         validation_called_by.put((os.getpid(), dict_transaction["id"]))
         return dict_transaction
 
-    monkeypatch.setattr("planetmint.parallel_validation.ValidationWorker.validate", validate)
+    monkeypatch.setattr("planetmint.abci.parallel_validation.ValidationWorker.validate", validate)
 
     # Transaction routing uses the `id` of the transaction. This test strips
     # down a transaction to just its `id`. We have two workers, so even ids

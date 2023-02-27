@@ -8,6 +8,7 @@ import pytest
 from transactions.types.assets.create import Create
 from ipld import marshal, multihash
 
+
 METADATA_ENDPOINT = "/api/v1/metadata/"
 
 
@@ -26,7 +27,7 @@ def test_get_metadata_tendermint(client, b, alice):
         [alice.private_key]
     )
 
-    b.store_bulk_transactions([tx])
+    b.models.store_bulk_transactions([tx])
 
     # test that metadata is returned
     res = client.get(METADATA_ENDPOINT + metadata)
@@ -43,13 +44,13 @@ def test_get_metadata_limit_tendermint(client, b, alice):
     tx1 = Create.generate([alice.public_key], [([alice.public_key], 1)], metadata=meta, assets=assets1).sign(
         [alice.private_key]
     )
-    b.store_bulk_transactions([tx1])
+    b.models.store_bulk_transactions([tx1])
 
     assets2 = [{"data": multihash(marshal({"msg": "abc 2"}))}]
     tx2 = Create.generate([alice.public_key], [([alice.public_key], 1)], metadata=meta, assets=assets2).sign(
         [alice.private_key]
     )
-    b.store_bulk_transactions([tx2])
+    b.models.store_bulk_transactions([tx2])
 
     # test that both assets are returned without limit
     res = client.get(METADATA_ENDPOINT + meta)

@@ -19,7 +19,7 @@ The `Planetmint` class is defined here.  Most node-level operations and database
 
 `Block`, `Transaction`, and `Asset` classes are defined here.  The classes mirror the block and transaction structure from the documentation, but also include methods for validation and signing.
 
-### [`validation.py`](./validation.py)
+### [`validation.py`](application/basevalidationrules.py)
 
 Base class for validation methods (verification of votes, blocks, and transactions).  The actual logic is mostly found in `transaction` and `block` models, defined in [`models.py`](./models.py).
 
@@ -27,7 +27,7 @@ Base class for validation methods (verification of votes, blocks, and transactio
 
 Entry point for the Planetmint process, after initialization.  All subprocesses are started here: processes to handle new blocks, votes, etc.
 
-### [`config_utils.py`](./config_utils.py)
+### [`config_utils.py`](config_utils.py)
 
 Methods for managing the configuration, including loading configuration files, automatically generating the configuration, and keeping the configuration consistent across Planetmint instances.
 

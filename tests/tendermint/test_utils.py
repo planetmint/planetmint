@@ -11,7 +11,7 @@ from hashlib import sha3_256
 
 
 def test_encode_decode_transaction(b):
-    from planetmint.tendermint_utils import encode_transaction, decode_transaction
+    from planetmint.abci.tendermint_utils import encode_transaction, decode_transaction
 
     asset = {"value": "key"}
 
@@ -25,7 +25,7 @@ def test_encode_decode_transaction(b):
 
 
 def test_calculate_hash_no_key(b):
-    from planetmint.tendermint_utils import calculate_hash
+    from planetmint.abci.tendermint_utils import calculate_hash
 
     # pass an empty list
     assert calculate_hash([]) == ""
@@ -33,7 +33,7 @@ def test_calculate_hash_no_key(b):
 
 # TODO test for the case of an empty list of hashes, and possibly other cases.
 def test_merkleroot():
-    from planetmint.tendermint_utils import merkleroot
+    from planetmint.abci.tendermint_utils import merkleroot
 
     hashes = [sha3_256(i.encode()).digest() for i in "abc"]
     assert merkleroot(hashes) == ("78c7c394d3158c218916b7ae0ebdea502e0f4e85c08e3b371e3dfd824d389fa3")
@@ -49,14 +49,14 @@ SAMPLE_PUBLIC_KEY = {
     reason="ripemd160, the core of pulbic_key64_to_address is no longer supported by hashlib (from python 3.9.13 on)"
 )
 def test_convert_base64_public_key_to_address():
-    from planetmint.tendermint_utils import public_key64_to_address
+    from planetmint.abci.tendermint_utils import public_key64_to_address
 
     address = public_key64_to_address(SAMPLE_PUBLIC_KEY["pub_key"]["value"])
     assert address == SAMPLE_PUBLIC_KEY["address"]
 
 
 def test_public_key_encoding_decoding():
-    from planetmint.tendermint_utils import public_key_from_base64, public_key_to_base64
+    from planetmint.abci.tendermint_utils import public_key_from_base64, public_key_to_base64
 
     public_key = public_key_from_base64(SAMPLE_PUBLIC_KEY["pub_key"]["value"])
     base64_public_key = public_key_to_base64(public_key)

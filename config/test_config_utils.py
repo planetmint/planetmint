@@ -30,7 +30,7 @@ def test_bigchain_instance_is_initialized_when_conf_provided():
 
 def test_load_validation_plugin_loads_default_rules_without_name():
     from planetmint import config_utils
-    from planetmint.validation import BaseValidationRules
+    from planetmint.application.basevalidationrules import BaseValidationRules
 
     assert config_utils.load_validation_plugin() == BaseValidationRules
 
@@ -321,4 +321,4 @@ def test_database_envs(env_name, env_value, config_key, monkeypatch):
     expected_config = Config().get()
     expected_config["database"][config_key] = env_value
 
-    assert planetmint.config == expected_config
+    assert planetmint.config.Config().get() == expected_config

@@ -137,7 +137,7 @@ def test_single_in_single_own_single_out_single_own_transfer(alice, b, user_pk, 
     tx_transfer = Transfer.generate(tx_create.to_inputs(), [([alice.public_key], 100)], asset_ids=[tx_create.id])
     tx_transfer_signed = tx_transfer.sign([user_sk])
 
-    b.store_bulk_transactions([tx_create_signed])
+    b.models.store_bulk_transactions([tx_create_signed])
 
     assert b.validate_transaction(tx_transfer_signed) == tx_transfer_signed
     assert len(tx_transfer_signed.outputs) == 1
@@ -163,7 +163,7 @@ def test_single_in_single_own_multiple_out_single_own_transfer(alice, b, user_pk
     )
     tx_transfer_signed = tx_transfer.sign([user_sk])
 
-    b.store_bulk_transactions([tx_create_signed])
+    b.models.store_bulk_transactions([tx_create_signed])
 
     assert b.validate_transaction(tx_transfer_signed) == tx_transfer_signed
     assert len(tx_transfer_signed.outputs) == 2
@@ -190,7 +190,7 @@ def test_single_in_single_own_single_out_multiple_own_transfer(alice, b, user_pk
     )
     tx_transfer_signed = tx_transfer.sign([user_sk])
 
-    b.store_bulk_transactions([tx_create_signed])
+    b.models.store_bulk_transactions([tx_create_signed])
 
     assert b.validate_transaction(tx_transfer_signed) == tx_transfer_signed
     assert len(tx_transfer_signed.outputs) == 1
@@ -201,7 +201,7 @@ def test_single_in_single_own_single_out_multiple_own_transfer(alice, b, user_pk
     assert len(condition["condition"]["details"]["subconditions"]) == 2
 
     assert len(tx_transfer_signed.inputs) == 1
-    b.store_bulk_transactions([tx_transfer_signed])
+    b.models.store_bulk_transactions([tx_transfer_signed])
     with pytest.raises(DoubleSpend):
         b.validate_transaction(tx_transfer_signed)
 
@@ -227,7 +227,7 @@ def test_single_in_single_own_multiple_out_mix_own_transfer(alice, b, user_pk, u
     )
     tx_transfer_signed = tx_transfer.sign([user_sk])
 
-    b.store_bulk_transactions([tx_create_signed])
+    b.models.store_bulk_transactions([tx_create_signed])
 
     assert b.validate_transaction(tx_transfer_signed) == tx_transfer_signed
     assert len(tx_transfer_signed.outputs) == 2
@@ -240,7 +240,7 @@ def test_single_in_single_own_multiple_out_mix_own_transfer(alice, b, user_pk, u
 
     assert len(tx_transfer_signed.inputs) == 1
 
-    b.store_bulk_transactions([tx_transfer_signed])
+    b.models.store_bulk_transactions([tx_transfer_signed])
     with pytest.raises(DoubleSpend):
         b.validate_transaction(tx_transfer_signed)
 
@@ -265,7 +265,7 @@ def test_single_in_multiple_own_single_out_single_own_transfer(alice, b, user_pk
     tx_transfer = Transfer.generate(tx_create.to_inputs(), [([alice.public_key], 100)], asset_ids=[tx_create.id])
     tx_transfer_signed = tx_transfer.sign([alice.private_key, user_sk])
 
-    b.store_bulk_transactions([tx_create_signed])
+    b.models.store_bulk_transactions([tx_create_signed])
 
     assert b.validate_transaction(tx_transfer_signed) == tx_transfer_signed
     assert len(tx_transfer_signed.outputs) == 1
@@ -276,7 +276,7 @@ def test_single_in_multiple_own_single_out_single_own_transfer(alice, b, user_pk
     assert "subconditions" in ffill
     assert len(ffill["subconditions"]) == 2
 
-    b.store_bulk_transactions([tx_transfer_signed])
+    b.models.store_bulk_transactions([tx_transfer_signed])
     with pytest.raises(DoubleSpend):
         b.validate_transaction(tx_transfer_signed)
 
@@ -299,14 +299,14 @@ def test_multiple_in_single_own_single_out_single_own_transfer(alice, b, user_pk
     tx_transfer = Transfer.generate(tx_create.to_inputs(), [([alice.public_key], 100)], asset_ids=[tx_create.id])
     tx_transfer_signed = tx_transfer.sign([user_sk])
 
-    b.store_bulk_transactions([tx_create_signed])
+    b.models.store_bulk_transactions([tx_create_signed])
 
     assert b.validate_transaction(tx_transfer_signed) == tx_transfer_signed
     assert len(tx_transfer_signed.outputs) == 1
     assert tx_transfer_signed.outputs[0].amount == 100
     assert len(tx_transfer_signed.inputs) == 2
 
-    b.store_bulk_transactions([tx_transfer_signed])
+    b.models.store_bulk_transactions([tx_transfer_signed])
     with pytest.raises(DoubleSpend):
         b.validate_transaction(tx_transfer_signed)
 
@@ -331,7 +331,7 @@ def test_multiple_in_multiple_own_single_out_single_own_transfer(alice, b, user_
     tx_transfer = Transfer.generate(tx_create.to_inputs(), [([alice.public_key], 100)], asset_ids=[tx_create.id])
     tx_transfer_signed = tx_transfer.sign([alice.private_key, user_sk])
 
-    b.store_bulk_transactions([tx_create_signed])
+    b.models.store_bulk_transactions([tx_create_signed])
 
     assert b.validate_transaction(tx_transfer_signed) == tx_transfer_signed
     assert len(tx_transfer_signed.outputs) == 1
@@ -345,7 +345,7 @@ def test_multiple_in_multiple_own_single_out_single_own_transfer(alice, b, user_
     assert len(ffill_fid0["subconditions"]) == 2
     assert len(ffill_fid1["subconditions"]) == 2
 
-    b.store_bulk_transactions([tx_transfer_signed])
+    b.models.store_bulk_transactions([tx_transfer_signed])
     with pytest.raises(DoubleSpend):
         b.validate_transaction(tx_transfer_signed)
 
@@ -371,7 +371,7 @@ def test_muiltiple_in_mix_own_multiple_out_single_own_transfer(alice, b, user_pk
     tx_transfer = Transfer.generate(tx_create.to_inputs(), [([alice.public_key], 100)], asset_ids=[tx_create.id])
     tx_transfer_signed = tx_transfer.sign([alice.private_key, user_sk])
 
-    b.store_bulk_transactions([tx_create_signed])
+    b.models.store_bulk_transactions([tx_create_signed])
     assert b.validate_transaction(tx_transfer_signed) == tx_transfer_signed
     assert len(tx_transfer_signed.outputs) == 1
     assert tx_transfer_signed.outputs[0].amount == 100
@@ -383,7 +383,7 @@ def test_muiltiple_in_mix_own_multiple_out_single_own_transfer(alice, b, user_pk
     assert "subconditions" in ffill_fid1
     assert len(ffill_fid1["subconditions"]) == 2
 
-    b.store_bulk_transactions([tx_transfer_signed])
+    b.models.store_bulk_transactions([tx_transfer_signed])
     with pytest.raises(DoubleSpend):
         b.validate_transaction(tx_transfer_signed)
 
@@ -410,7 +410,7 @@ def test_muiltiple_in_mix_own_multiple_out_mix_own_transfer(alice, b, user_pk, u
         tx_create.to_inputs(), [([alice.public_key], 50), ([alice.public_key, user_pk], 50)], asset_ids=[tx_create.id]
     )
     tx_transfer_signed = tx_transfer.sign([alice.private_key, user_sk])
-    b.store_bulk_transactions([tx_create_signed])
+    b.models.store_bulk_transactions([tx_create_signed])
 
     assert b.validate_transaction(tx_transfer_signed) == tx_transfer_signed
     assert len(tx_transfer_signed.outputs) == 2
@@ -430,7 +430,7 @@ def test_muiltiple_in_mix_own_multiple_out_mix_own_transfer(alice, b, user_pk, u
     assert "subconditions" in ffill_fid1
     assert len(ffill_fid1["subconditions"]) == 2
 
-    b.store_bulk_transactions([tx_transfer_signed])
+    b.models.store_bulk_transactions([tx_transfer_signed])
     with pytest.raises(DoubleSpend):
         b.validate_transaction(tx_transfer_signed)
 
@@ -466,7 +466,7 @@ def test_multiple_in_different_transactions(alice, b, user_pk, user_sk):
     )
     tx_transfer2_signed = tx_transfer2.sign([user_sk])
 
-    b.store_bulk_transactions([tx_create_signed, tx_transfer1_signed])
+    b.models.store_bulk_transactions([tx_create_signed, tx_transfer1_signed])
 
     assert b.validate_transaction(tx_transfer2_signed) == tx_transfer2_signed
     assert len(tx_transfer2_signed.outputs) == 1
@@ -491,7 +491,7 @@ def test_amount_error_transfer(alice, b, user_pk, user_sk):
     )
     tx_create_signed = tx_create.sign([alice.private_key])
 
-    b.store_bulk_transactions([tx_create_signed])
+    b.models.store_bulk_transactions([tx_create_signed])
 
     # TRANSFER
     # output amount less than input amount
@@ -529,12 +529,12 @@ def test_threshold_same_public_key(alice, b, user_pk, user_sk):
     # TRANSFER
     tx_transfer = Transfer.generate(tx_create.to_inputs(), [([alice.public_key], 100)], asset_ids=[tx_create.id])
     tx_transfer_signed = tx_transfer.sign([user_sk, user_sk])
-    b.store_bulk_transactions([tx_create_signed])
+    b.models.store_bulk_transactions([tx_create_signed])
 
     # assert tx_transfer_signed.validate(b) == tx_transfer_signed
     assert b.validate_transaction(tx_transfer_signed) == tx_transfer_signed
 
-    b.store_bulk_transactions([tx_transfer_signed])
+    b.models.store_bulk_transactions([tx_transfer_signed])
     with pytest.raises(DoubleSpend):
         # tx_transfer_signed.validate(b)
         b.validate_transaction(tx_transfer_signed)
@@ -554,13 +554,13 @@ def test_sum_amount(alice, b, user_pk, user_sk):
     tx_transfer = Transfer.generate(tx_create.to_inputs(), [([alice.public_key], 3)], asset_ids=[tx_create.id])
     tx_transfer_signed = tx_transfer.sign([user_sk])
 
-    b.store_bulk_transactions([tx_create_signed])
+    b.models.store_bulk_transactions([tx_create_signed])
 
     assert b.validate_transaction(tx_transfer_signed) == tx_transfer_signed
     assert len(tx_transfer_signed.outputs) == 1
     assert tx_transfer_signed.outputs[0].amount == 3
 
-    b.store_bulk_transactions([tx_transfer_signed])
+    b.models.store_bulk_transactions([tx_transfer_signed])
     with pytest.raises(DoubleSpend):
         b.validate_transaction(tx_transfer_signed)
 
@@ -581,13 +581,13 @@ def test_divide(alice, b, user_pk, user_sk):
     )
     tx_transfer_signed = tx_transfer.sign([user_sk])
 
-    b.store_bulk_transactions([tx_create_signed])
+    b.models.store_bulk_transactions([tx_create_signed])
 
     assert b.validate_transaction(tx_transfer_signed) == tx_transfer_signed
     assert len(tx_transfer_signed.outputs) == 3
     for output in tx_transfer_signed.outputs:
         assert output.amount == 1
 
-    b.store_bulk_transactions([tx_transfer_signed])
+    b.models.store_bulk_transactions([tx_transfer_signed])
     with pytest.raises(DoubleSpend):
         b.validate_transaction(tx_transfer_signed)

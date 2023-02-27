@@ -8,6 +8,7 @@ import pytest
 from transactions.types.assets.create import Create
 from ipld import marshal, multihash
 
+
 ASSETS_ENDPOINT = "/api/v1/assets/"
 
 
@@ -17,7 +18,7 @@ def test_get_assets_tendermint(client, b, alice):
     assets = [{"data": multihash(marshal({"msg": "abc"}))}]
     tx = Create.generate([alice.public_key], [([alice.public_key], 1)], assets=assets).sign([alice.private_key])
 
-    b.store_bulk_transactions([tx])
+    b.models.store_bulk_transactions([tx])
 
     res = client.get(ASSETS_ENDPOINT + assets[0]["data"])
     assert res.status_code == 200
@@ -32,7 +33,7 @@ def test_get_assets_tendermint_limit(client, b, alice, bob):
     tx_1 = Create.generate([alice.public_key], [([alice.public_key], 1)], assets=assets).sign([alice.private_key])
     tx_2 = Create.generate([bob.public_key], [([bob.public_key], 1)], assets=assets).sign([bob.private_key])
 
-    b.store_bulk_transactions([tx_1, tx_2])
+    b.models.store_bulk_transactions([tx_1, tx_2])
 
     res = client.get(ASSETS_ENDPOINT + assets[0]["data"] + "?limit=1")
     assert res.status_code == 200

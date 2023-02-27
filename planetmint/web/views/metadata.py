@@ -36,8 +36,8 @@ class MetadataApi(Resource):
 
         pool = current_app.config["bigchain_pool"]
 
-        with pool() as planet:
-            metadata = planet.get_metadata_by_cid(cid, **args)
+        with pool() as validator:
+            metadata = validator.models.get_metadata_by_cid(cid, **args)
 
         try:
             return metadata

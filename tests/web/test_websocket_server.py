@@ -13,7 +13,7 @@ import pytest
 from transactions.types.assets.create import Create
 from transactions.types.assets.transfer import Transfer
 from transactions.common import crypto
-from planetmint import events
+from planetmint.ipc import events
 from planetmint.web.websocket_server import init_app, EVENTS_ENDPOINT, EVENTS_ENDPOINT_BLOCKS
 from ipld import multihash, marshal
 
@@ -195,7 +195,7 @@ async def test_websocket_transaction_event(aiohttp_client, event_loop):
 
 @pytest.mark.asyncio
 async def test_websocket_string_event(aiohttp_client, event_loop):
-    from planetmint.events import POISON_PILL
+    from planetmint.ipc.events import POISON_PILL
     from planetmint.web.websocket_server import init_app, EVENTS_ENDPOINT
 
     blk_source = asyncio.Queue(loop=event_loop)

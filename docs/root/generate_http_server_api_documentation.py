@@ -11,7 +11,9 @@ import os.path
 
 from transactions.common.input import Input
 from transactions.common.transaction_link import TransactionLink
-from planetmint import lib
+
+import planetmint.abci.block
+
 from transactions.types.assets.create import Create
 from transactions.types.assets.transfer import Transfer
 from planetmint.web import server
@@ -210,7 +212,7 @@ def main():
     signature = "53wxrEQDYk1dXzmvNSytbCfmNVnPqPkDQaTnAe8Jf43s6ssejPxezkCvUnGTnduNUmaLjhaan1iRLi3peu6s5DzA"
 
     app_hash = "f6e0c49c6d94d6924351f25bb334cf2a99af4206339bf784e741d1a5ab599056"
-    block = lib.Block(height=1, transactions=[tx.to_dict()], app_hash=app_hash)
+    block = planetmint.abci.block.Block(height=1, transactions=[tx.to_dict()], app_hash=app_hash)
     block_dict = block._asdict()
     block_dict.pop("app_hash")
     ctx["block"] = pretty_json(block_dict)

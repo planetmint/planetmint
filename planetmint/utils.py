@@ -7,39 +7,16 @@ import contextlib
 import threading
 import queue
 import multiprocessing
-import json
 import setproctitle
 
-from packaging import version
-from planetmint.version import __tm_supported_versions__
-from planetmint.tendermint_utils import key_from_base64
-from planetmint.backend.models.output import ConditionDetails
-from transactions.common.crypto import key_pair_from_ed25519_key
 
+class Singleton(type):
+    _instances = {}
 
-class ProcessGroup(object):
-    def __init__(self, concurrency=None, group=None, target=None, name=None, args=None, kwargs=None, daemon=None):
-        self.concurrency = concurrency or multiprocessing.cpu_count()
-        self.group = group
-        self.target = target
-        self.name = name
-        self.args = args or ()
-        self.kwargs = kwargs or {}
-        self.daemon = daemon
-        self.processes = []
-
-    def start(self):
-        for i in range(self.concurrency):
-            proc = multiprocessing.Process(
-                group=self.group,
-                target=self.target,
-                name=self.name,
-                args=self.args,
-                kwargs=self.kwargs,
-                daemon=self.daemon,
-            )
-            proc.start()
-            self.processes.append(proc)
+    def __call__(cls, *args, **kwargs):
+        if cls not in cls._instances:
+            cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
+        return cls._instances[cls]
 
 
 class Process(multiprocessing.Process):
@@ -108,34 +85,6 @@ def pool(builder, size, timeout=None):
     return pooled
 
 
-# TODO: Rename this function, it's handling fulfillments not conditions
-def condition_details_has_owner(condition_details, owner):
-    """Check if the public_key of owner is in the condition details
-    as an Ed25519Fulfillment.public_key
-
-    Args:
-        condition_details (dict): dict with condition details
-        owner (str): base58 public key of owner
-
-    Returns:
-        bool: True if the public key is found in the condition details, False otherwise
-
-    """
-    if isinstance(condition_details, ConditionDetails) and condition_details.sub_conditions is not None:
-        result = condition_details_has_owner(condition_details.sub_conditions, owner)
-        if result:
-            return True
-    elif isinstance(condition_details, list):
-        for subcondition in condition_details:
-            result = condition_details_has_owner(subcondition, owner)
-            if result:
-                return True
-    else:
-        if condition_details.public_key is not None and owner == condition_details.public_key:
-            return True
-    return False
-
-
 class Lazy:
     """Lazy objects are useful to create chains of methods to
     execute later.
@@ -180,32 +129,3 @@ class Lazy:
 
         self.stack = []
         return last
-
-
-# Load Tendermint's public and private key from the file path
-def load_node_key(path):
-    with open(path) as json_data:
-        priv_validator = json.load(json_data)
-        priv_key = priv_validator["priv_key"]["value"]
-        hex_private_key = key_from_base64(priv_key)
-        return key_pair_from_ed25519_key(hex_private_key)
-
-
-def tendermint_version_is_compatible(running_tm_ver):
-    """
-    Check Tendermint compatability with Planetmint server
-
-    :param running_tm_ver: Version number of the connected Tendermint instance
-    :type running_tm_ver: str
-    :return: True/False depending on the compatability with Planetmint server
-    :rtype: bool
-    """
-
-    # Splitting because version can look like this e.g. 0.22.8-40d6dc2e
-    tm_ver = running_tm_ver.split("-")
-    if not tm_ver:
-        return False
-    for ver in __tm_supported_versions__:
-        if version.parse(ver) == version.parse(tm_ver[0]):
-            return True
-    return False

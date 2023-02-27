@@ -16,10 +16,12 @@ from transactions.common.exceptions import (
     SchemaValidationError,
     ValidationError,
 )
+
+from planetmint.abci.rpc import ABCI_RPC
 from planetmint.web.views.base import make_error
 from planetmint.web.views import parameters
 from transactions.common.transaction import Transaction
-
+from planetmint.abci.rpc import MODE_COMMIT, MODE_LIST
 
 logger = logging.getLogger(__name__)
 
@@ -36,8 +38,8 @@ class TransactionApi(Resource):
         """
         pool = current_app.config["bigchain_pool"]
 
-        with pool() as planet:
-            tx = planet.get_transaction(tx_id)
+        with pool() as validator:
+            tx = validator.models.get_transaction(tx_id)
 
         if not tx:
             return make_error(404)
@@ -52,8 +54,8 @@ class TransactionListApi(Resource):
         parser.add_argument("asset_ids", type=parameters.valid_txid_list, required=True)
         parser.add_argument("last_tx", type=parameters.valid_bool, required=False)
         args = parser.parse_args()
-        with current_app.config["bigchain_pool"]() as planet:
-            txs = planet.get_transactions_filtered(**args)
+        with current_app.config["bigchain_pool"]() as validator:
+            txs = validator.models.get_transactions_filtered(**args)
 
         return [tx.to_dict() for tx in txs]
 
@@ -104,7 +106,9 @@ class TransactionListApi(Resource):
                             but this node only accepts transaction with higher \
                             schema version number.",
                     )
-                status_code, message = planet.write_transaction(tx_obj, mode)
+                status_code, message = ABCI_RPC().write_transaction(
+                    MODE_LIST, ABCI_RPC().tendermint_rpc_endpoint, MODE_COMMIT, tx_obj, mode
+                )
 
         if status_code == 202:
             response = jsonify(tx)
