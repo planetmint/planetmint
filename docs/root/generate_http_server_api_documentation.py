@@ -13,7 +13,7 @@ from transactions.common.input import Input
 from transactions.common.transaction_link import TransactionLink
 
 import planetmint.abci.block
-from planetmint import lib
+
 from transactions.types.assets.create import Create
 from transactions.types.assets.transfer import Transfer
 from planetmint.web import server

@@ -22,7 +22,7 @@ from io import BytesIO
 
 @pytest.mark.bdb
 def test_app(b, eventqueue_fixture, init_chain_request):
-    from planetmint import App
+    from planetmint.abci.core import App
     from planetmint.abci.tendermint_utils import calculate_hash
     from transactions.common.crypto import generate_key_pair
 

@@ -15,7 +15,7 @@ from transactions import ValidatorElection, ChainMigrationElection
 from transactions.common.crypto import generate_key_pair
 from transactions.types.assets.create import Create
 from transactions.types.assets.transfer import Transfer
-from planetmint import App
+from planetmint.abci.core import App
 from planetmint.backend import query
 from planetmint.abci.core import OkCode, CodeTypeError
 from planetmint.abci.block import Block
@@ -335,7 +335,7 @@ def test_end_block_return_validator_updates(b, init_chain_request):
 
 
 def test_store_pre_commit_state_in_end_block(b, alice, init_chain_request):
-    from planetmint import App
+    from planetmint.abci.core import App
     from planetmint.backend import query
 
     tx = Create.generate(
