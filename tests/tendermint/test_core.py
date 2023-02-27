@@ -48,7 +48,7 @@ def generate_init_chain_request(chain_id, vals=None):
 
 def test_init_chain_successfully_registers_chain(b):
     request = generate_init_chain_request("chain-XYZ")
-    res = ApplicationLogic(b).init_chain(request)
+    res = ApplicationLogic(validator=b).init_chain(request)
     assert res == types.ResponseInitChain()
     chain = query.get_latest_abci_chain(b.models.connection)
     assert chain == {"height": 0, "chain_id": "chain-XYZ", "is_synced": True}
@@ -62,7 +62,7 @@ def test_init_chain_successfully_registers_chain(b):
 def test_init_chain_ignores_invalid_init_chain_requests(b):
     validators = [generate_validator()]
     request = generate_init_chain_request("chain-XYZ", validators)
-    res = ApplicationLogic(b).init_chain(request)
+    res = ApplicationLogic(validator=b).init_chain(request)
     assert res == types.ResponseInitChain()
 
     validator_set = query.get_validator_set(b.models.connection)
@@ -76,7 +76,7 @@ def test_init_chain_ignores_invalid_init_chain_requests(b):
     ]
     for r in invalid_requests:
         with pytest.raises(SystemExit):
-            ApplicationLogic(b).init_chain(r)
+            ApplicationLogic(validator=b).init_chain(r)
         # assert nothing changed - neither validator set, nor chain ID
         new_validator_set = query.get_validator_set(b.models.connection)
         assert new_validator_set == validator_set
@@ -92,7 +92,7 @@ def test_init_chain_ignores_invalid_init_chain_requests(b):
 def test_init_chain_recognizes_new_chain_after_migration(b):
     validators = [generate_validator()]
     request = generate_init_chain_request("chain-XYZ", validators)
-    res = ApplicationLogic(b).init_chain(request)
+    res = ApplicationLogic(validator=b).init_chain(request)
     assert res == types.ResponseInitChain()
 
     validator_set = query.get_validator_set(b.models.connection)["validators"]
@@ -110,7 +110,7 @@ def test_init_chain_recognizes_new_chain_after_migration(b):
     ]
     for r in invalid_requests:
         with pytest.raises(SystemExit):
-            ApplicationLogic(b).init_chain(r)
+            ApplicationLogic(validator=b).init_chain(r)
         assert query.get_latest_abci_chain(b.models.connection) == {
             "chain_id": "chain-XYZ-migrated-at-height-1",
             "is_synced": False,
@@ -122,7 +122,7 @@ def test_init_chain_recognizes_new_chain_after_migration(b):
     # a request with the matching chain ID and matching validator set
     # completes the migration
     request = generate_init_chain_request("chain-XYZ-migrated-at-height-1", validators)
-    res = ApplicationLogic(b).init_chain(request)
+    res = ApplicationLogic(validator=b).init_chain(request)
     assert res == types.ResponseInitChain()
     assert query.get_latest_abci_chain(b.models.connection) == {
         "chain_id": "chain-XYZ-migrated-at-height-1",
@@ -143,7 +143,7 @@ def test_init_chain_recognizes_new_chain_after_migration(b):
     ]
     for r in invalid_requests:
         with pytest.raises(SystemExit):
-            ApplicationLogic(b).init_chain(r)
+            ApplicationLogic(validator=b).init_chain(r)
         assert query.get_latest_abci_chain(b.models.connection) == {
             "chain_id": "chain-XYZ-migrated-at-height-1",
             "is_synced": True,
@@ -160,7 +160,7 @@ def test_init_chain_recognizes_new_chain_after_migration(b):
 
 def test_info(b):
     r = types.RequestInfo(version=__tm_supported_versions__[0])
-    app = ApplicationLogic(b)
+    app = ApplicationLogic(validator=b)
 
     res = app.info(r)
     assert res.last_block_height == 0
@@ -173,7 +173,7 @@ def test_info(b):
 
     # simulate a migration and assert the height is shifted
     b.models.store_abci_chain(2, "chain-XYZ")
-    app = ApplicationLogic(b)
+    app = ApplicationLogic(validator=b)
     b.models.store_block(Block(app_hash="2", height=2, transactions=[])._asdict())
     res = app.info(r)
     assert res.last_block_height == 0
@@ -186,7 +186,7 @@ def test_info(b):
 
     # it's always the latest migration that is taken into account
     b.models.store_abci_chain(4, "chain-XYZ-new")
-    app = ApplicationLogic(b)
+    app = ApplicationLogic(validator=b)
     b.models.store_block(Block(app_hash="4", height=4, transactions=[])._asdict())
     res = app.info(r)
     assert res.last_block_height == 0
@@ -199,7 +199,7 @@ def test_check_tx__signed_create_is_ok(b):
 
     tx = Create.generate([alice.public_key], [([bob.public_key], 1)]).sign([alice.private_key])
 
-    app = ApplicationLogic(b)
+    app = ApplicationLogic(validator=b)
     result = app.check_tx(encode_tx_to_bytes(tx))
     assert result.code == OkCode
 
@@ -210,7 +210,7 @@ def test_check_tx__unsigned_create_is_error(b):
 
     tx = Create.generate([alice.public_key], [([bob.public_key], 1)])
 
-    app = ApplicationLogic(b)
+    app = ApplicationLogic(validator=b)
     result = app.check_tx(encode_tx_to_bytes(tx))
     assert result.code == CodeTypeError
 
@@ -222,7 +222,7 @@ def test_deliver_tx__valid_create_updates_db_and_emits_event(b, init_chain_reque
 
     tx = Create.generate([alice.public_key], [([bob.public_key], 1)]).sign([alice.private_key])
 
-    app = ApplicationLogic(b, events)
+    app = ApplicationLogic(validator=b, events_queue=events)
 
     app.init_chain(init_chain_request)
 
@@ -252,7 +252,7 @@ def test_deliver_tx__double_spend_fails(b, init_chain_request):
 
     tx = Create.generate([alice.public_key], [([bob.public_key], 1)]).sign([alice.private_key])
 
-    app = ApplicationLogic(b)
+    app = ApplicationLogic(validator=b)
     app.init_chain(init_chain_request)
 
     begin_block = types.RequestBeginBlock()
@@ -269,7 +269,7 @@ def test_deliver_tx__double_spend_fails(b, init_chain_request):
 
 
 def test_deliver_transfer_tx__double_spend_fails(b, init_chain_request):
-    app = ApplicationLogic(b)
+    app = ApplicationLogic(validator=b)
     app.init_chain(init_chain_request)
 
     begin_block = types.RequestBeginBlock()
@@ -302,7 +302,7 @@ def test_deliver_transfer_tx__double_spend_fails(b, init_chain_request):
 
 
 def test_end_block_return_validator_updates(b, init_chain_request):
-    app = ApplicationLogic(b)
+    app = ApplicationLogic(validator=b)
     app.init_chain(init_chain_request)
 
     begin_block = types.RequestBeginBlock()
@@ -343,7 +343,7 @@ def test_store_pre_commit_state_in_end_block(b, alice, init_chain_request):
         assets=[{"data": "QmaozNR7DZHQK1ZcU9p7QdrshMvXqWK6gpu5rmrkPdT3L4"}],
     ).sign([alice.private_key])
 
-    app = ApplicationLogic(b)
+    app = ApplicationLogic(validator=b)
     app.init_chain(init_chain_request)
 
     begin_block = types.RequestBeginBlock()
@@ -364,7 +364,7 @@ def test_store_pre_commit_state_in_end_block(b, alice, init_chain_request):
 
     # simulate a chain migration and assert the height is shifted
     b.models.store_abci_chain(100, "new-chain")
-    app = ApplicationLogic(b)
+    app = ApplicationLogic(validator=b)
     app.begin_block(begin_block)
     app.deliver_tx(encode_tx_to_bytes(tx))
     app.end_block(types.RequestEndBlock(height=1))
@@ -469,39 +469,39 @@ def test_info_aborts_if_chain_is_not_synced(b):
     b.models.store_abci_chain(0, "chain-XYZ", False)
 
     with pytest.raises(SystemExit):
-        ApplicationLogic(b).info(types.RequestInfo())
+        ApplicationLogic(validator=b).info(types.RequestInfo())
 
 
 def test_check_tx_aborts_if_chain_is_not_synced(b):
     b.models.store_abci_chain(0, "chain-XYZ", False)
 
     with pytest.raises(SystemExit):
-        ApplicationLogic(b).check_tx("some bytes")
+        ApplicationLogic(validator=b).check_tx("some bytes")
 
 
 def test_begin_aborts_if_chain_is_not_synced(b):
     b.models.store_abci_chain(0, "chain-XYZ", False)
 
     with pytest.raises(SystemExit):
-        ApplicationLogic(b).info(types.RequestBeginBlock())
+        ApplicationLogic(validator=b).info(types.RequestBeginBlock())
 
 
 def test_deliver_tx_aborts_if_chain_is_not_synced(b):
     b.models.store_abci_chain(0, "chain-XYZ", False)
 
     with pytest.raises(SystemExit):
-        ApplicationLogic(b).deliver_tx("some bytes")
+        ApplicationLogic(validator=b).deliver_tx("some bytes")
 
 
 def test_end_block_aborts_if_chain_is_not_synced(b):
     b.models.store_abci_chain(0, "chain-XYZ", False)
 
     with pytest.raises(SystemExit):
-        ApplicationLogic(b).info(types.RequestEndBlock())
+        ApplicationLogic(validator=b).info(types.RequestEndBlock())
 
 
 def test_commit_aborts_if_chain_is_not_synced(b):
     b.models.store_abci_chain(0, "chain-XYZ", False)
 
     with pytest.raises(SystemExit):
-        ApplicationLogic(b).commit()
+        ApplicationLogic(validator=b).commit()

@@ -41,16 +41,15 @@ class ApplicationLogic(BaseApplication):
 
     def __init__(
         self,
-        planetmint_node=None,
+        validator: Validator = None,
         events_queue=None,
         models: Models = None,
-        validator: Validator = None,
     ):
         # super().__init__(abci)
         logger.debug("Checking values of types")
         logger.debug(dir(types_pb2))
         self.events_queue = events_queue
-        self.validator = Validator()#(async_io=True)
+        self.validator = validator if validator else Validator()#(async_io=True)
         self.models = models or Models()
         self.block_txn_ids = []
         self.block_txn_hash = ""
