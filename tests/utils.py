@@ -2,6 +2,7 @@
 # Planetmint and IPDB software contributors.
 # SPDX-License-Identifier: (Apache-2.0 AND CC-BY-4.0)
 # Code is Apache-2.0 and docs are CC-BY-4.0
+import multiprocessing
 from hashlib import sha3_256
 
 import base58
@@ -197,3 +198,28 @@ def update_utxoset(connection, transaction):
     if spent_outputs:
         delete_unspent_outputs(connection, *spent_outputs)
     store_unspent_outputs(connection, *[utxo._asdict() for utxo in transaction.unspent_outputs])
+
+
+class ProcessGroup(object):
+    def __init__(self, concurrency=None, group=None, target=None, name=None, args=None, kwargs=None, daemon=None):
+        self.concurrency = concurrency or multiprocessing.cpu_count()
+        self.group = group
+        self.target = target
+        self.name = name
+        self.args = args or ()
+        self.kwargs = kwargs or {}
+        self.daemon = daemon
+        self.processes = []
+
+    def start(self):
+        for i in range(self.concurrency):
+            proc = multiprocessing.Process(
+                group=self.group,
+                target=self.target,
+                name=self.name,
+                args=self.args,
+                kwargs=self.kwargs,
+                daemon=self.daemon,
+            )
+            proc.start()
+            self.processes.append(proc)
