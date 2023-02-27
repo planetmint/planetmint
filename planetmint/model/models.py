@@ -12,15 +12,14 @@ from planetmint.backend.connection import Connection
 from planetmint.backend.tarantool.const import TARANT_TABLE_TRANSACTION, TARANT_TABLE_GOVERNANCE
 from planetmint.model.fastquery import FastQuery
 from planetmint.abci.tendermint_utils import key_from_base64
-from planetmint.abci.tendermint_utils import merkleroot
-from hashlib import sha3_256
 
 from planetmint.backend.models.block import Block
 from planetmint.backend.models.output import Output
 from planetmint.backend.models.asset import Asset
-from planetmint.backend.models.input import Input
 from planetmint.backend.models.metadata import MetaData
 from planetmint.backend.models.dbtransaction import DbTransaction
+
+
 class Models:
     def __init__(self, database_connection = None):
         config_utils.autoconfigure()
@@ -141,77 +140,6 @@ class Models:
             validators[public_key] = validator["voting_power"]
 
         return validators
-
-
-    def tests_update_utxoset(self, transaction):
-        self.updated__ = """Update the UTXO set given ``transaction``. That is, remove
-        the outputs that the given ``transaction`` spends, and add the
-        outputs that the given ``transaction`` creates.
-
-        Args:
-            transaction (:obj:`~planetmint.models.Transaction`): A new
-                transaction incoming into the system for which the UTXOF
-                set needs to be updated.
-        """
-        spent_outputs = [spent_output for spent_output in transaction.spent_outputs]
-        if spent_outputs:
-            self.tests_delete_unspent_outputs(*spent_outputs)
-        self.tests_store_unspent_outputs(*[utxo._asdict() for utxo in transaction.unspent_outputs])
-
-    def tests_store_unspent_outputs(self, *unspent_outputs):
-        """Store the given ``unspent_outputs`` (utxos).
-
-        Args:
-            *unspent_outputs (:obj:`tuple` of :obj:`dict`): Variable
-                length tuple or list of unspent outputs.
-        """
-        if unspent_outputs:
-            return backend.query.store_unspent_outputs(self.connection, *unspent_outputs)
-
-    def tests_get_utxoset_merkle_root(self):
-        """Returns the merkle root of the utxoset. This implies that
-        the utxoset is first put into a merkle tree.
-
-        For now, the merkle tree and its root will be computed each
-        time. This obviously is not efficient and a better approach
-        that limits the repetition of the same computation when
-        unnecesary should be sought. For instance, future optimizations
-        could simply re-compute the branches of the tree that were
-        affected by a change.
-
-        The transaction hash (id) and output index should be sufficient
-        to uniquely identify a utxo, and consequently only that
-        information from a utxo record is needed to compute the merkle
-        root. Hence, each node of the merkle tree should contain the
-        tuple (txid, output_index).
-
-        .. important:: The leaves of the tree will need to be sorted in
-            some kind of lexicographical order.
-
-        Returns:
-            str: Merkle root in hexadecimal form.
-        """
-        utxoset = backend.query.get_unspent_outputs(self.connection)
-        # TODO Once ready, use the already pre-computed utxo_hash field.
-        # See common/transactions.py for details.
-        hashes = [
-            sha3_256("{}{}".format(utxo["transaction_id"], utxo["output_index"]).encode()).digest() for utxo in utxoset
-        ]
-        # TODO Notice the sorted call!
-        return merkleroot(sorted(hashes))
-
-
-    def tests_delete_unspent_outputs(self, *unspent_outputs):
-        """Deletes the given ``unspent_outputs`` (utxos).
-
-        Args:
-            *unspent_outputs (:obj:`tuple` of :obj:`dict`): Variable
-                length tuple or list of unspent outputs.
-        """
-        if unspent_outputs:
-            return backend.query.delete_unspent_outputs(self.connection, *unspent_outputs)
-
-
 
     def get_spent(self, txid, output, current_transactions=[]) -> DbTransaction:
         transactions = backend.query.get_spent(self.connection, txid, output)

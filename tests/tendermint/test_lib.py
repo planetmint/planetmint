@@ -23,6 +23,9 @@ from uuid import uuid4
 
 from planetmint.abci.rpc import ABCI_RPC
 from planetmint.abci.rpc import MODE_COMMIT, MODE_LIST
+from tests.utils import delete_unspent_outputs, get_utxoset_merkle_root, store_unspent_outputs, \
+    update_utxoset
+
 
 @pytest.mark.bdb
 def test_asset_is_separated_from_transaciton(b):
@@ -149,13 +152,13 @@ def test_post_transaction_invalid_mode(b, test_abci_rpc):
 
 @pytest.mark.bdb
 def test_update_utxoset(b, signed_create_tx, signed_transfer_tx, db_conn):
-    b.models.tests_update_utxoset(signed_create_tx)
+    update_utxoset(b.models.connection, signed_create_tx)
     utxoset = db_conn.get_space("utxos")
     assert utxoset.select().rowcount == 1
     utxo = utxoset.select().data
     assert utxo[0][1] == signed_create_tx.id
     assert utxo[0][2] == 0
-    b.models.tests_update_utxoset(signed_transfer_tx)
+    update_utxoset(b.models.connection, signed_transfer_tx)
     assert utxoset.select().rowcount == 1
     utxo = utxoset.select().data
     assert utxo[0][1] == signed_transfer_tx.id
@@ -184,7 +187,7 @@ def test_store_bulk_transaction(mocker, b, signed_create_tx, signed_transfer_tx)
 def test_delete_zero_unspent_outputs(b, utxoset):
     unspent_outputs, utxo_collection = utxoset
     num_rows_before_operation = utxo_collection.select().rowcount
-    delete_res = b.models.tests_delete_unspent_outputs()  # noqa: F841
+    delete_res = delete_unspent_outputs(b.models.connection)  # noqa: F841
     num_rows_after_operation = utxo_collection.select().rowcount
     # assert delete_res is None
     assert num_rows_before_operation == num_rows_after_operation
@@ -197,7 +200,7 @@ def test_delete_one_unspent_outputs(b, dummy_unspent_outputs):
         res = utxo_space.insert((uuid4().hex, utxo["transaction_id"], utxo["output_index"], utxo))
         assert res
 
-    b.models.tests_delete_unspent_outputs(dummy_unspent_outputs[0])
+    delete_unspent_outputs(b.models.connection, dummy_unspent_outputs[0])
     res1 = utxo_space.select(["a", 1], index="utxo_by_transaction_id_and_output_index").data
     res2 = utxo_space.select(["b", 0], index="utxo_by_transaction_id_and_output_index").data
     assert len(res1) + len(res2) == 2
@@ -212,7 +215,7 @@ def test_delete_many_unspent_outputs(b, dummy_unspent_outputs):
         res = utxo_space.insert((uuid4().hex, utxo["transaction_id"], utxo["output_index"], utxo))
         assert res
 
-    b.models.tests_delete_unspent_outputs(*dummy_unspent_outputs[::2])
+    delete_unspent_outputs(b.models.connection, *dummy_unspent_outputs[::2])
     res1 = utxo_space.select(["a", 0], index="utxo_by_transaction_id_and_output_index").data
     res2 = utxo_space.select(["b", 0], index="utxo_by_transaction_id_and_output_index").data
     assert len(res1) + len(res2) == 0
@@ -224,7 +227,7 @@ def test_delete_many_unspent_outputs(b, dummy_unspent_outputs):
 def test_store_zero_unspent_output(b):
     utxos = b.models.connection.get_space("utxos")
     num_rows_before_operation = utxos.select().rowcount
-    res = b.models.tests_store_unspent_outputs()
+    res = store_unspent_outputs(b.models.connection)
     num_rows_after_operation = utxos.select().rowcount
     assert res is None
     assert num_rows_before_operation == num_rows_after_operation
@@ -234,7 +237,7 @@ def test_store_zero_unspent_output(b):
 def test_store_one_unspent_output(b, unspent_output_1, utxo_collection):
     from planetmint.backend.tarantool.connection import TarantoolDBConnection
 
-    res = b.models.tests_store_unspent_outputs(unspent_output_1)
+    res = store_unspent_outputs(b.models.connection, unspent_output_1)
     if not isinstance(b.models.connection, TarantoolDBConnection):
         assert res.acknowledged
         assert len(list(res)) == 1
@@ -258,14 +261,14 @@ def test_store_one_unspent_output(b, unspent_output_1, utxo_collection):
 
 @pytest.mark.bdb
 def test_store_many_unspent_outputs(b, unspent_outputs):
-    b.models.tests_store_unspent_outputs(*unspent_outputs)
+    store_unspent_outputs(b.models.connection, *unspent_outputs)
     utxo_space = b.models.connection.get_space("utxos")
     res = utxo_space.select([unspent_outputs[0]["transaction_id"]], index="utxos_by_transaction_id")
     assert len(res.data) == 3
 
 
 def test_get_utxoset_merkle_root_when_no_utxo(b):
-    assert b.models.tests_get_utxoset_merkle_root() == sha3_256(b"").hexdigest()
+    assert get_utxoset_merkle_root(b.models.connection) == sha3_256(b"").hexdigest()
 
 
 @pytest.mark.bdb
@@ -276,7 +279,7 @@ def test_get_utxoset_merkle_root(b, dummy_unspent_outputs):
         assert res
 
     expected_merkle_root = "86d311c03115bf4d287f8449ca5828505432d69b82762d47077b1c00fe426eac"
-    merkle_root = b.models.tests_get_utxoset_merkle_root()
+    merkle_root = get_utxoset_merkle_root(b.models.connection)
     assert merkle_root == expected_merkle_root
 
 
