@@ -6,9 +6,9 @@
 import multiprocessing
 
 from collections import defaultdict
-from planetmint.abci.core import App
+from planetmint.abci.application_logic import ApplicationLogic
 from planetmint.application.validator import Validator
-from planetmint.abci.tendermint_utils import decode_transaction
+from planetmint.abci.utils import decode_transaction
 from abci.application import OkCode
 from tendermint.abci.types_pb2 import (
     ResponseCheckTx,
@@ -16,7 +16,7 @@ from tendermint.abci.types_pb2 import (
 )
 
 
-class ParallelValidationApp(App):
+class ParallelValidationApp(ApplicationLogic):
     def __init__(self, planetmint=None, events_queue=None):
         super().__init__(planetmint, events_queue)
         self.parallel_validator = ParallelValidator()

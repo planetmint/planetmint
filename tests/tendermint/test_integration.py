@@ -21,11 +21,11 @@ from io import BytesIO
 
 @pytest.mark.bdb
 def test_app(b, eventqueue_fixture, init_chain_request):
-    from planetmint.abci.core import App
-    from planetmint.abci.tendermint_utils import calculate_hash
+    from planetmint.abci.application_logic import ApplicationLogic
+    from planetmint.abci.utils import calculate_hash
     from transactions.common.crypto import generate_key_pair
 
-    app = App(b, eventqueue_fixture)
+    app = ApplicationLogic(b, eventqueue_fixture)
     p = ProtocolHandler(app)
 
     data = p.process("info", types.Request(info=types.RequestInfo(version=__tm_supported_versions__[0])))

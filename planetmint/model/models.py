@@ -9,7 +9,7 @@ from transactions.common.exceptions import InputDoesNotExist
 from planetmint import config_utils, backend
 from planetmint.const import GOVERNANCE_TRANSACTION_TYPES
 from planetmint.model.fastquery import FastQuery
-from planetmint.abci.tendermint_utils import key_from_base64
+from planetmint.abci.utils import key_from_base64
 from planetmint.backend.connection import Connection
 from planetmint.backend.tarantool.const import TARANT_TABLE_TRANSACTION, TARANT_TABLE_GOVERNANCE
 from planetmint.backend.models.block import Block

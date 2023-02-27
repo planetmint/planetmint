@@ -24,11 +24,7 @@ from tendermint.abci.types_pb2 import (
 
 from planetmint.application.validator import Validator
 from planetmint.model.models import Models
-from planetmint.abci.tendermint_utils import (
-    decode_transaction,
-    calculate_hash,
-    decode_validator,
-)
+from planetmint.abci.utils import decode_validator, decode_transaction, calculate_hash
 from planetmint.abci.block import Block
 from planetmint.ipc.events import EventTypes, Event
 
@@ -36,7 +32,7 @@ CodeTypeError = 1
 logger = logging.getLogger(__name__)
 
 
-class App(BaseApplication):
+class ApplicationLogic(BaseApplication):
     """Bridge between Planetmint and Tendermint.
 
     The role of this class is to expose the Planetmint

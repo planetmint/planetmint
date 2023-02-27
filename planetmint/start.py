@@ -8,7 +8,7 @@ import setproctitle
 
 from planetmint.config import Config
 from planetmint.application.validator import Validator
-from planetmint.abci.core import App
+from planetmint.abci.application_logic import ApplicationLogic
 from planetmint.abci.parallel_validation import ParallelValidationApp
 from planetmint.web import server, websocket_server
 from planetmint.ipc.events import EventTypes
@@ -76,7 +76,7 @@ def start(args):
         )
     else:
         app = ABCIServer(
-            app=App(
+            app=ApplicationLogic(
                 events_queue=exchange.get_publisher_queue(),
             )
         )

@@ -7,7 +7,7 @@ import pytest
 import codecs
 
 from planetmint.abci.rpc import MODE_LIST, MODE_COMMIT
-from planetmint.abci.tendermint_utils import public_key_to_base64
+from planetmint.abci.utils import public_key_to_base64
 
 from transactions.types.elections.validator_election import ValidatorElection
 from transactions.common.exceptions import AmountError

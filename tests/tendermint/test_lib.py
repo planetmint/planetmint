@@ -102,7 +102,7 @@ def test_validation_error(b):
 @patch("requests.post")
 def test_write_and_post_transaction(mock_post, b, test_abci_rpc):
     from transactions.common.crypto import generate_key_pair
-    from planetmint.abci.tendermint_utils import encode_transaction
+    from planetmint.abci.utils import encode_transaction
 
     alice = generate_key_pair()
     tx = (

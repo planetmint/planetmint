@@ -22,12 +22,7 @@ from transactions.common.transaction import VALIDATOR_ELECTION, CHAIN_MIGRATION_
 from transactions.types.elections.election import Election
 from transactions.types.elections.validator_utils import election_id_to_public_key
 
-from planetmint.abci.tendermint_utils import (
-    key_from_base64,
-    public_key_to_base64,
-    encode_validator,
-    new_validator_set,
-)
+from planetmint.abci.utils import encode_validator, new_validator_set, key_from_base64, public_key_to_base64
 from planetmint.application.basevalidationrules import BaseValidationRules
 from planetmint.backend.models.output import Output
 from planetmint.model.models import Models
