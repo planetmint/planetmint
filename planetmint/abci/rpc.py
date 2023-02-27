@@ -7,6 +7,7 @@ from transactions.common.transaction_mode_types import (
     BROADCAST_TX_SYNC,
 )
 
+from planetmint.utils import Singleton
 from planetmint.abci.tendermint_utils import encode_transaction
 from planetmint.application.validator import logger
 from planetmint.config_utils import autoconfigure
@@ -16,7 +17,7 @@ MODE_COMMIT = BROADCAST_TX_COMMIT
 MODE_LIST = (BROADCAST_TX_ASYNC, BROADCAST_TX_SYNC, MODE_COMMIT)
 
 
-class ABCI_RPC:
+class ABCI_RPC(metaclass=Singleton):
     def __init__(self):
         autoconfigure()
         self.tendermint_host = Config().get()["tendermint"]["host"]

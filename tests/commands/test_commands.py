@@ -330,7 +330,6 @@ def test_election_new_upsert_validator_with_tendermint(b, priv_validator_path, u
 
 
 @pytest.mark.bdb
-@pytest.mark.skip(reason="mock_write overwrite doesn't work")
 def test_election_new_upsert_validator_without_tendermint(caplog, b, priv_validator_path, user_sk):
     from planetmint.commands.planetmint import run_election_new_upsert_validator
 
@@ -355,7 +354,7 @@ def test_election_new_upsert_validator_without_tendermint(caplog, b, priv_valida
 
     with caplog.at_level(logging.INFO):
         election_id = run_election_new_upsert_validator(args, b)
-        assert caplog.records[0].msg == "[SUCCESS] Submitted proposal with id: " + election_id
+        assert caplog.records[1].msg == "[SUCCESS] Submitted proposal with id: " + election_id
         assert b.models.get_transaction(election_id)
 
 
@@ -369,10 +368,9 @@ def test_election_new_chain_migration_with_tendermint(b, priv_validator_path, us
 
 
 @pytest.mark.bdb
-@pytest.mark.skip(reason="mock_write overwrite doesn't work")
 def test_election_new_chain_migration_without_tendermint(caplog, b, priv_validator_path, user_sk):
-    def mock_write(tx, mode):
-        b.models.store_bulk_transactions([tx])
+    def mock_write(modelist, endpoint, mode_commit, transaction, mode):
+        b.models.store_bulk_transactions([transaction])
         return (202, "")
 
     b.models.get_validators = mock_get_validators
@@ -410,8 +408,8 @@ def test_election_new_upsert_validator_invalid_power(caplog, b, priv_validator_p
     from planetmint.commands.planetmint import run_election_new_upsert_validator
     from transactions.common.exceptions import InvalidPowerChange
 
-    def mock_write(tx, mode):
-        b.models.store_bulk_transactions([tx])
+    def mock_write(modelist, endpoint, mode_commit, transaction, mode):
+        b.models.store_bulk_transactions([transaction])
         return (400, "")
 
     ABCI_RPC().write_transaction = mock_write
@@ -428,7 +426,7 @@ def test_election_new_upsert_validator_invalid_power(caplog, b, priv_validator_p
 
     with caplog.at_level(logging.ERROR):
         assert not run_election_new_upsert_validator(args, b)
-        assert caplog.records[1].msg.__class__ == InvalidPowerChange
+        assert caplog.records[0].msg.__class__ == InvalidPowerChange
 
 
 @pytest.mark.abci
@@ -456,7 +454,6 @@ def test_election_approve_with_tendermint(b, priv_validator_path, user_sk, valid
 
 
 @pytest.mark.bdb
-@pytest.mark.skip(reason="mock_write overwrite doesn't work")
 def test_election_approve_without_tendermint(caplog, b, priv_validator_path, new_validator, node_key):
     from planetmint.commands.planetmint import run_election_approve
     from argparse import Namespace
@@ -474,15 +471,14 @@ def test_election_approve_without_tendermint(caplog, b, priv_validator_path, new
 
 
 @pytest.mark.bdb
-@pytest.mark.skip(reason="mock_write overwrite doesn't work")
 def test_election_approve_failure(caplog, b, priv_validator_path, new_validator, node_key):
     from planetmint.commands.planetmint import run_election_approve
     from argparse import Namespace
 
     b, election_id = call_election(b, new_validator, node_key)
 
-    def mock_write(tx, mode):
-        b.models.store_bulk_transactions([tx])
+    def mock_write(modelist, endpoint, mode_commit, transaction, mode):
+        b.models.store_bulk_transactions([transaction])
         return (400, "")
 
     ABCI_RPC().write_transaction = mock_write
@@ -508,7 +504,7 @@ def test_election_approve_called_with_bad_key(caplog, b, bad_validator_path, new
     with caplog.at_level(logging.ERROR):
         assert not run_election_approve(args, b)
         assert (
-            caplog.records[1].msg == "The key you provided does not match any of "
+            caplog.records[0].msg == "The key you provided does not match any of "
             "the eligible voters in this election."
         )
 
@@ -604,8 +600,8 @@ def mock_get_validators(height):
 
 
 def call_election(b, new_validator, node_key):
-    def mock_write(tx, mode):
-        b.models.store_bulk_transactions([tx])
+    def mock_write(modelist, endpoint, mode_commit, transaction, mode):
+        b.models.store_bulk_transactions([transaction])
         return (202, "")
 
     # patch the validator set. We now have one validator with power 10
