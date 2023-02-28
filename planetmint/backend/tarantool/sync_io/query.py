@@ -34,7 +34,6 @@ from planetmint.backend.utils import module_dispatch_registrar
 from planetmint.backend.models import Asset, Block, Output
 from planetmint.backend.tarantool.sync_io.connection import TarantoolDBConnection
 from transactions.common.transaction import Transaction
-#from planetmint.backend.tarantool.sync_io import catch_db_exception
 
 logger = logging.getLogger(__name__)
 register_query = module_dispatch_registrar(query)
@@ -117,7 +116,10 @@ def store_transaction_outputs(connection, output: Output, index: int) -> str:
             )
         ).data
         return output_id
-    # TODO handle excpection as before
+    except OperationalError as op_error:
+        raise op_error
+    except NetworkError as net_error:
+        raise net_error
     except Exception as e:
         logger.info(f"Could not insert Output: {e}")
         raise OperationDataInsertionError()
@@ -155,7 +157,10 @@ def store_transaction(connection, transaction, table=TARANT_TABLE_TRANSACTION):
     )
     try:
         connection.space(table).insert(tx)
-    # TODO handle excpection as before
+    except OperationalError as op_error:
+        raise op_error
+    except NetworkError as net_error:
+        raise net_error
     except Exception as e:
         logger.info(f"Could not insert transactions: {e}")
         if e.args[0] == 3 and e.args[1].startswith("Duplicate key exists in"):
@@ -234,7 +239,10 @@ def store_block(connection, block: dict):
         connection.space(TARANT_TABLE_BLOCKS).insert(
             (block_unique_id, block["app_hash"], block["height"], block[TARANT_TABLE_TRANSACTION])
         )
-    # TODO fix exception handling to be as before
+    except OperationalError as op_error:
+        raise op_error
+    except NetworkError as net_error:
+        raise net_error
     except Exception as e:
         logger.info(f"Could not insert block: {e}")
         raise OperationDataInsertionError()
@@ -321,7 +329,10 @@ def delete_transactions(connection, txn_ids: list):
         for _id in txn_ids:
             connection.space(TARANT_TABLE_TRANSACTION).delete(_id)
             connection.space(TARANT_TABLE_GOVERNANCE).delete(_id)
-    # TODO handle exceptions as before
+    except OperationalError as op_error:
+        raise op_error
+    except NetworkError as net_error:
+        raise net_error
     except Exception as e:
         logger.info(f"Could not insert unspent output: {e}")
         raise OperationDataInsertionError()
@@ -380,7 +391,10 @@ def store_pre_commit_state(connection, state: dict):
             op_list=[("=", 1, state["height"]), ("=", 2, state[TARANT_TABLE_TRANSACTION])],
             limit=1,
         )
-    # TODO handle exceptions as before
+    except OperationalError as op_error:
+        raise op_error
+    except NetworkError as net_error:
+        raise net_error
     except Exception as e:
         logger.info(f"Could not insert pre commit state: {e}")
         raise OperationDataInsertionError()
@@ -427,7 +441,10 @@ def store_election(connection, election_id: str, height: int, is_concluded: bool
         connection.space(TARANT_TABLE_ELECTIONS).upsert(
             (election_id, height, is_concluded), op_list=[("=", 1, height), ("=", 2, is_concluded)], limit=1
         )
-    # TODO handle excpetions as before
+    except OperationalError as op_error:
+        raise op_error
+    except NetworkError as net_error:
+        raise net_error
     except Exception as e:
         logger.info(f"Could not insert election: {e}")
         raise OperationDataInsertionError()
@@ -441,7 +458,10 @@ def store_elections(connection, elections: list):
             _election = connection.space(TARANT_TABLE_ELECTIONS).insert(
                 (election["election_id"], election["height"], election["is_concluded"])
             )
-    # TODO handle exceptionsa as before
+    except OperationalError as op_error:
+        raise op_error
+    except NetworkError as net_error:
+        raise net_error
     except Exception as e:
         logger.info(f"Could not insert elections: {e}")
         raise OperationDataInsertionError()
@@ -498,7 +518,10 @@ def store_abci_chain(connection, height: int, chain_id: str, is_synced: bool = T
             (chain_id, height, is_synced),
             op_list=[("=", 0, chain_id), ("=", 1, height), ("=", 2, is_synced)],
         )
-    # TODO handle exceptions as before
+    except OperationalError as op_error:
+        raise op_error
+    except NetworkError as net_error:
+        raise net_error
     except Exception as e:
         logger.info(f"Could not insert abci-chain: {e}")
         raise OperationDataInsertionError()
