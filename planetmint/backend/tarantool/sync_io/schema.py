@@ -3,7 +3,7 @@ import logging
 from planetmint.config import Config
 from planetmint.backend.utils import module_dispatch_registrar
 from planetmint import backend
-from planetmint.backend.tarantool.connection import TarantoolDBConnection
+from planetmint.backend.tarantool.sync_io.connection import TarantoolDBConnection
 
 logger = logging.getLogger(__name__)
 register_schema = module_dispatch_registrar(backend.schema)
@@ -30,19 +30,6 @@ def create_database(connection, dbname):
 
     """
     logger.info("Create database `%s`.", dbname)
-
-
-def run_command_with_output(command):
-    from subprocess import run
-
-    host_port = "%s:%s" % (
-        Config().get()["database"]["host"],
-        Config().get()["database"]["port"],
-    )
-    output = run(["tarantoolctl", "connect", host_port], input=command, capture_output=True)
-    if output.returncode != 0:
-        raise Exception(f"Error while trying to execute cmd {command} on host:port {host_port}: {output.stderr}")
-    return output.stdout
 
 
 @register_schema(TarantoolDBConnection)

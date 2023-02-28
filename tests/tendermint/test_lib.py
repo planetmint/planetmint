@@ -29,7 +29,7 @@ from tests.utils import delete_unspent_outputs, get_utxoset_merkle_root, store_u
 def test_asset_is_separated_from_transaciton(b):
     import copy
     from transactions.common.crypto import generate_key_pair
-    from planetmint.backend.tarantool.connection import TarantoolDBConnection
+    from planetmint.backend.tarantool.sync_io.connection import TarantoolDBConnection
 
     if isinstance(b.models.connection, TarantoolDBConnection):
         pytest.skip("This specific function is skipped because, assets are stored differently if using Tarantool")
@@ -235,7 +235,7 @@ def test_store_zero_unspent_output(b):
 
 @pytest.mark.bdb
 def test_store_one_unspent_output(b, unspent_output_1, utxo_collection):
-    from planetmint.backend.tarantool.connection import TarantoolDBConnection
+    from planetmint.backend.tarantool.sync_io.connection import TarantoolDBConnection
 
     res = store_unspent_outputs(b.models.connection, unspent_output_1)
     if not isinstance(b.models.connection, TarantoolDBConnection):

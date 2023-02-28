@@ -10,7 +10,7 @@ pytestmark = pytest.mark.bdb
 
 
 def test_get_txids_filtered(signed_create_tx, signed_transfer_tx, db_conn):
-    from planetmint.backend.tarantool import query
+    from planetmint.backend.tarantool.sync_io import query
 
     # create and insert two blocks, one for the create and one for the
     # transfer transaction
@@ -36,7 +36,7 @@ def test_get_txids_filtered(signed_create_tx, signed_transfer_tx, db_conn):
 
 
 def test_get_owned_ids(signed_create_tx, user_pk, db_conn):
-    from planetmint.backend.tarantool import query
+    from planetmint.backend.tarantool.sync_io import query
 
     # insert a transaction
     query.store_transactions(connection=db_conn, signed_transactions=[signed_create_tx.to_dict()])
@@ -49,18 +49,18 @@ def test_get_owned_ids(signed_create_tx, user_pk, db_conn):
 
 def test_store_block(db_conn):
     from planetmint.abci.block import Block
-    from planetmint.backend.tarantool import query
+    from planetmint.backend.tarantool.sync_io import query
 
     block = Block(app_hash="random_utxo", height=3, transactions=[])
     query.store_block(connection=db_conn, block=block._asdict())
     # block = query.get_block(connection=db_conn)
-    blocks = db_conn.run(db_conn.space("blocks").select([]))
+    blocks = db_conn.space("blocks").select([]).data
     assert len(blocks) == 1
 
 
 def test_get_block(db_conn):
     from planetmint.abci.block import Block
-    from planetmint.backend.tarantool import query
+    from planetmint.backend.tarantool.sync_io import query
 
     block = Block(app_hash="random_utxo", height=3, transactions=[])
 
@@ -71,7 +71,7 @@ def test_get_block(db_conn):
 
 
 def test_store_pre_commit_state(db_conn):
-    from planetmint.backend.tarantool import query
+    from planetmint.backend.tarantool.sync_io import query
 
     state = dict(height=3, transactions=[])
 
@@ -84,11 +84,11 @@ def test_store_pre_commit_state(db_conn):
 
 
 def test_get_pre_commit_state(db_conn):
-    from planetmint.backend.tarantool import query
+    from planetmint.backend.tarantool.sync_io import query
 
-    all_pre = db_conn.run(db_conn.space("pre_commits").select([]))
+    all_pre = db_conn.space("pre_commits").select([]).data
     for pre in all_pre:
-        db_conn.run(db_conn.space("pre_commits").delete(pre[0]), only_data=False)
+        db_conn.space("pre_commits").delete(pre[0])
     #  TODO First IN, First OUT
     state = dict(height=3, transactions=[])
     # db_context.conn.db.pre_commit.insert_one
@@ -98,7 +98,7 @@ def test_get_pre_commit_state(db_conn):
 
 
 def test_validator_update(db_conn):
-    from planetmint.backend.tarantool import query
+    from planetmint.backend.tarantool.sync_io import query
 
     def gen_validator_update(height):
         return {"validators": [], "height": height, "election_id": f"election_id_at_height_{height}"}
@@ -160,7 +160,7 @@ def test_validator_update(db_conn):
     ],
 )
 def test_store_abci_chain(description, stores, expected, db_conn):
-    from planetmint.backend.tarantool import query
+    from planetmint.backend.tarantool.sync_io import query
 
     for store in stores:
         query.store_abci_chain(db_conn, **store)

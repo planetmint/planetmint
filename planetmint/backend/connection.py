@@ -11,7 +11,7 @@ from transactions.common.exceptions import ConfigurationError
 from planetmint.config import Config
 
 BACKENDS = {
-    "tarantool_db": "planetmint.backend.tarantool.connection.TarantoolDBConnection",
+    "tarantool_db": "planetmint.backend.tarantool.sync_io.connection.TarantoolDBConnection",
     "localmongodb": "planetmint.backend.localmongodb.connection.LocalMongoDBConnection",
 }
 

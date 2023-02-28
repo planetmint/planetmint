@@ -210,6 +210,55 @@ files = [
 ]
 
 [[package]]
+name = "asynctnt"
+version = "2.0.1"
+description = "A fast Tarantool Database connector for Python/asyncio."
+category = "main"
+optional = false
+python-versions = "*"
+files = [
+    {file = "asynctnt-2.0.1-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:7c4b9e3c5cb557e4417b8845aca997441320788a0ea7d94d40692ca669239571"},
+    {file = "asynctnt-2.0.1-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:448959f8a1273bf7659c464c6159fccd426cbefabced9cfdc71e4cb48d518125"},
+    {file = "asynctnt-2.0.1-cp310-cp310-manylinux_2_5_i686.manylinux1_i686.manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:c8851db8f629568e5249a1676a0b9e849a65185533a24308822b18d93601184a"},
+    {file = "asynctnt-2.0.1-cp310-cp310-musllinux_1_1_i686.whl", hash = "sha256:47cd2d10c54a17fda502144bd9c77af83589ca25a1cfdfa0e59c1042aeb4df89"},
+    {file = "asynctnt-2.0.1-cp310-cp310-musllinux_1_1_x86_64.whl", hash = "sha256:2ed53209c29fe488bc42e362ccd45f1353da59338dea7bf77811ba41369f81ad"},
+    {file = "asynctnt-2.0.1-cp310-cp310-win32.whl", hash = "sha256:0bc9c09cf5e63a5ae82d4e335410f7375e9b9f5c89c44ba94202441811b2d0e3"},
+    {file = "asynctnt-2.0.1-cp310-cp310-win_amd64.whl", hash = "sha256:eaca7eae2e0161bb16f775f4997e7b71aadf3b18deec8ddbe7a3d7e129cb3b2d"},
+    {file = "asynctnt-2.0.1-cp36-cp36m-macosx_10_9_x86_64.whl", hash = "sha256:ef238ee5abf21c465d881ff94e8b5709637ce070ea84bc2071b5396320bd1eb9"},
+    {file = "asynctnt-2.0.1-cp36-cp36m-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:15a2ab6be4b5cb12826a39ef57c027068d8c8ac8aee804913d288241236fc03d"},
+    {file = "asynctnt-2.0.1-cp36-cp36m-manylinux_2_5_i686.manylinux1_i686.manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:18a7a9a6630336e97fa64401235e0647795c9b1633ce991638f1fa1e5fa8c97c"},
+    {file = "asynctnt-2.0.1-cp36-cp36m-musllinux_1_1_i686.whl", hash = "sha256:18086835b4db2aa6987097348156016854a43bfc6ed57de09f033393323afa7f"},
+    {file = "asynctnt-2.0.1-cp36-cp36m-musllinux_1_1_x86_64.whl", hash = "sha256:1bc9ec81543ea73e65c5849faa13763e054c6894b51b2fe0d05a9de075d11e48"},
+    {file = "asynctnt-2.0.1-cp36-cp36m-win32.whl", hash = "sha256:45bb81873916267d15d2d71600297a579bcf1698e4f75d5123b17de20e291c7b"},
+    {file = "asynctnt-2.0.1-cp36-cp36m-win_amd64.whl", hash = "sha256:400220c233561a494656bdf485319918cf0faf454d10b3be87ed652f93f63da2"},
+    {file = "asynctnt-2.0.1-cp37-cp37m-macosx_10_9_x86_64.whl", hash = "sha256:4b1d9e1a389bc39ec304c00544a7ce865174079a559477eba68a19532a4313b7"},
+    {file = "asynctnt-2.0.1-cp37-cp37m-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:8c0dc3d0a7b9b2f12280abab0fe976984e1495407a1c7502e09d886ffeb124d4"},
+    {file = "asynctnt-2.0.1-cp37-cp37m-manylinux_2_5_i686.manylinux1_i686.manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:1b9e6dd3ec4a4396c2309393d828a2c5e7e9ae9b05e207219b3edd3ea691519b"},
+    {file = "asynctnt-2.0.1-cp37-cp37m-musllinux_1_1_i686.whl", hash = "sha256:61ac8b944b2a149947f07f8d5c9db10efd177deee1206c729039b8bb5e31fcb9"},
+    {file = "asynctnt-2.0.1-cp37-cp37m-musllinux_1_1_x86_64.whl", hash = "sha256:d1411d14fc31bdd7b9eb7b6e059a03fa373b8b6f6c7bd78d69a5488575182e65"},
+    {file = "asynctnt-2.0.1-cp37-cp37m-win32.whl", hash = "sha256:dd04c6bf05ddd78be50c8aee595aeeb4a7a49ab7ae84685567d2ba0cfcd0a606"},
+    {file = "asynctnt-2.0.1-cp37-cp37m-win_amd64.whl", hash = "sha256:bf6b94630b134c400daa1c7c1e2821afe7850e454c34795bdf11d2ff619e32fa"},
+    {file = "asynctnt-2.0.1-cp38-cp38-macosx_10_9_x86_64.whl", hash = "sha256:d5956086983cda76a5a3534d1bbf076476f36de3deb77d74f25f5b067ca92752"},
+    {file = "asynctnt-2.0.1-cp38-cp38-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:631c6e68e9efd1a1992c154b53bb3d0aa3ae361c47535ee72538efd92d5d9209"},
+    {file = "asynctnt-2.0.1-cp38-cp38-manylinux_2_5_i686.manylinux1_i686.manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:602f5e860773c6640cd4260f588dc4659962d2d810e0c7d02e872c6440bbc6c8"},
+    {file = "asynctnt-2.0.1-cp38-cp38-musllinux_1_1_i686.whl", hash = "sha256:d286d82d0f5c11ded09d9a067caf23c37a19906351ca8b9991d1e61fb6b31bf9"},
+    {file = "asynctnt-2.0.1-cp38-cp38-musllinux_1_1_x86_64.whl", hash = "sha256:884897f42dc0f0e5eef9fd1a8a90e1ab811d1aaae3cdda2d6021125c7c5ddce9"},
+    {file = "asynctnt-2.0.1-cp38-cp38-win32.whl", hash = "sha256:98ee3194e834380e5cd79cc0b3fc07510c1023b81e1b341fe442fa94614a82f7"},
+    {file = "asynctnt-2.0.1-cp38-cp38-win_amd64.whl", hash = "sha256:b95fc8b7c0be5086a65b4b629114bf214f66a0cf20599e7464ddbbb06720ecd6"},
+    {file = "asynctnt-2.0.1-cp39-cp39-macosx_10_9_x86_64.whl", hash = "sha256:2da8dae75300cab35fedd8dbded6954bb82c05a596af9383d5a18b9d59d5fe47"},
+    {file = "asynctnt-2.0.1-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:afba9b5f4a1cbf3ba16ca15a0e190697d3f7e70c93e43a4fe12f39f03274ac8e"},
+    {file = "asynctnt-2.0.1-cp39-cp39-manylinux_2_5_i686.manylinux1_i686.manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:871b3ac7bc20bb3b383b4244e46dbad3de684a8562bdcd6765733d47c9da51c7"},
+    {file = "asynctnt-2.0.1-cp39-cp39-musllinux_1_1_i686.whl", hash = "sha256:a834c3334430dd2fa3c93ce45b2c35eef1312c9931860c25b379ea69da9b96ed"},
+    {file = "asynctnt-2.0.1-cp39-cp39-musllinux_1_1_x86_64.whl", hash = "sha256:8bf3d7e6ac447bf3504db837c5ec1ee9d8c275a0f9cb2319f9b5405bd228120b"},
+    {file = "asynctnt-2.0.1-cp39-cp39-win32.whl", hash = "sha256:6d77b0988b7c9cc15883442f85c23bb284986532a0ed9b9bf9ff710872133bfc"},
+    {file = "asynctnt-2.0.1-cp39-cp39-win_amd64.whl", hash = "sha256:a743511b91f4217a05e158277148c8d9523a152343a54c58b5a950ae52661c58"},
+    {file = "asynctnt-2.0.1.tar.gz", hash = "sha256:b11efe38122e2b9a658aadc4a4ad1182cbf7100b5d7040206a71f9f107206ebc"},
+]
+
+[package.dependencies]
+PyYAML = ">=5.0"
+
+[[package]]
 name = "attrs"
 version = "22.2.0"
 description = "Classes Without Boilerplate"
@@ -2175,7 +2224,7 @@ cffi = ">=1.4.1"
 six = "*"
 
 [package.extras]
-docs = ["sphinx (>=1.6.5)", "sphinx-rtd-theme"]
+docs = ["sphinx (>=1.6.5)", "sphinx_rtd_theme"]
 tests = ["hypothesis (>=3.27.0)", "pytest (>=3.2.1,!=3.3.0)"]
 
 [[package]]
@@ -3308,4 +3357,4 @@ testing = ["func-timeout", "jaraco.itertools", "pytest (>=6)", "pytest-black (>=
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9"
-content-hash = "ce9a30d4e4ed6d8bdd7c6cfe8f1908ffb787fc111e77fc1f709dbe8c4dba7fbb"
+content-hash = "8e7e3423a56069acb929a5666dacf8cbd68434435e7638080f6dc030d371665a"

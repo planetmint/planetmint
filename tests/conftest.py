@@ -22,7 +22,7 @@ from logging import getLogger
 from logging.config import dictConfig
 
 from planetmint.backend.connection import Connection
-from planetmint.backend.tarantool.connection import TarantoolDBConnection
+from planetmint.backend.tarantool.sync_io.connection import TarantoolDBConnection
 from transactions.common import crypto
 from transactions.common.transaction_mode_types import BROADCAST_TX_COMMIT
 from planetmint.abci.utils import key_from_base64
@@ -30,7 +30,6 @@ from planetmint.backend import schema, query
 from transactions.common.crypto import key_pair_from_ed25519_key, public_key_from_ed25519_key
 from planetmint.abci.block import Block
 from planetmint.abci.rpc import MODE_LIST
-from planetmint.model.models import Models
 from tests.utils import gen_vote
 from planetmint.config import Config
 from transactions.types.elections.validator_election import ValidatorElection  # noqa
