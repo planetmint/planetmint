@@ -25,6 +25,12 @@ For reference, the possible headings are:
 * **Known Issues**
 * **Notes**
 
+## [2.3.0] - 2023-01-03
+* **Fixed** double usage of the tarantool driver in one instance that lead to crashes
+* **Changed** refactored a lot of classes and the structure
+* **Changed** upgraded to tarantool driver 0.12.1
+
+
 ## [2.2.4] - 2023-15-02
 * **Fixed** subcondition instantiation now works recursively
 * **Changed** migrated dependency management to poetry
