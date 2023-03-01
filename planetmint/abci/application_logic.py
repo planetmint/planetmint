@@ -81,7 +81,9 @@ class ApplicationLogic(BaseApplication):
                 chain_id = known_chain["chain_id"]
 
                 if known_chain["is_synced"]:
-                    msg = f"Got invalid InitChain ABCI request ({genesis}) - " f"the chain {chain_id} is already synced."
+                    msg = (
+                        f"Got invalid InitChain ABCI request ({genesis}) - " f"the chain {chain_id} is already synced."
+                    )
                     logger.error(msg)
                     sys.exit(1)
                 if chain_id != genesis.chain_id:
@@ -127,13 +129,13 @@ class ApplicationLogic(BaseApplication):
         # logger.info(f"Tendermint version: {request.version}")
 
         r = ResponseInfo()
-        block= None
+        block = None
         try:
             block = self.validator.models.get_latest_block()
         except DBConcurrencyError:
-            block= None
+            block = None
         except ValueError:
-            block=None
+            block = None
         if block:
             chain_shift = 0 if self.chain is None else self.chain["height"]
             r.last_block_height = block["height"] - chain_shift
@@ -166,7 +168,6 @@ class ApplicationLogic(BaseApplication):
             sys.exit(1)
         except ValueError:
             sys.exit(1)
-           
 
     def begin_block(self, req_begin_block):
         """Initialize list of transaction.
@@ -196,12 +197,14 @@ class ApplicationLogic(BaseApplication):
         logger.debug("deliver_tx: %s", raw_transaction)
         transaction = None
         try:
-            transaction = self.validator.is_valid_transaction(decode_transaction(raw_transaction), self.block_transactions)
+            transaction = self.validator.is_valid_transaction(
+                decode_transaction(raw_transaction), self.block_transactions
+            )
         except DBConcurrencyError:
             sys.exit(1)
         except ValueError:
             sys.exit(1)
-            
+
         if not transaction:
             logger.debug("deliver_tx: INVALID")
             return ResponseDeliverTx(code=CodeTypeError)
@@ -247,7 +250,7 @@ class ApplicationLogic(BaseApplication):
             sys.exit(1)
         except ValueError:
             sys.exit(1)
-        
+
         return ResponseEndBlock(validator_updates=validator_update)
 
     def commit(self):
@@ -273,7 +276,7 @@ class ApplicationLogic(BaseApplication):
             sys.exit(1)
         except ValueError:
             sys.exit(1)
-                        
+
         logger.debug(
             "Commit-ing new block with hash: apphash=%s ," "height=%s, txn ids=%s",
             data,

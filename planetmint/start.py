@@ -33,6 +33,8 @@ BANNER = """
 *                                                                          *
 ****************************************************************************
 """
+
+
 def start_web_api(args):
     app_server = server.create_server(
         settings=Config().get()["server"], log_config=Config().get()["log"], planetmint_factory=Validator
@@ -43,11 +45,11 @@ def start_web_api(args):
         p_webapi = Process(name="planetmint_webapi", target=app_server.run, daemon=True)
         p_webapi.start()
 
-    
+
 def start_abci_server(args):
     logger.info(BANNER.format(__version__, Config().get()["server"]["bind"]))
     exchange = Exchange()
-    
+
     # start websocket server
     p_websocket_server = Process(
         name="planetmint_ws",
@@ -68,16 +70,16 @@ def start_abci_server(args):
     setproctitle.setproctitle("planetmint")
 
     abci_server_app = None
-    
-    publisher_queue=exchange.get_publisher_queue()
+
+    publisher_queue = exchange.get_publisher_queue()
     if args.experimental_parallel_validation:
         abci_server_app = ParallelValidationApp(events_queue=publisher_queue)
     else:
         abci_server_app = ApplicationLogic(events_queue=publisher_queue)
-    
-    app = ABCIServer( abci_server_app )
+
+    app = ABCIServer(abci_server_app)
     app.run()
-    
+
 
 def start(args):
     logger.info("Starting Planetmint")
@@ -87,7 +89,7 @@ def start(args):
     elif args.abci_only:
         start_abci_server(args)
     else:
-        start_web_api(args) 
+        start_web_api(args)
         start_abci_server(args)
 
 

@@ -291,7 +291,7 @@ def run_start(args):
     validator = Validator()
     validator.rollback()
     del validator
-    
+
     logger.info("Starting Planetmint main process.")
     from planetmint.start import start
 
@@ -383,7 +383,7 @@ def create_parser():
         action="store_true",
         help="💀 EXPERIMENTAL: parallelize validation for better throughput 💀",
     )
-    
+
     start_parser.add_argument(
         "--web-api-only",
         dest="web_api_only",
