@@ -24,17 +24,16 @@ from transactions.types.elections.validator_election import ValidatorElection
 from transactions.common.transaction import Transaction
 
 
-from planetmint.abci.utils import load_node_key, public_key_from_base64
 from planetmint.application.validator import Validator
 from planetmint.backend import schema
 from planetmint.commands import utils
 from planetmint.commands.utils import configure_planetmint, input_on_stderr
 from planetmint.config_utils import setup_logging
 from planetmint.abci.rpc import MODE_COMMIT, MODE_LIST
+from planetmint.abci.utils import load_node_key, public_key_from_base64
 from planetmint.commands.election_types import elections
 from planetmint.version import __tm_supported_versions__
 from planetmint.config import Config
-from planetmint.model.models import Models
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
