@@ -38,8 +38,9 @@ from transactions.common.transaction import Transaction
 logger = logging.getLogger(__name__)
 register_query = module_dispatch_registrar(query)
 
-from tarantool.error import OperationalError, NetworkError
+from tarantool.error import OperationalError, NetworkError, SchemaError
 from functools import wraps
+
 
 def catch_db_exception(function_to_decorate):
     @wraps(function_to_decorate)
@@ -48,9 +49,12 @@ def catch_db_exception(function_to_decorate):
             output = function_to_decorate(*args, **kw)
         except OperationalError as op_error:
             raise op_error
+        except SchemaError as schema_error:
+            raise schema_error
         except NetworkError as net_error:
             raise net_error
         return output
+
     return wrapper
 
 
@@ -97,9 +101,14 @@ def get_transactions_by_asset(connection, asset: str, limit: int = 1000) -> list
 @register_query(TarantoolDBConnection)
 @catch_db_exception
 def get_transactions_by_metadata(connection, metadata: str, limit: int = 1000) -> list[DbTransaction]:
-    txs = connection.space(TARANT_TABLE_TRANSACTION).select(metadata, limit=limit, index="transactions_by_metadata_cid").data
+    txs = (
+        connection.space(TARANT_TABLE_TRANSACTION)
+        .select(metadata, limit=limit, index="transactions_by_metadata_cid")
+        .data
+    )
     tx_ids = [tx[0] for tx in txs]
     return get_complete_transactions_by_ids(connection, tx_ids)
+
 
 @catch_db_exception
 def store_transaction_outputs(connection, output: Output, index: int) -> str:
@@ -118,6 +127,8 @@ def store_transaction_outputs(connection, output: Output, index: int) -> str:
         return output_id
     except OperationalError as op_error:
         raise op_error
+    except SchemaError as schema_error:
+        raise schema_error
     except NetworkError as net_error:
         raise net_error
     except Exception as e:
@@ -159,6 +170,8 @@ def store_transaction(connection, transaction, table=TARANT_TABLE_TRANSACTION):
         connection.space(table).insert(tx)
     except OperationalError as op_error:
         raise op_error
+    except SchemaError as schema_error:
+        raise schema_error
     except NetworkError as net_error:
         raise net_error
     except Exception as e:
@@ -213,9 +226,11 @@ def get_assets(connection, assets_ids: list) -> list[Asset]:
 @register_query(TarantoolDBConnection)
 @catch_db_exception
 def get_spent(connection, fullfil_transaction_id: str, fullfil_output_index: str) -> list[DbTransaction]:
-    _inputs = connection.space(TARANT_TABLE_TRANSACTION).select(
-        [fullfil_transaction_id, fullfil_output_index], index=TARANT_INDEX_SPENDING_BY_ID_AND_OUTPUT_INDEX
-    ).data
+    _inputs = (
+        connection.space(TARANT_TABLE_TRANSACTION)
+        .select([fullfil_transaction_id, fullfil_output_index], index=TARANT_INDEX_SPENDING_BY_ID_AND_OUTPUT_INDEX)
+        .data
+    )
     return get_complete_transactions_by_ids(txids=[inp[0] for inp in _inputs], connection=connection)
 
 
@@ -253,14 +268,20 @@ def store_block(connection, block: dict):
 def get_txids_filtered(connection, asset_ids: list[str], operation: str = "", last_tx: bool = False) -> list[str]:
     transactions = []
     if operation == "CREATE":
-        transactions = connection.space(TARANT_TABLE_TRANSACTION).select(
-                [asset_ids[0], operation], index="transactions_by_id_and_operation"
-        ).data
+        transactions = (
+            connection.space(TARANT_TABLE_TRANSACTION)
+            .select([asset_ids[0], operation], index="transactions_by_id_and_operation")
+            .data
+        )
     elif operation == "TRANSFER":
-        transactions = connection.space(TARANT_TABLE_TRANSACTION).select(asset_ids, index=TARANT_INDEX_TX_BY_ASSET_ID).data
+        transactions = (
+            connection.space(TARANT_TABLE_TRANSACTION).select(asset_ids, index=TARANT_INDEX_TX_BY_ASSET_ID).data
+        )
     else:
         txs = connection.space(TARANT_TABLE_TRANSACTION).select(asset_ids, index=TARANT_ID_SEARCH).data
-        asset_txs = connection.space(TARANT_TABLE_TRANSACTION).select(asset_ids, index=TARANT_INDEX_TX_BY_ASSET_ID).data
+        asset_txs = (
+            connection.space(TARANT_TABLE_TRANSACTION).select(asset_ids, index=TARANT_INDEX_TX_BY_ASSET_ID).data
+        )
         transactions = txs + asset_txs
 
     ids = tuple([tx[0] for tx in transactions])
@@ -345,9 +366,11 @@ def store_unspent_outputs(connection, *unspent_outputs: list):
     if unspent_outputs:
         for utxo in unspent_outputs:
             try:
-                output = connection.space(TARANT_TABLE_UTXOS).insert(
-                        (uuid4().hex, utxo["transaction_id"], utxo["output_index"], utxo)
-                ).data
+                output = (
+                    connection.space(TARANT_TABLE_UTXOS)
+                    .insert((uuid4().hex, utxo["transaction_id"], utxo["output_index"], utxo))
+                    .data
+                )
                 result.append(output)
             except Exception as e:
                 logger.info(f"Could not insert unspent output: {e}")
@@ -361,10 +384,13 @@ def delete_unspent_outputs(connection, *unspent_outputs: list):
     result = []
     if unspent_outputs:
         for utxo in unspent_outputs:
-            output = connection.space(TARANT_TABLE_UTXOS).delete(
-                    (utxo["transaction_id"], utxo["output_index"]),
-                    index="utxo_by_transaction_id_and_output_index"
-            ).data
+            output = (
+                connection.space(TARANT_TABLE_UTXOS)
+                .delete(
+                    (utxo["transaction_id"], utxo["output_index"]), index="utxo_by_transaction_id_and_output_index"
+                )
+                .data
+            )
             result.append(output)
     return result
 
@@ -389,10 +415,11 @@ def store_pre_commit_state(connection, state: dict):
         connection.space(TARANT_TABLE_PRE_COMMITS).upsert(
             _precommitTuple,
             op_list=[("=", 1, state["height"]), ("=", 2, state[TARANT_TABLE_TRANSACTION])],
-            limit=1,
         )
     except OperationalError as op_error:
         raise op_error
+    except SchemaError as schema_error:
+        raise schema_error
     except NetworkError as net_error:
         raise net_error
     except Exception as e:
@@ -413,14 +440,21 @@ def get_pre_commit_state(connection) -> dict:
 @register_query(TarantoolDBConnection)
 @catch_db_exception
 def store_validator_set(conn, validators_update: dict):
-    _validator = conn.space(TARANT_TABLE_VALIDATOR_SETS).select(validators_update["height"], index="height", limit=1).data
+    _validator = (
+        conn.space(TARANT_TABLE_VALIDATOR_SETS).select(validators_update["height"], index="height", limit=1).data
+    )
     unique_id = uuid4().hex if _validator is None or len(_validator) == 0 else _validator[0][0]
     try:
         conn.space(TARANT_TABLE_VALIDATOR_SETS).upsert(
             (unique_id, validators_update["height"], validators_update["validators"]),
             op_list=[("=", 1, validators_update["height"]), ("=", 2, validators_update["validators"])],
-            limit=1,
         )
+    except OperationalError as op_error:
+        raise op_error
+    except SchemaError as schema_error:
+        raise schema_error
+    except NetworkError as net_error:
+        raise net_error
     except Exception as e:
         logger.info(f"Could not insert validator set: {e}")
         raise OperationDataInsertionError()
@@ -439,10 +473,12 @@ def delete_validator_set(connection, height: int):
 def store_election(connection, election_id: str, height: int, is_concluded: bool):
     try:
         connection.space(TARANT_TABLE_ELECTIONS).upsert(
-            (election_id, height, is_concluded), op_list=[("=", 1, height), ("=", 2, is_concluded)], limit=1
+            (election_id, height, is_concluded), op_list=[("=", 1, height), ("=", 2, is_concluded)]
         )
     except OperationalError as op_error:
         raise op_error
+    except SchemaError as schema_error:
+        raise schema_error
     except NetworkError as net_error:
         raise net_error
     except Exception as e:
@@ -460,6 +496,8 @@ def store_elections(connection, elections: list):
             )
     except OperationalError as op_error:
         raise op_error
+    except SchemaError as schema_error:
+        raise schema_error
     except NetworkError as net_error:
         raise net_error
     except Exception as e:
@@ -504,7 +542,9 @@ def get_election(connection, election_id: str) -> dict:
 @catch_db_exception
 def get_asset_tokens_for_public_key(connection, asset_id: str, public_key: str) -> list[DbTransaction]:
     id_transactions = connection.space(TARANT_TABLE_GOVERNANCE).select([asset_id]).data
-    asset_id_transactions = connection.space(TARANT_TABLE_GOVERNANCE).select([asset_id], index="governance_by_asset_id").data
+    asset_id_transactions = (
+        connection.space(TARANT_TABLE_GOVERNANCE).select([asset_id], index="governance_by_asset_id").data
+    )
 
     transactions = id_transactions + asset_id_transactions
     return get_complete_transactions_by_ids(connection, [_tx[0] for _tx in transactions])
@@ -520,6 +560,8 @@ def store_abci_chain(connection, height: int, chain_id: str, is_synced: bool = T
         )
     except OperationalError as op_error:
         raise op_error
+    except SchemaError as schema_error:
+        raise schema_error
     except NetworkError as net_error:
         raise net_error
     except Exception as e:

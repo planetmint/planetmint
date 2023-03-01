@@ -40,7 +40,7 @@ def test_get_transaction_endpoint(client, posted_create_tx):
     assert res.status_code == 200
 
 
-def test_get_transaction_returns_404_if_not_found(client):
+def test_get_transaction_returns_404_if_not_found(client, b):
     res = client.get(TX_ENDPOINT + "123")
     assert res.status_code == 404
 

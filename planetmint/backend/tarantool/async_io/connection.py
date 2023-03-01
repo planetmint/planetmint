@@ -59,7 +59,7 @@ class TarantoolDBConnection(DBConnection):
 
     async def connect(self):
         if not self.__conn:
-            self.__conn  = asynctnt.Connection(host='127.0.0.1', port=3301)
+            self.__conn = asynctnt.Connection(host="127.0.0.1", port=3301)
             await self.__conn.connect()
         return self.__conn
 

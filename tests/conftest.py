@@ -141,6 +141,8 @@ def _bdb(_setup_database):
     from planetmint.config import Config
 
     conn = Connection()
+    conn.close()
+    conn.connect()
     yield
     dbname = Config().get()["database"]["name"]
     flush_db(conn, dbname)
@@ -240,7 +242,6 @@ def merlin():
 
 
 @pytest.fixture
-# def a():
 def abci_fixture():
     from tendermint.abci import types_pb2
 
@@ -272,7 +273,10 @@ def test_abci_rpc():
 def b():
     from planetmint.application import Validator
 
-    return Validator()
+    validator = Validator()
+    validator.models.connection.close()
+    validator.models.connection.connect()
+    return validator
 
 
 @pytest.fixture
@@ -384,7 +388,10 @@ def db_name(db_config):
 
 @pytest.fixture
 def db_conn():
-    return Connection()
+    conn = Connection()
+    conn.close()
+    conn.connect()
+    return conn
 
 
 @pytest.fixture

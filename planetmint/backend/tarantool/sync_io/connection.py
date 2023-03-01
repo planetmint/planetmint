@@ -56,11 +56,15 @@ class TarantoolDBConnection(DBConnection):
         with open(path, "r") as f:
             execute = f.readlines()
             f.close()
-        return "".join(execute).encode()
+        return "".join(execute).encode(encoding="utf-8")
 
     def connect(self):
         if not self.__conn:
-            self.__conn = tarantool.connect(host=self.host, port=self.port)
+            self.__conn = tarantool.Connection(
+                host=self.host, port=self.port, encoding="utf-8", connect_now=True, reconnect_delay=0.1
+            )
+        elif self.__conn.connected == False:
+            self.__conn.connect()
         return self.__conn
 
     def close(self):
@@ -80,15 +84,6 @@ class TarantoolDBConnection(DBConnection):
 
     def drop_database(self):
         self.connect().call("drop")
-
-#    def run(self, query, only_data=True):
-#        try:
-#            conn = self.connect()
-#            return query.run(conn).data if only_data else query.run(conn)
-#        except tarantool.error.OperationalError as op_error:
-#            raise op_error
-#        except tarantool.error.NetworkError as net_error:
-#            raise net_error
 
     def init_database(self):
         self.connect().call("init")

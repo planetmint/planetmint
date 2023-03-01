@@ -49,7 +49,7 @@ class ApplicationLogic(BaseApplication):
         logger.debug("Checking values of types")
         logger.debug(dir(types_pb2))
         self.events_queue = events_queue
-        self.validator = validator if validator else Validator()#(async_io=True)
+        self.validator = validator if validator else Validator()  # (async_io=True)
         self.models = models or Models()
         self.block_txn_ids = []
         self.block_txn_hash = ""
@@ -81,10 +81,7 @@ class ApplicationLogic(BaseApplication):
             chain_id = known_chain["chain_id"]
 
             if known_chain["is_synced"]:
-                msg = (
-                    f"Got invalid InitChain ABCI request ({genesis}) - "
-                    f"the chain {chain_id} is already synced."
-                )
+                msg = f"Got invalid InitChain ABCI request ({genesis}) - " f"the chain {chain_id} is already synced."
                 logger.error(msg)
                 sys.exit(1)
             if chain_id != genesis.chain_id:
@@ -165,9 +162,7 @@ class ApplicationLogic(BaseApplication):
 
         chain_shift = 0 if self.chain is None else self.chain["height"]
         # req_begin_block.header.num_txs not found, so removing it.
-        logger.debug(
-            "BEGIN BLOCK, height:%s", req_begin_block.header.height + chain_shift
-        )
+        logger.debug("BEGIN BLOCK, height:%s", req_begin_block.header.height + chain_shift)
 
         self.block_txn_ids = []
         self.block_transactions = []
@@ -183,9 +178,7 @@ class ApplicationLogic(BaseApplication):
         self.abort_if_abci_chain_is_not_synced()
 
         logger.debug("deliver_tx: %s", raw_transaction)
-        transaction = self.validator.is_valid_transaction(
-            decode_transaction(raw_transaction), self.block_transactions
-        )
+        transaction = self.validator.is_valid_transaction(decode_transaction(raw_transaction), self.block_transactions)
 
         if not transaction:
             logger.debug("deliver_tx: INVALID")
@@ -226,9 +219,7 @@ class ApplicationLogic(BaseApplication):
         else:
             self.block_txn_hash = block["app_hash"]
 
-        validator_update = self.validator.process_block(
-            self.new_height, self.block_transactions
-        )
+        validator_update = self.validator.process_block(self.new_height, self.block_transactions)
 
         return ResponseEndBlock(validator_updates=validator_update)
 

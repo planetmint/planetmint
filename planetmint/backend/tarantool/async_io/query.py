@@ -363,7 +363,6 @@ def store_pre_commit_state(connection, state: dict):
             connection.space(TARANT_TABLE_PRE_COMMITS).upsert(
                 _precommitTuple,
                 op_list=[("=", 1, state["height"]), ("=", 2, state[TARANT_TABLE_TRANSACTION])],
-                limit=1,
             ),
             only_data=False,
         )
@@ -392,7 +391,6 @@ def store_validator_set(conn, validators_update: dict):
             conn.space(TARANT_TABLE_VALIDATOR_SETS).upsert(
                 (unique_id, validators_update["height"], validators_update["validators"]),
                 op_list=[("=", 1, validators_update["height"]), ("=", 2, validators_update["validators"])],
-                limit=1,
             ),
             only_data=False,
         )
@@ -413,7 +411,7 @@ def store_election(connection, election_id: str, height: int, is_concluded: bool
     try:
         connection.run(
             connection.space(TARANT_TABLE_ELECTIONS).upsert(
-                (election_id, height, is_concluded), op_list=[("=", 1, height), ("=", 2, is_concluded)], limit=1
+                (election_id, height, is_concluded), op_list=[("=", 1, height), ("=", 2, is_concluded)]
             ),
             only_data=False,
         )

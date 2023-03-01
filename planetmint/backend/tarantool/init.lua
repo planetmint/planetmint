@@ -1,5 +1,10 @@
 box.cfg{listen = 3303}
 
+box.once("bootstrap", function()
+    box.schema.user.grant('guest','read,write,execute,create,drop','universe')
+end)
+
+
 function init()
     -- ABCI chains
     abci_chains = box.schema.create_space('abci_chains', { if_not_exists = true })

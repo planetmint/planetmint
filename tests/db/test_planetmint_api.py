@@ -46,7 +46,6 @@ class TestBigchainApi(object):
             b.models.store_bulk_transactions([transfer_tx2])
 
     def test_double_inclusion(self, b, alice):
-
         from planetmint.backend.exceptions import OperationError
         from planetmint.backend.tarantool.sync_io.connection import TarantoolDBConnection
 

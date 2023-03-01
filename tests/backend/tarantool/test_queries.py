@@ -37,6 +37,7 @@ def test_get_txids_filtered(signed_create_tx, signed_transfer_tx, db_conn):
 
 def test_get_owned_ids(signed_create_tx, user_pk, db_conn):
     from planetmint.backend.tarantool.sync_io import query
+    from planetmint.backend.connection import Connection
 
     # insert a transaction
     query.store_transactions(connection=db_conn, signed_transactions=[signed_create_tx.to_dict()])
@@ -101,7 +102,11 @@ def test_validator_update(db_conn):
     from planetmint.backend.tarantool.sync_io import query
 
     def gen_validator_update(height):
-        return {"validators": [], "height": height, "election_id": f"election_id_at_height_{height}"}
+        return {
+            "validators": [],
+            "height": height,
+            "election_id": f"election_id_at_height_{height}",
+        }
         # return {'data': 'somedata', 'height': height, 'election_id': f'election_id_at_height_{height}'}
 
     for i in range(1, 100, 10):
