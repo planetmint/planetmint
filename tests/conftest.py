@@ -22,15 +22,14 @@ from logging import getLogger
 from logging.config import dictConfig
 
 from planetmint.backend.connection import Connection
-from planetmint.backend.tarantool.connection import TarantoolDBConnection
+from planetmint.backend.tarantool.sync_io.connection import TarantoolDBConnection
 from transactions.common import crypto
 from transactions.common.transaction_mode_types import BROADCAST_TX_COMMIT
-from planetmint.abci.tendermint_utils import key_from_base64
+from planetmint.abci.utils import key_from_base64
 from planetmint.backend import schema, query
 from transactions.common.crypto import key_pair_from_ed25519_key, public_key_from_ed25519_key
 from planetmint.abci.block import Block
 from planetmint.abci.rpc import MODE_LIST
-from planetmint.model.models import Models
 from tests.utils import gen_vote
 from planetmint.config import Config
 from transactions.types.elections.validator_election import ValidatorElection  # noqa
@@ -142,6 +141,8 @@ def _bdb(_setup_database):
     from planetmint.config import Config
 
     conn = Connection()
+    conn.close()
+    conn.connect()
     yield
     dbname = Config().get()["database"]["name"]
     flush_db(conn, dbname)
@@ -241,7 +242,6 @@ def merlin():
 
 
 @pytest.fixture
-# def a():
 def abci_fixture():
     from tendermint.abci import types_pb2
 
@@ -250,9 +250,9 @@ def abci_fixture():
 
 @pytest.fixture
 def test_models():
-    from planetmint.model.models import Models
+    from planetmint.model.dataaccessor import DataAccessor
 
-    return Models()
+    return DataAccessor()
 
 
 @pytest.fixture
@@ -273,7 +273,10 @@ def test_abci_rpc():
 def b():
     from planetmint.application import Validator
 
-    return Validator()
+    validator = Validator()
+    validator.models.connection.close()
+    validator.models.connection.connect()
+    return validator
 
 
 @pytest.fixture
@@ -385,7 +388,10 @@ def db_name(db_config):
 
 @pytest.fixture
 def db_conn():
-    return Connection()
+    conn = Connection()
+    conn.close()
+    conn.connect()
+    return conn
 
 
 @pytest.fixture
@@ -453,10 +459,10 @@ def abci_server():
     from abci.server import ABCIServer
 
     # from tendermint.abci import types_pb2 as types_v0_34_11
-    from planetmint.abci.core import App
+    from planetmint.abci.application_logic import ApplicationLogic
     from planetmint.utils import Process
 
-    app = ABCIServer(app=App())
+    app = ABCIServer(app=ApplicationLogic())
     abci_proxy = Process(name="ABCI", target=app.run)
     yield abci_proxy.start()
     abci_proxy.terminate()

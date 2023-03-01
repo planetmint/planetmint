@@ -6,6 +6,7 @@
 import logging
 import tarantool
 
+
 from planetmint.config import Config
 from transactions.common.exceptions import ConfigurationError
 from planetmint.utils import Lazy
@@ -55,11 +56,15 @@ class TarantoolDBConnection(DBConnection):
         with open(path, "r") as f:
             execute = f.readlines()
             f.close()
-        return "".join(execute).encode()
+        return "".join(execute).encode(encoding="utf-8")
 
     def connect(self):
         if not self.__conn:
-            self.__conn = tarantool.connect(host=self.host, port=self.port)
+            self.__conn = tarantool.Connection(
+                host=self.host, port=self.port, encoding="utf-8", connect_now=True, reconnect_delay=0.1
+            )
+        elif self.__conn.connected == False:
+            self.__conn.connect()
         return self.__conn
 
     def close(self):
@@ -74,65 +79,8 @@ class TarantoolDBConnection(DBConnection):
     def get_space(self, space_name: str):
         return self.connect().space(space_name)
 
-    def space(self, space_name: str):
-        return self.query().space(space_name)
-
-    def exec(self, query, only_data=True):
-        try:
-            conn = self.connect()
-            conn.execute(query) if only_data else conn.execute(query)
-        except tarantool.error.OperationalError as op_error:
-            raise op_error
-        except tarantool.error.NetworkError as net_error:
-            raise net_error
-
-    def run(self, query, only_data=True):
-        try:
-            conn = self.connect()
-            return query.run(conn).data if only_data else query.run(conn)
-        except tarantool.error.OperationalError as op_error:
-            raise op_error
-        except tarantool.error.NetworkError as net_error:
-            raise net_error
-
     def drop_database(self):
         self.connect().call("drop")
 
     def init_database(self):
         self.connect().call("init")
-
-    def run_command(self, command: str, config: dict):
-        from subprocess import run
-
-        try:
-            self.close()
-        except ConnectionError:
-            pass
-
-        print(f" commands: {command}")
-        host_port = "%s:%s" % (self.host, self.port)
-        execute_cmd = self._file_content_to_bytes(path=command)
-        output = run(
-            ["tarantoolctl", "connect", host_port],
-            input=execute_cmd,
-            capture_output=True,
-        ).stderr
-        output = output.decode()
-        return output
-
-    def run_command_with_output(self, command: str):
-        from subprocess import run
-
-        try:
-            self.close()
-        except ConnectionError:
-            pass
-
-        host_port = "%s:%s" % (
-            Config().get()["database"]["host"],
-            Config().get()["database"]["port"],
-        )
-        output = run(["tarantoolctl", "connect", host_port], input=command, capture_output=True)
-        if output.returncode != 0:
-            raise Exception(f"Error while trying to execute cmd {command} on host:port {host_port}: {output.stderr}")
-        return output.stdout

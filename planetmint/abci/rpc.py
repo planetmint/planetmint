@@ -7,8 +7,7 @@ from transactions.common.transaction_mode_types import (
     BROADCAST_TX_SYNC,
 )
 
-from planetmint.utils import Singleton
-from planetmint.abci.tendermint_utils import encode_transaction
+from planetmint.abci.utils import encode_transaction
 from planetmint.application.validator import logger
 from planetmint.config_utils import autoconfigure
 from planetmint.config import Config

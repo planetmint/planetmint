@@ -38,7 +38,7 @@ def test_middleware_does_notstrip_content_type_from_other_methods():
     assert "CONTENT_TYPE" in mock.call_args[0][0]
 
 
-def test_get_outputs_endpoint_with_content_type(client, user_pk):
+def test_get_outputs_endpoint_with_content_type(client, user_pk, _bdb):
     res = client.get(
         OUTPUTS_ENDPOINT + "?public_key={}".format(user_pk), headers=[("Content-Type", "application/json")]
     )

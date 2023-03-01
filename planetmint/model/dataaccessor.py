@@ -8,11 +8,10 @@ from transactions.common.exceptions import InputDoesNotExist
 
 from planetmint import config_utils, backend
 from planetmint.const import GOVERNANCE_TRANSACTION_TYPES
+from planetmint.model.fastquery import FastQuery
+from planetmint.abci.utils import key_from_base64
 from planetmint.backend.connection import Connection
 from planetmint.backend.tarantool.const import TARANT_TABLE_TRANSACTION, TARANT_TABLE_GOVERNANCE
-from planetmint.model.fastquery import FastQuery
-from planetmint.abci.tendermint_utils import key_from_base64
-
 from planetmint.backend.models.block import Block
 from planetmint.backend.models.output import Output
 from planetmint.backend.models.asset import Asset
@@ -20,10 +19,10 @@ from planetmint.backend.models.metadata import MetaData
 from planetmint.backend.models.dbtransaction import DbTransaction
 
 
-class Models:
-    def __init__(self, database_connection=None):
+class DataAccessor:
+    def __init__(self, database_connection=None, async_io: bool = False):
         config_utils.autoconfigure()
-        self.connection = database_connection if database_connection is not None else Connection()
+        self.connection = database_connection if database_connection is not None else Connection(async_io=async_io)
 
     def store_bulk_transactions(self, transactions):
         txns = []

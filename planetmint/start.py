@@ -8,7 +8,7 @@ import setproctitle
 
 from planetmint.config import Config
 from planetmint.application.validator import Validator
-from planetmint.abci.core import App
+from planetmint.abci.application_logic import ApplicationLogic
 from planetmint.abci.parallel_validation import ParallelValidationApp
 from planetmint.web import server, websocket_server
 from planetmint.ipc.events import EventTypes
@@ -35,18 +35,20 @@ BANNER = """
 """
 
 
-def start(args):
-    # Exchange object for event stream api
-    logger.info("Starting Planetmint")
-    exchange = Exchange()
-    # start the web api
+def start_web_api(args):
     app_server = server.create_server(
         settings=Config().get()["server"], log_config=Config().get()["log"], planetmint_factory=Validator
     )
-    p_webapi = Process(name="planetmint_webapi", target=app_server.run, daemon=True)
-    p_webapi.start()
+    if args.web_api_only:
+        app_server.run()
+    else:
+        p_webapi = Process(name="planetmint_webapi", target=app_server.run, daemon=True)
+        p_webapi.start()
 
+
+def start_abci_server(args):
     logger.info(BANNER.format(__version__, Config().get()["server"]["bind"]))
+    exchange = Exchange()
 
     # start websocket server
     p_websocket_server = Process(
@@ -67,20 +69,28 @@ def start(args):
 
     setproctitle.setproctitle("planetmint")
 
-    # Start the ABCIServer
+    abci_server_app = None
+
+    publisher_queue = exchange.get_publisher_queue()
     if args.experimental_parallel_validation:
-        app = ABCIServer(
-            app=ParallelValidationApp(
-                events_queue=exchange.get_publisher_queue(),
-            )
-        )
+        abci_server_app = ParallelValidationApp(events_queue=publisher_queue)
     else:
-        app = ABCIServer(
-            app=App(
-                events_queue=exchange.get_publisher_queue(),
-            )
-        )
+        abci_server_app = ApplicationLogic(events_queue=publisher_queue)
+
+    app = ABCIServer(abci_server_app)
     app.run()
+
+
+def start(args):
+    logger.info("Starting Planetmint")
+
+    if args.web_api_only:
+        start_web_api(args)
+    elif args.abci_only:
+        start_abci_server(args)
+    else:
+        start_web_api(args)
+        start_abci_server(args)
 
 
 if __name__ == "__main__":

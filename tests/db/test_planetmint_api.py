@@ -3,7 +3,6 @@
 # SPDX-License-Identifier: (Apache-2.0 AND CC-BY-4.0)
 # Code is Apache-2.0 and docs are CC-BY-4.0
 import random
-import warnings
 from unittest.mock import patch
 import pytest
 from base58 import b58decode
@@ -14,7 +13,6 @@ from transactions.common.transaction import TransactionLink
 from transactions.common.transaction import Transaction
 from transactions.types.assets.create import Create
 from transactions.types.assets.transfer import Transfer
-from planetmint.model.fastquery import FastQuery
 from planetmint.exceptions import CriticalDoubleSpend
 
 pytestmark = pytest.mark.bdb
@@ -48,10 +46,8 @@ class TestBigchainApi(object):
             b.models.store_bulk_transactions([transfer_tx2])
 
     def test_double_inclusion(self, b, alice):
-        from tarantool.error import DatabaseError
-
         from planetmint.backend.exceptions import OperationError
-        from planetmint.backend.tarantool.connection import TarantoolDBConnection
+        from planetmint.backend.tarantool.sync_io.connection import TarantoolDBConnection
 
         tx = Create.generate([alice.public_key], [([alice.public_key], 1)])
         tx = tx.sign([alice.private_key])

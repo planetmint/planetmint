@@ -20,9 +20,9 @@ class LatestBlock(Resource):
             A JSON string containing the data about the block.
         """
 
-        pool = current_app.config["bigchain_pool"]
+        validator_class = current_app.config["validator_class_name"]
 
-        with pool() as validator:
+        with validator_class() as validator:
             block = validator.models.get_latest_block()
 
         if not block:
@@ -42,9 +42,9 @@ class BlockApi(Resource):
             A JSON string containing the data about the block.
         """
 
-        pool = current_app.config["bigchain_pool"]
+        validator_class = current_app.config["validator_class_name"]
 
-        with pool() as validator:
+        with validator_class() as validator:
             block = validator.models.get_block(block_id=block_id)
 
         if not block:
@@ -68,9 +68,9 @@ class BlockListApi(Resource):
         args = parser.parse_args(strict=True)
         tx_id = args["transaction_id"]
 
-        pool = current_app.config["bigchain_pool"]
+        validator_class = current_app.config["validator_class_name"]
 
-        with pool() as validator:
+        with validator_class() as validator:
             block = validator.models.get_block_containing_tx(tx_id)
 
         if not block:

@@ -40,7 +40,7 @@ def test_get_transaction_endpoint(client, posted_create_tx):
     assert res.status_code == 200
 
 
-def test_get_transaction_returns_404_if_not_found(client):
+def test_get_transaction_returns_404_if_not_found(client, b):
     res = client.get(TX_ENDPOINT + "123")
     assert res.status_code == 404
 
@@ -404,7 +404,7 @@ def test_transactions_get_list_good(client):
 
     asset_ids = ["1" * 64]
 
-    with patch("planetmint.model.models.Models.get_transactions_filtered", get_txs_patched):
+    with patch("planetmint.model.dataaccessor.DataAccessor.get_transactions_filtered", get_txs_patched):
         url = TX_ENDPOINT + "?asset_ids=" + ",".join(asset_ids)
         assert client.get(url).json == [
             ["asset_ids", asset_ids],
@@ -430,7 +430,7 @@ def test_transactions_get_list_bad(client):
         assert False
 
     with patch(
-        "planetmint.model.models.Models.get_transactions_filtered",
+        "planetmint.model.dataaccessor.DataAccessor.get_transactions_filtered",
         lambda *_, **__: should_not_be_called(),
     ):
         # Test asset id validated

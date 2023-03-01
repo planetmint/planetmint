@@ -24,19 +24,16 @@ from transactions.types.elections.validator_election import ValidatorElection
 from transactions.common.transaction import Transaction
 
 
-from planetmint.abci.rpc import ABCI_RPC
-from planetmint.abci.utils import load_node_key
 from planetmint.application.validator import Validator
 from planetmint.backend import schema
 from planetmint.commands import utils
 from planetmint.commands.utils import configure_planetmint, input_on_stderr
 from planetmint.config_utils import setup_logging
-from planetmint.abci.tendermint_utils import public_key_from_base64
 from planetmint.abci.rpc import MODE_COMMIT, MODE_LIST
+from planetmint.abci.utils import load_node_key, public_key_from_base64
 from planetmint.commands.election_types import elections
 from planetmint.version import __tm_supported_versions__
 from planetmint.config import Config
-from planetmint.model.models import Models
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -113,7 +110,7 @@ def run_configure(args):
 def run_election(args):
     """Initiate and manage elections"""
 
-    b = Planetmint()
+    b = Validator()
 
     # Call the function specified by args.action, as defined above
     globals()[f"run_election_{args.action}"](args, b)
@@ -293,6 +290,7 @@ def run_start(args):
 
     validator = Validator()
     validator.rollback()
+    del validator
 
     logger.info("Starting Planetmint main process.")
     from planetmint.start import start
@@ -384,6 +382,21 @@ def create_parser():
         default=False,
         action="store_true",
         help="💀 EXPERIMENTAL: parallelize validation for better throughput 💀",
+    )
+
+    start_parser.add_argument(
+        "--web-api-only",
+        dest="web_api_only",
+        default=False,
+        action="store_true",
+        help="💀 EXPERIMENTAL: seperate web API from ABCI server 💀",
+    )
+    start_parser.add_argument(
+        "--abci-only",
+        dest="abci_only",
+        default=False,
+        action="store_true",
+        help="💀 EXPERIMENTAL: seperate web API from ABCI server 💀",
     )
 
     return parser

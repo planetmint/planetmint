@@ -11,17 +11,15 @@ import logging
 
 from flask import current_app, request, jsonify
 from flask_restful import Resource, reqparse
+from transactions.common.transaction import Transaction
 from transactions.common.transaction_mode_types import BROADCAST_TX_ASYNC
 from transactions.common.exceptions import (
     SchemaValidationError,
     ValidationError,
 )
-
-from planetmint.abci.rpc import ABCI_RPC
-from planetmint.web.views.base import make_error
+from planetmint.abci.rpc import ABCI_RPC, MODE_COMMIT, MODE_LIST
 from planetmint.web.views import parameters
-from transactions.common.transaction import Transaction
-from planetmint.abci.rpc import MODE_COMMIT, MODE_LIST
+from planetmint.web.views.base import make_error
 
 logger = logging.getLogger(__name__)
 
@@ -36,9 +34,9 @@ class TransactionApi(Resource):
         Return:
             A JSON string containing the data about the transaction.
         """
-        pool = current_app.config["bigchain_pool"]
+        validator_class = current_app.config["validator_class_name"]
 
-        with pool() as validator:
+        with validator_class() as validator:
             tx = validator.models.get_transaction(tx_id)
 
         if not tx:
@@ -54,7 +52,7 @@ class TransactionListApi(Resource):
         parser.add_argument("asset_ids", type=parameters.valid_txid_list, required=True)
         parser.add_argument("last_tx", type=parameters.valid_bool, required=False)
         args = parser.parse_args()
-        with current_app.config["bigchain_pool"]() as validator:
+        with current_app.config["validator_class_name"]() as validator:
             txs = validator.models.get_transactions_filtered(**args)
 
         return [tx.to_dict() for tx in txs]
@@ -70,7 +68,7 @@ class TransactionListApi(Resource):
         args = parser.parse_args()
         mode = str(args["mode"])
 
-        pool = current_app.config["bigchain_pool"]
+        validator_class = current_app.config["validator_class_name"]
 
         # `force` will try to format the body of the POST request even if the
         # `content-type` header is not set to `application/json`
@@ -89,9 +87,9 @@ class TransactionListApi(Resource):
         except Exception as e:
             return make_error(500, "Invalid transaction ({}): {} - {}".format(type(e).__name__, e, tx), level="error")
 
-        with pool() as planet:
+        with validator_class() as validator:
             try:
-                planet.validate_transaction(tx_obj)
+                validator.validate_transaction(tx_obj)
             except ValidationError as e:
                 return make_error(400, "Invalid transaction ({}): {}".format(type(e).__name__, e))
             except Exception as e:

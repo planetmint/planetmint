@@ -13,14 +13,14 @@ from functools import singledispatch
 
 from planetmint import backend
 from planetmint.backend.localmongodb.connection import LocalMongoDBConnection
-from planetmint.backend.tarantool.connection import TarantoolDBConnection
+from planetmint.backend.tarantool.sync_io.connection import TarantoolDBConnection
 from planetmint.backend.schema import TABLES
 from transactions.common import crypto
 from transactions.common.transaction_mode_types import BROADCAST_TX_COMMIT
 from transactions.types.assets.create import Create
 from transactions.types.elections.vote import Vote
 from transactions.types.elections.validator_utils import election_id_to_public_key
-from planetmint.abci.tendermint_utils import key_to_base64, merkleroot
+from planetmint.abci.utils import merkleroot, key_to_base64
 from planetmint.abci.rpc import MODE_COMMIT, MODE_LIST
 
 
