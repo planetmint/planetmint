@@ -9,9 +9,10 @@ with Tendermint.
 import logging
 import sys
 
-from tendermint.abci import types_pb2
 from abci.application import BaseApplication
 from abci.application import OkCode
+
+from tendermint.abci import types_pb2
 from tendermint.abci.types_pb2 import (
     ResponseInfo,
     ResponseInitChain,
@@ -23,7 +24,6 @@ from tendermint.abci.types_pb2 import (
 )
 
 from planetmint.application.validator import Validator
-
 from planetmint.abci.utils import decode_validator, decode_transaction, calculate_hash
 from planetmint.abci.block import Block
 from planetmint.ipc.events import EventTypes, Event
