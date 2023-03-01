@@ -39,8 +39,6 @@ class DBSingleton(type):
                 logger.info("Backend {} not supported".format(backend))
                 raise ConfigurationError
             modulepath, _, class_name = BACKENDS[backend].rpartition(".")
-            if "async_io" in kwargs and kwargs["async_io"] == True:
-                class_name = class_name + "AsyncIO"
             Class = getattr(import_module(modulepath), class_name)
             cls._instances[cls] = super(DBSingleton, Class).__call__(*args, **kwargs)
         return cls._instances[cls]
