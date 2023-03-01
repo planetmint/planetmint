@@ -47,6 +47,7 @@ pyasn1 = ">=0.4.8"
 python-decouple = "^3.7"
 planetmint-transactions = ">=0.7.0"
 asynctnt = "^2.0.1"
+abci = "^0.8.3"
 
 [tool.poetry.group.dev.dependencies]
 aafigure = "0.6"

@@ -13,6 +13,25 @@ files = [
 ]
 
 [[package]]
+name = "abci"
+version = "0.8.3"
+description = "Python based ABCI Server for Tendermint"
+category = "main"
+optional = false
+python-versions = ">=3.9"
+files = [
+    {file = "abci-0.8.3-py3-none-any.whl", hash = "sha256:9f6b9d9a28ccb90bc158572fd05d7a196e09cbe774c72053a18a7b5f602e406f"},
+    {file = "abci-0.8.3.tar.gz", hash = "sha256:2c85c7aa78b7a1785b72e6af789ca9f132088b2ba63d90e85af114d65b609fb3"},
+]
+
+[package.dependencies]
+colorlog = ">=3.1.4"
+protobuf = ">=3.6.1"
+
+[package.extras]
+dev = ["black", "build", "pytest", "pytest-cov", "twine"]
+
+[[package]]
 name = "aiohttp"
 version = "3.8.1"
 description = "Async http client/server framework (asyncio)"
@@ -534,6 +553,24 @@ files = [
     {file = "colorama-0.4.6-py2.py3-none-any.whl", hash = "sha256:4f1d9991f5acc0ca119f9d443620b77f9d6b33703e51011c16baf57afb285fc6"},
     {file = "colorama-0.4.6.tar.gz", hash = "sha256:08695f5cb7ed6e0531a20572697297273c47b8cae5a63ffc6d6ed5c201be6e44"},
 ]
+
+[[package]]
+name = "colorlog"
+version = "6.7.0"
+description = "Add colours to the output of Python's logging module."
+category = "main"
+optional = false
+python-versions = ">=3.6"
+files = [
+    {file = "colorlog-6.7.0-py2.py3-none-any.whl", hash = "sha256:0d33ca236784a1ba3ff9c532d4964126d8a2c44f1f0cb1d2b0728196f512f662"},
+    {file = "colorlog-6.7.0.tar.gz", hash = "sha256:bd94bd21c1e13fac7bd3153f4bc3a7dc0eb0974b8bc2fdf1a989e474f6e582e5"},
+]
+
+[package.dependencies]
+colorama = {version = "*", markers = "sys_platform == \"win32\""}
+
+[package.extras]
+development = ["black", "flake8", "mypy", "pytest", "types-colorama"]
 
 [[package]]
 name = "commonmark"
@@ -3424,4 +3461,4 @@ testing = ["func-timeout", "jaraco.itertools", "pytest (>=6)", "pytest-black (>=
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9"
-content-hash = "ca3fd9f0bf5cec090ba164e79ab12e68bf9fece00c66b321933f721918faf349"
+content-hash = "8b9c0f4ebc41bca0af100c124f3522e2e1052271ebde525b0b06b44496a2d105"
