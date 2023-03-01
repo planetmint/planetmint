@@ -19,7 +19,7 @@ from planetmint.backend.models.metadata import MetaData
 from planetmint.backend.models.dbtransaction import DbTransaction
 
 
-class Models:
+class DataAccessor:
     def __init__(self, database_connection=None, async_io: bool = False):
         config_utils.autoconfigure()
         self.connection = database_connection if database_connection is not None else Connection(async_io=async_io)

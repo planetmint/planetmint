@@ -250,9 +250,9 @@ def abci_fixture():
 
 @pytest.fixture
 def test_models():
-    from planetmint.model.models import Models
+    from planetmint.model.dataaccessor import DataAccessor
 
-    return Models()
+    return DataAccessor()
 
 
 @pytest.fixture

@@ -25,7 +25,7 @@ from transactions.types.elections.validator_utils import election_id_to_public_k
 from planetmint.abci.utils import encode_validator, new_validator_set, key_from_base64, public_key_to_base64
 from planetmint.application.basevalidationrules import BaseValidationRules
 from planetmint.backend.models.output import Output
-from planetmint.model.models import Models
+from planetmint.model.dataaccessor import DataAccessor
 from planetmint.config import Config
 from planetmint.config_utils import load_validation_plugin
 
@@ -35,7 +35,7 @@ logger = logging.getLogger(__name__)
 class Validator:
     def __init__(self, async_io: bool = False):
         self.async_io = async_io
-        self.models = Models(async_io=async_io)
+        self.models = DataAccessor(async_io=async_io)
         self.validation = Validator._get_validation_method()
 
     @staticmethod
