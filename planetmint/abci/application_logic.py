@@ -23,10 +23,11 @@ from tendermint.abci.types_pb2 import (
 )
 
 from planetmint.application.validator import Validator
-from planetmint.model.models import Models
+
 from planetmint.abci.utils import decode_validator, decode_transaction, calculate_hash
 from planetmint.abci.block import Block
 from planetmint.ipc.events import EventTypes, Event
+from planetmint.backend.exceptions import DBConcurrencyError
 
 CodeTypeError = 1
 logger = logging.getLogger(__name__)
@@ -43,20 +44,18 @@ class ApplicationLogic(BaseApplication):
         self,
         validator: Validator = None,
         events_queue=None,
-        models: Models = None,
     ):
         # super().__init__(abci)
         logger.debug("Checking values of types")
         logger.debug(dir(types_pb2))
         self.events_queue = events_queue
-        self.validator = validator if validator else Validator()  # (async_io=True)
-        self.models = models or Models()
+        self.validator = validator if validator else Validator()
         self.block_txn_ids = []
         self.block_txn_hash = ""
         self.block_transactions = []
         self.validators = None
         self.new_height = None
-        self.chain = self.models.get_latest_abci_chain()
+        self.chain = self.validator.models.get_latest_abci_chain()
 
     def log_abci_migration_error(self, chain_id, validators):
         logger.error(
@@ -68,7 +67,7 @@ class ApplicationLogic(BaseApplication):
     def abort_if_abci_chain_is_not_synced(self):
         if self.chain is None or self.chain["is_synced"]:
             return
-        validators = self.models.get_validators()
+        validators = self.validator.models.get_validators()
         self.log_abci_migration_error(self.chain["chain_id"], validators)
         sys.exit(1)
 
@@ -76,37 +75,42 @@ class ApplicationLogic(BaseApplication):
         """Initialize chain upon genesis or a migration"""
         app_hash = ""
         height = 0
-        known_chain = self.models.get_latest_abci_chain()
-        if known_chain is not None:
-            chain_id = known_chain["chain_id"]
+        try:
+            known_chain = self.validator.models.get_latest_abci_chain()
+            if known_chain is not None:
+                chain_id = known_chain["chain_id"]
 
-            if known_chain["is_synced"]:
-                msg = f"Got invalid InitChain ABCI request ({genesis}) - " f"the chain {chain_id} is already synced."
-                logger.error(msg)
+                if known_chain["is_synced"]:
+                    msg = f"Got invalid InitChain ABCI request ({genesis}) - " f"the chain {chain_id} is already synced."
+                    logger.error(msg)
+                    sys.exit(1)
+                if chain_id != genesis.chain_id:
+                    validators = self.validator.models.get_validators()
+                    self.log_abci_migration_error(chain_id, validators)
+                    sys.exit(1)
+                # set migration values for app hash and height
+                block = self.validator.models.get_latest_block()
+                app_hash = "" if block is None else block["app_hash"]
+                height = 0 if block is None else block["height"] + 1
+            known_validators = self.validator.models.get_validators()
+            validator_set = [decode_validator(v) for v in genesis.validators]
+            if known_validators and known_validators != validator_set:
+                self.log_abci_migration_error(known_chain["chain_id"], known_validators)
                 sys.exit(1)
-            if chain_id != genesis.chain_id:
-                validators = self.models.get_validators()
-                self.log_abci_migration_error(chain_id, validators)
-                sys.exit(1)
-            # set migration values for app hash and height
-            block = self.models.get_latest_block()
-            app_hash = "" if block is None else block["app_hash"]
-            height = 0 if block is None else block["height"] + 1
-        known_validators = self.models.get_validators()
-        validator_set = [decode_validator(v) for v in genesis.validators]
-        if known_validators and known_validators != validator_set:
-            self.log_abci_migration_error(known_chain["chain_id"], known_validators)
+            block = Block(app_hash=app_hash, height=height, transactions=[])
+            self.validator.models.store_block(block._asdict())
+            self.validator.models.store_validator_set(height + 1, validator_set)
+            abci_chain_height = 0 if known_chain is None else known_chain["height"]
+            self.validator.models.store_abci_chain(abci_chain_height, genesis.chain_id, True)
+            self.chain = {
+                "height": abci_chain_height,
+                "is_synced": True,
+                "chain_id": genesis.chain_id,
+            }
+        except DBConcurrencyError:
             sys.exit(1)
-        block = Block(app_hash=app_hash, height=height, transactions=[])
-        self.models.store_block(block._asdict())
-        self.models.store_validator_set(height + 1, validator_set)
-        abci_chain_height = 0 if known_chain is None else known_chain["height"]
-        self.models.store_abci_chain(abci_chain_height, genesis.chain_id, True)
-        self.chain = {
-            "height": abci_chain_height,
-            "is_synced": True,
-            "chain_id": genesis.chain_id,
-        }
+        except ValueError:
+            sys.exit(1)
         return ResponseInitChain()
 
     def info(self, request):
@@ -123,7 +127,13 @@ class ApplicationLogic(BaseApplication):
         # logger.info(f"Tendermint version: {request.version}")
 
         r = ResponseInfo()
-        block = self.models.get_latest_block()
+        block= None
+        try:
+            block = self.validator.models.get_latest_block()
+        except DBConcurrencyError:
+            block= None
+        except ValueError:
+            block=None
         if block:
             chain_shift = 0 if self.chain is None else self.chain["height"]
             r.last_block_height = block["height"] - chain_shift
@@ -145,12 +155,18 @@ class ApplicationLogic(BaseApplication):
 
         logger.debug("check_tx: %s", raw_transaction)
         transaction = decode_transaction(raw_transaction)
-        if self.validator.is_valid_transaction(transaction):
-            logger.debug("check_tx: VALID")
-            return ResponseCheckTx(code=OkCode)
-        else:
-            logger.debug("check_tx: INVALID")
-            return ResponseCheckTx(code=CodeTypeError)
+        try:
+            if self.validator.is_valid_transaction(transaction):
+                logger.debug("check_tx: VALID")
+                return ResponseCheckTx(code=OkCode)
+            else:
+                logger.debug("check_tx: INVALID")
+                return ResponseCheckTx(code=CodeTypeError)
+        except DBConcurrencyError:
+            sys.exit(1)
+        except ValueError:
+            sys.exit(1)
+           
 
     def begin_block(self, req_begin_block):
         """Initialize list of transaction.
@@ -178,8 +194,14 @@ class ApplicationLogic(BaseApplication):
         self.abort_if_abci_chain_is_not_synced()
 
         logger.debug("deliver_tx: %s", raw_transaction)
-        transaction = self.validator.is_valid_transaction(decode_transaction(raw_transaction), self.block_transactions)
-
+        transaction = None
+        try:
+            transaction = self.validator.is_valid_transaction(decode_transaction(raw_transaction), self.block_transactions)
+        except DBConcurrencyError:
+            sys.exit(1)
+        except ValueError:
+            sys.exit(1)
+            
         if not transaction:
             logger.debug("deliver_tx: INVALID")
             return ResponseDeliverTx(code=CodeTypeError)
@@ -207,20 +229,25 @@ class ApplicationLogic(BaseApplication):
         # `end_block` or `commit`
         logger.debug(f"Updating pre-commit state: {self.new_height}")
         pre_commit_state = dict(height=self.new_height, transactions=self.block_txn_ids)
-        self.models.store_pre_commit_state(pre_commit_state)
+        try:
+            self.validator.models.store_pre_commit_state(pre_commit_state)
 
-        block_txn_hash = calculate_hash(self.block_txn_ids)
-        block = self.models.get_latest_block()
+            block_txn_hash = calculate_hash(self.block_txn_ids)
+            block = self.validator.models.get_latest_block()
 
-        logger.debug("BLOCK: ", block)
+            logger.debug("BLOCK: ", block)
 
-        if self.block_txn_ids:
-            self.block_txn_hash = calculate_hash([block["app_hash"], block_txn_hash])
-        else:
-            self.block_txn_hash = block["app_hash"]
+            if self.block_txn_ids:
+                self.block_txn_hash = calculate_hash([block["app_hash"], block_txn_hash])
+            else:
+                self.block_txn_hash = block["app_hash"]
 
-        validator_update = self.validator.process_block(self.new_height, self.block_transactions)
-
+            validator_update = self.validator.process_block(self.new_height, self.block_transactions)
+        except DBConcurrencyError:
+            sys.exit(1)
+        except ValueError:
+            sys.exit(1)
+        
         return ResponseEndBlock(validator_updates=validator_update)
 
     def commit(self):
@@ -229,20 +256,24 @@ class ApplicationLogic(BaseApplication):
         self.abort_if_abci_chain_is_not_synced()
 
         data = self.block_txn_hash.encode("utf-8")
+        try:
+            # register a new block only when new transactions are received
+            if self.block_txn_ids:
+                self.validator.models.store_bulk_transactions(self.block_transactions)
 
-        # register a new block only when new transactions are received
-        if self.block_txn_ids:
-            self.models.store_bulk_transactions(self.block_transactions)
-
-        block = Block(
-            app_hash=self.block_txn_hash,
-            height=self.new_height,
-            transactions=self.block_txn_ids,
-        )
-        # NOTE: storing the block should be the last operation during commit
-        # this effects crash recovery. Refer BEP#8 for details
-        self.models.store_block(block._asdict())
-
+            block = Block(
+                app_hash=self.block_txn_hash,
+                height=self.new_height,
+                transactions=self.block_txn_ids,
+            )
+            # NOTE: storing the block should be the last operation during commit
+            # this effects crash recovery. Refer BEP#8 for details
+            self.validator.models.store_block(block._asdict())
+        except DBConcurrencyError:
+            sys.exit(1)
+        except ValueError:
+            sys.exit(1)
+                        
         logger.debug(
             "Commit-ing new block with hash: apphash=%s ," "height=%s, txn ids=%s",
             data,

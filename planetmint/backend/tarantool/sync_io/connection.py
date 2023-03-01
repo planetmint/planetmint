@@ -79,9 +79,6 @@ class TarantoolDBConnection(DBConnection):
     def get_space(self, space_name: str):
         return self.connect().space(space_name)
 
-    def space(self, space_name: str):
-        return self.get_space(space_name)
-
     def drop_database(self):
         self.connect().call("drop")
 

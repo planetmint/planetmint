@@ -21,6 +21,8 @@ class OperationError(BackendError):
 class OperationDataInsertionError(BackendError):
     """Exception raised when a Database operation fails."""
 
+class DBConcurrencyError(BackendError):
+    """Exception raised when a Database operation fails."""
 
 class DuplicateKeyError(OperationError):
     """Exception raised when an insert fails because the key is not unique"""

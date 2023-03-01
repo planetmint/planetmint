@@ -37,7 +37,6 @@ def test_get_txids_filtered(signed_create_tx, signed_transfer_tx, db_conn):
 
 def test_get_owned_ids(signed_create_tx, user_pk, db_conn):
     from planetmint.backend.tarantool.sync_io import query
-    from planetmint.backend.connection import Connection
 
     # insert a transaction
     query.store_transactions(connection=db_conn, signed_transactions=[signed_create_tx.to_dict()])
@@ -55,7 +54,7 @@ def test_store_block(db_conn):
     block = Block(app_hash="random_utxo", height=3, transactions=[])
     query.store_block(connection=db_conn, block=block._asdict())
     # block = query.get_block(connection=db_conn)
-    blocks = db_conn.space("blocks").select([]).data
+    blocks = db_conn.connect().select("blocks",[]).data
     assert len(blocks) == 1
 
 
@@ -87,9 +86,9 @@ def test_store_pre_commit_state(db_conn):
 def test_get_pre_commit_state(db_conn):
     from planetmint.backend.tarantool.sync_io import query
 
-    all_pre = db_conn.space("pre_commits").select([]).data
+    all_pre = db_conn.connect().select("pre_commits",[]).data
     for pre in all_pre:
-        db_conn.space("pre_commits").delete(pre[0])
+        db_conn.connect().delete("pre_commits",pre[0])
     #  TODO First IN, First OUT
     state = dict(height=3, transactions=[])
     # db_context.conn.db.pre_commit.insert_one
