@@ -23,7 +23,7 @@ class Asset:
 
     @staticmethod
     def from_list_dict(asset_dict_list: list[dict]) -> list[Asset]:
-        return [Asset.from_dict(asset_dict) for asset_dict in asset_dict_list]
+        return [Asset.from_dict(asset_dict) for asset_dict in asset_dict_list if isinstance(asset_dict,dict)]
 
     @staticmethod
     def list_to_dict(asset_list: list[Asset]) -> list[dict]:
