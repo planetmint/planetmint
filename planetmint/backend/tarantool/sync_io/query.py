@@ -54,10 +54,10 @@ def catch_db_exception(function_to_decorate):
             raise schema_error
         except NetworkError as net_error:
             raise net_error
-        except ValueError:
+        except ValueError as e:
             logger.info(f"ValueError in Query/DB instruction: {e}: raising DBConcurrencyError")
             raise DBConcurrencyError
-        except AttributeError:
+        except AttributeError as e:
             logger.info(f"Attribute in Query/DB instruction: {e}: raising DBConcurrencyError")
             raise DBConcurrencyError
         except Exception as e:
