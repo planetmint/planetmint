@@ -62,7 +62,7 @@ class Dispatcher:
                 asset_ids.append(tx.assets)
             elif isinstance(tx.assets, list):
                 for asset in tx.assets:
-                    asset_ids.append(asset.get("id", tx.id) )
+                    asset_ids.append(asset.get("id", tx.id))
             else:
                 asset_ids = [tx.id]
             yield {"height": block["height"], "asset_ids": asset_ids, "transaction_id": tx.id}
