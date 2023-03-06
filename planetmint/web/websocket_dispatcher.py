@@ -57,8 +57,12 @@ class Dispatcher:
     @staticmethod
     def eventify_block(block):
         for tx in block["transactions"]:
-            if tx.assets:
-                asset_ids = [asset.get("id", tx.id) for asset in tx.assets]
+            asset_ids = []
+            if isinstance(tx.assets, dict):
+                asset_ids.append(tx.assets)
+            elif isinstance(tx.assets, list):
+                for asset in tx.assets:
+                    asset_ids.append(asset.get("id", tx.id))
             else:
                 asset_ids = [tx.id]
             yield {"height": block["height"], "asset_ids": asset_ids, "transaction_id": tx.id}
