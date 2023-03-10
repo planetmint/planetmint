@@ -25,6 +25,9 @@ For reference, the possible headings are:
 * **Known Issues**
 * **Notes**
 
+## [2.3.2] - 2023-10-03
+* **Fixed** websocket service issue with block/asset object access of different object/tx versions
+* **Added** CI pipeline to build and package the all-in-one docker images
 
 ## [2.3.1] - 2023-02-03
 * **Fixed** backend.models.assets class content type issue (verification if objects are of type dict)
