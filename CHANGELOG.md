@@ -25,6 +25,10 @@ For reference, the possible headings are:
 * **Known Issues**
 * **Notes**
 
+## [2.3.3] - 2023-10-03
+* **Fixed** CI issues with the docker images
+* **Added** Tendermint, tarantool, and planetmint initialization to the all-in-one docker image
+
 ## [2.3.2] - 2023-10-03
 * **Fixed** websocket service issue with block/asset object access of different object/tx versions
 * **Added** CI pipeline to build and package the all-in-one docker images
