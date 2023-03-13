@@ -171,6 +171,22 @@ jobs:
           labels: ${{ steps.semver.outputs.labels }}
           env:
           CRYPTOGRAPHY_DONT_BUILD_RUST: 1
+      - name: Docker meta AIO
+        id: semver-aio # you'll use this in the next step
+        uses: docker/metadata-action@v3
+        with:
+          # list of Docker images to use as base name for tags
+          images: |
+            ghcr.io/planetmint/planetmint-aio
+          # Docker tags based on the following events/attributes
+          tags: |
+            type=schedule
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
+            type=sha
       - name: Build and push AIO
         uses: docker/build-push-action@v2
         with:
@@ -178,7 +194,7 @@ jobs:
           file: Dockerfile-all-in-one
           platforms: linux/amd64,linux/arm64
           push: ${{ github.event_name != 'pull_request' }}
-          tags: ${{ steps.semver.outputs.tags }}-aio
-          labels: ${{ steps.semver.outputs.labels }}-aio
+          tags: ${{ steps.semver-aio.outputs.tags }}-aio
+          labels: ${{ steps.semver-aio.outputs.labels }}-aio
           env:
           CRYPTOGRAPHY_DONT_BUILD_RUST: 1
