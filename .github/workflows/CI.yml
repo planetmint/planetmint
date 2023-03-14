@@ -194,7 +194,7 @@ jobs:
           file: Dockerfile-all-in-one
           platforms: linux/amd64,linux/arm64
           push: ${{ github.event_name != 'pull_request' }}
-          tags: ${{ steps.semver-aio.outputs.tags }}-aio
-          labels: ${{ steps.semver-aio.outputs.labels }}-aio
+          tags: ${{ steps.semver-aio.outputs.tags }}
+          labels: ${{ steps.semver-aio.outputs.labels }}
           env:
           CRYPTOGRAPHY_DONT_BUILD_RUST: 1
