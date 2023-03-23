@@ -80,8 +80,8 @@ async def test_bridge_sync_async_queue(event_loop):
     from planetmint.web.websocket_server import _multiprocessing_to_asyncio
 
     sync_queue = queue.Queue()
-    async_queue = asyncio.Queue(loop=event_loop)
-    async_queue2 = asyncio.Queue(loop=event_loop)
+    async_queue = asyncio.Queue()
+    async_queue2 = asyncio.Queue()
 
     bridge = threading.Thread(
         target=_multiprocessing_to_asyncio, args=(sync_queue, async_queue, async_queue2, event_loop), daemon=True
@@ -142,8 +142,8 @@ async def test_websocket_block_event(aiohttp_client, event_loop):
     tx = Create.generate([user_pub], [([user_pub], 1)])
     tx = tx.sign([user_priv])
 
-    blk_source = asyncio.Queue(loop=event_loop)
-    tx_source = asyncio.Queue(loop=event_loop)
+    blk_source = asyncio.Queue()
+    tx_source = asyncio.Queue()
     app = init_app(tx_source, blk_source, loop=event_loop)
     client = await aiohttp_client(app)
     ws = await client.ws_connect(EVENTS_ENDPOINT_BLOCKS)
@@ -172,8 +172,8 @@ async def test_websocket_transaction_event(aiohttp_client, event_loop):
     tx = Create.generate([user_pub], [([user_pub], 1)])
     tx = tx.sign([user_priv])
 
-    blk_source = asyncio.Queue(loop=event_loop)
-    tx_source = asyncio.Queue(loop=event_loop)
+    blk_source = asyncio.Queue()
+    tx_source = asyncio.Queue()
     app = init_app(tx_source, blk_source, loop=event_loop)
     client = await aiohttp_client(app)
     ws = await client.ws_connect(EVENTS_ENDPOINT)
@@ -198,8 +198,8 @@ async def test_websocket_string_event(aiohttp_client, event_loop):
     from planetmint.ipc.events import POISON_PILL
     from planetmint.web.websocket_server import init_app, EVENTS_ENDPOINT
 
-    blk_source = asyncio.Queue(loop=event_loop)
-    tx_source = asyncio.Queue(loop=event_loop)
+    blk_source = asyncio.Queue()
+    tx_source = asyncio.Queue()
     app = init_app(tx_source, blk_source, loop=event_loop)
     client = await aiohttp_client(app)
     ws = await client.ws_connect(EVENTS_ENDPOINT)

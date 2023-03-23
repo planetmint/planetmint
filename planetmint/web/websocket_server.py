@@ -107,7 +107,7 @@ async def websocket_blk_handler(request):
     return websocket
 
 
-def init_app(tx_source, blk_source, *, loop=None):
+def init_app(tx_source, blk_source, loop=None):
     """Init the application server.
 
     Return:
@@ -117,11 +117,10 @@ def init_app(tx_source, blk_source, *, loop=None):
     blk_dispatcher = Dispatcher(blk_source, "blk")
     tx_dispatcher = Dispatcher(tx_source, "tx")
 
-    # Schedule the dispatcher
-    loop.create_task(blk_dispatcher.publish(), name="blk")
-    loop.create_task(tx_dispatcher.publish(), name="tx")
+    asyncio.get_running_loop().create_task(blk_dispatcher.publish(), name="blk")
+    asyncio.get_running_loop().create_task(tx_dispatcher.publish(), name="tx")
 
-    app = aiohttp.web.Application(loop=loop)
+    app = aiohttp.web.Application()
     app["tx_dispatcher"] = tx_dispatcher
     app["blk_dispatcher"] = blk_dispatcher
     app.router.add_get(EVENTS_ENDPOINT, websocket_tx_handler)
@@ -133,17 +132,17 @@ def start(sync_event_source, loop=None):
     """Create and start the WebSocket server."""
 
     if not loop:
-        loop = asyncio.get_event_loop()
+        loop = asyncio.new_event_loop()
 
-    tx_source = asyncio.Queue(loop=loop)
-    blk_source = asyncio.Queue(loop=loop)
+    tx_source = asyncio.Queue()
+    blk_source = asyncio.Queue()
 
     bridge = threading.Thread(
         target=_multiprocessing_to_asyncio, args=(sync_event_source, tx_source, blk_source, loop), daemon=True
     )
     bridge.start()
 
-    app = init_app(tx_source, blk_source, loop=loop)
+    app = init_app(tx_source, blk_source, loop)
     aiohttp.web.run_app(
         app, host=Config().get()["wsserver"]["host"], port=Config().get()["wsserver"]["port"], loop=loop
     )
