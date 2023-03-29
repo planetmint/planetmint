@@ -30,6 +30,7 @@ metadata = {"units": 300, "type": "KG"}
 
 SCRIPT_OUTPUTS = ["ok"]
 
+
 def test_zenroom_validation(b):
     biolabs = generate_key_pair()
     version = "3.0"
@@ -38,10 +39,7 @@ def test_zenroom_validation(b):
 
     output = {
         "amount": "10",
-        "condition": {
-            "details": _fulfillment_to_details(ed25519),
-            "uri": ed25519.condition_uri
-        },
+        "condition": {"details": _fulfillment_to_details(ed25519), "uri": ed25519.condition_uri},
         "public_keys": [
             biolabs.public_key,
         ],

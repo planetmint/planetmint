@@ -160,7 +160,7 @@ class Validator:
             self.validate_compose_inputs(transaction, current_transactions)
 
         return transaction
-    
+
     def validate_script(self, transaction: Transaction) -> bool:
         if transaction.script:
             return transaction.script.validate()
