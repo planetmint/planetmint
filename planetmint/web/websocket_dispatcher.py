@@ -85,16 +85,12 @@ class Dispatcher:
     async def publish(self, app):
         """Publish new events to the subscribers."""
         logger.debug(f"DISPATCHER CALLED : {self.type}")
-        #try:
         while True:
             if self.type == "tx":
                 event = await Dispatcher.get_queue_on_demand( app, "tx_source").get()
             elif self.type == "blk":
                 event = await Dispatcher.get_queue_on_demand( app, "blk_source").get()
             str_buffer = []
-            
-            if not event:
-                continue
             
             if event == POISON_PILL:
                 return
@@ -112,6 +108,3 @@ class Dispatcher:
             for str_item in str_buffer:
                 for _, websocket in self.subscribers.items():
                     await websocket.send_str(str_item)
-        #except Exception as e:
-        #    logger.debug(f"Dispatcher Exception: {e}")
-        #    pass
