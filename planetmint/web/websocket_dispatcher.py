@@ -7,6 +7,7 @@
 import json
 import logging
 import asyncio
+import sys
 
 
 from planetmint.ipc.events import EventTypes
@@ -65,7 +66,10 @@ class Dispatcher:
             run_loop = asyncio.get_running_loop()
             logging.debug(f"get loop: {get_loop}")
             logging.debug(f"run loop: {run_loop}")
-            app[queue_name] = asyncio.Queue(loop=get_loop)
+            if( sys.version_info.major ==3 and sys.version_info.minor < 10 ):
+                app[queue_name] = asyncio.Queue(loop=get_loop)
+            elif( sys.version_info.major ==3 and sys.version_info.minor >= 10 ):
+                app[queue_name] = asyncio.Queue()
 
         return app[queue_name]
 
