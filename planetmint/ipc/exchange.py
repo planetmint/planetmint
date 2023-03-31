@@ -72,6 +72,8 @@ class Exchange:
                     return
                 else:
                     self.dispatch(event)
+        except KeyboardInterrupt:
+            return
         except Exception as e:
             logger.debug(f"Exchange Exception: {e}")
             
