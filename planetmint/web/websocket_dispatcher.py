@@ -5,9 +5,12 @@
 
 
 import json
+import logging
 
 from planetmint.ipc.events import EventTypes
 from planetmint.ipc.events import POISON_PILL
+
+logger = logging.getLogger(__name__)
 
 
 class Dispatcher:
@@ -69,24 +72,27 @@ class Dispatcher:
 
     async def publish(self):
         """Publish new events to the subscribers."""
+        try:
+            while True:
+                event = await self.event_source.get()
+                str_buffer = []
 
-        while True:
-            event = await self.event_source.get()
-            str_buffer = []
-
-            if event == POISON_PILL:
-                return
-
-            if isinstance(event, str):
-                str_buffer.append(event)
-            elif event.type == EventTypes.BLOCK_VALID:
-                if self.type == "tx":
-                    str_buffer = map(json.dumps, self.eventify_block(event.data))
-                elif self.type == "blk":
-                    str_buffer = [json.dumps(self.simplified_block(event.data))]
-                else:
+                if event == POISON_PILL:
                     return
 
-            for str_item in str_buffer:
-                for _, websocket in self.subscribers.items():
-                    await websocket.send_str(str_item)
+                if isinstance(event, str):
+                    str_buffer.append(event)
+                elif event.type == EventTypes.BLOCK_VALID:
+                    if self.type == "tx":
+                        str_buffer = map(json.dumps, self.eventify_block(event.data))
+                    elif self.type == "blk":
+                        str_buffer = [json.dumps(self.simplified_block(event.data))]
+                    else:
+                        return
+
+                for str_item in str_buffer:
+                    for _, websocket in self.subscribers.items():
+                        await websocket.send_str(str_item)
+        except Exception as e:
+            logger.debug(f"Dispatcher Exception: {e}")
+            pass

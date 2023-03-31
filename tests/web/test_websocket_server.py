@@ -2,7 +2,7 @@
 # Planetmint and IPDB software contributors.
 # SPDX-License-Identifier: (Apache-2.0 AND CC-BY-4.0)
 # Code is Apache-2.0 and docs are CC-BY-4.0
-
+import aiohttp
 import asyncio
 import json
 import queue
@@ -76,15 +76,17 @@ def test_simplified_block_works():
 
 
 @pytest.mark.asyncio
-async def test_bridge_sync_async_queue(event_loop):
+async def test_bridge_sync_async_queue():
     from planetmint.web.websocket_server import _multiprocessing_to_asyncio
 
     sync_queue = queue.Queue()
-    async_queue = asyncio.Queue(loop=event_loop)
-    async_queue2 = asyncio.Queue(loop=event_loop)
+    async_queue = asyncio.Queue()
+    async_queue2 = asyncio.Queue()
 
     bridge = threading.Thread(
-        target=_multiprocessing_to_asyncio, args=(sync_queue, async_queue, async_queue2, event_loop), daemon=True
+        target=_multiprocessing_to_asyncio,
+        args=(sync_queue, async_queue, async_queue2, asyncio.get_event_loop()),
+        daemon=True,
     )
     bridge.start()
 
@@ -109,42 +111,16 @@ async def test_bridge_sync_async_queue(event_loop):
     assert async_queue.qsize() == 0
 
 
-# TODO: fix the test and uncomment it
-# @patch('threading.Thread')
-# @patch('aiohttp.web.run_app')
-# @patch('planetmint.web.websocket_server.init_app')
-# @patch('asyncio.get_event_loop', return_value='event-loop')
-# @patch('asyncio.Queue', return_value='event-queue')
-# def test_start_creates_an_event_loop(queue_mock, get_event_loop_mock,
-#                                     init_app_mock, run_app_mock,
-#                                     thread_mock):
-#    from planetmint import config
-#    from planetmint.web.websocket_server import start, _multiprocessing_to_asyncio
-#
-#    start(None)
-#    #thread_mock.assert_called_once_with(
-#    #    target=_multiprocessing_to_asyncio,
-#    #    args=(None, queue_mock.return_value, queue_mock.return_value, get_event_loop_mock.return_value),
-#    #    daemon=True,
-#    #)
-#    thread_mock.return_value.start.assert_called_once_with()
-#    init_app_mock.assert_called_with('event-queue', 'event-queue', loop='event-loop')
-#    run_app_mock.assert_called_once_with(
-#        init_app_mock.return_value,
-#        host=config['wsserver']['host'],
-#        port=config['wsserver']['port'],
-#    )
-
-
 @pytest.mark.asyncio
-async def test_websocket_block_event(aiohttp_client, event_loop):
+async def test_websocket_block_event(aiohttp_client):
     user_priv, user_pub = crypto.generate_key_pair()
     tx = Create.generate([user_pub], [([user_pub], 1)])
     tx = tx.sign([user_priv])
 
-    blk_source = asyncio.Queue(loop=event_loop)
-    tx_source = asyncio.Queue(loop=event_loop)
-    app = init_app(tx_source, blk_source, loop=event_loop)
+    app = aiohttp.web.Application()
+    blk_source = asyncio.Queue()
+    tx_source = asyncio.Queue()
+    app = await init_app(app, tx_source, blk_source)
     client = await aiohttp_client(app)
     ws = await client.ws_connect(EVENTS_ENDPOINT_BLOCKS)
     block = {
@@ -167,14 +143,15 @@ async def test_websocket_block_event(aiohttp_client, event_loop):
 
 
 @pytest.mark.asyncio
-async def test_websocket_transaction_event(aiohttp_client, event_loop):
+async def test_websocket_transaction_event(aiohttp_client):
     user_priv, user_pub = crypto.generate_key_pair()
     tx = Create.generate([user_pub], [([user_pub], 1)])
     tx = tx.sign([user_priv])
 
-    blk_source = asyncio.Queue(loop=event_loop)
-    tx_source = asyncio.Queue(loop=event_loop)
-    app = init_app(tx_source, blk_source, loop=event_loop)
+    app = aiohttp.web.Application()
+    blk_source = asyncio.Queue()
+    tx_source = asyncio.Queue()
+    app = await init_app(app, tx_source, blk_source)
     client = await aiohttp_client(app)
     ws = await client.ws_connect(EVENTS_ENDPOINT)
     block = {"height": 1, "transactions": [tx]}
@@ -194,13 +171,14 @@ async def test_websocket_transaction_event(aiohttp_client, event_loop):
 
 
 @pytest.mark.asyncio
-async def test_websocket_string_event(aiohttp_client, event_loop):
+async def test_websocket_string_event(aiohttp_client):
     from planetmint.ipc.events import POISON_PILL
     from planetmint.web.websocket_server import init_app, EVENTS_ENDPOINT
 
-    blk_source = asyncio.Queue(loop=event_loop)
-    tx_source = asyncio.Queue(loop=event_loop)
-    app = init_app(tx_source, blk_source, loop=event_loop)
+    app = aiohttp.web.Application()
+    blk_source = asyncio.Queue()
+    tx_source = asyncio.Queue()
+    app = await init_app(app, tx_source, blk_source)
     client = await aiohttp_client(app)
     ws = await client.ws_connect(EVENTS_ENDPOINT)
 
