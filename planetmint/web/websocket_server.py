@@ -26,36 +26,39 @@ from uuid import uuid4
 from concurrent.futures import CancelledError
 from planetmint.config import Config
 from planetmint.web.websocket_dispatcher import Dispatcher
-from asyncer import asyncify
+#from asyncer import asyncify
 
 logger = logging.getLogger(__name__)
 EVENTS_ENDPOINT = "/api/v1/streams/valid_transactions"
 EVENTS_ENDPOINT_BLOCKS = "/api/v1/streams/valid_blocks"
 
 
-
-async def access_queue():
-    global app
+async def access_queue(app):
+    #global app
     in_queue = app["event_source"]
-    tx_source = app["tx_source"]
-    blk_source = app["blk_source"]
+    tx_source = Dispatcher.get_queue_on_demand(app,"tx_source" )
+    blk_source = Dispatcher.get_queue_on_demand(app,"blk_source" )
+    logger.debug(f"REROUTING CALLED")
     try:
         while True:
             try:
-                item = in_queue.get_nowait()
-                logger.debug(f"REROUTING: {item}")
-                tx_source.put(item)
-                blk_source.put(item)
-                
-            except multiprocessing.Queue.Empty:
-                await asyncio.sleep(1)
-    except asyncio.CancelledError:
-        logger.debug(f"REROUTING : {i}")
+                if not in_queue.empty():
+                    item = in_queue.get_nowait()
+                    logger.debug(f"REROUTING: {item}")
+                    await tx_source.put(item)
+                    await blk_source.put(item)
+                else:                
+                    await asyncio.sleep(1)
+            except Exception as e:
+                logger.debug(f"REROUTING wait exception : {e}")
+                raise e #await asyncio.sleep(1)
+    except asyncio.CancelledError as e:
+        logger.debug(f"REROUTING Cancelled : {e}")
         pass
-    except Exception as e:
-        logger.debug(f"REROUTING Exception: {i}")
-    finally:
-        return
+    #except Exception as e:
+    #    logger.debug(f"REROUTING Exception: {e}")
+    #finally:
+    #    return
 
 
 
@@ -164,12 +167,12 @@ async def websocket_blk_handler(request):
 
 async def start_background_tasks(app):
     blk_dispatcher = app["blk_dispatcher"]
-    app["task1"] = asyncio.create_task(blk_dispatcher.publish(), name="blk")
+    app["task1"] = asyncio.create_task(blk_dispatcher.publish(app), name="blk")
 
     tx_dispatcher = app["tx_dispatcher"]
-    app["task2"]  = asyncio.create_task(tx_dispatcher.publish(), name="tx")
+    app["task2"]  = asyncio.create_task(tx_dispatcher.publish(app), name="tx")
     
-    app["task3"]  = asyncio.create_task(access_queue(), name="router")
+    app["task3"]  = asyncio.create_task(access_queue(app), name="router")
     
     
 async def cleanup_background_tasks(app):
@@ -182,18 +185,18 @@ async def cleanup_background_tasks(app):
     
 async def start_cleanup_all_background_tasks(app):
     blk_dispatcher = app["blk_dispatcher"]
-    app["task1"] = asyncio.create_task(blk_dispatcher.publish(), name="blk")
+    app["task1"] = asyncio.create_task(blk_dispatcher.publish(app), name="blk")
 
     tx_dispatcher = app["tx_dispatcher"]
-    app["task2"]  = asyncio.create_task(tx_dispatcher.publish(), name="tx")
+    app["task2"]  = asyncio.create_task(tx_dispatcher.publish(app), name="tx")
     
-    app["task3"]  = asyncio.create_task(access_queue(), name="router")
+    app["task3"]  = asyncio.create_task(access_queue(app), name="router")
     
     #yield 
     
-    #app["task1"].cancel()
-    #app["task2"].cancel()
-    #app["task3"].cancel()
+    app["task1"].cancel()
+    app["task2"].cancel()
+    app["task3"].cancel()
     await app["task3"]
     await app["task1"]
     await app["task2"]
@@ -231,25 +234,24 @@ async def start_cleanup_all_background_tasks(app):
     
 global app
 
-async def init_app():
+def init_app(sync_event_source):
     """Create and start the WebSocket server."""
     global app
-    global event_src
+    #global event_src
     app = aiohttp.web.Application()
     
     # queue definition
-    tx_source = asyncio.Queue()
-    blk_source = asyncio.Queue()
-    app["tx_source"] = tx_source
-    app["blk_source"] = blk_source
+
+    #tx_source = asyncio.Queue()
+    #blk_source = asyncio.Queue()
+    #app["tx_source"] = tx_source
+    #app["blk_source"] = blk_source
     
-    app["event_source"] = event_src
+    app["event_source"] = sync_event_source
     
     #dispatchers
-    blk_dispatcher = Dispatcher(blk_source, "blk")
-    tx_dispatcher = Dispatcher(tx_source, "tx")
-    app["tx_dispatcher"] = tx_dispatcher
-    app["blk_dispatcher"] = blk_dispatcher
+    app["tx_dispatcher"] = Dispatcher("tx")
+    app["blk_dispatcher"] = Dispatcher("blk")
     
     # routes
     app.router.add_get(EVENTS_ENDPOINT, websocket_tx_handler)
@@ -259,8 +261,9 @@ async def init_app():
     
     
     #app.on_startup.append(start_background_tasks)
+
+    app.on_startup.append( start_background_tasks )
     #app.cleanup_ctx.append(cleanup_background_tasks)
-    app.on_startup.append( start_cleanup_all_background_tasks )
     #app.cleanup_ctx.append(background_task_route_dispatcher)
     #app.cleanup_ctx.append(background_task_tx_dispatcher)
     #app.cleanup_ctx.append(background_task_blk_dispatcher)
@@ -279,7 +282,8 @@ async def init_app():
 global event_src
 
 def start(sync_event_source):
-    global event_src
-    event_src=sync_event_source
-    app = asyncio.run(init_app())
+    #global event_src
+    #event_src=sync_event_source
+    #app = asyncio.run(init_app(sync_event_source))
+    app = init_app(sync_event_source)
     aiohttp.web.run_app(app, host=Config().get()["wsserver"]["host"], port=Config().get()["wsserver"]["port"])

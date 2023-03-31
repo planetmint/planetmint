@@ -6,6 +6,8 @@
 
 import json
 import logging
+import asyncio
+
 
 from planetmint.ipc.events import EventTypes
 from planetmint.ipc.events import POISON_PILL
@@ -19,15 +21,13 @@ class Dispatcher:
     This class implements a simple publish/subscribe pattern.
     """
 
-    def __init__(self, event_source, type="tx"):
+    def __init__(self, type="tx"):
         """Create a new instance.
 
         Args:
-            event_source: a source of events. Elements in the queue
-            should be strings.
+            type: a string identifier.
         """
 
-        self.event_source = event_source
         self.subscribers = {}
         self.type = type
 
@@ -56,6 +56,18 @@ class Dispatcher:
         for tx in block["transactions"]:
             txids.append(tx.id)
         return {"height": block["height"], "hash": block["hash"], "transaction_ids": txids}
+    
+    @staticmethod
+    def get_queue_on_demand(app, queue_name:str):
+        if queue_name not in app:
+            logging.debug(f"creating queue: {queue_name}")
+            get_loop = asyncio.get_event_loop()
+            run_loop = asyncio.get_running_loop()
+            logging.debug(f"get loop: {get_loop}")
+            logging.debug(f"run loop: {run_loop}")
+            app[queue_name] = asyncio.Queue( loop=get_loop)
+            
+        return app[queue_name]
 
     @staticmethod
     def eventify_block(block):
@@ -70,29 +82,36 @@ class Dispatcher:
                 asset_ids = [tx.id]
             yield {"height": block["height"], "asset_ids": asset_ids, "transaction_id": tx.id}
 
-    async def publish(self):
+    async def publish(self, app):
         """Publish new events to the subscribers."""
-        try:
-            while True:
-                event = await self.event_source.get()
-                str_buffer = []
-
-                if event == POISON_PILL:
+        logger.debug(f"DISPATCHER CALLED : {self.type}")
+        #try:
+        while True:
+            if self.type == "tx":
+                event = await Dispatcher.get_queue_on_demand( app, "tx_source").get()
+            elif self.type == "blk":
+                event = await Dispatcher.get_queue_on_demand( app, "blk_source").get()
+            str_buffer = []
+            
+            if not event:
+                continue
+            
+            if event == POISON_PILL:
+                return
+            logger.debug(f"DISPATCHER ELEMENT : {event}")
+            if isinstance(event, str):
+                str_buffer.append(event)
+            elif event.type == EventTypes.BLOCK_VALID:
+                if self.type == "tx":
+                    str_buffer = map(json.dumps, self.eventify_block(event.data))
+                elif self.type == "blk":
+                    str_buffer = [json.dumps(self.simplified_block(event.data))]
+                else:
                     return
 
-                if isinstance(event, str):
-                    str_buffer.append(event)
-                elif event.type == EventTypes.BLOCK_VALID:
-                    if self.type == "tx":
-                        str_buffer = map(json.dumps, self.eventify_block(event.data))
-                    elif self.type == "blk":
-                        str_buffer = [json.dumps(self.simplified_block(event.data))]
-                    else:
-                        return
-
-                for str_item in str_buffer:
-                    for _, websocket in self.subscribers.items():
-                        await websocket.send_str(str_item)
-        except Exception as e:
-            logger.debug(f"Dispatcher Exception: {e}")
-            pass
+            for str_item in str_buffer:
+                for _, websocket in self.subscribers.items():
+                    await websocket.send_str(str_item)
+        #except Exception as e:
+        #    logger.debug(f"Dispatcher Exception: {e}")
+        #    pass
