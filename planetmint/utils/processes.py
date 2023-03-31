@@ -74,5 +74,3 @@ def pool(builder, size, timeout=None):
         local_pool.put(instance)
 
     return pooled
-
-

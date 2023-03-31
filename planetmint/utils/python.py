@@ -1,5 +1,6 @@
 import sys
 
+
 def is_above_py39():
     if sys.version_info.major == 3:
         if sys.version_info.minor < 10:
