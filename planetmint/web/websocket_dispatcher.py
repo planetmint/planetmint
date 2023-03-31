@@ -3,15 +3,13 @@
 # SPDX-License-Identifier: (Apache-2.0 AND CC-BY-4.0)
 # Code is Apache-2.0 and docs are CC-BY-4.0
 
-
 import json
 import logging
 import asyncio
-import sys
-
 
 from planetmint.ipc.events import EventTypes
 from planetmint.ipc.events import POISON_PILL
+from planetmint.utils.python import is_above_py39
 
 logger = logging.getLogger(__name__)
 
@@ -62,14 +60,11 @@ class Dispatcher:
     def get_queue_on_demand(app, queue_name: str):
         if queue_name not in app:
             logging.debug(f"creating queue: {queue_name}")
-            get_loop = asyncio.get_event_loop()
-            run_loop = asyncio.get_running_loop()
-            logging.debug(f"get loop: {get_loop}")
-            logging.debug(f"run loop: {run_loop}")
-            if( sys.version_info.major ==3 and sys.version_info.minor < 10 ):
-                app[queue_name] = asyncio.Queue(loop=get_loop)
-            elif( sys.version_info.major ==3 and sys.version_info.minor >= 10 ):
+            if is_above_py39():
                 app[queue_name] = asyncio.Queue()
+            else:
+                get_loop = asyncio.get_event_loop()
+                app[queue_name] = asyncio.Queue(loop=get_loop)
 
         return app[queue_name]
 

@@ -451,7 +451,7 @@ def abci_server():
 
     # from tendermint.abci import types_pb2 as types_v0_34_11
     from planetmint.abci.application_logic import ApplicationLogic
-    from planetmint.utils import Process
+    from planetmint.utils.processes import Process
 
     app = ABCIServer(app=ApplicationLogic())
     abci_proxy = Process(name="ABCI", target=app.run)

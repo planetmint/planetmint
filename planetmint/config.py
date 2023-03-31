@@ -3,8 +3,7 @@ import logging
 import os
 from decouple import config
 
-from planetmint.utils import Singleton
-from planetmint.version import __version__
+from planetmint.utils.singleton import Singleton
 
 
 class Config(metaclass=Singleton):

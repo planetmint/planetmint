@@ -141,7 +141,7 @@ def test_process_group_instantiates_and_start_processes(mock_process):
 
 
 def test_lazy_execution():
-    from planetmint.utils import Lazy
+    from planetmint.utils.lazy import Lazy
 
     lz = Lazy()
     lz.split(",")[1].split(" ").pop(1).strip()
@@ -164,7 +164,7 @@ def test_process_set_title():
     from uuid import uuid4
     from multiprocessing import Queue
     from setproctitle import getproctitle
-    from planetmint.utils import Process
+    from planetmint.utils.processes import Process
 
     queue = Queue()
     uuid = str(uuid4())
