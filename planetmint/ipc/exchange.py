@@ -7,6 +7,7 @@ from planetmint.ipc.events import EventTypes, POISON_PILL
 
 logger = logging.getLogger(__name__)
 
+
 class Exchange:
     """Dispatch events to subscribers."""
 
@@ -76,4 +77,3 @@ class Exchange:
             return
         except Exception as e:
             logger.debug(f"Exchange Exception: {e}")
-            

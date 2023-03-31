@@ -32,8 +32,8 @@ EVENTS_ENDPOINT_BLOCKS = "/api/v1/streams/valid_blocks"
 
 async def access_queue(app):
     in_queue = app["event_source"]
-    tx_source = Dispatcher.get_queue_on_demand(app,"tx_source" )
-    blk_source = Dispatcher.get_queue_on_demand(app,"blk_source" )
+    tx_source = Dispatcher.get_queue_on_demand(app, "tx_source")
+    blk_source = Dispatcher.get_queue_on_demand(app, "blk_source")
     logger.debug(f"REROUTING CALLED")
     try:
         while True:
@@ -43,14 +43,15 @@ async def access_queue(app):
                     logger.debug(f"REROUTING: {item}")
                     await tx_source.put(item)
                     await blk_source.put(item)
-                else:                
+                else:
                     await asyncio.sleep(1)
             except Exception as e:
                 logger.debug(f"REROUTING wait exception : {e}")
-                raise e #await asyncio.sleep(1)
+                raise e  # await asyncio.sleep(1)
     except asyncio.CancelledError as e:
         logger.debug(f"REROUTING Cancelled : {e}")
         pass
+
 
 async def websocket_tx_handler(request):
     """Handle a new socket connection."""
@@ -119,27 +120,28 @@ async def start_background_tasks(app):
     app["task1"] = asyncio.create_task(blk_dispatcher.publish(app), name="blk")
 
     tx_dispatcher = app["tx_dispatcher"]
-    app["task2"]  = asyncio.create_task(tx_dispatcher.publish(app), name="tx")
-    
-    app["task3"]  = asyncio.create_task(access_queue(app), name="router")
+    app["task2"] = asyncio.create_task(tx_dispatcher.publish(app), name="tx")
+
+    app["task3"] = asyncio.create_task(access_queue(app), name="router")
 
 
 def init_app(sync_event_source):
     """Create and start the WebSocket server."""
     app = aiohttp.web.Application()
     app["event_source"] = sync_event_source
-    
-    #dispatchers
+
+    # dispatchers
     app["tx_dispatcher"] = Dispatcher("tx")
     app["blk_dispatcher"] = Dispatcher("blk")
-    
+
     # routes
     app.router.add_get(EVENTS_ENDPOINT, websocket_tx_handler)
     app.router.add_get(EVENTS_ENDPOINT_BLOCKS, websocket_blk_handler)
 
-    app.on_startup.append( start_background_tasks )
+    app.on_startup.append(start_background_tasks)
     return app
-        
+
+
 def start(sync_event_source):
     app = init_app(sync_event_source)
     aiohttp.web.run_app(app, host=Config().get()["wsserver"]["host"], port=Config().get()["wsserver"]["port"])

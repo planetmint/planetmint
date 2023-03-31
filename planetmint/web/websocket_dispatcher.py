@@ -56,17 +56,17 @@ class Dispatcher:
         for tx in block["transactions"]:
             txids.append(tx.id)
         return {"height": block["height"], "hash": block["hash"], "transaction_ids": txids}
-    
+
     @staticmethod
-    def get_queue_on_demand(app, queue_name:str):
+    def get_queue_on_demand(app, queue_name: str):
         if queue_name not in app:
             logging.debug(f"creating queue: {queue_name}")
             get_loop = asyncio.get_event_loop()
             run_loop = asyncio.get_running_loop()
             logging.debug(f"get loop: {get_loop}")
             logging.debug(f"run loop: {run_loop}")
-            app[queue_name] = asyncio.Queue( loop=get_loop)
-            
+            app[queue_name] = asyncio.Queue(loop=get_loop)
+
         return app[queue_name]
 
     @staticmethod
@@ -87,11 +87,11 @@ class Dispatcher:
         logger.debug(f"DISPATCHER CALLED : {self.type}")
         while True:
             if self.type == "tx":
-                event = await Dispatcher.get_queue_on_demand( app, "tx_source").get()
+                event = await Dispatcher.get_queue_on_demand(app, "tx_source").get()
             elif self.type == "blk":
-                event = await Dispatcher.get_queue_on_demand( app, "blk_source").get()
+                event = await Dispatcher.get_queue_on_demand(app, "blk_source").get()
             str_buffer = []
-            
+
             if event == POISON_PILL:
                 return
             logger.debug(f"DISPATCHER ELEMENT : {event}")

@@ -111,7 +111,7 @@ class TransactionListApi(Resource):
                 except Exception as e:
                     logger.error(f"Tendermint RPC connection issue: {e}")
                     status_code = 500
-                    message = { "detail": "Tendermint RPC connection error"}
+                    message = {"detail": "Tendermint RPC connection error"}
 
         if status_code == 202:
             response = jsonify(tx)
