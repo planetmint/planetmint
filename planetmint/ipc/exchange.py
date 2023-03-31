@@ -1,9 +1,11 @@
 from queue import Empty
 from collections import defaultdict
 import multiprocessing
+import logging
 
 from planetmint.ipc.events import EventTypes, POISON_PILL
 
+logger = logging.getLogger(__name__)
 
 class Exchange:
     """Dispatch events to subscribers."""
@@ -63,10 +65,13 @@ class Exchange:
     def run(self):
         """Start the exchange"""
         self.started_queue.put("STARTED")
-
-        while True:
-            event = self.publisher_queue.get()
-            if event == POISON_PILL:
-                return
-            else:
-                self.dispatch(event)
+        try:
+            while True:
+                event = self.publisher_queue.get()
+                if event == POISON_PILL:
+                    return
+                else:
+                    self.dispatch(event)
+        except Exception as e:
+            logger.debug(f"Exchange Exception: {e}")
+            

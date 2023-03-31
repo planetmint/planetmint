@@ -104,9 +104,14 @@ class TransactionListApi(Resource):
                             but this node only accepts transaction with higher \
                             schema version number.",
                     )
-                status_code, message = ABCI_RPC().write_transaction(
-                    MODE_LIST, ABCI_RPC().tendermint_rpc_endpoint, MODE_COMMIT, tx_obj, mode
-                )
+                try:
+                    status_code, message = ABCI_RPC().write_transaction(
+                        MODE_LIST, ABCI_RPC().tendermint_rpc_endpoint, MODE_COMMIT, tx_obj, mode
+                    )
+                except Exception as e:
+                    logger.error(f"Tendermint RPC connection issue: {e}")
+                    status_code = 500
+                    message = { "detail": "Tendermint RPC connection error"}
 
         if status_code == 202:
             response = jsonify(tx)
