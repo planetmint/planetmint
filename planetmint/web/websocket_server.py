@@ -31,6 +31,8 @@ EVENTS_ENDPOINT_BLOCKS = "/api/v1/streams/valid_blocks"
 
 
 async def access_queue(app):
+    if app["event_source"] == None:
+        return
     in_queue = app["event_source"]
     tx_source = Dispatcher.get_queue_on_demand(app, "tx_source")
     blk_source = Dispatcher.get_queue_on_demand(app, "blk_source")
