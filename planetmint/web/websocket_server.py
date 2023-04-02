@@ -18,7 +18,6 @@
 
 import asyncio
 import logging
-import threading
 import aiohttp
 
 from uuid import uuid4
@@ -26,25 +25,34 @@ from concurrent.futures import CancelledError
 from planetmint.config import Config
 from planetmint.web.websocket_dispatcher import Dispatcher
 
-
 logger = logging.getLogger(__name__)
 EVENTS_ENDPOINT = "/api/v1/streams/valid_transactions"
 EVENTS_ENDPOINT_BLOCKS = "/api/v1/streams/valid_blocks"
 
 
-def _multiprocessing_to_asyncio(in_queue, out_queue1, out_queue2, loop):
-    """Bridge between a synchronous multiprocessing queue
-    and an asynchronous asyncio queue.
-
-    Args:
-        in_queue (multiprocessing.Queue): input queue
-        out_queue (asyncio.Queue): output queue
-    """
-
-    while True:
-        value = in_queue.get()
-        loop.call_soon_threadsafe(out_queue1.put_nowait, value)
-        loop.call_soon_threadsafe(out_queue2.put_nowait, value)
+async def access_queue(app):
+    if app["event_source"] == None:
+        return
+    in_queue = app["event_source"]
+    tx_source = Dispatcher.get_queue_on_demand(app, "tx_source")
+    blk_source = Dispatcher.get_queue_on_demand(app, "blk_source")
+    logger.debug(f"REROUTING CALLED")
+    try:
+        while True:
+            try:
+                if not in_queue.empty():
+                    item = in_queue.get_nowait()
+                    logger.debug(f"REROUTING: {item}")
+                    await tx_source.put(item)
+                    await blk_source.put(item)
+                else:
+                    await asyncio.sleep(1)
+            except Exception as e:
+                logger.debug(f"REROUTING wait exception : {e}")
+                raise e  # await asyncio.sleep(1)
+    except asyncio.CancelledError as e:
+        logger.debug(f"REROUTING Cancelled : {e}")
+        pass
 
 
 async def websocket_tx_handler(request):
@@ -60,6 +68,7 @@ async def websocket_tx_handler(request):
         # Consume input buffer
         try:
             msg = await websocket.receive()
+            logger.debug(f"TX HANDLER: {msg}")
         except RuntimeError as e:
             logger.debug("Websocket exception: %s", str(e))
             break
@@ -90,6 +99,7 @@ async def websocket_blk_handler(request):
         # Consume input buffer
         try:
             msg = await websocket.receive()
+            logger.debug(f"BLK HANDLER: {msg}")
         except RuntimeError as e:
             logger.debug("Websocket exception: %s", str(e))
             break
@@ -107,43 +117,33 @@ async def websocket_blk_handler(request):
     return websocket
 
 
-def init_app(tx_source, blk_source, *, loop=None):
-    """Init the application server.
+async def start_background_tasks(app):
+    blk_dispatcher = app["blk_dispatcher"]
+    app["task1"] = asyncio.create_task(blk_dispatcher.publish(app), name="blk")
 
-    Return:
-        An aiohttp application.
-    """
+    tx_dispatcher = app["tx_dispatcher"]
+    app["task2"] = asyncio.create_task(tx_dispatcher.publish(app), name="tx")
 
-    blk_dispatcher = Dispatcher(blk_source, "blk")
-    tx_dispatcher = Dispatcher(tx_source, "tx")
+    app["task3"] = asyncio.create_task(access_queue(app), name="router")
 
-    # Schedule the dispatcher
-    loop.create_task(blk_dispatcher.publish(), name="blk")
-    loop.create_task(tx_dispatcher.publish(), name="tx")
 
-    app = aiohttp.web.Application(loop=loop)
-    app["tx_dispatcher"] = tx_dispatcher
-    app["blk_dispatcher"] = blk_dispatcher
+def init_app(sync_event_source):
+    """Create and start the WebSocket server."""
+    app = aiohttp.web.Application()
+    app["event_source"] = sync_event_source
+
+    # dispatchers
+    app["tx_dispatcher"] = Dispatcher("tx")
+    app["blk_dispatcher"] = Dispatcher("blk")
+
+    # routes
     app.router.add_get(EVENTS_ENDPOINT, websocket_tx_handler)
     app.router.add_get(EVENTS_ENDPOINT_BLOCKS, websocket_blk_handler)
+
+    app.on_startup.append(start_background_tasks)
     return app
 
 
-def start(sync_event_source, loop=None):
-    """Create and start the WebSocket server."""
-
-    if not loop:
-        loop = asyncio.get_event_loop()
-
-    tx_source = asyncio.Queue(loop=loop)
-    blk_source = asyncio.Queue(loop=loop)
-
-    bridge = threading.Thread(
-        target=_multiprocessing_to_asyncio, args=(sync_event_source, tx_source, blk_source, loop), daemon=True
-    )
-    bridge.start()
-
-    app = init_app(tx_source, blk_source, loop=loop)
-    aiohttp.web.run_app(
-        app, host=Config().get()["wsserver"]["host"], port=Config().get()["wsserver"]["port"], loop=loop
-    )
+def start(sync_event_source):
+    app = init_app(sync_event_source)
+    aiohttp.web.run_app(app, host=Config().get()["wsserver"]["host"], port=Config().get()["wsserver"]["port"])

@@ -3,11 +3,15 @@
 # SPDX-License-Identifier: (Apache-2.0 AND CC-BY-4.0)
 # Code is Apache-2.0 and docs are CC-BY-4.0
 
-
 import json
+import logging
+import asyncio
 
 from planetmint.ipc.events import EventTypes
 from planetmint.ipc.events import POISON_PILL
+from planetmint.utils.python import is_above_py39
+
+logger = logging.getLogger(__name__)
 
 
 class Dispatcher:
@@ -16,15 +20,13 @@ class Dispatcher:
     This class implements a simple publish/subscribe pattern.
     """
 
-    def __init__(self, event_source, type="tx"):
+    def __init__(self, type="tx"):
         """Create a new instance.
 
         Args:
-            event_source: a source of events. Elements in the queue
-            should be strings.
+            type: a string identifier.
         """
 
-        self.event_source = event_source
         self.subscribers = {}
         self.type = type
 
@@ -55,6 +57,18 @@ class Dispatcher:
         return {"height": block["height"], "hash": block["hash"], "transaction_ids": txids}
 
     @staticmethod
+    def get_queue_on_demand(app, queue_name: str):
+        if queue_name not in app:
+            logging.debug(f"creating queue: {queue_name}")
+            if is_above_py39():
+                app[queue_name] = asyncio.Queue()
+            else:
+                get_loop = asyncio.get_event_loop()
+                app[queue_name] = asyncio.Queue(loop=get_loop)
+
+        return app[queue_name]
+
+    @staticmethod
     def eventify_block(block):
         for tx in block["transactions"]:
             asset_ids = []
@@ -67,16 +81,19 @@ class Dispatcher:
                 asset_ids = [tx.id]
             yield {"height": block["height"], "asset_ids": asset_ids, "transaction_id": tx.id}
 
-    async def publish(self):
+    async def publish(self, app):
         """Publish new events to the subscribers."""
-
+        logger.debug(f"DISPATCHER CALLED : {self.type}")
         while True:
-            event = await self.event_source.get()
+            if self.type == "tx":
+                event = await Dispatcher.get_queue_on_demand(app, "tx_source").get()
+            elif self.type == "blk":
+                event = await Dispatcher.get_queue_on_demand(app, "blk_source").get()
             str_buffer = []
 
             if event == POISON_PILL:
                 return
-
+            logger.debug(f"DISPATCHER ELEMENT : {event}")
             if isinstance(event, str):
                 str_buffer.append(event)
             elif event.type == EventTypes.BLOCK_VALID:

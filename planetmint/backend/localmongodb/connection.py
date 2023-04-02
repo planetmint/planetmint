@@ -10,7 +10,7 @@ import pymongo
 from planetmint.config import Config
 from planetmint.backend.exceptions import DuplicateKeyError, OperationError, ConnectionError
 from transactions.common.exceptions import ConfigurationError
-from planetmint.utils import Lazy
+from planetmint.utils.lazy import Lazy
 from planetmint.backend.connection import DBConnection, _kwargs_parser
 
 logger = logging.getLogger(__name__)

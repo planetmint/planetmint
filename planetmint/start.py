@@ -13,7 +13,7 @@ from planetmint.abci.parallel_validation import ParallelValidationApp
 from planetmint.web import server, websocket_server
 from planetmint.ipc.events import EventTypes
 from planetmint.ipc.exchange import Exchange
-from planetmint.utils import Process
+from planetmint.utils.processes import Process
 from planetmint.version import __version__
 
 logger = logging.getLogger(__name__)
