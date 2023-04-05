@@ -69,5 +69,12 @@ class ABCI_RPC:
             "params": [encode_transaction(tx_dict)],
             "id": str(uuid4()),
         }
-        # TODO: handle connection errors!
-        return requests.post(endpoint, json=payload)
+        try:
+            response = requests.post(endpoint, json=payload)
+        except requests.exceptions.ConnectionError as e:
+            logger.error(f"Tendermint RCP Connection issue: {e}")
+            raise e
+        except Exception as e:
+            logger.error(f"Tendermint RCP Connection issue: {e}")
+            raise e
+        return response

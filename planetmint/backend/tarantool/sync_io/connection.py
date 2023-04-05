@@ -9,7 +9,7 @@ import tarantool
 
 from planetmint.config import Config
 from transactions.common.exceptions import ConfigurationError
-from planetmint.utils import Lazy
+from planetmint.utils.lazy import Lazy
 from planetmint.backend.connection import DBConnection
 from planetmint.backend.exceptions import ConnectionError
 

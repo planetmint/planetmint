@@ -14,7 +14,7 @@ import gunicorn.app.base
 
 from flask import Flask
 from flask_cors import CORS
-from planetmint import utils
+from planetmint.utils import processes
 from planetmint.application.validator import Validator
 from planetmint.web.routes import add_routes
 from planetmint.web.strip_content_type_middleware import StripContentTypeMiddleware
@@ -81,7 +81,7 @@ def create_app(*, debug=False, threads=1, planetmint_factory=None):
 
     app.debug = debug
 
-    app.config["validator_class_name"] = utils.pool(planetmint_factory, size=threads)
+    app.config["validator_class_name"] = processes.pool(planetmint_factory, size=threads)
 
     add_routes(app)
 

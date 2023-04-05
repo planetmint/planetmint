@@ -7,6 +7,7 @@ import queue
 import pytest
 
 from unittest.mock import patch, call
+from planetmint.utils import processes
 
 
 @pytest.fixture
@@ -32,9 +33,7 @@ def mock_queue(monkeypatch):
 
 
 def test_empty_pool_is_populated_with_instances(mock_queue):
-    from planetmint import utils
-
-    pool = utils.pool(lambda: "hello", 4)
+    pool = processes.pool(lambda: "hello", 4)
 
     assert len(mock_queue.items) == 0
 
@@ -60,9 +59,7 @@ def test_empty_pool_is_populated_with_instances(mock_queue):
 
 
 def test_pool_blocks_if_no_instances_available(mock_queue):
-    from planetmint import utils
-
-    pool = utils.pool(lambda: "hello", 4)
+    pool = processes.pool(lambda: "hello", 4)
 
     assert len(mock_queue.items) == 0
 
@@ -98,9 +95,7 @@ def test_pool_blocks_if_no_instances_available(mock_queue):
 
 
 def test_pool_raises_empty_exception_when_timeout(mock_queue):
-    from planetmint import utils
-
-    pool = utils.pool(lambda: "hello", 1, timeout=1)
+    pool = processes.pool(lambda: "hello", 1, timeout=1)
 
     assert len(mock_queue.items) == 0
 
@@ -141,7 +136,7 @@ def test_process_group_instantiates_and_start_processes(mock_process):
 
 
 def test_lazy_execution():
-    from planetmint.utils import Lazy
+    from planetmint.utils.lazy import Lazy
 
     lz = Lazy()
     lz.split(",")[1].split(" ").pop(1).strip()
@@ -164,7 +159,7 @@ def test_process_set_title():
     from uuid import uuid4
     from multiprocessing import Queue
     from setproctitle import getproctitle
-    from planetmint.utils import Process
+    from planetmint.utils.processes import Process
 
     queue = Queue()
     uuid = str(uuid4())
