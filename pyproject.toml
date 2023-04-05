@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "planetmint"
-version = "2.3.3"
+version = "2.4.0"
 description = "Planetmint: The Blockchain Database"
 authors = ["Planetmint contributors"]
 license = "AGPLv3"
@@ -45,7 +45,7 @@ protobuf = "3.20.2"
 planetmint-ipld = ">=0.0.3"
 pyasn1 = ">=0.4.8"
 python-decouple = "^3.7"
-planetmint-transactions = ">=0.7.0"
+planetmint-transactions = ">=0.8.0"
 asynctnt = "^2.0.1"
 abci = "^0.8.3"
 

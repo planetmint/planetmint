@@ -148,6 +148,10 @@ class Validator:
                 logger.warning("Invalid transaction (%s): %s", type(e).__name__, e)
                 return False
 
+        if self.validate_script(transaction) == False:
+            logger.warning("Invalid transaction script")
+            return False
+
         if transaction.operation == Transaction.CREATE:
             self.validate_create_inputs(transaction, current_transactions)
         elif transaction.operation in [Transaction.TRANSFER, Transaction.VOTE]:
@@ -156,6 +160,11 @@ class Validator:
             self.validate_compose_inputs(transaction, current_transactions)
 
         return transaction
+
+    def validate_script(self, transaction: Transaction) -> bool:
+        if transaction.script:
+            return transaction.script.validate()
+        return True
 
     def validate_election(self, transaction, current_transactions=[]):  # TODO: move somewhere else
         """Validate election transaction
