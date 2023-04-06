@@ -171,9 +171,11 @@ function init()
     utxos = box.schema.create_space('utxos', { if_not_exists = true })
     utxos:format({
         { name = 'id', type = 'string' },
-        { name = 'transaction_id', type = 'string' },
-        { name = 'output_index', type = 'unsigned' },
-        { name = 'utxo', type = 'map' }
+        { name = 'amount' , type = 'unsigned' },
+        { name = 'public_keys', type = 'array' },
+        { name = 'condition', type = 'map' },
+        { name = 'output_index', type = 'number' },
+        { name = 'transaction_id' , type = 'string' }
     })
     utxos:create_index('id', { 
         if_not_exists = true,
@@ -189,7 +191,13 @@ function init()
         parts = {
             { field = 'transaction_id', type = 'string' },
             { field = 'output_index', type = 'unsigned' }
-    }})
+        }
+    })
+    utxos:create_index('utxo_by_public_keys', { 
+        if_not_exists = true,
+        unique = false,
+        parts = {{field = 'public_keys[*]', type  = 'string' }}
+    })
 
 
     -- Elections
