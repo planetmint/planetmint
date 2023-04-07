@@ -11,7 +11,7 @@ from planetmint.const import GOVERNANCE_TRANSACTION_TYPES
 from planetmint.model.fastquery import FastQuery
 from planetmint.abci.utils import key_from_base64
 from planetmint.backend.connection import Connection
-from planetmint.backend.tarantool.const import TARANT_TABLE_TRANSACTION, TARANT_TABLE_GOVERNANCE
+from planetmint.backend.tarantool.const import TARANT_TABLE_TRANSACTION, TARANT_TABLE_GOVERNANCE, TARANT_TABLE_UTXOS, TARANT_TABLE_OUTPUT
 from planetmint.backend.models.block import Block
 from planetmint.backend.models.output import Output
 from planetmint.backend.models.asset import Asset
@@ -37,6 +37,7 @@ class DataAccessor:
 
         backend.query.store_transactions(self.connection, txns, TARANT_TABLE_TRANSACTION)
         backend.query.store_transactions(self.connection, gov_txns, TARANT_TABLE_GOVERNANCE)
+        [self.update_utxoset(t) for t in txns + gov_txns]
 
     def delete_transactions(self, txs):
         return backend.query.delete_transactions(self.connection, txs)
@@ -276,6 +277,18 @@ class DataAccessor:
     def get_asset_tokens_for_public_key(self, transaction_id, election_pk):
         txns = backend.query.get_asset_tokens_for_public_key(self.connection, transaction_id, election_pk)
         return txns
+    
+    def update_utxoset(self, transaction):
+        spent_outputs = [
+            {"output_index": input["fulfills"]["output_index"], "transaction_id": input["fulfills"]["transaction_id"]} 
+            for input in transaction["inputs"] if input["fulfills"] != None]
+
+        if spent_outputs:
+            backend.query.delete_unspent_outputs(self.connection, spent_outputs)
+        [
+            backend.query.store_transaction_outputs(self.connection, Output.outputs_dict(output, transaction["id"]), index, TARANT_TABLE_UTXOS)
+            for index, output in enumerate(transaction["outputs"])
+        ]
 
     @property
     def fastquery(self):

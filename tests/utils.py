@@ -171,33 +171,6 @@ def get_utxoset_merkle_root(connection):
     return merkleroot(sorted(hashes))
 
 
-def store_unspent_outputs(connection, *unspent_outputs):
-    """Store the given ``unspent_outputs`` (utxos).
-
-    Args:
-        *unspent_outputs (:obj:`tuple` of :obj:`dict`): Variable
-            length tuple or list of unspent outputs.
-    """
-    if unspent_outputs:
-        return backend.query.store_unspent_outputs(connection, *unspent_outputs)
-
-
-def update_utxoset(connection, transaction):
-    """
-    Update the UTXO set given ``transaction``. That is, remove
-    the outputs that the given ``transaction`` spends, and add the
-    outputs that the given ``transaction`` creates.
-
-    Args:
-        transaction (:obj:`~planetmint.models.Transaction`): A new
-            transaction incoming into the system for which the UTXOF
-            set needs to be updated.
-    """
-    spent_outputs = [spent_output for spent_output in transaction.spent_outputs]
-    if spent_outputs:
-        delete_unspent_outputs(connection, *spent_outputs)
-    store_unspent_outputs(connection, *[utxo._asdict() for utxo in transaction.unspent_outputs])
-
 
 class ProcessGroup(object):
     def __init__(self, concurrency=None, group=None, target=None, name=None, args=None, kwargs=None, daemon=None):

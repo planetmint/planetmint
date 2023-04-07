@@ -126,12 +126,12 @@ def get_transactions_by_metadata(connection, metadata: str, limit: int = 1000) -
     tx_ids = [tx[0] for tx in txs]
     return get_complete_transactions_by_ids(connection, tx_ids)
 
-
+@register_query(TarantoolDBConnection)
 @catch_db_exception
-def store_transaction_outputs(connection, output: Output, index: int) -> str:
+def store_transaction_outputs(connection, output: Output, index: int, table=TARANT_TABLE_OUTPUT) -> str:
     output_id = uuid4().hex
     connection.connect().insert(
-        TARANT_TABLE_OUTPUT,
+        table,
         (
             output_id,
             int(output.amount),
@@ -363,7 +363,7 @@ def store_unspent_outputs(connection, *unspent_outputs: list):
 
 @register_query(TarantoolDBConnection)
 @catch_db_exception
-def delete_unspent_outputs(connection, *unspent_outputs: list):
+def delete_unspent_outputs(connection, unspent_outputs: list):
     result = []
     if unspent_outputs:
         for utxo in unspent_outputs:

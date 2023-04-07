@@ -208,7 +208,7 @@ def get_block_with_transaction(connection, txid):
 
 
 @singledispatch
-def store_transaction_outputs(connection, output: Output, index: int):
+def store_transaction_outputs(connection, output: Output, index: int, table: str):
     """Store the transaction outputs.
 
     Args:
