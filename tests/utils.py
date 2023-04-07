@@ -127,17 +127,6 @@ def generate_election(b, cls, public_key, private_key, asset_data, voter_keys):
     return election, votes
 
 
-def delete_unspent_outputs(connection, *unspent_outputs):
-    """Deletes the given ``unspent_outputs`` (utxos).
-
-    Args:
-        *unspent_outputs (:obj:`tuple` of :obj:`dict`): Variable
-            length tuple or list of unspent outputs.
-    """
-    if unspent_outputs:
-        return backend.query.delete_unspent_outputs(connection, *unspent_outputs)
-
-
 def get_utxoset_merkle_root(connection):
     """Returns the merkle root of the utxoset. This implies that
     the utxoset is first put into a merkle tree.

@@ -22,7 +22,7 @@ from ipld import marshal, multihash
 from uuid import uuid4
 
 from planetmint.abci.rpc import MODE_COMMIT, MODE_LIST
-from tests.utils import delete_unspent_outputs, get_utxoset_merkle_root
+from tests.utils import get_utxoset_merkle_root
 
 
 @pytest.mark.bdb
@@ -184,43 +184,58 @@ def test_store_bulk_transaction(mocker, b, signed_create_tx, signed_transfer_tx)
 
 
 @pytest.mark.bdb
-def test_delete_zero_unspent_outputs(b, utxoset):
-    unspent_outputs, utxo_collection = utxoset
-    num_rows_before_operation = utxo_collection.select().rowcount
-    delete_res = delete_unspent_outputs(b.models.connection)  # noqa: F841
-    num_rows_after_operation = utxo_collection.select().rowcount
-    # assert delete_res is None
+def test_delete_zero_unspent_outputs(b, alice):
+    from planetmint.backend.tarantool.sync_io import query
+    utxo_space = b.models.connection.get_space("utxos")
+
+    tx = Create.generate(
+        [alice.public_key],
+        [([alice.public_key], 8), ([alice.public_key], 1)]
+    ).sign([alice.private_key])
+
+    b.models.store_bulk_transactions([tx])
+
+    num_rows_before_operation = utxo_space.select().rowcount
+    query.delete_unspent_outputs(b.models.connection, [])  # noqa: F841
+    num_rows_after_operation = utxo_space.select().rowcount
     assert num_rows_before_operation == num_rows_after_operation
 
 
 @pytest.mark.bdb
-def test_delete_one_unspent_outputs(b, dummy_unspent_outputs):
+def test_delete_one_unspent_outputs(b, alice):
+    from planetmint.backend.tarantool.sync_io import query
     utxo_space = b.models.connection.get_space("utxos")
-    for utxo in dummy_unspent_outputs:
-        res = utxo_space.insert((uuid4().hex, utxo["transaction_id"], utxo["output_index"], utxo))
-        assert res
 
-    delete_unspent_outputs(b.models.connection, dummy_unspent_outputs[0])
-    res1 = utxo_space.select(["a", 1], index="utxo_by_transaction_id_and_output_index").data
-    res2 = utxo_space.select(["b", 0], index="utxo_by_transaction_id_and_output_index").data
-    assert len(res1) + len(res2) == 2
-    res3 = utxo_space.select(["a", 0], index="utxo_by_transaction_id_and_output_index").data
-    assert len(res3) == 0
+    tx = Create.generate(
+        [alice.public_key],
+        [([alice.public_key], 8), ([alice.public_key], 1)]
+    ).sign([alice.private_key])
+
+    b.models.store_bulk_transactions([tx])
+
+    query.delete_unspent_outputs(b.models.connection, [{"transaction_id": tx.id, "output_index": 0}])
+    res1 = utxo_space.select([tx.id, 1], index="utxo_by_transaction_id_and_output_index").data
+    res2 = utxo_space.select([tx.id, 0], index="utxo_by_transaction_id_and_output_index").data
+    assert len(res1) + len(res2) == 1
+    assert len(res2) == 0
 
 
 @pytest.mark.bdb
-def test_delete_many_unspent_outputs(b, dummy_unspent_outputs):
+def test_delete_many_unspent_outputs(b, alice):
+    from planetmint.backend.tarantool.sync_io import query
     utxo_space = b.models.connection.get_space("utxos")
-    for utxo in dummy_unspent_outputs:
-        res = utxo_space.insert((uuid4().hex, utxo["transaction_id"], utxo["output_index"], utxo))
-        assert res
 
-    delete_unspent_outputs(b.models.connection, *dummy_unspent_outputs[::2])
-    res1 = utxo_space.select(["a", 0], index="utxo_by_transaction_id_and_output_index").data
-    res2 = utxo_space.select(["b", 0], index="utxo_by_transaction_id_and_output_index").data
-    assert len(res1) + len(res2) == 0
-    res3 = utxo_space.select([], index="utxo_by_transaction_id_and_output_index").data
-    assert len(res3) == 1
+    tx = Create.generate(
+        [alice.public_key],
+        [([alice.public_key], 8), ([alice.public_key], 1), ([alice.public_key], 4)]
+    ).sign([alice.private_key])
+
+    b.models.store_bulk_transactions([tx])
+
+    query.delete_unspent_outputs(b.models.connection, [{"transaction_id": tx.id, "output_index": 0},{"transaction_id": tx.id, "output_index": 2}])
+    res1 = utxo_space.select([tx.id, 1], index="utxo_by_transaction_id_and_output_index").data
+    res2 = utxo_space.select([tx.id, 0], index="utxo_by_transaction_id_and_output_index").data
+    assert len(res1) + len(res2) == 1
 
 
 def test_get_utxoset_merkle_root_when_no_utxo(b):
