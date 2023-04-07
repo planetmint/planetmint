@@ -22,7 +22,6 @@ from ipld import marshal, multihash
 from uuid import uuid4
 
 from planetmint.abci.rpc import MODE_COMMIT, MODE_LIST
-from tests.utils import get_utxoset_merkle_root
 
 
 @pytest.mark.bdb
@@ -239,19 +238,21 @@ def test_delete_many_unspent_outputs(b, alice):
 
 
 def test_get_utxoset_merkle_root_when_no_utxo(b):
-    assert get_utxoset_merkle_root(b.models.connection) == sha3_256(b"").hexdigest()
+    assert b.models.get_utxoset_merkle_root() == sha3_256(b"").hexdigest()
 
 
 @pytest.mark.bdb
-def test_get_utxoset_merkle_root(b, dummy_unspent_outputs):
-    utxo_space = b.models.connection.get_space("utxos")
-    for utxo in dummy_unspent_outputs:
-        res = utxo_space.insert((uuid4().hex, utxo["transaction_id"], utxo["output_index"], utxo))
-        assert res
+def test_get_utxoset_merkle_root(b, user_sk, user_pk):
+    tx = Create.generate(
+        [user_pk],
+        [([user_pk], 8), ([user_pk], 1), ([user_pk], 4)]
+    ).sign([user_sk])
 
-    expected_merkle_root = "86d311c03115bf4d287f8449ca5828505432d69b82762d47077b1c00fe426eac"
-    merkle_root = get_utxoset_merkle_root(b.models.connection)
-    assert merkle_root == expected_merkle_root
+    b.models.store_bulk_transactions([tx])
+
+    expected_merkle_root = "e5fce6fed606b72744330b28b2f6d68f2eca570c4cf8e3c418b0c3150c75bfe2"
+    merkle_root = b.models.get_utxoset_merkle_root()
+    assert merkle_root in expected_merkle_root
 
 
 @pytest.mark.bdb

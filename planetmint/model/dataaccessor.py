@@ -1,5 +1,6 @@
 import rapidjson
 from itertools import chain
+from hashlib import sha3_256
 
 from transactions import Transaction
 from transactions.common.exceptions import DoubleSpend
@@ -9,7 +10,7 @@ from transactions.common.exceptions import InputDoesNotExist
 from planetmint import config_utils, backend
 from planetmint.const import GOVERNANCE_TRANSACTION_TYPES
 from planetmint.model.fastquery import FastQuery
-from planetmint.abci.utils import key_from_base64
+from planetmint.abci.utils import key_from_base64, merkleroot
 from planetmint.backend.connection import Connection
 from planetmint.backend.tarantool.const import TARANT_TABLE_TRANSACTION, TARANT_TABLE_GOVERNANCE, TARANT_TABLE_UTXOS, TARANT_TABLE_OUTPUT
 from planetmint.backend.models.block import Block
@@ -74,6 +75,7 @@ class DataAccessor:
             :obj:`list` of TransactionLink: list of ``txid`` s and ``output`` s
             pointing to another transaction's condition
         """
+        # TODO: adjust for new utxo handling, query and return outputs based on spent
         outputs = self.fastquery.get_outputs_by_public_key(owner)
         if spent is None:
             return outputs
@@ -289,6 +291,44 @@ class DataAccessor:
             backend.query.store_transaction_outputs(self.connection, Output.outputs_dict(output, transaction["id"]), index, TARANT_TABLE_UTXOS)
             for index, output in enumerate(transaction["outputs"])
         ]
+
+    def get_utxoset_merkle_root(self):
+        """Returns the merkle root of the utxoset. This implies that
+        the utxoset is first put into a merkle tree.
+
+        For now, the merkle tree and its root will be computed each
+        time. This obviously is not efficient and a better approach
+        that limits the repetition of the same computation when
+        unnecesary should be sought. For instance, future optimizations
+        could simply re-compute the branches of the tree that were
+        affected by a change.
+
+        The transaction hash (id) and output index should be sufficient
+        to uniquely identify a utxo, and consequently only that
+        information from a utxo record is needed to compute the merkle
+        root. Hence, each node of the merkle tree should contain the
+        tuple (txid, output_index).
+
+        .. important:: The leaves of the tree will need to be sorted in
+            some kind of lexicographical order.
+
+        Returns:
+            str: Merkle root in hexadecimal form.
+        """
+        utxoset = backend.query.get_unspent_outputs(self.connection)
+        # TODO Once ready, use the already pre-computed utxo_hash field.
+        # See common/transactions.py for details.
+        
+        print(utxoset)
+        
+        hashes = [
+            sha3_256("{}{}".format(utxo["transaction_id"], utxo["output_index"]).encode()).digest() for utxo in utxoset
+        ]
+
+        print(sorted(hashes))
+
+        # TODO Notice the sorted call!
+        return merkleroot(sorted(hashes))
 
     @property
     def fastquery(self):

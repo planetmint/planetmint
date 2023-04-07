@@ -364,8 +364,8 @@ def delete_unspent_outputs(connection, unspent_outputs: list):
 @register_query(TarantoolDBConnection)
 @catch_db_exception
 def get_unspent_outputs(connection, query=None):  # for now we don't have implementation for 'query'.
-    _utxos = connection.connect().select(TARANT_TABLE_UTXOS, []).data
-    return [utx[3] for utx in _utxos]
+    utxos = connection.connect().select(TARANT_TABLE_UTXOS, []).data
+    return [{"transaction_id": utxo[5], "output_index": utxo[4]} for utxo in utxos]
 
 
 @register_query(TarantoolDBConnection)
