@@ -152,17 +152,17 @@ def test_post_transaction_invalid_mode(b, test_abci_rpc):
 
 @pytest.mark.bdb
 def test_update_utxoset(b, signed_create_tx, signed_transfer_tx, db_conn):
-    update_utxoset(b.models.connection, signed_create_tx)
+    b.models.update_utxoset(signed_create_tx.to_dict())
     utxoset = db_conn.get_space("utxos")
     assert utxoset.select().rowcount == 1
     utxo = utxoset.select().data
-    assert utxo[0][1] == signed_create_tx.id
-    assert utxo[0][2] == 0
-    update_utxoset(b.models.connection, signed_transfer_tx)
+    assert utxo[0][5] == signed_create_tx.id
+    assert utxo[0][4] == 0
+    b.models.update_utxoset(signed_transfer_tx.to_dict())
     assert utxoset.select().rowcount == 1
     utxo = utxoset.select().data
-    assert utxo[0][1] == signed_transfer_tx.id
-    assert utxo[0][2] == 0
+    assert utxo[0][5] == signed_transfer_tx.id
+    assert utxo[0][4] == 0
 
 
 @pytest.mark.bdb
