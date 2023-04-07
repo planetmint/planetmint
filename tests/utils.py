@@ -125,10 +125,6 @@ def generate_election(b, cls, public_key, private_key, asset_data, voter_keys):
     return election, votes
 
 
-
-
-
-
 class ProcessGroup(object):
     def __init__(self, concurrency=None, group=None, target=None, name=None, args=None, kwargs=None, daemon=None):
         self.concurrency = concurrency or multiprocessing.cpu_count()

@@ -185,12 +185,12 @@ def test_store_bulk_transaction(mocker, b, signed_create_tx, signed_transfer_tx)
 @pytest.mark.bdb
 def test_delete_zero_unspent_outputs(b, alice):
     from planetmint.backend.tarantool.sync_io import query
+
     utxo_space = b.models.connection.get_space("utxos")
 
-    tx = Create.generate(
-        [alice.public_key],
-        [([alice.public_key], 8), ([alice.public_key], 1)]
-    ).sign([alice.private_key])
+    tx = Create.generate([alice.public_key], [([alice.public_key], 8), ([alice.public_key], 1)]).sign(
+        [alice.private_key]
+    )
 
     b.models.store_bulk_transactions([tx])
 
@@ -203,12 +203,12 @@ def test_delete_zero_unspent_outputs(b, alice):
 @pytest.mark.bdb
 def test_delete_one_unspent_outputs(b, alice):
     from planetmint.backend.tarantool.sync_io import query
+
     utxo_space = b.models.connection.get_space("utxos")
 
-    tx = Create.generate(
-        [alice.public_key],
-        [([alice.public_key], 8), ([alice.public_key], 1)]
-    ).sign([alice.private_key])
+    tx = Create.generate([alice.public_key], [([alice.public_key], 8), ([alice.public_key], 1)]).sign(
+        [alice.private_key]
+    )
 
     b.models.store_bulk_transactions([tx])
 
@@ -222,16 +222,19 @@ def test_delete_one_unspent_outputs(b, alice):
 @pytest.mark.bdb
 def test_delete_many_unspent_outputs(b, alice):
     from planetmint.backend.tarantool.sync_io import query
+
     utxo_space = b.models.connection.get_space("utxos")
 
     tx = Create.generate(
-        [alice.public_key],
-        [([alice.public_key], 8), ([alice.public_key], 1), ([alice.public_key], 4)]
+        [alice.public_key], [([alice.public_key], 8), ([alice.public_key], 1), ([alice.public_key], 4)]
     ).sign([alice.private_key])
 
     b.models.store_bulk_transactions([tx])
 
-    query.delete_unspent_outputs(b.models.connection, [{"transaction_id": tx.id, "output_index": 0},{"transaction_id": tx.id, "output_index": 2}])
+    query.delete_unspent_outputs(
+        b.models.connection,
+        [{"transaction_id": tx.id, "output_index": 0}, {"transaction_id": tx.id, "output_index": 2}],
+    )
     res1 = utxo_space.select([tx.id, 1], index="utxo_by_transaction_id_and_output_index").data
     res2 = utxo_space.select([tx.id, 0], index="utxo_by_transaction_id_and_output_index").data
     assert len(res1) + len(res2) == 1
@@ -243,10 +246,7 @@ def test_get_utxoset_merkle_root_when_no_utxo(b):
 
 @pytest.mark.bdb
 def test_get_utxoset_merkle_root(b, user_sk, user_pk):
-    tx = Create.generate(
-        [user_pk],
-        [([user_pk], 8), ([user_pk], 1), ([user_pk], 4)]
-    ).sign([user_sk])
+    tx = Create.generate([user_pk], [([user_pk], 8), ([user_pk], 1), ([user_pk], 4)]).sign([user_sk])
 
     b.models.store_bulk_transactions([tx])
 
