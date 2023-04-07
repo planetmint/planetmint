@@ -344,25 +344,6 @@ def delete_transactions(connection, txn_ids: list):
 
 @register_query(TarantoolDBConnection)
 @catch_db_exception
-def store_unspent_outputs(connection, *unspent_outputs: list):
-    result = []
-    if unspent_outputs:
-        for utxo in unspent_outputs:
-            try:
-                output = (
-                    connection.connect()
-                    .insert(TARANT_TABLE_UTXOS, (uuid4().hex, utxo["transaction_id"], utxo["output_index"], utxo))
-                    .data
-                )
-                result.append(output)
-            except Exception as e:
-                logger.info(f"Could not insert unspent output: {e}")
-                raise OperationDataInsertionError()
-    return result
-
-
-@register_query(TarantoolDBConnection)
-@catch_db_exception
 def delete_unspent_outputs(connection, unspent_outputs: list):
     result = []
     if unspent_outputs:

@@ -223,50 +223,6 @@ def test_delete_many_unspent_outputs(b, dummy_unspent_outputs):
     assert len(res3) == 1
 
 
-@pytest.mark.bdb
-def test_store_zero_unspent_output(b):
-    utxos = b.models.connection.get_space("utxos")
-    num_rows_before_operation = utxos.select().rowcount
-    res = store_unspent_outputs(b.models.connection)
-    num_rows_after_operation = utxos.select().rowcount
-    assert res is None
-    assert num_rows_before_operation == num_rows_after_operation
-
-
-@pytest.mark.bdb
-def test_store_one_unspent_output(b, unspent_output_1, utxo_collection):
-    from planetmint.backend.tarantool.sync_io.connection import TarantoolDBConnection
-
-    res = store_unspent_outputs(b.models.connection, unspent_output_1)
-    if not isinstance(b.models.connection, TarantoolDBConnection):
-        assert res.acknowledged
-        assert len(list(res)) == 1
-        assert (
-            utxo_collection.count_documents(
-                {
-                    "transaction_id": unspent_output_1["transaction_id"],
-                    "output_index": unspent_output_1["output_index"],
-                }
-            )
-            == 1
-        )
-    else:
-        utx_space = b.models.connection.get_space("utxos")
-        res = utx_space.select(
-            [unspent_output_1["transaction_id"], unspent_output_1["output_index"]],
-            index="utxo_by_transaction_id_and_output_index",
-        )
-        assert len(res.data) == 1
-
-
-@pytest.mark.bdb
-def test_store_many_unspent_outputs(b, unspent_outputs):
-    store_unspent_outputs(b.models.connection, *unspent_outputs)
-    utxo_space = b.models.connection.get_space("utxos")
-    res = utxo_space.select([unspent_outputs[0]["transaction_id"]], index="utxos_by_transaction_id")
-    assert len(res.data) == 3
-
-
 def test_get_utxoset_merkle_root_when_no_utxo(b):
     assert get_utxoset_merkle_root(b.models.connection) == sha3_256(b"").hexdigest()
 
