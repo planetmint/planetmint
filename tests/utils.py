@@ -10,7 +10,6 @@ import random
 
 from functools import singledispatch
 
-from planetmint import backend
 from planetmint.backend.localmongodb.connection import LocalMongoDBConnection
 from planetmint.backend.tarantool.sync_io.connection import TarantoolDBConnection
 from planetmint.backend.schema import TABLES

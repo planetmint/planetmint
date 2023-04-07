@@ -337,6 +337,7 @@ def delete_transactions(connection, txn_ids: list):
         _outputs = get_outputs_by_tx_id(connection, _id)
         for x in range(len(_outputs)):
             connection.connect().call("delete_output", (_outputs[x].id))
+            connection.connect().delete(TARANT_TABLE_UTXOS, (_id,_outputs[x].index), index="utxo_by_transaction_id_and_output_index")
     for _id in txn_ids:
         connection.connect().delete(TARANT_TABLE_TRANSACTION, _id)
         connection.connect().delete(TARANT_TABLE_GOVERNANCE, _id)

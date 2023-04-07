@@ -89,11 +89,7 @@ def test_filter_unspent_outputs(b, user_pk, user_sk, test_models):
     }
 
 
-def test_outputs_query_key_order(b, user_pk, user_sk, user2_pk, user2_sk, test_models, test_validator):
-    from planetmint import backend
-    from planetmint.backend.connection import Connection
-    from planetmint.backend import query
-
+def test_outputs_query_key_order(b, user_pk, user_sk, user2_pk, test_validator):
     tx1 = Create.generate([user_pk], [([user_pk], 3), ([user_pk], 2), ([user_pk], 1)]).sign([user_sk])
     b.models.store_bulk_transactions([tx1])
 
@@ -101,34 +97,21 @@ def test_outputs_query_key_order(b, user_pk, user_sk, user2_pk, user2_sk, test_m
     tx2 = Transfer.generate([inputs[1]], [([user2_pk], 2)], [tx1.id]).sign([user_sk])
     assert test_validator.validate_transaction(tx2)
 
-    tx2_dict = tx2.to_dict()
-    fulfills = tx2_dict["inputs"][0]["fulfills"]
-    tx2_dict["inputs"][0]["fulfills"] = {
-        "transaction_id": fulfills["transaction_id"],
-        "output_index": fulfills["output_index"],
-    }
-    backend.query.store_transactions(test_models.connection, [tx2_dict])
+    b.models.store_bulk_transactions([tx2])
 
-    outputs = test_models.get_outputs_filtered(user_pk, spent=False)
+    outputs = b.models.get_outputs_filtered(user_pk, spent=False)
     assert len(outputs) == 2
 
-    outputs = test_models.get_outputs_filtered(user2_pk, spent=False)
+    outputs = b.models.get_outputs_filtered(user2_pk, spent=False)
     assert len(outputs) == 1
 
     # clean the transaction, metdata and asset collection
-    connection = Connection()
-    query.delete_transactions(test_models.connection, txn_ids=[tx1.id, tx2.id])
+    b.models.delete_transactions([tx1.id, tx2.id])
 
-    b.models.store_bulk_transactions([tx1])
-    tx2_dict = tx2.to_dict()
-    tx2_dict["inputs"][0]["fulfills"] = {
-        "output_index": fulfills["output_index"],
-        "transaction_id": fulfills["transaction_id"],
-    }
+    b.models.store_bulk_transactions([tx1, tx2])
 
-    backend.query.store_transactions(test_models.connection, [tx2_dict])
-    outputs = test_models.get_outputs_filtered(user_pk, spent=False)
+    outputs = b.models.get_outputs_filtered(user_pk, spent=False)
     assert len(outputs) == 2
 
-    outputs = test_models.get_outputs_filtered(user2_pk, spent=False)
+    outputs = b.models.get_outputs_filtered(user2_pk, spent=False)
     assert len(outputs) == 1
