@@ -66,7 +66,7 @@ class DataAccessor:
     def get_outputs_by_tx_id(self, txid):
         return backend.query.get_outputs_by_tx_id(self.connection, txid)
 
-    def get_outputs_filtered(self, owner, spent=None):
+    def get_outputs_filtered(self, owner, spent=None) -> list[Output]:
         """Get a list of output links filtered on some criteria
 
         Args:
@@ -81,9 +81,7 @@ class DataAccessor:
         """
         outputs = backend.query.get_outputs_by_owner(self.connection, owner)
         unspent_outputs = backend.query.get_outputs_by_owner(self.connection, owner, TARANT_TABLE_UTXOS)
-        if spent is None:
-            return outputs
-        elif spent is True:
+        if spent is True:
             spent_outputs = []
             for output in outputs:
                 if not any(
@@ -94,6 +92,7 @@ class DataAccessor:
             return unspent_outputs
         elif spent is False:
             return unspent_outputs
+        return outputs
 
     def store_block(self, block):
         """Create a new block."""

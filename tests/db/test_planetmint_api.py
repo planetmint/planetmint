@@ -104,14 +104,15 @@ class TestTransactionValidation(object):
     def test_non_create_valid_input_wrong_owner(self, b, user_pk):
         from transactions.common.crypto import generate_key_pair
         from transactions.common.exceptions import InvalidSignature
+        from transactions.common.transaction_link import TransactionLink
 
-        input_tx = b.models.fastquery.get_outputs_by_public_key(user_pk).pop()
-        input_transaction = b.models.get_transaction(input_tx.txid)
+        output = b.models.get_outputs_filtered(user_pk).pop()
+        input_transaction = b.models.get_transaction(output.transaction_id)
         sk, pk = generate_key_pair()
         tx = Create.generate([pk], [([user_pk], 1)])
         tx.operation = "TRANSFER"
         tx.assets = [{"id": input_transaction.id}]
-        tx.inputs[0].fulfills = input_tx
+        tx.inputs[0].fulfills = TransactionLink(output.transaction_id, output.index)
 
         with pytest.raises(InvalidSignature):
             b.validate_transaction(tx)
