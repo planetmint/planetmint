@@ -447,6 +447,11 @@ def get_outputs_by_tx_id(connection, tx_id: str) -> list[Output]:
     """Retrieve outputs for a transaction by its id"""
     raise NotImplementedError
 
+@singledispatch
+def get_outputs_by_owner(connection, public_key: str, table: str) -> list[Output]:
+    """Retrieve an owners outputs by public key"""
+    raise NotImplementedError
+
 
 @singledispatch
 def get_metadata(conn, transaction_ids):

@@ -507,3 +507,10 @@ def get_latest_abci_chain(connection) -> Union[dict, None]:
         return None
     _chain = sorted(_all_chains, key=itemgetter(1), reverse=True)[0]
     return {"chain_id": _chain[0], "height": _chain[1], "is_synced": _chain[2]}
+
+
+@register_query(TarantoolDBConnection)
+@catch_db_exception
+def get_outputs_by_owner(connection, public_key: str, table=TARANT_TABLE_OUTPUT) -> list[Output]:
+    outputs = connection.connect().select(table, public_key, index="public_keys")
+    return [Output.from_tuple(output) for output in outputs]

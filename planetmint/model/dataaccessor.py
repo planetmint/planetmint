@@ -80,14 +80,18 @@ class DataAccessor:
             :obj:`list` of TransactionLink: list of ``txid`` s and ``output`` s
             pointing to another transaction's condition
         """
-        # TODO: adjust for new utxo handling, query and return outputs based on spent
-        outputs = self.fastquery.get_outputs_by_public_key(owner)
+        outputs = backend.query.get_outputs_by_owner(self.connection, owner)
+        unspent_outputs = backend.query.get_outputs_by_owner(self.connection, owner, TARANT_TABLE_UTXOS)
         if spent is None:
             return outputs
         elif spent is True:
-            return self.fastquery.filter_unspent_outputs(outputs)
+            spent_outputs = []
+            for output in outputs:
+                if not any(utxo.transaction_id == output.transaction_id and utxo.index == output.index for utxo in unspent_outputs):
+                    spent_outputs.append(output)
+            return unspent_outputs
         elif spent is False:
-            return self.fastquery.filter_spent_outputs(outputs)
+            return unspent_outputs
 
     def store_block(self, block):
         """Create a new block."""

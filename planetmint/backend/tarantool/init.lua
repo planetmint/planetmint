@@ -193,7 +193,7 @@ function init()
             { field = 'output_index', type = 'unsigned' }
         }
     })
-    utxos:create_index('utxo_by_public_keys', { 
+    utxos:create_index('public_keys', { 
         if_not_exists = true,
         unique = false,
         parts = {{field = 'public_keys[*]', type  = 'string' }}
