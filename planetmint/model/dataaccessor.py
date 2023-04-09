@@ -9,7 +9,6 @@ from transactions.common.exceptions import InputDoesNotExist
 
 from planetmint import config_utils, backend
 from planetmint.const import GOVERNANCE_TRANSACTION_TYPES
-from planetmint.model.fastquery import FastQuery
 from planetmint.abci.utils import key_from_base64, merkleroot
 from planetmint.backend.connection import Connection
 from planetmint.backend.tarantool.const import (
@@ -87,7 +86,10 @@ class DataAccessor:
         elif spent is True:
             spent_outputs = []
             for output in outputs:
-                if not any(utxo.transaction_id == output.transaction_id and utxo.index == output.index for utxo in unspent_outputs):
+                if not any(
+                    utxo.transaction_id == output.transaction_id and utxo.index == output.index
+                    for utxo in unspent_outputs
+                ):
                     spent_outputs.append(output)
             return unspent_outputs
         elif spent is False:
@@ -340,7 +342,3 @@ class DataAccessor:
 
         # TODO Notice the sorted call!
         return merkleroot(sorted(hashes))
-
-    @property
-    def fastquery(self):
-        return FastQuery(self.connection)
