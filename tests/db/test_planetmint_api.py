@@ -7,6 +7,7 @@ from unittest.mock import patch
 import pytest
 from base58 import b58decode
 from ipld import marshal, multihash
+from operator import attrgetter
 
 from transactions.common import crypto
 from transactions.common.transaction import TransactionLink
@@ -130,8 +131,8 @@ class TestTransactionValidation(object):
 class TestMultipleInputs(object):
     def test_transfer_single_owner_single_input(self, b, inputs, user_pk, user_sk):
         user2_sk, user2_pk = crypto.generate_key_pair()
-        tx_link = b.models.fastquery.get_outputs_by_public_key(user_pk).pop()
-        input_tx = b.models.get_transaction(tx_link.txid)
+        tx_output = b.models.get_outputs_filtered(user_pk).pop()
+        input_tx = b.models.get_transaction(tx_output.transaction_id)
         tx_converted = Transaction.from_dict(input_tx.to_dict(), True)
 
         tx = Transfer.generate(tx_converted.to_inputs(), [([user2_pk], 1)], asset_ids=[input_tx.id])
@@ -145,9 +146,9 @@ class TestMultipleInputs(object):
     def test_single_owner_before_multiple_owners_after_single_input(self, b, user_sk, user_pk, inputs):
         user2_sk, user2_pk = crypto.generate_key_pair()
         user3_sk, user3_pk = crypto.generate_key_pair()
-        tx_link = b.models.fastquery.get_outputs_by_public_key(user_pk).pop()
+        tx_output = b.models.get_outputs_filtered(user_pk).pop()
 
-        input_tx = b.models.get_transaction(tx_link.txid)
+        input_tx = b.models.get_transaction(tx_output.transaction_id)
         tx_converted = Transaction.from_dict(input_tx.to_dict(), True)
 
         tx = Transfer.generate(tx_converted.to_inputs(), [([user2_pk, user3_pk], 1)], asset_ids=[input_tx.id])
@@ -166,8 +167,8 @@ class TestMultipleInputs(object):
         tx = tx.sign([alice.private_key])
         b.models.store_bulk_transactions([tx])
 
-        owned_input = b.models.fastquery.get_outputs_by_public_key(user_pk).pop()
-        input_tx = b.models.get_transaction(owned_input.txid)
+        tx_output = b.models.get_outputs_filtered(user_pk).pop()
+        input_tx = b.models.get_transaction(tx_output.transaction_id)
         input_tx_converted = Transaction.from_dict(input_tx.to_dict(), True)
 
         transfer_tx = Transfer.generate(input_tx_converted.to_inputs(), [([user3_pk], 1)], asset_ids=[input_tx.id])
@@ -189,8 +190,8 @@ class TestMultipleInputs(object):
         b.models.store_bulk_transactions([tx])
 
         # get input
-        tx_link = b.models.fastquery.get_outputs_by_public_key(user_pk).pop()
-        tx_input = b.models.get_transaction(tx_link.txid)
+        tx_output = b.models.get_outputs_filtered(user_pk).pop()
+        tx_input = b.models.get_transaction(tx_output.transaction_id)
         input_tx_converted = Transaction.from_dict(tx_input.to_dict(), True)
 
         tx = Transfer.generate(input_tx_converted.to_inputs(), [([user3_pk, user4_pk], 1)], asset_ids=[tx_input.id])
@@ -206,21 +207,25 @@ class TestMultipleInputs(object):
         tx = Create.generate([alice.public_key], [([user_pk], 1)])
         tx = tx.sign([alice.private_key])
         b.models.store_bulk_transactions([tx])
+        
+        stored_tx = b.models.get_transaction(tx.id)
 
-        owned_inputs_user1 = b.models.fastquery.get_outputs_by_public_key(user_pk)
-        owned_inputs_user2 = b.models.fastquery.get_outputs_by_public_key(user2_pk)
-        assert owned_inputs_user1 == [TransactionLink(tx.id, 0)]
+        owned_inputs_user1 = b.models.get_outputs_filtered(user_pk)
+        owned_inputs_user2 = b.models.get_outputs_filtered(user2_pk)
+        assert owned_inputs_user1 == [stored_tx.outputs[0]]
         assert owned_inputs_user2 == []
 
         tx_transfer = Transfer.generate(tx.to_inputs(), [([user2_pk], 1)], asset_ids=[tx.id])
         tx_transfer = tx_transfer.sign([user_sk])
         b.models.store_bulk_transactions([tx_transfer])
 
-        owned_inputs_user1 = b.models.fastquery.get_outputs_by_public_key(user_pk)
-        owned_inputs_user2 = b.models.fastquery.get_outputs_by_public_key(user2_pk)
+        owned_inputs_user1 = b.models.get_outputs_filtered(user_pk)
+        owned_inputs_user2 = b.models.get_outputs_filtered(user2_pk)
+        
+        stored_tx_transfer = b.models.get_transaction(tx_transfer.id)
 
-        assert owned_inputs_user1 == [TransactionLink(tx.id, 0)]
-        assert owned_inputs_user2 == [TransactionLink(tx_transfer.id, 0)]
+        assert owned_inputs_user1 == [stored_tx.outputs[0]]
+        assert owned_inputs_user2 == [stored_tx_transfer.outputs[0]]
 
     def test_get_owned_ids_single_tx_multiple_outputs(self, b, user_sk, user_pk, alice):
         user2_sk, user2_pk = crypto.generate_key_pair()
@@ -231,11 +236,13 @@ class TestMultipleInputs(object):
         b.models.store_bulk_transactions([tx_create_signed])
 
         # get input
-        owned_inputs_user1 = b.models.fastquery.get_outputs_by_public_key(user_pk)
-        owned_inputs_user2 = b.models.fastquery.get_outputs_by_public_key(user2_pk)
+        owned_inputs_user1 = b.models.get_outputs_filtered(user_pk)
+        owned_inputs_user2 = b.models.get_outputs_filtered(user2_pk)
+        
+        stored_tx = b.models.get_transaction(tx_create.id)
 
-        expected_owned_inputs_user1 = [TransactionLink(tx_create.id, 0), TransactionLink(tx_create.id, 1)]
-        assert owned_inputs_user1 == expected_owned_inputs_user1
+        expected_owned_inputs_user1 = [stored_tx.outputs[0], stored_tx.outputs[1]]
+        assert sorted(owned_inputs_user1, key=attrgetter('index')) == sorted(expected_owned_inputs_user1, key=attrgetter('index'))
         assert owned_inputs_user2 == []
 
         # transfer divisible asset divided in two outputs
@@ -244,11 +251,12 @@ class TestMultipleInputs(object):
         )
         tx_transfer_signed = tx_transfer.sign([user_sk])
         b.models.store_bulk_transactions([tx_transfer_signed])
+        stored_tx_transfer = b.models.get_transaction(tx_transfer.id)
 
-        owned_inputs_user1 = b.models.fastquery.get_outputs_by_public_key(user_pk)
-        owned_inputs_user2 = b.models.fastquery.get_outputs_by_public_key(user2_pk)
-        assert owned_inputs_user1 == expected_owned_inputs_user1
-        assert owned_inputs_user2 == [TransactionLink(tx_transfer.id, 0), TransactionLink(tx_transfer.id, 1)]
+        owned_inputs_user1 = b.models.get_outputs_filtered(user_pk)
+        owned_inputs_user2 = b.models.get_outputs_filtered(user2_pk)
+        assert sorted(owned_inputs_user1, key=attrgetter('index')) == sorted(expected_owned_inputs_user1, key=attrgetter('index'))
+        assert sorted(owned_inputs_user2, key=attrgetter('index')) == sorted([stored_tx_transfer.outputs[0], stored_tx_transfer.outputs[1]], key=attrgetter('index'))
 
     def test_get_owned_ids_multiple_owners(self, b, user_sk, user_pk, alice):
         user2_sk, user2_pk = crypto.generate_key_pair()
@@ -258,10 +266,11 @@ class TestMultipleInputs(object):
         tx = tx.sign([alice.private_key])
 
         b.models.store_bulk_transactions([tx])
+        stored_tx = b.models.get_transaction(tx.id)
 
-        owned_inputs_user1 = b.models.fastquery.get_outputs_by_public_key(user_pk)
-        owned_inputs_user2 = b.models.fastquery.get_outputs_by_public_key(user_pk)
-        expected_owned_inputs_user1 = [TransactionLink(tx.id, 0)]
+        owned_inputs_user1 = b.models.get_outputs_filtered(user_pk)
+        owned_inputs_user2 = b.models.get_outputs_filtered(user_pk)
+        expected_owned_inputs_user1 = [stored_tx.outputs[0]]
 
         assert owned_inputs_user1 == owned_inputs_user2
         assert owned_inputs_user1 == expected_owned_inputs_user1
@@ -270,8 +279,8 @@ class TestMultipleInputs(object):
         tx = tx.sign([user_sk, user2_sk])
         b.models.store_bulk_transactions([tx])
 
-        owned_inputs_user1 = b.models.fastquery.get_outputs_by_public_key(user_pk)
-        owned_inputs_user2 = b.models.fastquery.get_outputs_by_public_key(user2_pk)
+        owned_inputs_user1 = b.models.get_outputs_filtered(user_pk)
+        owned_inputs_user2 = b.models.get_outputs_filtered(user2_pk)
         spent_user1 = b.models.get_spent(tx.id, 0)
 
         assert owned_inputs_user1 == owned_inputs_user2
@@ -284,10 +293,10 @@ class TestMultipleInputs(object):
         tx = tx.sign([alice.private_key])
         b.models.store_bulk_transactions([tx])
 
-        owned_inputs_user1 = b.models.fastquery.get_outputs_by_public_key(user_pk).pop()
+        owned_inputs_user1 = b.models.get_outputs_filtered(user_pk).pop()
 
         # check spents
-        input_txid = owned_inputs_user1.txid
+        input_txid = owned_inputs_user1.transaction_id
         spent_inputs_user1 = b.models.get_spent(input_txid, 0)
         assert spent_inputs_user1 is None
 
@@ -308,11 +317,11 @@ class TestMultipleInputs(object):
         tx_create_signed = tx_create.sign([alice.private_key])
         b.models.store_bulk_transactions([tx_create_signed])
 
-        owned_inputs_user1 = b.models.fastquery.get_outputs_by_public_key(user_pk)
+        owned_inputs_user1 = b.models.get_outputs_filtered(user_pk)
 
         # check spents
         for input_tx in owned_inputs_user1:
-            assert b.models.get_spent(input_tx.txid, input_tx.output) is None
+            assert b.models.get_spent(input_tx.transaction_id, input_tx.index) is None
 
         # transfer the first 2 inputs
         tx_transfer = Transfer.generate(
@@ -343,10 +352,10 @@ class TestMultipleInputs(object):
 
         b.models.store_bulk_transactions(transactions)
 
-        owned_inputs_user1 = b.models.fastquery.get_outputs_by_public_key(user_pk)
+        owned_inputs_user1 = b.models.get_outputs_filtered(user_pk)
         # check spents
         for input_tx in owned_inputs_user1:
-            assert b.models.get_spent(input_tx.txid, input_tx.output) is None
+            assert b.models.get_spent(input_tx.transaction_id, input_tx.index) is None
 
         # create a transaction
         tx = Transfer.generate(transactions[0].to_inputs(), [([user3_pk], 1)], asset_ids=[transactions[0].id])
