@@ -207,7 +207,7 @@ class TestMultipleInputs(object):
         tx = Create.generate([alice.public_key], [([user_pk], 1)])
         tx = tx.sign([alice.private_key])
         b.models.store_bulk_transactions([tx])
-        
+
         stored_tx = b.models.get_transaction(tx.id)
 
         owned_inputs_user1 = b.models.get_outputs_filtered(user_pk)
@@ -221,7 +221,7 @@ class TestMultipleInputs(object):
 
         owned_inputs_user1 = b.models.get_outputs_filtered(user_pk)
         owned_inputs_user2 = b.models.get_outputs_filtered(user2_pk)
-        
+
         stored_tx_transfer = b.models.get_transaction(tx_transfer.id)
 
         assert owned_inputs_user1 == [stored_tx.outputs[0]]
@@ -238,11 +238,13 @@ class TestMultipleInputs(object):
         # get input
         owned_inputs_user1 = b.models.get_outputs_filtered(user_pk)
         owned_inputs_user2 = b.models.get_outputs_filtered(user2_pk)
-        
+
         stored_tx = b.models.get_transaction(tx_create.id)
 
         expected_owned_inputs_user1 = [stored_tx.outputs[0], stored_tx.outputs[1]]
-        assert sorted(owned_inputs_user1, key=attrgetter('index')) == sorted(expected_owned_inputs_user1, key=attrgetter('index'))
+        assert sorted(owned_inputs_user1, key=attrgetter("index")) == sorted(
+            expected_owned_inputs_user1, key=attrgetter("index")
+        )
         assert owned_inputs_user2 == []
 
         # transfer divisible asset divided in two outputs
@@ -255,8 +257,12 @@ class TestMultipleInputs(object):
 
         owned_inputs_user1 = b.models.get_outputs_filtered(user_pk)
         owned_inputs_user2 = b.models.get_outputs_filtered(user2_pk)
-        assert sorted(owned_inputs_user1, key=attrgetter('index')) == sorted(expected_owned_inputs_user1, key=attrgetter('index'))
-        assert sorted(owned_inputs_user2, key=attrgetter('index')) == sorted([stored_tx_transfer.outputs[0], stored_tx_transfer.outputs[1]], key=attrgetter('index'))
+        assert sorted(owned_inputs_user1, key=attrgetter("index")) == sorted(
+            expected_owned_inputs_user1, key=attrgetter("index")
+        )
+        assert sorted(owned_inputs_user2, key=attrgetter("index")) == sorted(
+            [stored_tx_transfer.outputs[0], stored_tx_transfer.outputs[1]], key=attrgetter("index")
+        )
 
     def test_get_owned_ids_multiple_owners(self, b, user_sk, user_pk, alice):
         user2_sk, user2_pk = crypto.generate_key_pair()
@@ -369,53 +375,43 @@ class TestMultipleInputs(object):
             assert b.models.get_spent(unspent.id, 0) is None
 
 
-def test_get_outputs_filtered_only_unspent(b):
-    from transactions.common.transaction import TransactionLink
+def test_get_outputs_filtered_only_unspent(b, alice):
+    tx = Create.generate([alice.public_key], [([alice.public_key], 1), ([alice.public_key], 1)])
+    tx = tx.sign([alice.private_key])
+    b.models.store_bulk_transactions([tx])
 
-    go = "planetmint.model.fastquery.FastQuery.get_outputs_by_public_key"
-    with patch(go) as get_outputs:
-        get_outputs.return_value = [TransactionLink("a", 1), TransactionLink("b", 2)]
-        fs = "planetmint.model.fastquery.FastQuery.filter_spent_outputs"
-        with patch(fs) as filter_spent:
-            filter_spent.return_value = [TransactionLink("b", 2)]
-            out = b.models.get_outputs_filtered("abc", spent=False)
-    get_outputs.assert_called_once_with("abc")
-    assert out == [TransactionLink("b", 2)]
+    tx_transfer = Transfer.generate(tx.to_inputs([0]), [([alice.public_key], 1)], asset_ids=[tx.id])
+    tx_transfer = tx_transfer.sign([alice.private_key])
+    b.models.store_bulk_transactions([tx_transfer])
 
-
-def test_get_outputs_filtered_only_spent(b):
-    from transactions.common.transaction import TransactionLink
-
-    go = "planetmint.model.fastquery.FastQuery.get_outputs_by_public_key"
-    with patch(go) as get_outputs:
-        get_outputs.return_value = [TransactionLink("a", 1), TransactionLink("b", 2)]
-        fs = "planetmint.model.fastquery.FastQuery.filter_unspent_outputs"
-        with patch(fs) as filter_spent:
-            filter_spent.return_value = [TransactionLink("b", 2)]
-            out = b.models.get_outputs_filtered("abc", spent=True)
-    get_outputs.assert_called_once_with("abc")
-    assert out == [TransactionLink("b", 2)]
+    outputs = b.models.get_outputs_filtered(alice.public_key, spent=False)
+    assert len(outputs) == 2
 
 
-# @patch("planetmint.model.fastquery.FastQuery.filter_unspent_outputs")
-# @patch("planetmint.model.fastquery.FastQuery.filter_spent_outputs")
-def test_get_outputs_filtered(
-    b,
-    mocker,
-):
-    from transactions.common.transaction import TransactionLink
+def test_get_outputs_filtered_only_spent(b, alice):
+    tx = Create.generate([alice.public_key], [([alice.public_key], 1), ([alice.public_key], 1)])
+    tx = tx.sign([alice.private_key])
+    b.models.store_bulk_transactions([tx])
 
-    mock_filter_spent_outputs = mocker.patch("planetmint.model.fastquery.FastQuery.filter_spent_outputs")
-    mock_filter_unspent_outputs = mocker.patch("planetmint.model.fastquery.FastQuery.filter_unspent_outputs")
+    tx_transfer = Transfer.generate(tx.to_inputs([0]), [([alice.public_key], 1)], asset_ids=[tx.id])
+    tx_transfer = tx_transfer.sign([alice.private_key])
+    b.models.store_bulk_transactions([tx_transfer])
 
-    go = "planetmint.model.fastquery.FastQuery.get_outputs_by_public_key"
-    with patch(go) as get_outputs:
-        get_outputs.return_value = [TransactionLink("a", 1), TransactionLink("b", 2)]
-        out = b.models.get_outputs_filtered("abc")
-    get_outputs.assert_called_once_with("abc")
-    mock_filter_spent_outputs.assert_not_called()
-    mock_filter_unspent_outputs.assert_not_called()
-    assert out == get_outputs.return_value
+    outputs = b.models.get_outputs_filtered(alice.public_key, spent=True)
+    assert len(outputs) == 1
+
+
+def test_get_outputs_filtered(b, alice):
+    tx = Create.generate([alice.public_key], [([alice.public_key], 1), ([alice.public_key], 1)])
+    tx = tx.sign([alice.private_key])
+    b.models.store_bulk_transactions([tx])
+
+    tx_transfer = Transfer.generate(tx.to_inputs([0]), [([alice.public_key], 1)], asset_ids=[tx.id])
+    tx_transfer = tx_transfer.sign([alice.private_key])
+    b.models.store_bulk_transactions([tx_transfer])
+
+    outputs = b.models.get_outputs_filtered(alice.public_key)
+    assert len(outputs) == 3
 
 
 def test_cant_spend_same_input_twice_in_tx(b, alice):

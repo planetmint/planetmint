@@ -89,7 +89,7 @@ class DataAccessor:
                     for utxo in unspent_outputs
                 ):
                     spent_outputs.append(output)
-            return unspent_outputs
+            return spent_outputs
         elif spent is False:
             return unspent_outputs
         return outputs
