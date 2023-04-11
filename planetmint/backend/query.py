@@ -133,7 +133,7 @@ def get_asset(connection, asset_id) -> Asset:
 
 
 @singledispatch
-def get_spent(connection, transaction_id, condition_id):
+def get_spending_transaction(connection, transaction_id, condition_id):
     """Check if a `txid` was already used as an input.
 
     A transaction can be used as an input for another transaction. Bigchain
@@ -208,7 +208,7 @@ def get_block_with_transaction(connection, txid):
 
 
 @singledispatch
-def store_transaction_outputs(connection, output: Output, index: int):
+def store_transaction_outputs(connection, output: Output, index: int, table: str):
     """Store the transaction outputs.
 
     Args:
@@ -260,13 +260,6 @@ def store_block(conn, block):
     Returns:
         The result of the operation.
     """
-
-    raise NotImplementedError
-
-
-@singledispatch
-def store_unspent_outputs(connection, unspent_outputs):
-    """Store unspent outputs in ``utxo_set`` table."""
 
     raise NotImplementedError
 
@@ -452,6 +445,12 @@ def get_script_by_tx_id(connection, tx_id: str) -> Script:
 @singledispatch
 def get_outputs_by_tx_id(connection, tx_id: str) -> list[Output]:
     """Retrieve outputs for a transaction by its id"""
+    raise NotImplementedError
+
+
+@singledispatch
+def get_outputs_by_owner(connection, public_key: str, table: str) -> list[Output]:
+    """Retrieve an owners outputs by public key"""
     raise NotImplementedError
 
 

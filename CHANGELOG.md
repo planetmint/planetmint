@@ -25,6 +25,11 @@ For reference, the possible headings are:
 * **Known Issues**
 * **Notes**
 
+## [2.4.1] - 2023-11-04
+* **Removed** Fastquery class
+* **Changed** UTXO space updated to resemble outputs
+* **Changed** updated UTXO querying
+
 ## [2.4.0] - 2023-29-03
 * **Added** Zenroom script validation
 * **Changed** adjusted zenroom testing for new transaction script structure
