@@ -76,7 +76,7 @@ class DataAccessor:
                           not specified (``None``) return all outputs.
 
         Returns:
-            :obj:`list` of TransactionLink: list of ``txid`` s and ``output`` s
+            :obj:`list` of Output: list of ``txid`` s and ``output`` s
             pointing to another transaction's condition
         """
         outputs = backend.query.get_outputs_by_owner(self.connection, owner)

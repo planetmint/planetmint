@@ -10,8 +10,7 @@ from ipld import marshal, multihash
 from operator import attrgetter
 
 from transactions.common import crypto
-from transactions.common.transaction import TransactionLink
-from transactions.common.transaction import Transaction
+from transactions.common.transaction import Transaction, TransactionLink, Input
 from transactions.types.assets.create import Create
 from transactions.types.assets.transfer import Transfer
 from planetmint.exceptions import CriticalDoubleSpend
@@ -65,7 +64,6 @@ class TestBigchainApi(object):
     def test_non_create_input_not_found(self, b, user_pk):
         from planetmint_cryptoconditions import Ed25519Sha256
         from transactions.common.exceptions import InputDoesNotExist
-        from transactions.common.transaction import Input, TransactionLink
 
         # Create an input for a non existing transaction
         input = Input(
