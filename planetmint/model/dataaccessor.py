@@ -151,8 +151,8 @@ class DataAccessor:
 
         return validators
 
-    def get_spent(self, txid, output, current_transactions=[]) -> DbTransaction:
-        transactions = backend.query.get_spent(self.connection, txid, output)
+    def get_spending_transaction(self, txid, output, current_transactions=[]) -> DbTransaction:
+        transactions = backend.query.get_spending_transaction(self.connection, txid, output)
 
         current_spent_transactions = []
         for ctxn in current_transactions:
@@ -209,7 +209,7 @@ class DataAccessor:
             if input_tx is None:
                 raise InputDoesNotExist("input `{}` doesn't exist".format(input_txid))
 
-            spent = self.get_spent(input_txid, input_.fulfills.output, current_transactions)
+            spent = self.get_spending_transaction(input_txid, input_.fulfills.output, current_transactions)
             if spent:
                 raise DoubleSpend("input `{}` was already spent".format(input_txid))
 

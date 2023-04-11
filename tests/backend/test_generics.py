@@ -29,7 +29,7 @@ def test_schema(schema_func_name, args_qty):
         ("get_txids_filtered", 1),
         ("get_owned_ids", 1),
         ("get_block", 1),
-        ("get_spent", 2),
+        ("get_spending_transaction", 2),
         ("get_spending_transactions", 1),
         ("store_assets", 1),
         ("get_asset", 1),

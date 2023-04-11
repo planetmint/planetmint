@@ -77,7 +77,7 @@ def get_assets(conn, asset_ids):
 
 
 @register_query(LocalMongoDBConnection)
-def get_spent(conn, transaction_id, output):
+def get_spending_transaction(conn, transaction_id, output):
     query = {
         "inputs": {
             "$elemMatch": {"$and": [{"fulfills.transaction_id": transaction_id}, {"fulfills.output_index": output}]}

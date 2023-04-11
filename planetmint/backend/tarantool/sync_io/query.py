@@ -221,7 +221,7 @@ def get_assets(connection, assets_ids: list) -> list[Asset]:
 
 @register_query(TarantoolDBConnection)
 @catch_db_exception
-def get_spent(connection, fullfil_transaction_id: str, fullfil_output_index: str) -> list[DbTransaction]:
+def get_spending_transaction(connection, fullfil_transaction_id: str, fullfil_output_index: str) -> list[DbTransaction]:
     _inputs = (
         connection.connect()
         .select(
@@ -301,7 +301,7 @@ def get_spending_transactions(connection, inputs):
     _transactions = []
 
     for inp in inputs:
-        _trans_list = get_spent(
+        _trans_list = get_spending_transaction(
             fullfil_transaction_id=inp["transaction_id"],
             fullfil_output_index=inp["output_index"],
             connection=connection,

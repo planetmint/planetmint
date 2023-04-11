@@ -133,7 +133,7 @@ def get_asset(connection, asset_id) -> Asset:
 
 
 @singledispatch
-def get_spent(connection, transaction_id, condition_id):
+def get_spending_transaction(connection, transaction_id, condition_id):
     """Check if a `txid` was already used as an input.
 
     A transaction can be used as an input for another transaction. Bigchain

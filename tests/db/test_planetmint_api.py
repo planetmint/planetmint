@@ -287,7 +287,7 @@ class TestMultipleInputs(object):
 
         owned_inputs_user1 = b.models.get_outputs_filtered(user_pk)
         owned_inputs_user2 = b.models.get_outputs_filtered(user2_pk)
-        spent_user1 = b.models.get_spent(tx.id, 0)
+        spent_user1 = b.models.get_spending_transaction(tx.id, 0)
 
         assert owned_inputs_user1 == owned_inputs_user2
         assert not spent_user1
@@ -303,7 +303,7 @@ class TestMultipleInputs(object):
 
         # check spents
         input_txid = owned_inputs_user1.transaction_id
-        spent_inputs_user1 = b.models.get_spent(input_txid, 0)
+        spent_inputs_user1 = b.models.get_spending_transaction(input_txid, 0)
         assert spent_inputs_user1 is None
 
         # create a transaction and send it
@@ -311,7 +311,7 @@ class TestMultipleInputs(object):
         tx = tx.sign([user_sk])
         b.models.store_bulk_transactions([tx])
 
-        spent_inputs_user1 = b.models.get_spent(input_txid, 0)
+        spent_inputs_user1 = b.models.get_spending_transaction(input_txid, 0)
         assert spent_inputs_user1 == tx.to_dict()
 
     def test_get_spent_single_tx_multiple_outputs(self, b, user_sk, user_pk, alice):
@@ -327,7 +327,7 @@ class TestMultipleInputs(object):
 
         # check spents
         for input_tx in owned_inputs_user1:
-            assert b.models.get_spent(input_tx.transaction_id, input_tx.index) is None
+            assert b.models.get_spending_transaction(input_tx.transaction_id, input_tx.index) is None
 
         # transfer the first 2 inputs
         tx_transfer = Transfer.generate(
@@ -338,12 +338,12 @@ class TestMultipleInputs(object):
 
         # check that used inputs are marked as spent
         for ffill in tx_create.to_inputs()[:2]:
-            spent_tx = b.models.get_spent(ffill.fulfills.txid, ffill.fulfills.output)
+            spent_tx = b.models.get_spending_transaction(ffill.fulfills.txid, ffill.fulfills.output)
             assert spent_tx == tx_transfer_signed.to_dict()
 
         # check if remaining transaction that was unspent is also perceived
         # spendable by Planetmint
-        assert b.models.get_spent(tx_create.to_inputs()[2].fulfills.txid, 2) is None
+        assert b.models.get_spending_transaction(tx_create.to_inputs()[2].fulfills.txid, 2) is None
 
     def test_get_spent_multiple_owners(self, b, user_sk, user_pk, alice):
         user2_sk, user2_pk = crypto.generate_key_pair()
@@ -361,7 +361,7 @@ class TestMultipleInputs(object):
         owned_inputs_user1 = b.models.get_outputs_filtered(user_pk)
         # check spents
         for input_tx in owned_inputs_user1:
-            assert b.models.get_spent(input_tx.transaction_id, input_tx.index) is None
+            assert b.models.get_spending_transaction(input_tx.transaction_id, input_tx.index) is None
 
         # create a transaction
         tx = Transfer.generate(transactions[0].to_inputs(), [([user3_pk], 1)], asset_ids=[transactions[0].id])
@@ -369,10 +369,10 @@ class TestMultipleInputs(object):
         b.models.store_bulk_transactions([tx])
 
         # check that used inputs are marked as spent
-        assert b.models.get_spent(transactions[0].id, 0) == tx.to_dict()
+        assert b.models.get_spending_transaction(transactions[0].id, 0) == tx.to_dict()
         # check that the other remain marked as unspent
         for unspent in transactions[1:]:
-            assert b.models.get_spent(unspent.id, 0) is None
+            assert b.models.get_spending_transaction(unspent.id, 0) is None
 
 
 def test_get_outputs_filtered_only_unspent(b, alice):

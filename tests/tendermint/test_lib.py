@@ -256,7 +256,7 @@ def test_get_utxoset_merkle_root(b, user_sk, user_pk):
 
 
 @pytest.mark.bdb
-def test_get_spent_transaction_double_spend(b, alice, bob, carol):
+def test_get_spending_transaction_double_spend(b, alice, bob, carol):
     from transactions.common.exceptions import DoubleSpend
 
     assets = [{"data": multihash(marshal({"test": "asset"}))}]
@@ -280,15 +280,15 @@ def test_get_spent_transaction_double_spend(b, alice, bob, carol):
     with pytest.raises(DoubleSpend):
         b.validate_transaction(same_input_double_spend)
 
-    assert b.models.get_spent(tx.id, tx_transfer.inputs[0].fulfills.output, [tx_transfer])
+    assert b.models.get_spending_transaction(tx.id, tx_transfer.inputs[0].fulfills.output, [tx_transfer])
 
     with pytest.raises(DoubleSpend):
-        b.models.get_spent(tx.id, tx_transfer.inputs[0].fulfills.output, [tx_transfer, double_spend])
+        b.models.get_spending_transaction(tx.id, tx_transfer.inputs[0].fulfills.output, [tx_transfer, double_spend])
 
     b.models.store_bulk_transactions([tx_transfer])
 
     with pytest.raises(DoubleSpend):
-        b.models.get_spent(tx.id, tx_transfer.inputs[0].fulfills.output, [double_spend])
+        b.models.get_spending_transaction(tx.id, tx_transfer.inputs[0].fulfills.output, [double_spend])
 
 
 def test_validation_with_transaction_buffer(b):
