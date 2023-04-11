@@ -92,26 +92,7 @@ def test_zenroom_validation(b):
     tx["id"] = shared_creation_txid
 
     from transactions.common.transaction import Transaction
-    from transactions.common.exceptions import (
-        SchemaValidationError,
-        ValidationError,
-    )
 
-    try:
-        print(f"TX\n{tx}")
-        tx_obj = Transaction.from_dict(tx, False)
-    except SchemaValidationError as e:
-        print(e)
-        assert ()
-    except ValidationError as e:
-        print(e)
-        assert ()
-
-    try:
-        b.validate_transaction(tx_obj)
-    except ValidationError as e:
-        print("Invalid transaction ({}): {}".format(type(e).__name__, e))
-        assert ()
-
-    print(f"VALIDATED : {tx_obj}")
+    tx_obj = Transaction.from_dict(tx, False)
+    b.validate_transaction(tx_obj)
     assert (tx_obj == False) is False
