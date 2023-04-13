@@ -1,3 +1,5 @@
+local migrations = require('migrations')
+
 box.cfg{listen = 3303}
 
 box.once("bootstrap", function()
@@ -330,4 +332,14 @@ end
 
 function delete_output( id )
     box.space.outputs:delete(id)
+end
+
+function migrate_up()
+    migrations.update_utxo_13042023.up()
+    -- add newer migrations below
+end
+
+function migrate_down()
+    -- add newer migrations above
+    migrations.update_utxo_13042023.down()
 end
