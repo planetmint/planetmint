@@ -260,12 +260,14 @@ def run_init(args):
 
 @configure_planetmint
 def run_migrate_up(args):
-    return
+    validator = Validator()
+    schema.migrate_up(validator.models.connection)
 
 
 @configure_planetmint
 def run_migrate_down(args):
-    return
+    validator = Validator()
+    schema.migrate_up(validator.models.connection)
 
 
 @configure_planetmint
