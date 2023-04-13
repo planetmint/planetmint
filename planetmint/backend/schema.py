@@ -137,6 +137,30 @@ def init_database(connection, dbname):
     raise NotImplementedError
 
 
+@singledispatch
+def migrate_up(connection):
+    """Migrate database up
+
+    Args:
+        connection (:class:`~planetmint.backend.connection.Connection`): an
+            existing connection to use to migrate the database.
+            Creates one if not given.
+    """
+    raise NotImplementedError
+
+
+@singledispatch
+def migrate_down(connection):
+    """Migrate database down
+
+    Args:
+        connection (:class:`~planetmint.backend.connection.Connection`): an
+            existing connection to use to migrate the database.
+            Creates one if not given.
+    """
+    raise NotImplementedError
+
+
 def validate_language_key(obj, key):
     """Validate all nested "language" key in `obj`.
 
