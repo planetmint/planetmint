@@ -25,6 +25,9 @@ For reference, the possible headings are:
 * **Known Issues**
 * **Notes**
 
+## [2.4.2] - 2023-13-04
+* **Added** planetmint migration commands
+
 ## [2.4.1] - 2023-11-04
 * **Removed** Fastquery class
 * **Changed** UTXO space updated to resemble outputs
