@@ -28,14 +28,13 @@ from planetmint.backend.models.output import Output
 from planetmint.model.dataaccessor import DataAccessor
 from planetmint.config import Config
 from planetmint.config_utils import load_validation_plugin
+from planetmint.utils.singleton import Singleton
 
 logger = logging.getLogger(__name__)
 
-
-class Validator:
-    def __init__(self, async_io: bool = False):
-        self.async_io = async_io
-        self.models = DataAccessor(async_io=async_io)
+class Validator():
+    def __init__(self):
+        self.models = DataAccessor()
         self.validation = Validator._get_validation_method()
 
     @staticmethod
@@ -260,7 +259,7 @@ class Validator:
         value as the `voting_power`
         """
         validators = {}
-        for validator in self.models.get_validators(height):
+        for validator in self.models.get_validators(height=height):
             # NOTE: we assume that Tendermint encodes public key in base64
             public_key = public_key_from_ed25519_key(key_from_base64(validator["public_key"]["value"]))
             validators[public_key] = validator["voting_power"]

@@ -420,11 +420,12 @@ def store_validator_set(conn, validators_update: dict):
         conn.connect().select(TARANT_TABLE_VALIDATOR_SETS, validators_update["height"], index="height", limit=1).data
     )
     unique_id = uuid4().hex if _validator is None or len(_validator) == 0 else _validator[0][0]
-    conn.connect().upsert(
+    result = conn.connect().upsert(
         TARANT_TABLE_VALIDATOR_SETS,
         (unique_id, validators_update["height"], validators_update["validators"]),
         op_list=[("=", 1, validators_update["height"]), ("=", 2, validators_update["validators"])],
     )
+    return result
 
 
 @register_query(TarantoolDBConnection)

@@ -5,10 +5,13 @@ from planetmint.abci.block import Block
 from transactions.types.elections.election import Election
 from transactions.types.elections.chain_migration_election import ChainMigrationElection
 from transactions.types.elections.validator_election import ValidatorElection
-
+from planetmint.model.dataaccessor import DataAccessor
 
 @pytest.mark.bdb
 def test_process_block_concludes_all_elections(b):
+    del b.models
+    b.models = DataAccessor()
+    b.models.connect()
     validators = generate_validators([1] * 4)
     b.models.store_validator_set(1, [v["storage"] for v in validators])
 

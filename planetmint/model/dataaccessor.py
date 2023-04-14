@@ -17,13 +17,21 @@ from planetmint.backend.models.output import Output
 from planetmint.backend.models.asset import Asset
 from planetmint.backend.models.metadata import MetaData
 from planetmint.backend.models.dbtransaction import DbTransaction
+from planetmint.utils.singleton import Singleton
 
 
-class DataAccessor:
-    def __init__(self, database_connection=None, async_io: bool = False):
+class DataAccessor(metaclass=Singleton):
+    def __init__(self, database_connection=None):
         config_utils.autoconfigure()
-        self.connection = database_connection if database_connection is not None else Connection(async_io=async_io)
+        self.connection = database_connection if database_connection is not None else Connection()
 
+
+    def close_connection(self):
+        self.connection.close()
+        
+    def connect(self):
+        self.connection.connect()
+        
     def store_bulk_transactions(self, transactions):
         txns = []
         gov_txns = []
@@ -131,7 +139,7 @@ class DataAccessor:
         value as the `voting_power`
         """
         validators = {}
-        for validator in self.get_validators(height):
+        for validator in self.get_validators(height = height):
             # NOTE: we assume that Tendermint encodes public key in base64
             public_key = public_key_from_ed25519_key(key_from_base64(validator["public_key"]["value"]))
             validators[public_key] = validator["voting_power"]

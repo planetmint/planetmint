@@ -157,13 +157,13 @@ def test_single_in_single_own_multiple_out_single_own_transfer(alice, b, user_pk
     )
     tx_create_signed = tx_create.sign([alice.private_key])
 
+    b.models.store_bulk_transactions([tx_create_signed])
+    inputs = tx_create.to_inputs()
     # TRANSFER
     tx_transfer = Transfer.generate(
-        tx_create.to_inputs(), [([alice.public_key], 50), ([alice.public_key], 50)], asset_ids=[tx_create.id]
+        inputs, [([alice.public_key], 50), ([alice.public_key], 50)], asset_ids=[tx_create.id]
     )
     tx_transfer_signed = tx_transfer.sign([user_sk])
-
-    b.models.store_bulk_transactions([tx_create_signed])
 
     assert b.validate_transaction(tx_transfer_signed) == tx_transfer_signed
     assert len(tx_transfer_signed.outputs) == 2

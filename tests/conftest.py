@@ -27,7 +27,10 @@ from transactions.common import crypto
 from transactions.common.transaction_mode_types import BROADCAST_TX_COMMIT
 from planetmint.abci.utils import key_from_base64
 from planetmint.backend import schema, query
-from transactions.common.crypto import key_pair_from_ed25519_key, public_key_from_ed25519_key
+from transactions.common.crypto import (
+    key_pair_from_ed25519_key,
+    public_key_from_ed25519_key,
+)
 from planetmint.abci.block import Block
 from planetmint.abci.rpc import MODE_LIST
 from tests.utils import gen_vote
@@ -107,7 +110,10 @@ def _configure_planetmint(request):
     # backend = request.config.getoption('--database-backend')
     backend = "tarantool_db"
 
-    config = {"database": Config().get_db_map(backend), "tendermint": Config()._private_real_config["tendermint"]}
+    config = {
+        "database": Config().get_db_map(backend),
+        "tendermint": Config()._private_real_config["tendermint"],
+    }
     config["database"]["name"] = test_db_name
     config = config_utils.env_config(config)
     config_utils.set_config(config)
@@ -134,11 +140,34 @@ def _setup_database(_configure_planetmint):  # TODO Here is located setup databa
 
 
 @pytest.fixture
+def da_reset(_setup_database):
+    from transactions.common.memoize import to_dict, from_dict
+    from transactions.common.transaction import Transaction
+    from .utils import flush_db
+    from planetmint.model.dataaccessor import DataAccessor
+    da = DataAccessor()
+    del da 
+    da = DataAccessor()
+    da.close_connection()
+    da.connect()
+    
+    yield
+    dbname = Config().get()["database"]["name"]
+    flush_db(da.connection, dbname)
+   
+
+    to_dict.cache_clear()
+    from_dict.cache_clear()
+    Transaction._input_valid.cache_clear()
+
+
+@pytest.fixture
 def _bdb(_setup_database):
     from transactions.common.memoize import to_dict, from_dict
     from transactions.common.transaction import Transaction
     from .utils import flush_db
     from planetmint.config import Config
+
 
     conn = Connection()
     conn.close()
@@ -273,11 +302,14 @@ def test_abci_rpc():
 def b():
     from planetmint.application import Validator
 
+    old_validator_instance = Validator()
+    del old_validator_instance.models
+    del old_validator_instance
     validator = Validator()
     validator.models.connection.close()
     validator.models.connection.connect()
     return validator
-
+    
 
 @pytest.fixture
 def eventqueue_fixture():
@@ -296,7 +328,12 @@ def mock_get_validators(network_validators):
     def validator_set(height):
         validators = []
         for public_key, power in network_validators.items():
-            validators.append({"public_key": {"type": "ed25519-base64", "value": public_key}, "voting_power": power})
+            validators.append(
+                {
+                    "public_key": {"type": "ed25519-base64", "value": public_key},
+                    "voting_power": power,
+                }
+            )
         return validators
 
     return validator_set
@@ -319,7 +356,10 @@ def signed_create_tx(alice, create_tx):
 @pytest.fixture
 def posted_create_tx(b, signed_create_tx, test_abci_rpc):
     res = test_abci_rpc.post_transaction(
-        MODE_LIST, test_abci_rpc.tendermint_rpc_endpoint, signed_create_tx, BROADCAST_TX_COMMIT
+        MODE_LIST,
+        test_abci_rpc.tendermint_rpc_endpoint,
+        signed_create_tx,
+        BROADCAST_TX_COMMIT,
     )
     assert res.status_code == 200
     return signed_create_tx
@@ -339,7 +379,9 @@ def double_spend_tx(signed_create_tx, carol_pubkey, user_sk):
     from transactions.types.assets.transfer import Transfer
 
     inputs = signed_create_tx.to_inputs()
-    tx = Transfer.generate(inputs, [([carol_pubkey], 1)], asset_ids=[signed_create_tx.id])
+    tx = Transfer.generate(
+        inputs, [([carol_pubkey], 1)], asset_ids=[signed_create_tx.id]
+    )
     return tx.sign([user_sk])
 
 
@@ -356,7 +398,9 @@ def inputs(user_pk, b, alice):
     for height in range(1, 4):
         transactions = [
             Create.generate(
-                [alice.public_key], [([user_pk], 1)], metadata=multihash(marshal({"data": f"{random.random()}"}))
+                [alice.public_key],
+                [([user_pk], 1)],
+                metadata=multihash(marshal({"data": f"{random.random()}"})),
             ).sign([alice.private_key])
             for _ in range(10)
         ]
@@ -428,7 +472,13 @@ def _abci_http(request):
 
 
 @pytest.fixture
-def abci_http(_setup_database, _configure_planetmint, abci_server, tendermint_host, tendermint_port):
+def abci_http(
+    _setup_database,
+    _configure_planetmint,
+    abci_server,
+    tendermint_host,
+    tendermint_port,
+):
     import requests
     import time
 
@@ -553,142 +603,13 @@ def utxoset(dummy_unspent_outputs, utxo_collection):
 
     num_rows_before_operation = utxo_collection.select().rowcount
     for utxo in dummy_unspent_outputs:
-        res = utxo_collection.insert((uuid4().hex, utxo["transaction_id"], utxo["output_index"], utxo))
+        res = utxo_collection.insert(
+            (uuid4().hex, utxo["transaction_id"], utxo["output_index"], utxo)
+        )
         assert res
     num_rows_after_operation = utxo_collection.select().rowcount
     assert num_rows_after_operation == num_rows_before_operation + 3
     return dummy_unspent_outputs, utxo_collection
-
-
-@pytest.fixture
-def network_validators(node_keys):
-    validator_pub_power = {}
-    voting_power = [8, 10, 7, 9]
-    for pub, priv in node_keys.items():
-        validator_pub_power[pub] = voting_power.pop()
-
-    return validator_pub_power
-
-
-@pytest.fixture
-def network_validators58(network_validators):
-    network_validators_base58 = {}
-    for p, v in network_validators.items():
-        p = public_key_from_ed25519_key(key_from_base64(p))
-        network_validators_base58[p] = v
-
-    return network_validators_base58
-
-
-@pytest.fixture
-def node_key(node_keys):
-    (pub, priv) = list(node_keys.items())[0]
-    return key_pair_from_ed25519_key(key_from_base64(priv))
-
-
-@pytest.fixture
-def ed25519_node_keys(node_keys):
-    (pub, priv) = list(node_keys.items())[0]
-    node_keys_dict = {}
-    for pub, priv in node_keys.items():
-        key = key_pair_from_ed25519_key(key_from_base64(priv))
-        node_keys_dict[key.public_key] = key
-
-    return node_keys_dict
-
-
-@pytest.fixture
-def node_keys():
-    return {
-        "zL/DasvKulXZzhSNFwx4cLRXKkSM9GPK7Y0nZ4FEylM=": "cM5oW4J0zmUSZ/+QRoRlincvgCwR0pEjFoY//ZnnjD3Mv8Nqy8q6VdnOFI0XDHhwtFcqRIz0Y8rtjSdngUTKUw==",
-        "GIijU7GBcVyiVUcB0GwWZbxCxdk2xV6pxdvL24s/AqM=": "mdz7IjP6mGXs6+ebgGJkn7kTXByUeeGhV+9aVthLuEAYiKNTsYFxXKJVRwHQbBZlvELF2TbFXqnF28vbiz8Cow==",
-        "JbfwrLvCVIwOPm8tj8936ki7IYbmGHjPiKb6nAZegRA=": "83VINXdj2ynOHuhvSZz5tGuOE5oYzIi0mEximkX1KYMlt/Csu8JUjA4+by2Pz3fqSLshhuYYeM+IpvqcBl6BEA==",
-        "PecJ58SaNRsWJZodDmqjpCWqG6btdwXFHLyE40RYlYM=": "uz8bYgoL4rHErWT1gjjrnA+W7bgD/uDQWSRKDmC8otc95wnnxJo1GxYlmh0OaqOkJaobpu13BcUcvITjRFiVgw==",
-    }
-
-
-@pytest.fixture
-def priv_validator_path(node_keys):
-    (public_key, private_key) = list(node_keys.items())[0]
-    priv_validator = {
-        "address": "84F787D95E196DC5DE5F972666CFECCA36801426",
-        "pub_key": {"type": "AC26791624DE60", "value": public_key},
-        "last_height": 0,
-        "last_round": 0,
-        "last_step": 0,
-        "priv_key": {"type": "954568A3288910", "value": private_key},
-    }
-    fd, path = tempfile.mkstemp()
-    socket = os.fdopen(fd, "w")
-    json.dump(priv_validator, socket)
-    socket.close()
-    return path
-
-
-@pytest.fixture
-def bad_validator_path(node_keys):
-    (public_key, private_key) = list(node_keys.items())[1]
-    priv_validator = {
-        "address": "84F787D95E196DC5DE5F972666CFECCA36801426",
-        "pub_key": {"type": "AC26791624DE60", "value": public_key},
-        "last_height": 0,
-        "last_round": 0,
-        "last_step": 0,
-        "priv_key": {"type": "954568A3288910", "value": private_key},
-    }
-    fd, path = tempfile.mkstemp()
-    socket = os.fdopen(fd, "w")
-    json.dump(priv_validator, socket)
-    socket.close()
-    return path
-
-
-@pytest.fixture
-def validators(b, node_keys):
-    from planetmint.backend import query
-    import time
-
-    def timestamp():  # we need this to force unique election_ids for setup and teardown of fixtures
-        return str(time.time())
-
-    height = get_block_height(b)
-
-    original_validators = b.models.get_validators()
-
-    (public_key, private_key) = list(node_keys.items())[0]
-
-    validator_set = [
-        {
-            "address": "F5426F0980E36E03044F74DD414248D29ABCBDB2",
-            "public_key": {"value": public_key, "type": "ed25519-base64"},
-            "voting_power": 10,
-        }
-    ]
-
-    validator_update = {"validators": validator_set, "height": height + 1, "election_id": f"setup_at_{timestamp()}"}
-
-    query.store_validator_set(b.models.connection, validator_update)
-
-    yield
-
-    height = get_block_height(b)
-
-    validator_update = {
-        "validators": original_validators,
-        "height": height,
-        "election_id": f"teardown_at_{timestamp()}",
-    }
-
-    query.store_validator_set(b.models.connection, validator_update)
-
-
-def get_block_height(b):
-    if b.models.get_latest_block():
-        height = b.models.get_latest_block()["height"]
-    else:
-        height = 0
-
-    return height
 
 
 @pytest.fixture
@@ -698,20 +619,30 @@ def new_validator():
     node_id = "fake_node_id"
 
     return [
-        {"data": {"public_key": {"value": public_key, "type": "ed25519-base16"}, "power": power, "node_id": node_id}}
+        {
+            "data": {
+                "public_key": {"value": public_key, "type": "ed25519-base16"},
+                "power": power,
+                "node_id": node_id,
+            }
+        }
     ]
 
 
 @pytest.fixture
 def valid_upsert_validator_election(b_mock, node_key, new_validator):
     voters = b_mock.get_recipients_list()
-    return ValidatorElection.generate([node_key.public_key], voters, new_validator, None).sign([node_key.private_key])
+    return ValidatorElection.generate(
+        [node_key.public_key], voters, new_validator, None
+    ).sign([node_key.private_key])
 
 
 @pytest.fixture
 def valid_upsert_validator_election_2(b_mock, node_key, new_validator):
     voters = b_mock.get_recipients_list()
-    return ValidatorElection.generate([node_key.public_key], voters, new_validator, None).sign([node_key.private_key])
+    return ValidatorElection.generate(
+        [node_key.public_key], voters, new_validator, None
+    ).sign([node_key.private_key])
 
 
 @pytest.fixture
@@ -720,20 +651,28 @@ def ongoing_validator_election(b, valid_upsert_validator_election, ed25519_node_
     genesis_validators = {"validators": validators, "height": 0}
     query.store_validator_set(b.models.connection, genesis_validators)
     b.models.store_bulk_transactions([valid_upsert_validator_election])
-    query.store_election(b.models.connection, valid_upsert_validator_election.id, 1, is_concluded=False)
-    block_1 = Block(app_hash="hash_1", height=1, transactions=[valid_upsert_validator_election.id])
+    query.store_election(
+        b.models.connection, valid_upsert_validator_election.id, 1, is_concluded=False
+    )
+    block_1 = Block(
+        app_hash="hash_1", height=1, transactions=[valid_upsert_validator_election.id]
+    )
     b.models.store_block(block_1._asdict())
     return valid_upsert_validator_election
 
 
 @pytest.fixture
-def ongoing_validator_election_2(b, valid_upsert_validator_election_2, ed25519_node_keys):
+def ongoing_validator_election_2(
+    b, valid_upsert_validator_election_2, ed25519_node_keys
+):
     validators = b.models.get_validators(height=1)
     genesis_validators = {"validators": validators, "height": 0, "election_id": None}
     query.store_validator_set(b.models.connection, genesis_validators)
 
     b.models.store_bulk_transactions([valid_upsert_validator_election_2])
-    block_1 = Block(app_hash="hash_2", height=1, transactions=[valid_upsert_validator_election_2.id])
+    block_1 = Block(
+        app_hash="hash_2", height=1, transactions=[valid_upsert_validator_election_2.id]
+    )
     b.models.store_block(block_1._asdict())
     return valid_upsert_validator_election_2
 
@@ -861,7 +800,9 @@ def signed_2_0_transfer_tx():
         ],
         "operation": "TRANSFER",
         "metadata": "QmTjWHzypFxE8uuXJXMJQJxgAEKjoWmQimGiutmPyJ6CAB",
-        "asset": {"id": "334014a29d99a488789c711b7dc5fceb534d1a9290b14d0270dbe6b60e2f036e"},
+        "asset": {
+            "id": "334014a29d99a488789c711b7dc5fceb534d1a9290b14d0270dbe6b60e2f036e"
+        },
         "version": "2.0",
         "id": "e577641b0e2eb619e282f802516ce043e9d4af51dd4b6c959e18246e85cae2a6",
     }

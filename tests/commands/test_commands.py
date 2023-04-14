@@ -25,6 +25,96 @@ from planetmint.backend.connection import Connection
 
 from tests.utils import generate_election, generate_validators
 
+def mock_get_validators(height):
+    return [
+        {
+            "public_key": {"value": "zL/DasvKulXZzhSNFwx4cLRXKkSM9GPK7Y0nZ4FEylM=", "type": "ed25519-base64"},
+            "voting_power": 10,
+        }
+    ]
+
+
+@patch("planetmint.commands.utils.start")
+def test_main_entrypoint(mock_start):
+    from planetmint.commands.planetmint import main
+    from planetmint.model.dataaccessor import DataAccessor
+    
+    da = DataAccessor
+    del da
+    main()
+
+    assert mock_start.called
+
+#@pytest.mark.bdb
+def test_chain_migration_election_show_shows_inconclusive(b, test_abci_rpc ):
+    
+    from tests.utils import flush_db
+    flush_db(b.models.connection, "dbname")
+    validators = generate_validators([1] * 4)
+    output = b.models.store_validator_set(1, [v["storage"] for v in validators])
+
+    public_key = validators[0]["public_key"]
+    private_key = validators[0]["private_key"]
+    voter_keys = [v["private_key"] for v in validators]
+
+    election, votes = generate_election(b, ChainMigrationElection, public_key, private_key, [{"data": {}}], voter_keys)
+
+    assert not run_election_show(Namespace(election_id=election.id), b)
+
+    b.process_block(1, [election])
+    b.models.store_bulk_transactions([election])
+
+    assert run_election_show(Namespace(election_id=election.id), b) == "status=ongoing"
+
+    b.models.store_block(Block(height=1, transactions=[], app_hash="")._asdict())
+    b.models.store_validator_set(2, [v["storage"] for v in validators])
+
+    assert run_election_show(Namespace(election_id=election.id), b) == "status=ongoing"
+
+    b.models.store_block(Block(height=2, transactions=[], app_hash="")._asdict())
+    # TODO insert yet another block here when upgrading to Tendermint 0.22.4.
+
+    assert run_election_show(Namespace(election_id=election.id), b) == "status=inconclusive"
+
+
+@pytest.mark.bdb
+def test_chain_migration_election_show_shows_concluded(b):
+    validators = generate_validators([1] * 4)
+    b.models.store_validator_set(1, [v["storage"] for v in validators])
+
+    public_key = validators[0]["public_key"]
+    private_key = validators[0]["private_key"]
+    voter_keys = [v["private_key"] for v in validators]
+
+    election, votes = generate_election(b, ChainMigrationElection, public_key, private_key, [{"data": {}}], voter_keys)
+
+    assert not run_election_show(Namespace(election_id=election.id), b)
+
+    b.models.store_bulk_transactions([election])
+    b.process_block(1, [election])
+
+    assert run_election_show(Namespace(election_id=election.id), b) == "status=ongoing"
+
+    b.models.store_abci_chain(1, "chain-X")
+    b.models.store_block(Block(height=1, transactions=[v.id for v in votes], app_hash="last_app_hash")._asdict())
+    b.process_block(2, votes)
+
+    assert (
+        run_election_show(Namespace(election_id=election.id), b)
+        == f'''status=concluded
+chain_id=chain-X-migrated-at-height-1
+app_hash=last_app_hash
+validators=[{''.join([f"""
+    {{
+        "pub_key": {{
+            "type": "tendermint/PubKeyEd25519",
+            "value": "{v['public_key']}"
+        }},
+        "power": {v['storage']['voting_power']}
+    }}{',' if i + 1 != len(validators) else ''}""" for i, v in enumerate(validators)])}
+]'''
+    )
+
 
 def test_make_sure_we_dont_remove_any_command():
     # thanks to: http://stackoverflow.com/a/18161115/597097
@@ -59,13 +149,23 @@ def test_make_sure_we_dont_remove_any_command():
     assert parser.parse_args(["tendermint-version"]).command
 
 
-@patch("planetmint.commands.utils.start")
-def test_main_entrypoint(mock_start):
-    from planetmint.commands.planetmint import main
 
-    main()
 
-    assert mock_start.called
+@pytest.mark.bdb
+def test_election_approve_called_with_bad_key(monkeypatch, caplog, b, bad_validator_path, new_validator, node_key, test_abci_rpc):
+    from argparse import Namespace
+
+    b, election_id = call_election(monkeypatch, b, new_validator, node_key, test_abci_rpc)
+
+    # call run_upsert_validator_approve with args that point to the election, but a bad signing key
+    args = Namespace(action="approve", election_id=election_id, sk=bad_validator_path, config={})
+
+    with caplog.at_level(logging.ERROR):
+        assert not run_election_approve(args, b, test_abci_rpc)
+        assert (
+            caplog.records[0].msg == "The key you provided does not match any of "
+            "the eligible voters in this election."
+        )
 
 
 @patch("planetmint.config_utils.setup_logging")
@@ -444,11 +544,11 @@ def test_election_approve_with_tendermint(b, priv_validator_path, user_sk, valid
 
 
 @pytest.mark.bdb
-def test_election_approve_without_tendermint(caplog, b, priv_validator_path, new_validator, node_key, test_abci_rpc):
+def test_election_approve_without_tendermint(monkeypatch, caplog, b, priv_validator_path, new_validator, node_key, test_abci_rpc):
     from planetmint.commands.planetmint import run_election_approve
     from argparse import Namespace
 
-    b, election_id = call_election(b, new_validator, node_key, test_abci_rpc)
+    b, election_id = call_election(monkeypatch, b, new_validator, node_key, test_abci_rpc)
 
     # call run_election_approve with args that point to the election
     args = Namespace(action="approve", election_id=election_id, sk=priv_validator_path, config={})
@@ -460,11 +560,13 @@ def test_election_approve_without_tendermint(caplog, b, priv_validator_path, new
         assert b.models.get_transaction(approval_id)
 
 
+
+from unittest import mock
 @pytest.mark.bdb
-def test_election_approve_failure(caplog, b, priv_validator_path, new_validator, node_key, test_abci_rpc):
+def test_election_approve_failure(monkeypatch, caplog, b, priv_validator_path, new_validator, node_key, test_abci_rpc):
     from argparse import Namespace
 
-    b, election_id = call_election(b, new_validator, node_key, test_abci_rpc)
+    b, election_id = call_election(monkeypatch, b, new_validator, node_key, test_abci_rpc)
 
     def mock_write(modelist, endpoint, mode_commit, transaction, mode):
         b.models.store_bulk_transactions([transaction])
@@ -480,91 +582,6 @@ def test_election_approve_failure(caplog, b, priv_validator_path, new_validator,
         assert caplog.records[0].msg == "Failed to commit vote"
 
 
-@pytest.mark.bdb
-def test_election_approve_called_with_bad_key(caplog, b, bad_validator_path, new_validator, node_key, test_abci_rpc):
-    from argparse import Namespace
-
-    b, election_id = call_election(b, new_validator, node_key, test_abci_rpc)
-
-    # call run_upsert_validator_approve with args that point to the election, but a bad signing key
-    args = Namespace(action="approve", election_id=election_id, sk=bad_validator_path, config={})
-
-    with caplog.at_level(logging.ERROR):
-        assert not run_election_approve(args, b, test_abci_rpc)
-        assert (
-            caplog.records[0].msg == "The key you provided does not match any of "
-            "the eligible voters in this election."
-        )
-
-
-@pytest.mark.bdb
-def test_chain_migration_election_show_shows_inconclusive(b):
-    validators = generate_validators([1] * 4)
-    b.models.store_validator_set(1, [v["storage"] for v in validators])
-
-    public_key = validators[0]["public_key"]
-    private_key = validators[0]["private_key"]
-    voter_keys = [v["private_key"] for v in validators]
-
-    election, votes = generate_election(b, ChainMigrationElection, public_key, private_key, [{"data": {}}], voter_keys)
-
-    assert not run_election_show(Namespace(election_id=election.id), b)
-
-    b.process_block(1, [election])
-    b.models.store_bulk_transactions([election])
-
-    assert run_election_show(Namespace(election_id=election.id), b) == "status=ongoing"
-
-    b.models.store_block(Block(height=1, transactions=[], app_hash="")._asdict())
-    b.models.store_validator_set(2, [v["storage"] for v in validators])
-
-    assert run_election_show(Namespace(election_id=election.id), b) == "status=ongoing"
-
-    b.models.store_block(Block(height=2, transactions=[], app_hash="")._asdict())
-    # TODO insert yet another block here when upgrading to Tendermint 0.22.4.
-
-    assert run_election_show(Namespace(election_id=election.id), b) == "status=inconclusive"
-
-
-@pytest.mark.bdb
-def test_chain_migration_election_show_shows_concluded(b):
-    validators = generate_validators([1] * 4)
-    b.models.store_validator_set(1, [v["storage"] for v in validators])
-
-    public_key = validators[0]["public_key"]
-    private_key = validators[0]["private_key"]
-    voter_keys = [v["private_key"] for v in validators]
-
-    election, votes = generate_election(b, ChainMigrationElection, public_key, private_key, [{"data": {}}], voter_keys)
-
-    assert not run_election_show(Namespace(election_id=election.id), b)
-
-    b.models.store_bulk_transactions([election])
-    b.process_block(1, [election])
-
-    assert run_election_show(Namespace(election_id=election.id), b) == "status=ongoing"
-
-    b.models.store_abci_chain(1, "chain-X")
-    b.models.store_block(Block(height=1, transactions=[v.id for v in votes], app_hash="last_app_hash")._asdict())
-    b.process_block(2, votes)
-
-    assert (
-        run_election_show(Namespace(election_id=election.id), b)
-        == f'''status=concluded
-chain_id=chain-X-migrated-at-height-1
-app_hash=last_app_hash
-validators=[{''.join([f"""
-    {{
-        "pub_key": {{
-            "type": "tendermint/PubKeyEd25519",
-            "value": "{v['public_key']}"
-        }},
-        "power": {v['storage']['voting_power']}
-    }}{',' if i + 1 != len(validators) else ''}""" for i, v in enumerate(validators)])}
-]'''
-    )
-
-
 def test_bigchain_tendermint_version(capsys):
     from planetmint.commands.planetmint import run_tendermint_version
 
@@ -578,32 +595,29 @@ def test_bigchain_tendermint_version(capsys):
     assert sorted(output_config["tendermint"]) == sorted(__tm_supported_versions__)
 
 
-def mock_get_validators(height):
-    return [
-        {
-            "public_key": {"value": "zL/DasvKulXZzhSNFwx4cLRXKkSM9GPK7Y0nZ4FEylM=", "type": "ed25519-base64"},
-            "voting_power": 10,
-        }
-    ]
 
+def call_election(monkeypatch, b, new_validator, node_key, abci_rpc):
 
-def call_election(b, new_validator, node_key, abci_rpc):
-    def mock_write(modelist, endpoint, mode_commit, transaction, mode):
+    def mock_write(self, modelist, endpoint, mode_commit, transaction, mode):
         b.models.store_bulk_transactions([transaction])
         return (202, "")
+    with monkeypatch.context() as m:
+        m.setattr("planetmint.model.dataaccessor.DataAccessor.get_validators", mock_get_validators)
+        m.setattr("planetmint.abci.rpc.ABCI_RPC.write_transaction", mock_write)
+        
+        # patch the validator set. We now have one validator with power 10
+        #b.models.get_validators = mock_get_validators
+        #abci_rpc.write_transaction = mock_write
 
-    # patch the validator set. We now have one validator with power 10
-    b.models.get_validators = mock_get_validators
-    abci_rpc.write_transaction = mock_write
+        # our voters is a list of length 1, populated from our mocked validator
+        voters = b.get_recipients_list()
+        # and our voter is the public key from the voter list
+        voter = node_key.public_key
+        valid_election = ValidatorElection.generate([voter], voters, new_validator, None).sign([node_key.private_key])
 
-    # our voters is a list of length 1, populated from our mocked validator
-    voters = b.get_recipients_list()
-    # and our voter is the public key from the voter list
-    voter = node_key.public_key
-    valid_election = ValidatorElection.generate([voter], voters, new_validator, None).sign([node_key.private_key])
-
-    # patch in an election with a vote issued to the user
-    election_id = valid_election.id
-    b.models.store_bulk_transactions([valid_election])
-
-    return b, election_id
+        # patch in an election with a vote issued to the user
+        election_id = valid_election.id
+        b.models.store_bulk_transactions([valid_election])
+        
+        m.undo()
+        return b, election_id
