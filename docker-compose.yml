@@ -22,7 +22,9 @@ services:
       - "3303:3303"
       - "8081:8081"
     volumes:
-      - ./planetmint/backend/tarantool/init.lua:/opt/tarantool/init.lua
+      - ./planetmint/backend/tarantool/opt/init.lua:/opt/tarantool/init.lua
+      - ./planetmint/backend/tarantool/opt/functions.lua:/opt/tarantool/functions.lua
+      - ./planetmint/backend/tarantool/opt/migrations.lua:/opt/tarantool/migrations.lua
     entrypoint: tarantool /opt/tarantool/init.lua
     restart: always
   planetmint:
