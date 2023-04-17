@@ -138,20 +138,8 @@ def init_database(connection, dbname):
 
 
 @singledispatch
-def migrate_up(connection):
-    """Migrate database up
-
-    Args:
-        connection (:class:`~planetmint.backend.connection.Connection`): an
-            existing connection to use to migrate the database.
-            Creates one if not given.
-    """
-    raise NotImplementedError
-
-
-@singledispatch
-def migrate_down(connection):
-    """Migrate database down
+def migrate(connection):
+    """Migrate database
 
     Args:
         connection (:class:`~planetmint.backend.connection.Connection`): an
