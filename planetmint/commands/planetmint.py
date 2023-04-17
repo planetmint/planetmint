@@ -261,7 +261,7 @@ def run_init(args):
 @configure_planetmint
 def run_migrate(args):
     validator = Validator()
-    schema.migrate_up(validator.models.connection)
+    schema.migrate(validator.models.connection)
 
 
 @configure_planetmint
