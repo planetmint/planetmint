@@ -25,6 +25,9 @@ For reference, the possible headings are:
 * **Known Issues**
 * **Notes**
 
+## [2.4.3] - 2023-17-04
+* **Fixed** fixed migration behaviour for non docker service
+
 ## [2.4.2] - 2023-13-04
 * **Added** planetmint migration commands
 

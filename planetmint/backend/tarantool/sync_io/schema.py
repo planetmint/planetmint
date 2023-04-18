@@ -38,10 +38,5 @@ def create_tables(connection, dbname):
 
 
 @register_schema(TarantoolDBConnection)
-def migrate_up(connection):
-    connection.connect().call("migrate_up")
-
-
-@register_schema(TarantoolDBConnection)
-def migrate_down(connection):
-    connection.connect().call("migrate_down")
+def migrate(connection):
+    connection.connect().call("migrate")
