@@ -369,7 +369,7 @@ def create_parser():
 
     subparsers.add_parser("drop", help="Drop the database")
 
-    subparsers.add_parser("migrate_up", help="Migrate up")
+    subparsers.add_parser("migrate", help="Migrate up")
 
     # parser for starting Planetmint
     start_parser = subparsers.add_parser("start", help="Start Planetmint")
