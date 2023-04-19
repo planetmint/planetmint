@@ -25,6 +25,9 @@ For reference, the possible headings are:
 * **Known Issues**
 * **Notes**
 
+## [2.4.4] - 2023-19-04
+* **Fixed** tarantool migration script issues (modularity, script failures, cli cmd to function mapping)
+
 ## [2.4.3] - 2023-17-04
 * **Fixed** fixed migration behaviour for non docker service
 

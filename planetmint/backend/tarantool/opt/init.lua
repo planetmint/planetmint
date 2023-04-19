@@ -384,13 +384,13 @@ function migrate()
             parts = {{field = 'public_keys[*]', type  = 'string' }}
         })
 
-        atomic(1000, outputs:pairs(), function(output)
-            utxos:insert{output[0], output[1], output[2], output[3], output[4], output[5]}
+        atomic(1000, box.space.outputs:pairs(), function(output)
+            utxos:insert{output[1], output[2], output[3], output[4], output[5], output[6]}
         end)
         atomic(1000, utxos:pairs(), function(utxo) 
-            spending_transaction = transactions.index.spending_transaction_by_id_and_output_index:select{utxo[5], utxo[4]}
+            spending_transaction = box.space.transactions.index.spending_transaction_by_id_and_output_index:select{utxo[6], utxo[5]}
             if table.getn(spending_transaction) > 0 then
-                utxos:delete(utxo[0])
+                utxos:delete(utxo[1])
             end
         end)
     end)
