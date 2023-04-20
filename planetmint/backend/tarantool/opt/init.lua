@@ -1,3 +1,5 @@
+local migrations = require('migrations')
+
 box.cfg{listen = 3303}
 
 box.once("bootstrap", function()
@@ -171,9 +173,11 @@ function init()
     utxos = box.schema.create_space('utxos', { if_not_exists = true })
     utxos:format({
         { name = 'id', type = 'string' },
-        { name = 'transaction_id', type = 'string' },
-        { name = 'output_index', type = 'unsigned' },
-        { name = 'utxo', type = 'map' }
+        { name = 'amount' , type = 'unsigned' },
+        { name = 'public_keys', type = 'array' },
+        { name = 'condition', type = 'map' },
+        { name = 'output_index', type = 'number' },
+        { name = 'transaction_id' , type = 'string' }
     })
     utxos:create_index('id', { 
         if_not_exists = true,
@@ -189,7 +193,13 @@ function init()
         parts = {
             { field = 'transaction_id', type = 'string' },
             { field = 'output_index', type = 'unsigned' }
-    }})
+        }
+    })
+    utxos:create_index('public_keys', { 
+        if_not_exists = true,
+        unique = false,
+        parts = {{field = 'public_keys[*]', type  = 'string' }}
+    })
 
 
     -- Elections
@@ -322,4 +332,14 @@ end
 
 function delete_output( id )
     box.space.outputs:delete(id)
+end
+
+function migrate_up()
+    migrations.update_utxo_13042023.up()
+    -- add newer migrations below
+end
+
+function migrate_down()
+    -- add newer migrations above
+    migrations.update_utxo_13042023.down()
 end

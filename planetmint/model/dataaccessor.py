@@ -1,5 +1,6 @@
 import rapidjson
 from itertools import chain
+from hashlib import sha3_256
 
 from transactions import Transaction
 from transactions.common.exceptions import DoubleSpend
@@ -8,10 +9,14 @@ from transactions.common.exceptions import InputDoesNotExist
 
 from planetmint import config_utils, backend
 from planetmint.const import GOVERNANCE_TRANSACTION_TYPES
-from planetmint.model.fastquery import FastQuery
-from planetmint.abci.utils import key_from_base64
+from planetmint.abci.utils import key_from_base64, merkleroot
 from planetmint.backend.connection import Connection
-from planetmint.backend.tarantool.const import TARANT_TABLE_TRANSACTION, TARANT_TABLE_GOVERNANCE
+from planetmint.backend.tarantool.const import (
+    TARANT_TABLE_TRANSACTION,
+    TARANT_TABLE_GOVERNANCE,
+    TARANT_TABLE_UTXOS,
+    TARANT_TABLE_OUTPUT,
+)
 from planetmint.backend.models.block import Block
 from planetmint.backend.models.output import Output
 from planetmint.backend.models.asset import Asset
@@ -45,6 +50,7 @@ class DataAccessor(metaclass=Singleton):
 
         backend.query.store_transactions(self.connection, txns, TARANT_TABLE_TRANSACTION)
         backend.query.store_transactions(self.connection, gov_txns, TARANT_TABLE_GOVERNANCE)
+        [self.update_utxoset(t) for t in txns + gov_txns]
 
     def delete_transactions(self, txs):
         return backend.query.delete_transactions(self.connection, txs)
@@ -68,7 +74,7 @@ class DataAccessor(metaclass=Singleton):
     def get_outputs_by_tx_id(self, txid):
         return backend.query.get_outputs_by_tx_id(self.connection, txid)
 
-    def get_outputs_filtered(self, owner, spent=None):
+    def get_outputs_filtered(self, owner, spent=None) -> list[Output]:
         """Get a list of output links filtered on some criteria
 
         Args:
@@ -78,16 +84,23 @@ class DataAccessor(metaclass=Singleton):
                           not specified (``None``) return all outputs.
 
         Returns:
-            :obj:`list` of TransactionLink: list of ``txid`` s and ``output`` s
+            :obj:`list` of Output: list of ``txid`` s and ``output`` s
             pointing to another transaction's condition
         """
-        outputs = self.fastquery.get_outputs_by_public_key(owner)
-        if spent is None:
-            return outputs
-        elif spent is True:
-            return self.fastquery.filter_unspent_outputs(outputs)
+        outputs = backend.query.get_outputs_by_owner(self.connection, owner)
+        unspent_outputs = backend.query.get_outputs_by_owner(self.connection, owner, TARANT_TABLE_UTXOS)
+        if spent is True:
+            spent_outputs = []
+            for output in outputs:
+                if not any(
+                    utxo.transaction_id == output.transaction_id and utxo.index == output.index
+                    for utxo in unspent_outputs
+                ):
+                    spent_outputs.append(output)
+            return spent_outputs
         elif spent is False:
-            return self.fastquery.filter_spent_outputs(outputs)
+            return unspent_outputs
+        return outputs
 
     def store_block(self, block):
         """Create a new block."""
@@ -146,8 +159,8 @@ class DataAccessor(metaclass=Singleton):
 
         return validators
 
-    def get_spent(self, txid, output, current_transactions=[]) -> DbTransaction:
-        transactions = backend.query.get_spent(self.connection, txid, output)
+    def get_spending_transaction(self, txid, output, current_transactions=[]) -> DbTransaction:
+        transactions = backend.query.get_spending_transaction(self.connection, txid, output)
 
         current_spent_transactions = []
         for ctxn in current_transactions:
@@ -204,7 +217,7 @@ class DataAccessor(metaclass=Singleton):
             if input_tx is None:
                 raise InputDoesNotExist("input `{}` doesn't exist".format(input_txid))
 
-            spent = self.get_spent(input_txid, input_.fulfills.output, current_transactions)
+            spent = self.get_spending_transaction(input_txid, input_.fulfills.output, current_transactions)
             if spent:
                 raise DoubleSpend("input `{}` was already spent".format(input_txid))
 
@@ -285,6 +298,54 @@ class DataAccessor(metaclass=Singleton):
         txns = backend.query.get_asset_tokens_for_public_key(self.connection, transaction_id, election_pk)
         return txns
 
-    @property
-    def fastquery(self):
-        return FastQuery(self.connection)
+    def update_utxoset(self, transaction):
+        spent_outputs = [
+            {"output_index": input["fulfills"]["output_index"], "transaction_id": input["fulfills"]["transaction_id"]}
+            for input in transaction["inputs"]
+            if input["fulfills"] != None
+        ]
+
+        if spent_outputs:
+            backend.query.delete_unspent_outputs(self.connection, spent_outputs)
+        [
+            backend.query.store_transaction_outputs(
+                self.connection, Output.outputs_dict(output, transaction["id"]), index, TARANT_TABLE_UTXOS
+            )
+            for index, output in enumerate(transaction["outputs"])
+        ]
+
+    def get_utxoset_merkle_root(self):
+        """Returns the merkle root of the utxoset. This implies that
+        the utxoset is first put into a merkle tree.
+
+        For now, the merkle tree and its root will be computed each
+        time. This obviously is not efficient and a better approach
+        that limits the repetition of the same computation when
+        unnecesary should be sought. For instance, future optimizations
+        could simply re-compute the branches of the tree that were
+        affected by a change.
+
+        The transaction hash (id) and output index should be sufficient
+        to uniquely identify a utxo, and consequently only that
+        information from a utxo record is needed to compute the merkle
+        root. Hence, each node of the merkle tree should contain the
+        tuple (txid, output_index).
+
+        .. important:: The leaves of the tree will need to be sorted in
+            some kind of lexicographical order.
+
+        Returns:
+            str: Merkle root in hexadecimal form.
+        """
+        utxoset = backend.query.get_unspent_outputs(self.connection)
+        # TODO Once ready, use the already pre-computed utxo_hash field.
+        # See common/transactions.py for details.
+
+        hashes = [
+            sha3_256("{}{}".format(utxo["transaction_id"], utxo["output_index"]).encode()).digest() for utxo in utxoset
+        ]
+
+        print(sorted(hashes))
+
+        # TODO Notice the sorted call!
+        return merkleroot(sorted(hashes))

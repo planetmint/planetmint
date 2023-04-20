@@ -23,10 +23,6 @@ from transactions.common.transaction_mode_types import (
     BROADCAST_TX_ASYNC,
     BROADCAST_TX_SYNC,
 )
-from transactions.common.transaction import (
-    Input,
-    TransactionLink,
-)
 from transactions.common.utils import _fulfillment_from_details
 from transactions.common.crypto import generate_key_pair
 

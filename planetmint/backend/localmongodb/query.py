@@ -77,7 +77,7 @@ def get_assets(conn, asset_ids):
 
 
 @register_query(LocalMongoDBConnection)
-def get_spent(conn, transaction_id, output):
+def get_spending_transaction(conn, transaction_id, output):
     query = {
         "inputs": {
             "$elemMatch": {"$and": [{"fulfills.transaction_id": transaction_id}, {"fulfills.output_index": output}]}
@@ -165,21 +165,6 @@ def delete_transactions(conn, txn_ids):
     conn.run(conn.collection("assets").delete_many({"id": {"$in": txn_ids}}))
     conn.run(conn.collection("metadata").delete_many({"id": {"$in": txn_ids}}))
     conn.run(conn.collection("transactions").delete_many({"id": {"$in": txn_ids}}))
-
-
-@register_query(LocalMongoDBConnection)
-def store_unspent_outputs(conn, *unspent_outputs):
-    if unspent_outputs:
-        try:
-            return conn.run(
-                conn.collection("utxos").insert_many(
-                    unspent_outputs,
-                    ordered=False,
-                )
-            )
-        except DuplicateKeyError:
-            # TODO log warning at least
-            pass
 
 
 @register_query(LocalMongoDBConnection)

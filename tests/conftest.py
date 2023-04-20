@@ -535,50 +535,6 @@ def wsserver_base_url(wsserver_scheme, wsserver_host, wsserver_port):
 
 
 @pytest.fixture
-def unspent_output_0():
-    return {
-        "amount": 1,
-        "asset_id": "e897c7a0426461a02b4fca8ed73bc0debed7570cf3b40fb4f49c963434225a4d",
-        "condition_uri": "ni:///sha-256;RmovleG60-7K0CX60jjfUunV3lBpUOkiQOAnBzghm0w?fpt=ed25519-sha-256&cost=131072",
-        "fulfillment_message": '{"asset":{"data":{"hash":"06e47bcf9084f7ecfd2a2a2ad275444a"}},"id":"e897c7a0426461a02b4fca8ed73bc0debed7570cf3b40fb4f49c963434225a4d","inputs":[{"fulfillment":"pGSAIIQT0Jm6LDlcSs9coJK4Q4W-SNtsO2EtMtQJ04EUjBMJgUAXKIqeaippbF-IClhhZNNaP6EIZ_OgrVQYU4mH6b-Vc3Tg-k6p-rJOlLGUUo_w8C5QgPHNRYFOqUk2f1q0Cs4G","fulfills":null,"owners_before":["9taLkHkaBXeSF8vrhDGFTAmcZuCEPqjQrKadfYGs4gHv"]}],"metadata":null,"operation":"CREATE","outputs":[{"amount":"1","condition":{"details":{"public_key":"6FDGsHrR9RZqNaEm7kBvqtxRkrvuWogBW2Uy7BkWc5Tz","type":"ed25519-sha-256"},"uri":"ni:///sha-256;RmovleG60-7K0CX60jjfUunV3lBpUOkiQOAnBzghm0w?fpt=ed25519-sha-256&cost=131072"},"public_keys":["6FDGsHrR9RZqNaEm7kBvqtxRkrvuWogBW2Uy7BkWc5Tz"]},{"amount":"2","condition":{"details":{"public_key":"AH9D7xgmhyLmVE944zvHvuvYWuj5DfbMBJhnDM4A5FdT","type":"ed25519-sha-256"},"uri":"ni:///sha-256;-HlYmgwwl-vXwE52IaADhvYxaL1TbjqfJ-LGn5a1PFc?fpt=ed25519-sha-256&cost=131072"},"public_keys":["AH9D7xgmhyLmVE944zvHvuvYWuj5DfbMBJhnDM4A5FdT"]},{"amount":"3","condition":{"details":{"public_key":"HpmSVrojHvfCXQbmoAs4v6Aq1oZiZsZDnjr68KiVtPbB","type":"ed25519-sha-256"},"uri":"ni:///sha-256;xfn8pvQkTCPtvR0trpHy2pqkkNTmMBCjWMMOHtk3WO4?fpt=ed25519-sha-256&cost=131072"},"public_keys":["HpmSVrojHvfCXQbmoAs4v6Aq1oZiZsZDnjr68KiVtPbB"]}],"version":"1.0"}',  # noqa: E501
-        # noqa
-        "output_index": 0,
-        "transaction_id": "e897c7a0426461a02b4fca8ed73bc0debed7570cf3b40fb4f49c963434225a4d",
-    }
-
-
-@pytest.fixture
-def unspent_output_1():
-    return {
-        "amount": 2,
-        "asset_id": "e897c7a0426461a02b4fca8ed73bc0debed7570cf3b40fb4f49c963434225a4d",
-        "condition_uri": "ni:///sha-256;-HlYmgwwl-vXwE52IaADhvYxaL1TbjqfJ-LGn5a1PFc?fpt=ed25519-sha-256&cost=131072",
-        "fulfillment_message": '{"asset":{"data":{"hash":"06e47bcf9084f7ecfd2a2a2ad275444a"}},"id":"e897c7a0426461a02b4fca8ed73bc0debed7570cf3b40fb4f49c963434225a4d","inputs":[{"fulfillment":"pGSAIIQT0Jm6LDlcSs9coJK4Q4W-SNtsO2EtMtQJ04EUjBMJgUAXKIqeaippbF-IClhhZNNaP6EIZ_OgrVQYU4mH6b-Vc3Tg-k6p-rJOlLGUUo_w8C5QgPHNRYFOqUk2f1q0Cs4G","fulfills":null,"owners_before":["9taLkHkaBXeSF8vrhDGFTAmcZuCEPqjQrKadfYGs4gHv"]}],"metadata":null,"operation":"CREATE","outputs":[{"amount":"1","condition":{"details":{"public_key":"6FDGsHrR9RZqNaEm7kBvqtxRkrvuWogBW2Uy7BkWc5Tz","type":"ed25519-sha-256"},"uri":"ni:///sha-256;RmovleG60-7K0CX60jjfUunV3lBpUOkiQOAnBzghm0w?fpt=ed25519-sha-256&cost=131072"},"public_keys":["6FDGsHrR9RZqNaEm7kBvqtxRkrvuWogBW2Uy7BkWc5Tz"]},{"amount":"2","condition":{"details":{"public_key":"AH9D7xgmhyLmVE944zvHvuvYWuj5DfbMBJhnDM4A5FdT","type":"ed25519-sha-256"},"uri":"ni:///sha-256;-HlYmgwwl-vXwE52IaADhvYxaL1TbjqfJ-LGn5a1PFc?fpt=ed25519-sha-256&cost=131072"},"public_keys":["AH9D7xgmhyLmVE944zvHvuvYWuj5DfbMBJhnDM4A5FdT"]},{"amount":"3","condition":{"details":{"public_key":"HpmSVrojHvfCXQbmoAs4v6Aq1oZiZsZDnjr68KiVtPbB","type":"ed25519-sha-256"},"uri":"ni:///sha-256;xfn8pvQkTCPtvR0trpHy2pqkkNTmMBCjWMMOHtk3WO4?fpt=ed25519-sha-256&cost=131072"},"public_keys":["HpmSVrojHvfCXQbmoAs4v6Aq1oZiZsZDnjr68KiVtPbB"]}],"version":"1.0"}',  # noqa: E501
-        # noqa
-        "output_index": 1,
-        "transaction_id": "e897c7a0426461a02b4fca8ed73bc0debed7570cf3b40fb4f49c963434225a4d",
-    }
-
-
-@pytest.fixture
-def unspent_output_2():
-    return {
-        "amount": 3,
-        "asset_id": "e897c7a0426461a02b4fca8ed73bc0debed7570cf3b40fb4f49c963434225a4d",
-        "condition_uri": "ni:///sha-256;xfn8pvQkTCPtvR0trpHy2pqkkNTmMBCjWMMOHtk3WO4?fpt=ed25519-sha-256&cost=131072",
-        "fulfillment_message": '{"asset":{"data":{"hash":"06e47bcf9084f7ecfd2a2a2ad275444a"}},"id":"e897c7a0426461a02b4fca8ed73bc0debed7570cf3b40fb4f49c963434225a4d","inputs":[{"fulfillment":"pGSAIIQT0Jm6LDlcSs9coJK4Q4W-SNtsO2EtMtQJ04EUjBMJgUAXKIqeaippbF-IClhhZNNaP6EIZ_OgrVQYU4mH6b-Vc3Tg-k6p-rJOlLGUUo_w8C5QgPHNRYFOqUk2f1q0Cs4G","fulfills":null,"owners_before":["9taLkHkaBXeSF8vrhDGFTAmcZuCEPqjQrKadfYGs4gHv"]}],"metadata":null,"operation":"CREATE","outputs":[{"amount":"1","condition":{"details":{"public_key":"6FDGsHrR9RZqNaEm7kBvqtxRkrvuWogBW2Uy7BkWc5Tz","type":"ed25519-sha-256"},"uri":"ni:///sha-256;RmovleG60-7K0CX60jjfUunV3lBpUOkiQOAnBzghm0w?fpt=ed25519-sha-256&cost=131072"},"public_keys":["6FDGsHrR9RZqNaEm7kBvqtxRkrvuWogBW2Uy7BkWc5Tz"]},{"amount":"2","condition":{"details":{"public_key":"AH9D7xgmhyLmVE944zvHvuvYWuj5DfbMBJhnDM4A5FdT","type":"ed25519-sha-256"},"uri":"ni:///sha-256;-HlYmgwwl-vXwE52IaADhvYxaL1TbjqfJ-LGn5a1PFc?fpt=ed25519-sha-256&cost=131072"},"public_keys":["AH9D7xgmhyLmVE944zvHvuvYWuj5DfbMBJhnDM4A5FdT"]},{"amount":"3","condition":{"details":{"public_key":"HpmSVrojHvfCXQbmoAs4v6Aq1oZiZsZDnjr68KiVtPbB","type":"ed25519-sha-256"},"uri":"ni:///sha-256;xfn8pvQkTCPtvR0trpHy2pqkkNTmMBCjWMMOHtk3WO4?fpt=ed25519-sha-256&cost=131072"},"public_keys":["HpmSVrojHvfCXQbmoAs4v6Aq1oZiZsZDnjr68KiVtPbB"]}],"version":"1.0"}',  # noqa: E501
-        # noqa
-        "output_index": 2,
-        "transaction_id": "e897c7a0426461a02b4fca8ed73bc0debed7570cf3b40fb4f49c963434225a4d",
-    }
-
-
-@pytest.fixture
-def unspent_outputs(unspent_output_0, unspent_output_1, unspent_output_2):
-    return unspent_output_0, unspent_output_1, unspent_output_2
-
-
-@pytest.fixture
 def tarantool_client(db_context):  # TODO Here add TarantoolConnectionClass
     return TarantoolDBConnection(host=db_context.host, port=db_context.port)
 
@@ -588,28 +544,134 @@ def utxo_collection(tarantool_client, _setup_database):
     return tarantool_client.get_space("utxos")
 
 
+def network_validators(node_keys):
+    validator_pub_power = {}
+    voting_power = [8, 10, 7, 9]
+    for pub, priv in node_keys.items():
+        validator_pub_power[pub] = voting_power.pop()
+
+    return validator_pub_power
+
+
 @pytest.fixture
-def dummy_unspent_outputs():
-    return [
-        {"transaction_id": "a", "output_index": 0},
-        {"transaction_id": "a", "output_index": 1},
-        {"transaction_id": "b", "output_index": 0},
+def network_validators58(network_validators):
+    network_validators_base58 = {}
+    for p, v in network_validators.items():
+        p = public_key_from_ed25519_key(key_from_base64(p))
+        network_validators_base58[p] = v
+
+    return network_validators_base58
+
+
+@pytest.fixture
+def node_key(node_keys):
+    (pub, priv) = list(node_keys.items())[0]
+    return key_pair_from_ed25519_key(key_from_base64(priv))
+
+
+@pytest.fixture
+def ed25519_node_keys(node_keys):
+    (pub, priv) = list(node_keys.items())[0]
+    node_keys_dict = {}
+    for pub, priv in node_keys.items():
+        key = key_pair_from_ed25519_key(key_from_base64(priv))
+        node_keys_dict[key.public_key] = key
+
+    return node_keys_dict
+
+
+@pytest.fixture
+def node_keys():
+    return {
+        "zL/DasvKulXZzhSNFwx4cLRXKkSM9GPK7Y0nZ4FEylM=": "cM5oW4J0zmUSZ/+QRoRlincvgCwR0pEjFoY//ZnnjD3Mv8Nqy8q6VdnOFI0XDHhwtFcqRIz0Y8rtjSdngUTKUw==",
+        "GIijU7GBcVyiVUcB0GwWZbxCxdk2xV6pxdvL24s/AqM=": "mdz7IjP6mGXs6+ebgGJkn7kTXByUeeGhV+9aVthLuEAYiKNTsYFxXKJVRwHQbBZlvELF2TbFXqnF28vbiz8Cow==",
+        "JbfwrLvCVIwOPm8tj8936ki7IYbmGHjPiKb6nAZegRA=": "83VINXdj2ynOHuhvSZz5tGuOE5oYzIi0mEximkX1KYMlt/Csu8JUjA4+by2Pz3fqSLshhuYYeM+IpvqcBl6BEA==",
+        "PecJ58SaNRsWJZodDmqjpCWqG6btdwXFHLyE40RYlYM=": "uz8bYgoL4rHErWT1gjjrnA+W7bgD/uDQWSRKDmC8otc95wnnxJo1GxYlmh0OaqOkJaobpu13BcUcvITjRFiVgw==",
+    }
+
+
+@pytest.fixture
+def priv_validator_path(node_keys):
+    (public_key, private_key) = list(node_keys.items())[0]
+    priv_validator = {
+        "address": "84F787D95E196DC5DE5F972666CFECCA36801426",
+        "pub_key": {"type": "AC26791624DE60", "value": public_key},
+        "last_height": 0,
+        "last_round": 0,
+        "last_step": 0,
+        "priv_key": {"type": "954568A3288910", "value": private_key},
+    }
+    fd, path = tempfile.mkstemp()
+    socket = os.fdopen(fd, "w")
+    json.dump(priv_validator, socket)
+    socket.close()
+    return path
+
+
+@pytest.fixture
+def bad_validator_path(node_keys):
+    (public_key, private_key) = list(node_keys.items())[1]
+    priv_validator = {
+        "address": "84F787D95E196DC5DE5F972666CFECCA36801426",
+        "pub_key": {"type": "AC26791624DE60", "value": public_key},
+        "last_height": 0,
+        "last_round": 0,
+        "last_step": 0,
+        "priv_key": {"type": "954568A3288910", "value": private_key},
+    }
+    fd, path = tempfile.mkstemp()
+    socket = os.fdopen(fd, "w")
+    json.dump(priv_validator, socket)
+    socket.close()
+    return path
+
+
+@pytest.fixture
+def validators(b, node_keys):
+    from planetmint.backend import query
+    import time
+
+    def timestamp():  # we need this to force unique election_ids for setup and teardown of fixtures
+        return str(time.time())
+
+    height = get_block_height(b)
+
+    original_validators = b.models.get_validators()
+
+    (public_key, private_key) = list(node_keys.items())[0]
+
+    validator_set = [
+        {
+            "address": "F5426F0980E36E03044F74DD414248D29ABCBDB2",
+            "public_key": {"value": public_key, "type": "ed25519-base64"},
+            "voting_power": 10,
+        }
     ]
 
+    validator_update = {"validators": validator_set, "height": height + 1, "election_id": f"setup_at_{timestamp()}"}
 
-@pytest.fixture
-def utxoset(dummy_unspent_outputs, utxo_collection):
-    from uuid import uuid4
+    query.store_validator_set(b.models.connection, validator_update)
 
-    num_rows_before_operation = utxo_collection.select().rowcount
-    for utxo in dummy_unspent_outputs:
-        res = utxo_collection.insert(
-            (uuid4().hex, utxo["transaction_id"], utxo["output_index"], utxo)
-        )
-        assert res
-    num_rows_after_operation = utxo_collection.select().rowcount
-    assert num_rows_after_operation == num_rows_before_operation + 3
-    return dummy_unspent_outputs, utxo_collection
+    yield
+
+    height = get_block_height(b)
+
+    validator_update = {
+        "validators": original_validators,
+        "height": height,
+        "election_id": f"teardown_at_{timestamp()}",
+    }
+
+    query.store_validator_set(b.models.connection, validator_update)
+
+
+def get_block_height(b):
+    if b.models.get_latest_block():
+        height = b.models.get_latest_block()["height"]
+    else:
+        height = 0
+
+    return height
 
 
 @pytest.fixture

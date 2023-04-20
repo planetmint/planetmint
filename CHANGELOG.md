@@ -25,6 +25,18 @@ For reference, the possible headings are:
 * **Known Issues**
 * **Notes**
 
+## [2.4.2] - 2023-13-04
+* **Added** planetmint migration commands
+
+## [2.4.1] - 2023-11-04
+* **Removed** Fastquery class
+* **Changed** UTXO space updated to resemble outputs
+* **Changed** updated UTXO querying
+
+## [2.4.0] - 2023-29-03
+* **Added** Zenroom script validation
+* **Changed** adjusted zenroom testing for new transaction script structure
+
 ## [2.3.3] - 2023-10-03
 * **Fixed** CI issues with the docker images
 * **Added** Tendermint, tarantool, and planetmint initialization to the all-in-one docker image

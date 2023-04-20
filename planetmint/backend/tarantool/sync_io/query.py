@@ -127,11 +127,12 @@ def get_transactions_by_metadata(connection, metadata: str, limit: int = 1000) -
     return get_complete_transactions_by_ids(connection, tx_ids)
 
 
+@register_query(TarantoolDBConnection)
 @catch_db_exception
-def store_transaction_outputs(connection, output: Output, index: int) -> str:
+def store_transaction_outputs(connection, output: Output, index: int, table=TARANT_TABLE_OUTPUT) -> str:
     output_id = uuid4().hex
     connection.connect().insert(
-        TARANT_TABLE_OUTPUT,
+        table,
         (
             output_id,
             int(output.amount),
@@ -220,7 +221,9 @@ def get_assets(connection, assets_ids: list) -> list[Asset]:
 
 @register_query(TarantoolDBConnection)
 @catch_db_exception
-def get_spent(connection, fullfil_transaction_id: str, fullfil_output_index: str) -> list[DbTransaction]:
+def get_spending_transaction(
+    connection, fullfil_transaction_id: str, fullfil_output_index: str
+) -> list[DbTransaction]:
     _inputs = (
         connection.connect()
         .select(
@@ -300,7 +303,7 @@ def get_spending_transactions(connection, inputs):
     _transactions = []
 
     for inp in inputs:
-        _trans_list = get_spent(
+        _trans_list = get_spending_transaction(
             fullfil_transaction_id=inp["transaction_id"],
             fullfil_output_index=inp["output_index"],
             connection=connection,
@@ -337,6 +340,9 @@ def delete_transactions(connection, txn_ids: list):
         _outputs = get_outputs_by_tx_id(connection, _id)
         for x in range(len(_outputs)):
             connection.connect().call("delete_output", (_outputs[x].id))
+            connection.connect().delete(
+                TARANT_TABLE_UTXOS, (_id, _outputs[x].index), index="utxo_by_transaction_id_and_output_index"
+            )
     for _id in txn_ids:
         connection.connect().delete(TARANT_TABLE_TRANSACTION, _id)
         connection.connect().delete(TARANT_TABLE_GOVERNANCE, _id)
@@ -344,26 +350,7 @@ def delete_transactions(connection, txn_ids: list):
 
 @register_query(TarantoolDBConnection)
 @catch_db_exception
-def store_unspent_outputs(connection, *unspent_outputs: list):
-    result = []
-    if unspent_outputs:
-        for utxo in unspent_outputs:
-            try:
-                output = (
-                    connection.connect()
-                    .insert(TARANT_TABLE_UTXOS, (uuid4().hex, utxo["transaction_id"], utxo["output_index"], utxo))
-                    .data
-                )
-                result.append(output)
-            except Exception as e:
-                logger.info(f"Could not insert unspent output: {e}")
-                raise OperationDataInsertionError()
-    return result
-
-
-@register_query(TarantoolDBConnection)
-@catch_db_exception
-def delete_unspent_outputs(connection, *unspent_outputs: list):
+def delete_unspent_outputs(connection, unspent_outputs: list):
     result = []
     if unspent_outputs:
         for utxo in unspent_outputs:
@@ -383,8 +370,8 @@ def delete_unspent_outputs(connection, *unspent_outputs: list):
 @register_query(TarantoolDBConnection)
 @catch_db_exception
 def get_unspent_outputs(connection, query=None):  # for now we don't have implementation for 'query'.
-    _utxos = connection.connect().select(TARANT_TABLE_UTXOS, []).data
-    return [utx[3] for utx in _utxos]
+    utxos = connection.connect().select(TARANT_TABLE_UTXOS, []).data
+    return [{"transaction_id": utxo[5], "output_index": utxo[4]} for utxo in utxos]
 
 
 @register_query(TarantoolDBConnection)
@@ -523,3 +510,10 @@ def get_latest_abci_chain(connection) -> Union[dict, None]:
         return None
     _chain = sorted(_all_chains, key=itemgetter(1), reverse=True)[0]
     return {"chain_id": _chain[0], "height": _chain[1], "is_synced": _chain[2]}
+
+
+@register_query(TarantoolDBConnection)
+@catch_db_exception
+def get_outputs_by_owner(connection, public_key: str, table=TARANT_TABLE_OUTPUT) -> list[Output]:
+    outputs = connection.connect().select(table, public_key, index="public_keys")
+    return [Output.from_tuple(output) for output in outputs]
