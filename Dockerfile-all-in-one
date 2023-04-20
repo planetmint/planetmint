@@ -42,7 +42,7 @@ ENV PLANETMINT_WSSERVER_ADVERTISED_HOST 0.0.0.0
 ENV PLANETMINT_WSSERVER_ADVERTISED_SCHEME ws
 ENV PLANETMINT_TENDERMINT_PORT 26657
 
-COPY planetmint/backend/tarantool/init.lua /etc/tarantool/instances.enabled
+COPY planetmint/backend/tarantool/opt/init.lua /etc/tarantool/instances.enabled
 
 VOLUME /data/db /data/configdb /tendermint
 

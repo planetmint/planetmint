@@ -16,8 +16,8 @@ OUTPUTS_ENDPOINT = "/api/v1/outputs/"
 @pytest.mark.userfixtures("inputs")
 def test_get_outputs_endpoint(client, user_pk):
     m = MagicMock()
-    m.txid = "a"
-    m.output = 0
+    m.transaction_id = "a"
+    m.index = 0
     with patch("planetmint.model.dataaccessor.DataAccessor.get_outputs_filtered") as gof:
         gof.return_value = [m, m]
         res = client.get(OUTPUTS_ENDPOINT + "?public_key={}".format(user_pk))
@@ -28,8 +28,8 @@ def test_get_outputs_endpoint(client, user_pk):
 
 def test_get_outputs_endpoint_unspent(client, user_pk):
     m = MagicMock()
-    m.txid = "a"
-    m.output = 0
+    m.transaction_id = "a"
+    m.index = 0
     with patch("planetmint.model.dataaccessor.DataAccessor.get_outputs_filtered") as gof:
         gof.return_value = [m]
         params = "?spent=False&public_key={}".format(user_pk)
@@ -43,8 +43,8 @@ def test_get_outputs_endpoint_unspent(client, user_pk):
 @pytest.mark.userfixtures("inputs")
 def test_get_outputs_endpoint_spent(client, user_pk):
     m = MagicMock()
-    m.txid = "a"
-    m.output = 0
+    m.transaction_id = "a"
+    m.index = 0
     with patch("planetmint.model.dataaccessor.DataAccessor.get_outputs_filtered") as gof:
         gof.return_value = [m]
         params = "?spent=true&public_key={}".format(user_pk)

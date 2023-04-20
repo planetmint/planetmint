@@ -32,4 +32,4 @@ class OutputListApi(Resource):
                     "Invalid output ({}): {} : {} - {}".format(type(e).__name__, e, args["public_key"], args["spent"]),
                     level="error",
                 )
-            return [{"transaction_id": output.txid, "output_index": output.output} for output in outputs]
+            return [{"transaction_id": output.transaction_id, "output_index": output.index} for output in outputs]

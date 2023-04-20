@@ -1,4 +1,4 @@
-local migrations = require('migrations')
+local fiber = require('fiber')
 
 box.cfg{listen = 3303}
 
@@ -334,12 +334,64 @@ function delete_output( id )
     box.space.outputs:delete(id)
 end
 
-function migrate_up()
-    migrations.update_utxo_13042023.up()
-    -- add newer migrations below
+function atomic(batch_size, iter, fn)
+    box.atomic(function()
+        local i = 0
+        for _, x in iter:unwrap() do
+            fn(x)
+            i = i + 1
+            if i % batch_size == 0 then
+                box.commit()
+                fiber.yield() -- for read-only operations when `commit` doesn't yield
+                box.begin()
+            end
+        end
+    end)
 end
 
-function migrate_down()
-    -- add newer migrations above
-    migrations.update_utxo_13042023.down()
+function migrate()
+    -- migration code from 2.4.0 to 2.4.3
+    box.once("planetmint:v2.4.3", function()
+        box.space.utxos:drop()
+        utxos = box.schema.create_space('utxos', { if_not_exists = true })
+        utxos:format({
+            { name = 'id', type = 'string' },
+            { name = 'amount' , type = 'unsigned' },
+            { name = 'public_keys', type = 'array' },
+            { name = 'condition', type = 'map' },
+            { name = 'output_index', type = 'number' },
+            { name = 'transaction_id' , type = 'string' }
+        })
+        utxos:create_index('id', { 
+            if_not_exists = true,
+            parts = {{ field = 'id', type = 'string' }}
+        })
+        utxos:create_index('utxos_by_transaction_id', {
+            if_not_exists = true,
+            unique = false,
+            parts = {{ field = 'transaction_id', type = 'string' }}
+        })
+        utxos:create_index('utxo_by_transaction_id_and_output_index', { 
+            if_not_exists = true,
+            parts = {
+                { field = 'transaction_id', type = 'string' },
+                { field = 'output_index', type = 'unsigned' }
+            }
+        })
+        utxos:create_index('public_keys', { 
+            if_not_exists = true,
+            unique = false,
+            parts = {{field = 'public_keys[*]', type  = 'string' }}
+        })
+
+        atomic(1000, box.space.outputs:pairs(), function(output)
+            utxos:insert{output[1], output[2], output[3], output[4], output[5], output[6]}
+        end)
+        atomic(1000, utxos:pairs(), function(utxo) 
+            spending_transaction = box.space.transactions.index.spending_transaction_by_id_and_output_index:select{utxo[6], utxo[5]}
+            if table.getn(spending_transaction) > 0 then
+                utxos:delete(utxo[1])
+            end
+        end)
+    end)
 end

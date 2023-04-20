@@ -259,15 +259,9 @@ def run_init(args):
 
 
 @configure_planetmint
-def run_migrate_up(args):
+def run_migrate(args):
     validator = Validator()
-    schema.migrate_up(validator.models.connection)
-
-
-@configure_planetmint
-def run_migrate_down(args):
-    validator = Validator()
-    schema.migrate_up(validator.models.connection)
+    schema.migrate(validator.models.connection)
 
 
 @configure_planetmint
@@ -375,9 +369,7 @@ def create_parser():
 
     subparsers.add_parser("drop", help="Drop the database")
 
-    subparsers.add_parser("migrate_up", help="Migrate up")
-
-    subparsers.add_parser("migrate_down", help="Migrate down")
+    subparsers.add_parser("migrate", help="Migrate up")
 
     # parser for starting Planetmint
     start_parser = subparsers.add_parser("start", help="Start Planetmint")
