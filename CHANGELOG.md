@@ -25,6 +25,9 @@ For reference, the possible headings are:
 * **Known Issues**
 * **Notes**
 
+## [2.4.5] - 2023-21-04
+* **Fixed** Integration of DataAccessor Singleton class to reduce potentially multiple DB driver initializations.
+
 ## [2.4.4] - 2023-19-04
 * **Fixed** tarantool migration script issues (modularity, script failures, cli cmd to function mapping)
 
