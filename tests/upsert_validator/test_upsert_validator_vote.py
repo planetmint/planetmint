@@ -6,6 +6,7 @@
 import pytest
 import codecs
 
+from planetmint.model.dataaccessor import DataAccessor
 from planetmint.abci.rpc import MODE_LIST, MODE_COMMIT
 from planetmint.abci.utils import public_key_to_base64
 
@@ -20,6 +21,27 @@ from transactions.types.elections.validator_utils import election_id_to_public_k
 from tests.utils import generate_block, gen_vote
 
 pytestmark = [pytest.mark.execute]
+
+
+# helper
+def get_valid_upsert_election(m, b, mock_get_validators, node_key, new_validator):
+    m.setattr(DataAccessor, "get_validators", mock_get_validators)
+    voters = b.get_recipients_list()
+    valid_upsert_validator_election = ValidatorElection.generate(
+        [node_key.public_key], voters, new_validator, None
+    ).sign([node_key.private_key])
+
+    b.models.store_bulk_transactions([valid_upsert_validator_election])
+    return valid_upsert_validator_election
+
+
+# helper
+def get_voting_set(valid_upsert_validator_election, ed25519_node_keys):
+    input0 = valid_upsert_validator_election.to_inputs()[0]
+    votes = valid_upsert_validator_election.outputs[0].amount
+    public_key0 = input0.owners_before[0]
+    key0 = ed25519_node_keys[public_key0]
+    return input0, votes, key0
 
 
 @pytest.mark.bdb
@@ -38,20 +60,8 @@ def test_upsert_validator_valid_election_vote(
         return validators
 
     with monkeypatch.context() as m:
-        from planetmint.model.dataaccessor import DataAccessor
-
-        m.setattr(DataAccessor, "get_validators", mock_get_validators)
-        voters = b.get_recipients_list()
-        valid_upsert_validator_election = ValidatorElection.generate(
-            [node_key.public_key], voters, new_validator, None
-        ).sign([node_key.private_key])
-
-        b.models.store_bulk_transactions([valid_upsert_validator_election])
-
-        input0 = valid_upsert_validator_election.to_inputs()[0]
-        votes = valid_upsert_validator_election.outputs[0].amount
-        public_key0 = input0.owners_before[0]
-        key0 = ed25519_node_keys[public_key0]
+        valid_upsert_validator_election = get_valid_upsert_election(m, b, mock_get_validators, node_key, new_validator)
+        input0, votes, key0 = get_voting_set(valid_upsert_validator_election, ed25519_node_keys)
 
         election_pub_key = election_id_to_public_key(valid_upsert_validator_election.id)
 
@@ -78,20 +88,8 @@ def test_upsert_validator_valid_non_election_vote(
         return validators
 
     with monkeypatch.context() as m:
-        from planetmint.model.dataaccessor import DataAccessor
-
-        m.setattr(DataAccessor, "get_validators", mock_get_validators)
-        voters = b.get_recipients_list()
-        valid_upsert_validator_election = ValidatorElection.generate(
-            [node_key.public_key], voters, new_validator, None
-        ).sign([node_key.private_key])
-
-        b.models.store_bulk_transactions([valid_upsert_validator_election])
-
-        input0 = valid_upsert_validator_election.to_inputs()[0]
-        votes = valid_upsert_validator_election.outputs[0].amount
-        public_key0 = input0.owners_before[0]
-        key0 = ed25519_node_keys[public_key0]
+        valid_upsert_validator_election = get_valid_upsert_election(m, b, mock_get_validators, node_key, new_validator)
+        input0, votes, key0 = get_voting_set(valid_upsert_validator_election, ed25519_node_keys)
 
         election_pub_key = election_id_to_public_key(valid_upsert_validator_election.id)
 
@@ -121,22 +119,9 @@ def test_upsert_validator_delegate_election_vote(
         return validators
 
     with monkeypatch.context() as m:
-        from planetmint.model.dataaccessor import DataAccessor
-
-        m.setattr(DataAccessor, "get_validators", mock_get_validators)
-
+        valid_upsert_validator_election = get_valid_upsert_election(m, b, mock_get_validators, node_key, new_validator)
         alice = generate_key_pair()
-        voters = b.get_recipients_list()
-        valid_upsert_validator_election = ValidatorElection.generate(
-            [node_key.public_key], voters, new_validator, None
-        ).sign([node_key.private_key])
-
-        b.models.store_bulk_transactions([valid_upsert_validator_election])
-
-        input0 = valid_upsert_validator_election.to_inputs()[0]
-        votes = valid_upsert_validator_election.outputs[0].amount
-        public_key0 = input0.owners_before[0]
-        key0 = ed25519_node_keys[public_key0]
+        input0, votes, key0 = get_voting_set(valid_upsert_validator_election, ed25519_node_keys)
 
         delegate_vote = Vote.generate(
             [input0],
@@ -179,20 +164,8 @@ def test_upsert_validator_invalid_election_vote(
         return validators
 
     with monkeypatch.context() as m:
-        from planetmint.model.dataaccessor import DataAccessor
-
-        m.setattr(DataAccessor, "get_validators", mock_get_validators)
-        voters = b.get_recipients_list()
-        valid_upsert_validator_election = ValidatorElection.generate(
-            [node_key.public_key], voters, new_validator, None
-        ).sign([node_key.private_key])
-
-        b.models.store_bulk_transactions([valid_upsert_validator_election])
-
-        input0 = valid_upsert_validator_election.to_inputs()[0]
-        votes = valid_upsert_validator_election.outputs[0].amount
-        public_key0 = input0.owners_before[0]
-        key0 = ed25519_node_keys[public_key0]
+        valid_upsert_validator_election = get_valid_upsert_election(m, b, mock_get_validators, node_key, new_validator)
+        input0, votes, key0 = get_voting_set(valid_upsert_validator_election, ed25519_node_keys)
 
         election_pub_key = election_id_to_public_key(valid_upsert_validator_election.id)
 
@@ -218,22 +191,11 @@ def test_valid_election_votes_received(monkeypatch, b, network_validators, node_
         return validators
 
     with monkeypatch.context() as m:
-        from planetmint.model.dataaccessor import DataAccessor
-
-        m.setattr(DataAccessor, "get_validators", mock_get_validators)
+        valid_upsert_validator_election = get_valid_upsert_election(m, b, mock_get_validators, node_key, new_validator)
         alice = generate_key_pair()
-        voters = b.get_recipients_list()
-        valid_upsert_validator_election = ValidatorElection.generate(
-            [node_key.public_key], voters, new_validator, None
-        ).sign([node_key.private_key])
 
-        b.models.store_bulk_transactions([valid_upsert_validator_election])
         assert b.get_commited_votes(valid_upsert_validator_election) == 0
-
-        input0 = valid_upsert_validator_election.to_inputs()[0]
-        votes = valid_upsert_validator_election.outputs[0].amount
-        public_key0 = input0.owners_before[0]
-        key0 = ed25519_node_keys[public_key0]
+        input0, votes, key0 = get_voting_set(valid_upsert_validator_election, ed25519_node_keys)
 
         # delegate some votes to alice
         delegate_vote = Vote.generate(
