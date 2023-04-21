@@ -10,6 +10,16 @@ BLOCKS_ENDPOINT = "/api/v1/blocks/"
 
 @pytest.mark.bdb
 @pytest.mark.usefixtures("inputs")
+def test_get_latest_block(client):
+    res = client.get(BLOCKS_ENDPOINT + "latest")
+    assert res.status_code == 200
+    assert len(res.json["transaction_ids"]) == 10
+    assert res.json["app_hash"] == "hash3"
+    assert res.json["height"] == 3
+
+
+@pytest.mark.bdb
+@pytest.mark.usefixtures("inputs")
 def test_get_block_returns_404_if_not_found(client):
     res = client.get(BLOCKS_ENDPOINT + "123")
     assert res.status_code == 404
@@ -53,16 +63,6 @@ def test_get_blocks_by_txid_endpoint_returns_400_bad_query_params(client):
     res = client.get(BLOCKS_ENDPOINT + "?transaction_id=123&status=123")
     assert res.status_code == 400
     assert res.json == {"message": "Unknown arguments: status"}
-
-
-@pytest.mark.bdb
-@pytest.mark.usefixtures("inputs")
-def test_get_latest_block(client):
-    res = client.get(BLOCKS_ENDPOINT + "latest")
-    assert res.status_code == 200
-    assert len(res.json["transaction_ids"]) == 10
-    assert res.json["app_hash"] == "hash3"
-    assert res.json["height"] == 3
 
 
 @pytest.mark.bdb

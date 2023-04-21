@@ -6,6 +6,7 @@
 import pytest
 import codecs
 
+from planetmint.model.dataaccessor import DataAccessor
 from planetmint.abci.rpc import MODE_LIST, MODE_COMMIT
 from planetmint.abci.utils import public_key_to_base64
 
@@ -22,196 +23,290 @@ from tests.utils import generate_block, gen_vote
 pytestmark = [pytest.mark.execute]
 
 
-@pytest.mark.bdb
-def test_upsert_validator_valid_election_vote(b_mock, valid_upsert_validator_election, ed25519_node_keys):
-    b_mock.models.store_bulk_transactions([valid_upsert_validator_election])
+# helper
+def get_valid_upsert_election(m, b, mock_get_validators, node_key, new_validator):
+    m.setattr(DataAccessor, "get_validators", mock_get_validators)
+    voters = b.get_recipients_list()
+    valid_upsert_validator_election = ValidatorElection.generate(
+        [node_key.public_key], voters, new_validator, None
+    ).sign([node_key.private_key])
 
+    b.models.store_bulk_transactions([valid_upsert_validator_election])
+    return valid_upsert_validator_election
+
+
+# helper
+def get_voting_set(valid_upsert_validator_election, ed25519_node_keys):
     input0 = valid_upsert_validator_election.to_inputs()[0]
     votes = valid_upsert_validator_election.outputs[0].amount
     public_key0 = input0.owners_before[0]
     key0 = ed25519_node_keys[public_key0]
-
-    election_pub_key = election_id_to_public_key(valid_upsert_validator_election.id)
-
-    vote = Vote.generate(
-        [input0], [([election_pub_key], votes)], election_ids=[valid_upsert_validator_election.id]
-    ).sign([key0.private_key])
-    assert b_mock.validate_transaction(vote)
+    return input0, votes, key0
 
 
 @pytest.mark.bdb
-def test_upsert_validator_valid_non_election_vote(b_mock, valid_upsert_validator_election, ed25519_node_keys):
-    b_mock.models.store_bulk_transactions([valid_upsert_validator_election])
+def test_upsert_validator_valid_election_vote(
+    monkeypatch, b, network_validators, new_validator, node_key, ed25519_node_keys
+):
+    def mock_get_validators(self, height):
+        validators = []
+        for public_key, power in network_validators.items():
+            validators.append(
+                {
+                    "public_key": {"type": "ed25519-base64", "value": public_key},
+                    "voting_power": power,
+                }
+            )
+        return validators
 
-    input0 = valid_upsert_validator_election.to_inputs()[0]
-    votes = valid_upsert_validator_election.outputs[0].amount
-    public_key0 = input0.owners_before[0]
-    key0 = ed25519_node_keys[public_key0]
+    with monkeypatch.context() as m:
+        valid_upsert_validator_election = get_valid_upsert_election(m, b, mock_get_validators, node_key, new_validator)
+        input0, votes, key0 = get_voting_set(valid_upsert_validator_election, ed25519_node_keys)
 
-    election_pub_key = election_id_to_public_key(valid_upsert_validator_election.id)
+        election_pub_key = election_id_to_public_key(valid_upsert_validator_election.id)
 
-    # Ensure that threshold conditions are now allowed
-    with pytest.raises(ValidationError):
-        Vote.generate(
-            [input0], [([election_pub_key, key0.public_key], votes)], election_ids=[valid_upsert_validator_election.id]
+        vote = Vote.generate(
+            [input0], [([election_pub_key], votes)], election_ids=[valid_upsert_validator_election.id]
+        ).sign([key0.private_key])
+        assert b.validate_transaction(vote)
+        m.undo()
+
+
+@pytest.mark.bdb
+def test_upsert_validator_valid_non_election_vote(
+    monkeypatch, b, network_validators, node_key, new_validator, ed25519_node_keys
+):
+    def mock_get_validators(self, height):
+        validators = []
+        for public_key, power in network_validators.items():
+            validators.append(
+                {
+                    "public_key": {"type": "ed25519-base64", "value": public_key},
+                    "voting_power": power,
+                }
+            )
+        return validators
+
+    with monkeypatch.context() as m:
+        valid_upsert_validator_election = get_valid_upsert_election(m, b, mock_get_validators, node_key, new_validator)
+        input0, votes, key0 = get_voting_set(valid_upsert_validator_election, ed25519_node_keys)
+
+        election_pub_key = election_id_to_public_key(valid_upsert_validator_election.id)
+
+        # Ensure that threshold conditions are now allowed
+        with pytest.raises(ValidationError):
+            Vote.generate(
+                [input0],
+                [([election_pub_key, key0.public_key], votes)],
+                election_ids=[valid_upsert_validator_election.id],
+            ).sign([key0.private_key])
+        m.undo()
+
+
+@pytest.mark.bdb
+def test_upsert_validator_delegate_election_vote(
+    monkeypatch, b, network_validators, node_key, new_validator, ed25519_node_keys
+):
+    def mock_get_validators(self, height):
+        validators = []
+        for public_key, power in network_validators.items():
+            validators.append(
+                {
+                    "public_key": {"type": "ed25519-base64", "value": public_key},
+                    "voting_power": power,
+                }
+            )
+        return validators
+
+    with monkeypatch.context() as m:
+        valid_upsert_validator_election = get_valid_upsert_election(m, b, mock_get_validators, node_key, new_validator)
+        alice = generate_key_pair()
+        input0, votes, key0 = get_voting_set(valid_upsert_validator_election, ed25519_node_keys)
+
+        delegate_vote = Vote.generate(
+            [input0],
+            [([alice.public_key], 3), ([key0.public_key], votes - 3)],
+            election_ids=[valid_upsert_validator_election.id],
         ).sign([key0.private_key])
 
+        assert b.validate_transaction(delegate_vote)
 
-@pytest.mark.bdb
-def test_upsert_validator_delegate_election_vote(b_mock, valid_upsert_validator_election, ed25519_node_keys):
-    alice = generate_key_pair()
+        b.models.store_bulk_transactions([delegate_vote])
+        election_pub_key = election_id_to_public_key(valid_upsert_validator_election.id)
 
-    b_mock.models.store_bulk_transactions([valid_upsert_validator_election])
+        alice_votes = delegate_vote.to_inputs()[0]
+        alice_casted_vote = Vote.generate(
+            [alice_votes], [([election_pub_key], 3)], election_ids=[valid_upsert_validator_election.id]
+        ).sign([alice.private_key])
+        assert b.validate_transaction(alice_casted_vote)
 
-    input0 = valid_upsert_validator_election.to_inputs()[0]
-    votes = valid_upsert_validator_election.outputs[0].amount
-    public_key0 = input0.owners_before[0]
-    key0 = ed25519_node_keys[public_key0]
-
-    delegate_vote = Vote.generate(
-        [input0],
-        [([alice.public_key], 3), ([key0.public_key], votes - 3)],
-        election_ids=[valid_upsert_validator_election.id],
-    ).sign([key0.private_key])
-
-    assert b_mock.validate_transaction(delegate_vote)
-
-    b_mock.models.store_bulk_transactions([delegate_vote])
-    election_pub_key = election_id_to_public_key(valid_upsert_validator_election.id)
-
-    alice_votes = delegate_vote.to_inputs()[0]
-    alice_casted_vote = Vote.generate(
-        [alice_votes], [([election_pub_key], 3)], election_ids=[valid_upsert_validator_election.id]
-    ).sign([alice.private_key])
-    assert b_mock.validate_transaction(alice_casted_vote)
-
-    key0_votes = delegate_vote.to_inputs()[1]
-    key0_casted_vote = Vote.generate(
-        [key0_votes], [([election_pub_key], votes - 3)], election_ids=[valid_upsert_validator_election.id]
-    ).sign([key0.private_key])
-    assert b_mock.validate_transaction(key0_casted_vote)
+        key0_votes = delegate_vote.to_inputs()[1]
+        key0_casted_vote = Vote.generate(
+            [key0_votes], [([election_pub_key], votes - 3)], election_ids=[valid_upsert_validator_election.id]
+        ).sign([key0.private_key])
+        assert b.validate_transaction(key0_casted_vote)
+        m.undo()
 
 
 @pytest.mark.bdb
-def test_upsert_validator_invalid_election_vote(b_mock, valid_upsert_validator_election, ed25519_node_keys):
-    b_mock.models.store_bulk_transactions([valid_upsert_validator_election])
+def test_upsert_validator_invalid_election_vote(
+    monkeypatch, b, network_validators, node_key, new_validator, ed25519_node_keys
+):
+    def mock_get_validators(self, height):
+        validators = []
+        for public_key, power in network_validators.items():
+            validators.append(
+                {
+                    "public_key": {"type": "ed25519-base64", "value": public_key},
+                    "voting_power": power,
+                }
+            )
+        return validators
 
-    input0 = valid_upsert_validator_election.to_inputs()[0]
-    votes = valid_upsert_validator_election.outputs[0].amount
-    public_key0 = input0.owners_before[0]
-    key0 = ed25519_node_keys[public_key0]
+    with monkeypatch.context() as m:
+        valid_upsert_validator_election = get_valid_upsert_election(m, b, mock_get_validators, node_key, new_validator)
+        input0, votes, key0 = get_voting_set(valid_upsert_validator_election, ed25519_node_keys)
 
-    election_pub_key = election_id_to_public_key(valid_upsert_validator_election.id)
+        election_pub_key = election_id_to_public_key(valid_upsert_validator_election.id)
 
-    vote = Vote.generate(
-        [input0], [([election_pub_key], votes + 1)], election_ids=[valid_upsert_validator_election.id]
-    ).sign([key0.private_key])
+        vote = Vote.generate(
+            [input0], [([election_pub_key], votes + 1)], election_ids=[valid_upsert_validator_election.id]
+        ).sign([key0.private_key])
 
-    with pytest.raises(AmountError):
-        assert b_mock.validate_transaction(vote)
-
-
-@pytest.mark.bdb
-def test_valid_election_votes_received(b_mock, valid_upsert_validator_election, ed25519_node_keys):
-    alice = generate_key_pair()
-    b_mock.models.store_bulk_transactions([valid_upsert_validator_election])
-    assert b_mock.get_commited_votes(valid_upsert_validator_election) == 0
-
-    input0 = valid_upsert_validator_election.to_inputs()[0]
-    votes = valid_upsert_validator_election.outputs[0].amount
-    public_key0 = input0.owners_before[0]
-    key0 = ed25519_node_keys[public_key0]
-
-    # delegate some votes to alice
-    delegate_vote = Vote.generate(
-        [input0],
-        [([alice.public_key], 4), ([key0.public_key], votes - 4)],
-        election_ids=[valid_upsert_validator_election.id],
-    ).sign([key0.private_key])
-    b_mock.models.store_bulk_transactions([delegate_vote])
-    assert b_mock.get_commited_votes(valid_upsert_validator_election) == 0
-
-    election_public_key = election_id_to_public_key(valid_upsert_validator_election.id)
-    alice_votes = delegate_vote.to_inputs()[0]
-    key0_votes = delegate_vote.to_inputs()[1]
-
-    alice_casted_vote = Vote.generate(
-        [alice_votes],
-        [([election_public_key], 2), ([alice.public_key], 2)],
-        election_ids=[valid_upsert_validator_election.id],
-    ).sign([alice.private_key])
-
-    assert b_mock.validate_transaction(alice_casted_vote)
-    b_mock.models.store_bulk_transactions([alice_casted_vote])
-
-    # Check if the delegated vote is count as valid vote
-    assert b_mock.get_commited_votes(valid_upsert_validator_election) == 2
-
-    key0_casted_vote = Vote.generate(
-        [key0_votes], [([election_public_key], votes - 4)], election_ids=[valid_upsert_validator_election.id]
-    ).sign([key0.private_key])
-
-    assert b_mock.validate_transaction(key0_casted_vote)
-    b_mock.models.store_bulk_transactions([key0_casted_vote])
-    assert b_mock.get_commited_votes(valid_upsert_validator_election) == votes - 2
+        with pytest.raises(AmountError):
+            assert b.validate_transaction(vote)
 
 
 @pytest.mark.bdb
-def test_valid_election_conclude(b_mock, valid_upsert_validator_election, ed25519_node_keys):
-    # Node 0: cast vote
-    tx_vote0 = gen_vote(valid_upsert_validator_election, 0, ed25519_node_keys)
+def test_valid_election_votes_received(monkeypatch, b, network_validators, node_key, new_validator, ed25519_node_keys):
+    def mock_get_validators(self, height):
+        validators = []
+        for public_key, power in network_validators.items():
+            validators.append(
+                {
+                    "public_key": {"type": "ed25519-base64", "value": public_key},
+                    "voting_power": power,
+                }
+            )
+        return validators
 
-    # check if the vote is valid even before the election doesn't exist
-    with pytest.raises(ValidationError):
-        assert b_mock.validate_transaction(tx_vote0)
+    with monkeypatch.context() as m:
+        valid_upsert_validator_election = get_valid_upsert_election(m, b, mock_get_validators, node_key, new_validator)
+        alice = generate_key_pair()
 
-    # store election
-    b_mock.models.store_bulk_transactions([valid_upsert_validator_election])
-    # cannot conclude election as not votes exist
-    assert not b_mock.has_election_concluded(valid_upsert_validator_election)
+        assert b.get_commited_votes(valid_upsert_validator_election) == 0
+        input0, votes, key0 = get_voting_set(valid_upsert_validator_election, ed25519_node_keys)
 
-    # validate vote
-    assert b_mock.validate_transaction(tx_vote0)
-    assert not b_mock.has_election_concluded(valid_upsert_validator_election, [tx_vote0])
+        # delegate some votes to alice
+        delegate_vote = Vote.generate(
+            [input0],
+            [([alice.public_key], 4), ([key0.public_key], votes - 4)],
+            election_ids=[valid_upsert_validator_election.id],
+        ).sign([key0.private_key])
+        b.models.store_bulk_transactions([delegate_vote])
+        assert b.get_commited_votes(valid_upsert_validator_election) == 0
 
-    b_mock.models.store_bulk_transactions([tx_vote0])
-    assert not b_mock.has_election_concluded(valid_upsert_validator_election)
+        election_public_key = election_id_to_public_key(valid_upsert_validator_election.id)
+        alice_votes = delegate_vote.to_inputs()[0]
+        key0_votes = delegate_vote.to_inputs()[1]
 
-    # Node 1: cast vote
-    tx_vote1 = gen_vote(valid_upsert_validator_election, 1, ed25519_node_keys)
+        alice_casted_vote = Vote.generate(
+            [alice_votes],
+            [([election_public_key], 2), ([alice.public_key], 2)],
+            election_ids=[valid_upsert_validator_election.id],
+        ).sign([alice.private_key])
 
-    # Node 2: cast vote
-    tx_vote2 = gen_vote(valid_upsert_validator_election, 2, ed25519_node_keys)
+        assert b.validate_transaction(alice_casted_vote)
+        b.models.store_bulk_transactions([alice_casted_vote])
 
-    # Node 3: cast vote
-    tx_vote3 = gen_vote(valid_upsert_validator_election, 3, ed25519_node_keys)
+        # Check if the delegated vote is count as valid vote
+        assert b.get_commited_votes(valid_upsert_validator_election) == 2
 
-    assert b_mock.validate_transaction(tx_vote1)
-    assert not b_mock.has_election_concluded(valid_upsert_validator_election, [tx_vote1])
+        key0_casted_vote = Vote.generate(
+            [key0_votes], [([election_public_key], votes - 4)], election_ids=[valid_upsert_validator_election.id]
+        ).sign([key0.private_key])
 
-    # 2/3 is achieved in the same block so the election can be.has_concludedd
-    assert b_mock.has_election_concluded(valid_upsert_validator_election, [tx_vote1, tx_vote2])
+        assert b.validate_transaction(key0_casted_vote)
+        b.models.store_bulk_transactions([key0_casted_vote])
+        assert b.get_commited_votes(valid_upsert_validator_election) == votes - 2
 
-    b_mock.models.store_bulk_transactions([tx_vote1])
-    assert not b_mock.has_election_concluded(valid_upsert_validator_election)
 
-    assert b_mock.validate_transaction(tx_vote2)
-    assert b_mock.validate_transaction(tx_vote3)
+@pytest.mark.bdb
+def test_valid_election_conclude(monkeypatch, b, network_validators, node_key, new_validator, ed25519_node_keys):
+    def mock_get_validators(self, height):
+        validators = []
+        for public_key, power in network_validators.items():
+            validators.append(
+                {
+                    "public_key": {"type": "ed25519-base64", "value": public_key},
+                    "voting_power": power,
+                }
+            )
+        return validators
 
-    # conclusion can be triggered my different votes in the same block
-    assert b_mock.has_election_concluded(valid_upsert_validator_election, [tx_vote2])
-    assert b_mock.has_election_concluded(valid_upsert_validator_election, [tx_vote2, tx_vote3])
+    with monkeypatch.context() as m:
+        from planetmint.model.dataaccessor import DataAccessor
 
-    b_mock.models.store_bulk_transactions([tx_vote2])
+        m.setattr(DataAccessor, "get_validators", mock_get_validators)
+        voters = b.get_recipients_list()
+        valid_upsert_validator_election = ValidatorElection.generate(
+            [node_key.public_key], voters, new_validator, None
+        ).sign([node_key.private_key])
 
-    # Once the blockchain records >2/3 of the votes the election is assumed to be.has_concludedd
-    # so any invocation of `.has_concluded` for that election should return False
-    assert not b_mock.has_election_concluded(valid_upsert_validator_election)
+        # Node 0: cast vote
+        tx_vote0 = gen_vote(valid_upsert_validator_election, 0, ed25519_node_keys)
 
-    # Vote is still valid but the election cannot be.has_concluded as it it assumed that it has
-    # been.has_concludedd before
-    assert b_mock.validate_transaction(tx_vote3)
-    assert not b_mock.has_election_concluded(valid_upsert_validator_election, [tx_vote3])
+        # check if the vote is valid even before the election doesn't exist
+        with pytest.raises(ValidationError):
+            assert b.validate_transaction(tx_vote0)
+
+        # store election
+        b.models.store_bulk_transactions([valid_upsert_validator_election])
+        # cannot conclude election as not votes exist
+        assert not b.has_election_concluded(valid_upsert_validator_election)
+
+        # validate vote
+        assert b.validate_transaction(tx_vote0)
+        assert not b.has_election_concluded(valid_upsert_validator_election, [tx_vote0])
+
+        b.models.store_bulk_transactions([tx_vote0])
+        assert not b.has_election_concluded(valid_upsert_validator_election)
+
+        # Node 1: cast vote
+        tx_vote1 = gen_vote(valid_upsert_validator_election, 1, ed25519_node_keys)
+
+        # Node 2: cast vote
+        tx_vote2 = gen_vote(valid_upsert_validator_election, 2, ed25519_node_keys)
+
+        # Node 3: cast vote
+        tx_vote3 = gen_vote(valid_upsert_validator_election, 3, ed25519_node_keys)
+
+        assert b.validate_transaction(tx_vote1)
+        assert not b.has_election_concluded(valid_upsert_validator_election, [tx_vote1])
+
+        # 2/3 is achieved in the same block so the election can be.has_concludedd
+        assert b.has_election_concluded(valid_upsert_validator_election, [tx_vote1, tx_vote2])
+
+        b.models.store_bulk_transactions([tx_vote1])
+        assert not b.has_election_concluded(valid_upsert_validator_election)
+
+        assert b.validate_transaction(tx_vote2)
+        assert b.validate_transaction(tx_vote3)
+
+        # conclusion can be triggered my different votes in the same block
+        assert b.has_election_concluded(valid_upsert_validator_election, [tx_vote2])
+        assert b.has_election_concluded(valid_upsert_validator_election, [tx_vote2, tx_vote3])
+
+        b.models.store_bulk_transactions([tx_vote2])
+
+        # Once the blockchain records >2/3 of the votes the election is assumed to be.has_concludedd
+        # so any invocation of `.has_concluded` for that election should return False
+        assert not b.has_election_concluded(valid_upsert_validator_election)
+
+        # Vote is still valid but the election cannot be.has_concluded as it it assumed that it has
+        # been.has_concludedd before
+        assert b.validate_transaction(tx_vote3)
+        assert not b.has_election_concluded(valid_upsert_validator_election, [tx_vote3])
 
 
 @pytest.mark.abci

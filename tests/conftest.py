@@ -27,7 +27,10 @@ from transactions.common import crypto
 from transactions.common.transaction_mode_types import BROADCAST_TX_COMMIT
 from planetmint.abci.utils import key_from_base64
 from planetmint.backend import schema, query
-from transactions.common.crypto import key_pair_from_ed25519_key, public_key_from_ed25519_key
+from transactions.common.crypto import (
+    key_pair_from_ed25519_key,
+    public_key_from_ed25519_key,
+)
 from planetmint.abci.block import Block
 from planetmint.abci.rpc import MODE_LIST
 from tests.utils import gen_vote
@@ -107,7 +110,10 @@ def _configure_planetmint(request):
     # backend = request.config.getoption('--database-backend')
     backend = "tarantool_db"
 
-    config = {"database": Config().get_db_map(backend), "tendermint": Config()._private_real_config["tendermint"]}
+    config = {
+        "database": Config().get_db_map(backend),
+        "tendermint": Config()._private_real_config["tendermint"],
+    }
     config["database"]["name"] = test_db_name
     config = config_utils.env_config(config)
     config_utils.set_config(config)
@@ -131,6 +137,28 @@ def _setup_database(_configure_planetmint):  # TODO Here is located setup databa
     schema.drop_database(conn, dbname)
 
     print("Finished deleting `{}`".format(dbname))
+
+
+@pytest.fixture
+def da_reset(_setup_database):
+    from transactions.common.memoize import to_dict, from_dict
+    from transactions.common.transaction import Transaction
+    from .utils import flush_db
+    from planetmint.model.dataaccessor import DataAccessor
+
+    da = DataAccessor()
+    del da
+    da = DataAccessor()
+    da.close_connection()
+    da.connect()
+
+    yield
+    dbname = Config().get()["database"]["name"]
+    flush_db(da.connection, dbname)
+
+    to_dict.cache_clear()
+    from_dict.cache_clear()
+    Transaction._input_valid.cache_clear()
 
 
 @pytest.fixture
@@ -273,6 +301,38 @@ def test_abci_rpc():
 def b():
     from planetmint.application import Validator
 
+    old_validator_instance = Validator()
+    del old_validator_instance.models
+    del old_validator_instance
+    validator = Validator()
+    validator.models.connection.close()
+    validator.models.connection.connect()
+    return validator
+
+
+@pytest.fixture
+def b_flushed(_setup_database):
+    from planetmint.application import Validator
+    from transactions.common.memoize import to_dict, from_dict
+    from transactions.common.transaction import Transaction
+    from .utils import flush_db
+    from planetmint.config import Config
+
+    old_validator_instance = Validator()
+    del old_validator_instance.models
+    del old_validator_instance
+
+    conn = Connection()
+    conn.close()
+    conn.connect()
+
+    dbname = Config().get()["database"]["name"]
+    flush_db(conn, dbname)
+
+    to_dict.cache_clear()
+    from_dict.cache_clear()
+    Transaction._input_valid.cache_clear()
+
     validator = Validator()
     validator.models.connection.close()
     validator.models.connection.connect()
@@ -284,22 +344,6 @@ def eventqueue_fixture():
     from multiprocessing import Queue
 
     return Queue()
-
-
-@pytest.fixture
-def b_mock(b, network_validators):
-    b.models.get_validators = mock_get_validators(network_validators)
-    return b
-
-
-def mock_get_validators(network_validators):
-    def validator_set(height):
-        validators = []
-        for public_key, power in network_validators.items():
-            validators.append({"public_key": {"type": "ed25519-base64", "value": public_key}, "voting_power": power})
-        return validators
-
-    return validator_set
 
 
 @pytest.fixture
@@ -319,7 +363,10 @@ def signed_create_tx(alice, create_tx):
 @pytest.fixture
 def posted_create_tx(b, signed_create_tx, test_abci_rpc):
     res = test_abci_rpc.post_transaction(
-        MODE_LIST, test_abci_rpc.tendermint_rpc_endpoint, signed_create_tx, BROADCAST_TX_COMMIT
+        MODE_LIST,
+        test_abci_rpc.tendermint_rpc_endpoint,
+        signed_create_tx,
+        BROADCAST_TX_COMMIT,
     )
     assert res.status_code == 200
     return signed_create_tx
@@ -356,7 +403,9 @@ def inputs(user_pk, b, alice):
     for height in range(1, 4):
         transactions = [
             Create.generate(
-                [alice.public_key], [([user_pk], 1)], metadata=multihash(marshal({"data": f"{random.random()}"}))
+                [alice.public_key],
+                [([user_pk], 1)],
+                metadata=multihash(marshal({"data": f"{random.random()}"})),
             ).sign([alice.private_key])
             for _ in range(10)
         ]
@@ -428,7 +477,13 @@ def _abci_http(request):
 
 
 @pytest.fixture
-def abci_http(_setup_database, _configure_planetmint, abci_server, tendermint_host, tendermint_port):
+def abci_http(
+    _setup_database,
+    _configure_planetmint,
+    abci_server,
+    tendermint_host,
+    tendermint_port,
+):
     import requests
     import time
 
@@ -632,19 +687,19 @@ def new_validator():
     node_id = "fake_node_id"
 
     return [
-        {"data": {"public_key": {"value": public_key, "type": "ed25519-base16"}, "power": power, "node_id": node_id}}
+        {
+            "data": {
+                "public_key": {"value": public_key, "type": "ed25519-base16"},
+                "power": power,
+                "node_id": node_id,
+            }
+        }
     ]
 
 
 @pytest.fixture
-def valid_upsert_validator_election(b_mock, node_key, new_validator):
-    voters = b_mock.get_recipients_list()
-    return ValidatorElection.generate([node_key.public_key], voters, new_validator, None).sign([node_key.private_key])
-
-
-@pytest.fixture
-def valid_upsert_validator_election_2(b_mock, node_key, new_validator):
-    voters = b_mock.get_recipients_list()
+def valid_upsert_validator_election(b, node_key, new_validator):
+    voters = b.get_recipients_list()
     return ValidatorElection.generate([node_key.public_key], voters, new_validator, None).sign([node_key.private_key])
 
 
@@ -658,40 +713,6 @@ def ongoing_validator_election(b, valid_upsert_validator_election, ed25519_node_
     block_1 = Block(app_hash="hash_1", height=1, transactions=[valid_upsert_validator_election.id])
     b.models.store_block(block_1._asdict())
     return valid_upsert_validator_election
-
-
-@pytest.fixture
-def ongoing_validator_election_2(b, valid_upsert_validator_election_2, ed25519_node_keys):
-    validators = b.models.get_validators(height=1)
-    genesis_validators = {"validators": validators, "height": 0, "election_id": None}
-    query.store_validator_set(b.models.connection, genesis_validators)
-
-    b.models.store_bulk_transactions([valid_upsert_validator_election_2])
-    block_1 = Block(app_hash="hash_2", height=1, transactions=[valid_upsert_validator_election_2.id])
-    b.models.store_block(block_1._asdict())
-    return valid_upsert_validator_election_2
-
-
-@pytest.fixture
-def validator_election_votes(b_mock, ongoing_validator_election, ed25519_node_keys):
-    voters = b_mock.get_recipients_list()
-    votes = generate_votes(ongoing_validator_election, voters, ed25519_node_keys)
-    return votes
-
-
-@pytest.fixture
-def validator_election_votes_2(b_mock, ongoing_validator_election_2, ed25519_node_keys):
-    voters = b_mock.get_recipients_list()
-    votes = generate_votes(ongoing_validator_election_2, voters, ed25519_node_keys)
-    return votes
-
-
-def generate_votes(election, voters, keys):
-    votes = []
-    for voter, _ in enumerate(voters):
-        v = gen_vote(election, voter, keys)
-        votes.append(v)
-    return votes
 
 
 @pytest.fixture

@@ -11,15 +11,15 @@ from transactions.types.elections.validator_election import ValidatorElection
 
 
 @pytest.fixture
-def valid_upsert_validator_election_b(b, node_key, new_validator):
+def valid_upsert_validator_election(b, node_key, new_validator):
     voters = b.get_recipients_list()
     return ValidatorElection.generate([node_key.public_key], voters, new_validator, None).sign([node_key.private_key])
 
 
 @pytest.fixture
 @patch("transactions.types.elections.election.uuid4", lambda: "mock_uuid4")
-def fixed_seed_election(b_mock, node_key, new_validator):
-    voters = b_mock.get_recipients_list()
+def fixed_seed_election(b, node_key, new_validator):
+    voters = b.get_recipients_list()
     return ValidatorElection.generate([node_key.public_key], voters, new_validator, None).sign([node_key.private_key])
 
 

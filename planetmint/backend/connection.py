@@ -64,7 +64,6 @@ class DBConnection(metaclass=DBSingleton):
         backend: str = None,
         connection_timeout: int = None,
         max_tries: int = None,
-        async_io: bool = False,
         **kwargs
     ):
         """Create a new :class:`~.Connection` instance.

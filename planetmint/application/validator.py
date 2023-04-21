@@ -28,14 +28,14 @@ from planetmint.backend.models.output import Output
 from planetmint.model.dataaccessor import DataAccessor
 from planetmint.config import Config
 from planetmint.config_utils import load_validation_plugin
+from planetmint.utils.singleton import Singleton
 
 logger = logging.getLogger(__name__)
 
 
 class Validator:
-    def __init__(self, async_io: bool = False):
-        self.async_io = async_io
-        self.models = DataAccessor(async_io=async_io)
+    def __init__(self):
+        self.models = DataAccessor()
         self.validation = Validator._get_validation_method()
 
     @staticmethod
@@ -269,7 +269,7 @@ class Validator:
         value as the `voting_power`
         """
         validators = {}
-        for validator in self.models.get_validators(height):
+        for validator in self.models.get_validators(height=height):
             # NOTE: we assume that Tendermint encodes public key in base64
             public_key = public_key_from_ed25519_key(key_from_base64(validator["public_key"]["value"]))
             validators[public_key] = validator["voting_power"]
@@ -493,7 +493,7 @@ class Validator:
             self.migrate_abci_chain()
         if election.operation == VALIDATOR_ELECTION:
             validator_updates = [election.assets[0].data]
-            curr_validator_set = self.models.get_validators(new_height)
+            curr_validator_set = self.models.get_validators(height=new_height)
             updated_validator_set = new_validator_set(curr_validator_set, validator_updates)
 
             updated_validator_set = [v for v in updated_validator_set if v["voting_power"] > 0]
