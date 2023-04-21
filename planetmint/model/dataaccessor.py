@@ -30,13 +30,12 @@ class DataAccessor(metaclass=Singleton):
         config_utils.autoconfigure()
         self.connection = database_connection if database_connection is not None else Connection()
 
-
     def close_connection(self):
         self.connection.close()
-        
+
     def connect(self):
         self.connection.connect()
-        
+
     def store_bulk_transactions(self, transactions):
         txns = []
         gov_txns = []
@@ -152,7 +151,7 @@ class DataAccessor(metaclass=Singleton):
         value as the `voting_power`
         """
         validators = {}
-        for validator in self.get_validators(height = height):
+        for validator in self.get_validators(height=height):
             # NOTE: we assume that Tendermint encodes public key in base64
             public_key = public_key_from_ed25519_key(key_from_base64(validator["public_key"]["value"]))
             validators[public_key] = validator["voting_power"]

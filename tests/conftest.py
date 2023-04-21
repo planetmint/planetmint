@@ -145,16 +145,16 @@ def da_reset(_setup_database):
     from transactions.common.transaction import Transaction
     from .utils import flush_db
     from planetmint.model.dataaccessor import DataAccessor
+
     da = DataAccessor()
-    del da 
+    del da
     da = DataAccessor()
     da.close_connection()
     da.connect()
-    
+
     yield
     dbname = Config().get()["database"]["name"]
     flush_db(da.connection, dbname)
-   
 
     to_dict.cache_clear()
     from_dict.cache_clear()
@@ -167,7 +167,6 @@ def _bdb(_setup_database):
     from transactions.common.transaction import Transaction
     from .utils import flush_db
     from planetmint.config import Config
-
 
     conn = Connection()
     conn.close()
@@ -309,7 +308,8 @@ def b():
     validator.models.connection.close()
     validator.models.connection.connect()
     return validator
-    
+
+
 @pytest.fixture
 def b_flushed(_setup_database):
     from planetmint.application import Validator
@@ -321,8 +321,6 @@ def b_flushed(_setup_database):
     old_validator_instance = Validator()
     del old_validator_instance.models
     del old_validator_instance
-    
-    
 
     conn = Connection()
     conn.close()
@@ -333,7 +331,7 @@ def b_flushed(_setup_database):
 
     to_dict.cache_clear()
     from_dict.cache_clear()
-    Transaction._input_valid.cache_clear()    
+    Transaction._input_valid.cache_clear()
 
     validator = Validator()
     validator.models.connection.close()
@@ -388,9 +386,7 @@ def double_spend_tx(signed_create_tx, carol_pubkey, user_sk):
     from transactions.types.assets.transfer import Transfer
 
     inputs = signed_create_tx.to_inputs()
-    tx = Transfer.generate(
-        inputs, [([carol_pubkey], 1)], asset_ids=[signed_create_tx.id]
-    )
+    tx = Transfer.generate(inputs, [([carol_pubkey], 1)], asset_ids=[signed_create_tx.id])
     return tx.sign([user_sk])
 
 
@@ -704,9 +700,7 @@ def new_validator():
 @pytest.fixture
 def valid_upsert_validator_election(b, node_key, new_validator):
     voters = b.get_recipients_list()
-    return ValidatorElection.generate(
-        [node_key.public_key], voters, new_validator, None
-    ).sign([node_key.private_key])
+    return ValidatorElection.generate([node_key.public_key], voters, new_validator, None).sign([node_key.private_key])
 
 
 @pytest.fixture
@@ -715,14 +709,11 @@ def ongoing_validator_election(b, valid_upsert_validator_election, ed25519_node_
     genesis_validators = {"validators": validators, "height": 0}
     query.store_validator_set(b.models.connection, genesis_validators)
     b.models.store_bulk_transactions([valid_upsert_validator_election])
-    query.store_election(
-        b.models.connection, valid_upsert_validator_election.id, 1, is_concluded=False
-    )
-    block_1 = Block(
-        app_hash="hash_1", height=1, transactions=[valid_upsert_validator_election.id]
-    )
+    query.store_election(b.models.connection, valid_upsert_validator_election.id, 1, is_concluded=False)
+    block_1 = Block(app_hash="hash_1", height=1, transactions=[valid_upsert_validator_election.id])
     b.models.store_block(block_1._asdict())
     return valid_upsert_validator_election
+
 
 @pytest.fixture
 def signed_2_0_create_tx():
@@ -825,9 +816,7 @@ def signed_2_0_transfer_tx():
         ],
         "operation": "TRANSFER",
         "metadata": "QmTjWHzypFxE8uuXJXMJQJxgAEKjoWmQimGiutmPyJ6CAB",
-        "asset": {
-            "id": "334014a29d99a488789c711b7dc5fceb534d1a9290b14d0270dbe6b60e2f036e"
-        },
+        "asset": {"id": "334014a29d99a488789c711b7dc5fceb534d1a9290b14d0270dbe6b60e2f036e"},
         "version": "2.0",
         "id": "e577641b0e2eb619e282f802516ce043e9d4af51dd4b6c959e18246e85cae2a6",
     }

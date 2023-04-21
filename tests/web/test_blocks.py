@@ -7,6 +7,7 @@ import pytest
 
 BLOCKS_ENDPOINT = "/api/v1/blocks/"
 
+
 @pytest.mark.bdb
 @pytest.mark.usefixtures("inputs")
 def test_get_latest_block(client):
@@ -62,8 +63,6 @@ def test_get_blocks_by_txid_endpoint_returns_400_bad_query_params(client):
     res = client.get(BLOCKS_ENDPOINT + "?transaction_id=123&status=123")
     assert res.status_code == 400
     assert res.json == {"message": "Unknown arguments: status"}
-
-
 
 
 @pytest.mark.bdb

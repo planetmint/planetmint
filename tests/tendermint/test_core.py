@@ -45,6 +45,7 @@ def generate_init_chain_request(chain_id, vals=None):
     vals = vals if vals is not None else [generate_validator()]
     return types.RequestInitChain(validators=vals, chain_id=chain_id)
 
+
 @pytest.mark.bdb
 def test_init_chain_successfully_registers_chain(b):
     request = generate_init_chain_request("chain-XYZ")

@@ -7,6 +7,7 @@ from transactions.types.elections.chain_migration_election import ChainMigration
 from transactions.types.elections.validator_election import ValidatorElection
 from planetmint.model.dataaccessor import DataAccessor
 
+
 @pytest.mark.bdb
 def test_process_block_concludes_all_elections(b):
     del b.models

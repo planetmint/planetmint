@@ -32,7 +32,8 @@ from planetmint.utils.singleton import Singleton
 
 logger = logging.getLogger(__name__)
 
-class Validator():
+
+class Validator:
     def __init__(self):
         self.models = DataAccessor()
         self.validation = Validator._get_validation_method()
