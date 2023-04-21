@@ -25,10 +25,14 @@ from planetmint.backend.connection import Connection
 
 from tests.utils import generate_election, generate_validators
 
-def mock_get_validators(height):
+
+def mock_get_validators(self, height):
     return [
         {
-            "public_key": {"value": "zL/DasvKulXZzhSNFwx4cLRXKkSM9GPK7Y0nZ4FEylM=", "type": "ed25519-base64"},
+            "public_key": {
+                "value": "zL/DasvKulXZzhSNFwx4cLRXKkSM9GPK7Y0nZ4FEylM=",
+                "type": "ed25519-base64",
+            },
             "voting_power": 10,
         }
     ]
@@ -38,18 +42,19 @@ def mock_get_validators(height):
 def test_main_entrypoint(mock_start):
     from planetmint.commands.planetmint import main
     from planetmint.model.dataaccessor import DataAccessor
-    
+
     da = DataAccessor
     del da
     main()
 
     assert mock_start.called
 
+
 #@pytest.mark.bdb
-def test_chain_migration_election_show_shows_inconclusive(b, test_abci_rpc ):
-    
+def test_chain_migration_election_show_shows_inconclusive(b_flushed, test_abci_rpc ):
     from tests.utils import flush_db
-    flush_db(b.models.connection, "dbname")
+    b = b_flushed
+
     validators = generate_validators([1] * 4)
     output = b.models.store_validator_set(1, [v["storage"] for v in validators])
 
@@ -57,7 +62,9 @@ def test_chain_migration_election_show_shows_inconclusive(b, test_abci_rpc ):
     private_key = validators[0]["private_key"]
     voter_keys = [v["private_key"] for v in validators]
 
-    election, votes = generate_election(b, ChainMigrationElection, public_key, private_key, [{"data": {}}], voter_keys)
+    election, votes = generate_election(
+        b, ChainMigrationElection, public_key, private_key, [{"data": {}}], voter_keys
+    )
 
     assert not run_election_show(Namespace(election_id=election.id), b)
 
@@ -74,11 +81,15 @@ def test_chain_migration_election_show_shows_inconclusive(b, test_abci_rpc ):
     b.models.store_block(Block(height=2, transactions=[], app_hash="")._asdict())
     # TODO insert yet another block here when upgrading to Tendermint 0.22.4.
 
-    assert run_election_show(Namespace(election_id=election.id), b) == "status=inconclusive"
+    assert (
+        run_election_show(Namespace(election_id=election.id), b)
+        == "status=inconclusive"
+    )
 
 
 @pytest.mark.bdb
-def test_chain_migration_election_show_shows_concluded(b):
+def test_chain_migration_election_show_shows_concluded(b_flushed):
+    b=b_flushed
     validators = generate_validators([1] * 4)
     b.models.store_validator_set(1, [v["storage"] for v in validators])
 
@@ -86,7 +97,9 @@ def test_chain_migration_election_show_shows_concluded(b):
     private_key = validators[0]["private_key"]
     voter_keys = [v["private_key"] for v in validators]
 
-    election, votes = generate_election(b, ChainMigrationElection, public_key, private_key, [{"data": {}}], voter_keys)
+    election, votes = generate_election(
+        b, ChainMigrationElection, public_key, private_key, [{"data": {}}], voter_keys
+    )
 
     assert not run_election_show(Namespace(election_id=election.id), b)
 
@@ -96,7 +109,11 @@ def test_chain_migration_election_show_shows_concluded(b):
     assert run_election_show(Namespace(election_id=election.id), b) == "status=ongoing"
 
     b.models.store_abci_chain(1, "chain-X")
-    b.models.store_block(Block(height=1, transactions=[v.id for v in votes], app_hash="last_app_hash")._asdict())
+    b.models.store_block(
+        Block(
+            height=1, transactions=[v.id for v in votes], app_hash="last_app_hash"
+        )._asdict()
+    )
     b.process_block(2, votes)
 
     assert (
@@ -140,25 +157,41 @@ def test_make_sure_we_dont_remove_any_command():
         ]
     ).command
     assert parser.parse_args(
-        ["election", "new", "chain-migration", "--private-key", "TEMP_PATH_TO_PRIVATE_KEY"]
+        [
+            "election",
+            "new",
+            "chain-migration",
+            "--private-key",
+            "TEMP_PATH_TO_PRIVATE_KEY",
+        ]
     ).command
     assert parser.parse_args(
-        ["election", "approve", "ELECTION_ID", "--private-key", "TEMP_PATH_TO_PRIVATE_KEY"]
+        [
+            "election",
+            "approve",
+            "ELECTION_ID",
+            "--private-key",
+            "TEMP_PATH_TO_PRIVATE_KEY",
+        ]
     ).command
     assert parser.parse_args(["election", "show", "ELECTION_ID"]).command
     assert parser.parse_args(["tendermint-version"]).command
 
 
-
-
 @pytest.mark.bdb
-def test_election_approve_called_with_bad_key(monkeypatch, caplog, b, bad_validator_path, new_validator, node_key, test_abci_rpc):
+def test_election_approve_called_with_bad_key(
+    monkeypatch, caplog, b, bad_validator_path, new_validator, node_key, test_abci_rpc
+):
     from argparse import Namespace
 
-    b, election_id = call_election(monkeypatch, b, new_validator, node_key, test_abci_rpc)
+    b, election_id = call_election(
+        monkeypatch, b, new_validator, node_key, test_abci_rpc
+    )
 
     # call run_upsert_validator_approve with args that point to the election, but a bad signing key
-    args = Namespace(action="approve", election_id=election_id, sk=bad_validator_path, config={})
+    args = Namespace(
+        action="approve", election_id=election_id, sk=bad_validator_path, config={}
+    )
 
     with caplog.at_level(logging.ERROR):
         assert not run_election_approve(args, b, test_abci_rpc)
@@ -171,7 +204,9 @@ def test_election_approve_called_with_bad_key(monkeypatch, caplog, b, bad_valida
 @patch("planetmint.config_utils.setup_logging")
 @patch("planetmint.commands.planetmint._run_init")
 @patch("planetmint.config_utils.autoconfigure")
-def test_bigchain_run_start(mock_setup_logging, mock_run_init, mock_autoconfigure, mock_processes_start):
+def test_bigchain_run_start(
+    mock_setup_logging, mock_run_init, mock_autoconfigure, mock_processes_start
+):
     from planetmint.commands.planetmint import run_start
 
     args = Namespace(config=None, yes=True, skip_initialize_database=False)
@@ -209,7 +244,9 @@ def test_bigchain_show_config(capsys):
 
 
 def test__run_init(mocker):
-    init_db_mock = mocker.patch("planetmint.backend.tarantool.sync_io.connection.TarantoolDBConnection.init_database")
+    init_db_mock = mocker.patch(
+        "planetmint.backend.tarantool.sync_io.connection.TarantoolDBConnection.init_database"
+    )
 
     conn = Connection()
     conn.init_database()
@@ -268,7 +305,10 @@ def test_drop_db_does_not_drop_when_interactive_no(mock_db_drop, monkeypatch):
 # switch with pytest. It will just hang. Seems related to the monkeypatching of
 # input_on_stderr.
 def test_run_configure_when_config_does_not_exist(
-    monkeypatch, mock_write_config, mock_generate_key_pair, mock_planetmint_backup_config
+    monkeypatch,
+    mock_write_config,
+    mock_generate_key_pair,
+    mock_planetmint_backup_config,
 ):
     from planetmint.commands.planetmint import run_configure
 
@@ -280,7 +320,10 @@ def test_run_configure_when_config_does_not_exist(
 
 
 def test_run_configure_when_config_does_exist(
-    monkeypatch, mock_write_config, mock_generate_key_pair, mock_planetmint_backup_config
+    monkeypatch,
+    mock_write_config,
+    mock_generate_key_pair,
+    mock_planetmint_backup_config,
 ):
     value = {}
 
@@ -319,7 +362,9 @@ def test_run_configure_with_backend(backend, monkeypatch, mock_write_config):
 
     # update the expected config with the correct backend and keypair
     backend_conf = getattr(planetmint, "_database_" + backend)
-    expected_config.update({"database": backend_conf, "keypair": value["return"]["keypair"]})
+    expected_config.update(
+        {"database": backend_conf, "keypair": value["return"]["keypair"]}
+    )
 
     assert value["return"] == expected_config
 
@@ -341,12 +386,16 @@ def test_calling_main(start_mock, monkeypatch):
     assert argparser_mock.called is True
     parser.add_subparsers.assert_called_with(title="Commands", dest="command")
     subparsers.add_parser.assert_any_call("configure", help="Prepare the config file.")
-    subparsers.add_parser.assert_any_call("show-config", help="Show the current " "configuration")
+    subparsers.add_parser.assert_any_call(
+        "show-config", help="Show the current " "configuration"
+    )
     subparsers.add_parser.assert_any_call("init", help="Init the database")
     subparsers.add_parser.assert_any_call("drop", help="Drop the database")
 
     subparsers.add_parser.assert_any_call("start", help="Start Planetmint")
-    subparsers.add_parser.assert_any_call("tendermint-version", help="Show the Tendermint supported " "versions")
+    subparsers.add_parser.assert_any_call(
+        "tendermint-version", help="Show the Tendermint supported " "versions"
+    )
 
     assert start_mock.called is True
 
@@ -386,11 +435,15 @@ def test_run_recover(b, alice, bob, test_models):
     b.models.store_bulk_transactions([tx1, tx2])
 
     # create a random block
-    block8 = Block(app_hash="random_app_hash1", height=8, transactions=["txid_doesnt_matter"])._asdict()
+    block8 = Block(
+        app_hash="random_app_hash1", height=8, transactions=["txid_doesnt_matter"]
+    )._asdict()
     b.models.store_block(block8)
 
     # create the next block
-    block9 = Block(app_hash="random_app_hash1", height=9, transactions=[tx1.id])._asdict()
+    block9 = Block(
+        app_hash="random_app_hash1", height=9, transactions=[tx1.id]
+    )._asdict()
     b.models.store_block(block9)
 
     # create a pre_commit state which is ahead of the commit state
@@ -412,7 +465,9 @@ class MockResponse:
 
 
 @pytest.mark.abci
-def test_election_new_upsert_validator_with_tendermint(b, priv_validator_path, user_sk, validators, test_abci_rpc):
+def test_election_new_upsert_validator_with_tendermint(
+    b, priv_validator_path, user_sk, validators, test_abci_rpc
+):
     new_args = Namespace(
         action="new",
         election_type="upsert-validator",
@@ -429,33 +484,46 @@ def test_election_new_upsert_validator_with_tendermint(b, priv_validator_path, u
 
 
 @pytest.mark.bdb
-def test_election_new_upsert_validator_without_tendermint(caplog, b, priv_validator_path, user_sk, test_abci_rpc):
-    def mock_write(modelist, endpoint, mode_commit, transaction, mode):
+def test_election_new_upsert_validator_without_tendermint(
+    monkeypatch, caplog, b, priv_validator_path, user_sk, test_abci_rpc
+):
+    def mock_write(self, modelist, endpoint, mode_commit, transaction, mode):
         b.models.store_bulk_transactions([transaction])
         return (202, "")
 
-    b.models.get_validators = mock_get_validators
-    test_abci_rpc.write_transaction = mock_write
+    with monkeypatch.context() as m:
+        from planetmint.model.dataaccessor import DataAccessor
 
-    args = Namespace(
-        action="new",
-        election_type="upsert-validator",
-        public_key="CJxdItf4lz2PwEf4SmYNAu/c/VpmX39JEgC5YpH7fxg=",
-        power=1,
-        node_id="fb7140f03a4ffad899fabbbf655b97e0321add66",
-        sk=priv_validator_path,
-        config={},
-    )
+        m.setattr(DataAccessor, "get_validators", mock_get_validators)
+        m.setattr("planetmint.abci.rpc.ABCI_RPC.write_transaction", mock_write)
 
-    with caplog.at_level(logging.INFO):
-        election_id = run_election_new_upsert_validator(args, b, test_abci_rpc)
-        assert caplog.records[0].msg == "[SUCCESS] Submitted proposal with id: " + election_id
-        assert b.models.get_transaction(election_id)
+        args = Namespace(
+            action="new",
+            election_type="upsert-validator",
+            public_key="CJxdItf4lz2PwEf4SmYNAu/c/VpmX39JEgC5YpH7fxg=",
+            power=1,
+            node_id="fb7140f03a4ffad899fabbbf655b97e0321add66",
+            sk=priv_validator_path,
+            config={},
+        )
+
+        with caplog.at_level(logging.INFO):
+            election_id = run_election_new_upsert_validator(args, b, test_abci_rpc)
+            assert (
+                caplog.records[0].msg
+                == "[SUCCESS] Submitted proposal with id: " + election_id
+            )
+            assert b.models.get_transaction(election_id)
+        m.undo()
 
 
 @pytest.mark.abci
-def test_election_new_chain_migration_with_tendermint(b, priv_validator_path, user_sk, validators, test_abci_rpc):
-    new_args = Namespace(action="new", election_type="migration", sk=priv_validator_path, config={})
+def test_election_new_chain_migration_with_tendermint(
+    b, priv_validator_path, user_sk, validators, test_abci_rpc
+):
+    new_args = Namespace(
+        action="new", election_type="migration", sk=priv_validator_path, config={}
+    )
 
     election_id = run_election_new_chain_migration(new_args, b, test_abci_rpc)
 
@@ -463,24 +531,36 @@ def test_election_new_chain_migration_with_tendermint(b, priv_validator_path, us
 
 
 @pytest.mark.bdb
-def test_election_new_chain_migration_without_tendermint(caplog, b, priv_validator_path, user_sk, test_abci_rpc):
-    def mock_write(modelist, endpoint, mode_commit, transaction, mode):
+def test_election_new_chain_migration_without_tendermint(
+    monkeypatch, caplog, b, priv_validator_path, user_sk, test_abci_rpc
+):
+    def mock_write(self, modelist, endpoint, mode_commit, transaction, mode):
         b.models.store_bulk_transactions([transaction])
         return (202, "")
 
-    b.models.get_validators = mock_get_validators
-    test_abci_rpc.write_transaction = mock_write
+    with monkeypatch.context() as m:
+        from planetmint.model.dataaccessor import DataAccessor
 
-    args = Namespace(action="new", election_type="migration", sk=priv_validator_path, config={})
+        m.setattr(DataAccessor, "get_validators", mock_get_validators)
+        m.setattr("planetmint.abci.rpc.ABCI_RPC.write_transaction", mock_write)
 
-    with caplog.at_level(logging.INFO):
-        election_id = run_election_new_chain_migration(args, b, test_abci_rpc)
-        assert caplog.records[0].msg == "[SUCCESS] Submitted proposal with id: " + election_id
-        assert b.models.get_transaction(election_id)
+        args = Namespace(
+            action="new", election_type="migration", sk=priv_validator_path, config={}
+        )
+
+        with caplog.at_level(logging.INFO):
+            election_id = run_election_new_chain_migration(args, b, test_abci_rpc)
+            assert (
+                caplog.records[0].msg
+                == "[SUCCESS] Submitted proposal with id: " + election_id
+            )
+            assert b.models.get_transaction(election_id)
 
 
 @pytest.mark.bdb
-def test_election_new_upsert_validator_invalid_election(caplog, b, priv_validator_path, user_sk, test_abci_rpc):
+def test_election_new_upsert_validator_invalid_election(
+    caplog, b, priv_validator_path, user_sk, test_abci_rpc
+):
     args = Namespace(
         action="new",
         election_type="upsert-validator",
@@ -497,32 +577,40 @@ def test_election_new_upsert_validator_invalid_election(caplog, b, priv_validato
 
 
 @pytest.mark.bdb
-def test_election_new_upsert_validator_invalid_power(caplog, b, priv_validator_path, user_sk, test_abci_rpc):
+def test_election_new_upsert_validator_invalid_power(
+    monkeypatch, caplog, b, priv_validator_path, user_sk, test_abci_rpc
+):
     from transactions.common.exceptions import InvalidPowerChange
 
-    def mock_write(modelist, endpoint, mode_commit, transaction, mode):
+    def mock_write(self, modelist, endpoint, mode_commit, transaction, mode):
         b.models.store_bulk_transactions([transaction])
         return (400, "")
 
-    test_abci_rpc.write_transaction = mock_write
-    b.models.get_validators = mock_get_validators
-    args = Namespace(
-        action="new",
-        election_type="upsert-validator",
-        public_key="CJxdItf4lz2PwEf4SmYNAu/c/VpmX39JEgC5YpH7fxg=",
-        power=10,
-        node_id="fb7140f03a4ffad899fabbbf655b97e0321add66",
-        sk=priv_validator_path,
-        config={},
-    )
+    with monkeypatch.context() as m:
+        from planetmint.model.dataaccessor import DataAccessor
 
-    with caplog.at_level(logging.ERROR):
-        assert not run_election_new_upsert_validator(args, b, test_abci_rpc)
-        assert caplog.records[0].msg.__class__ == InvalidPowerChange
+        m.setattr(DataAccessor, "get_validators", mock_get_validators)
+        m.setattr("planetmint.abci.rpc.ABCI_RPC.write_transaction", mock_write)
+
+        args = Namespace(
+            action="new",
+            election_type="upsert-validator",
+            public_key="CJxdItf4lz2PwEf4SmYNAu/c/VpmX39JEgC5YpH7fxg=",
+            power=10,
+            node_id="fb7140f03a4ffad899fabbbf655b97e0321add66",
+            sk=priv_validator_path,
+            config={},
+        )
+
+        with caplog.at_level(logging.ERROR):
+            assert not run_election_new_upsert_validator(args, b, test_abci_rpc)
+            assert caplog.records[0].msg.__class__ == InvalidPowerChange
 
 
 @pytest.mark.abci
-def test_election_approve_with_tendermint(b, priv_validator_path, user_sk, validators, test_abci_rpc):
+def test_election_approve_with_tendermint(
+    b, priv_validator_path, user_sk, validators, test_abci_rpc
+):
     public_key = "CJxdItf4lz2PwEf4SmYNAu/c/VpmX39JEgC5YpH7fxg="
     new_args = Namespace(
         action="new",
@@ -537,36 +625,61 @@ def test_election_approve_with_tendermint(b, priv_validator_path, user_sk, valid
     election_id = run_election_new_upsert_validator(new_args, b, test_abci_rpc)
     assert election_id
 
-    args = Namespace(action="approve", election_id=election_id, sk=priv_validator_path, config={})
+    args = Namespace(
+        action="approve", election_id=election_id, sk=priv_validator_path, config={}
+    )
     approve = run_election_approve(args, b, test_abci_rpc)
 
     assert b.models.get_transaction(approve)
 
 
 @pytest.mark.bdb
-def test_election_approve_without_tendermint(monkeypatch, caplog, b, priv_validator_path, new_validator, node_key, test_abci_rpc):
+def test_election_approve_without_tendermint(
+    monkeypatch, caplog, b, priv_validator_path, new_validator, node_key, test_abci_rpc
+):
+    def mock_write(self, modelist, endpoint, mode_commit, transaction, mode):
+        b.models.store_bulk_transactions([transaction])
+        return (202, "")
+
     from planetmint.commands.planetmint import run_election_approve
     from argparse import Namespace
+    
+    with monkeypatch.context() as m:
+        from planetmint.model.dataaccessor import DataAccessor
 
-    b, election_id = call_election(monkeypatch, b, new_validator, node_key, test_abci_rpc)
+        m.setattr(DataAccessor, "get_validators", mock_get_validators)
+        m.setattr("planetmint.abci.rpc.ABCI_RPC.write_transaction", mock_write)
+        
+        b, election_id = call_election_internal(
+            b, new_validator, node_key
+        )
+        
+        # call run_election_approve with args that point to the election
+        args = Namespace(
+            action="approve", election_id=election_id, sk=priv_validator_path, config={}
+        )
 
-    # call run_election_approve with args that point to the election
-    args = Namespace(action="approve", election_id=election_id, sk=priv_validator_path, config={})
-
-    # assert returned id is in the db
-    with caplog.at_level(logging.INFO):
-        approval_id = run_election_approve(args, b, test_abci_rpc)
-        assert caplog.records[0].msg == "[SUCCESS] Your vote has been submitted"
-        assert b.models.get_transaction(approval_id)
+        # assert returned id is in the db
+        with caplog.at_level(logging.INFO):
+            approval_id = run_election_approve(args, b, test_abci_rpc)
+            assert caplog.records[0].msg == "[SUCCESS] Your vote has been submitted"
+            assert b.models.get_transaction(approval_id)
+        m.undo()
 
 
 
 from unittest import mock
+
+
 @pytest.mark.bdb
-def test_election_approve_failure(monkeypatch, caplog, b, priv_validator_path, new_validator, node_key, test_abci_rpc):
+def test_election_approve_failure(
+    monkeypatch, caplog, b, priv_validator_path, new_validator, node_key, test_abci_rpc
+):
     from argparse import Namespace
 
-    b, election_id = call_election(monkeypatch, b, new_validator, node_key, test_abci_rpc)
+    b, election_id = call_election(
+        monkeypatch, b, new_validator, node_key, test_abci_rpc
+    )
 
     def mock_write(modelist, endpoint, mode_commit, transaction, mode):
         b.models.store_bulk_transactions([transaction])
@@ -575,7 +688,9 @@ def test_election_approve_failure(monkeypatch, caplog, b, priv_validator_path, n
     test_abci_rpc.write_transaction = mock_write
 
     # call run_upsert_validator_approve with args that point to the election
-    args = Namespace(action="approve", election_id=election_id, sk=priv_validator_path, config={})
+    args = Namespace(
+        action="approve", election_id=election_id, sk=priv_validator_path, config={}
+    )
 
     with caplog.at_level(logging.ERROR):
         assert not run_election_approve(args, b, test_abci_rpc)
@@ -595,29 +710,32 @@ def test_bigchain_tendermint_version(capsys):
     assert sorted(output_config["tendermint"]) == sorted(__tm_supported_versions__)
 
 
+def call_election_internal(b, new_validator, node_key):
+    # our voters is a list of length 1, populated from our mocked validator
+    voters = b.get_recipients_list()
+    # and our voter is the public key from the voter list
+    voter = node_key.public_key
+    valid_election = ValidatorElection.generate(
+        [voter], voters, new_validator, None
+    ).sign([node_key.private_key])
+
+    # patch in an election with a vote issued to the user
+    election_id = valid_election.id
+    b.models.store_bulk_transactions([valid_election])
+
+    return b, election_id
+
 
 def call_election(monkeypatch, b, new_validator, node_key, abci_rpc):
-
     def mock_write(self, modelist, endpoint, mode_commit, transaction, mode):
         b.models.store_bulk_transactions([transaction])
         return (202, "")
+
     with monkeypatch.context() as m:
-        m.setattr("planetmint.model.dataaccessor.DataAccessor.get_validators", mock_get_validators)
+        from planetmint.model.dataaccessor import DataAccessor
+
+        m.setattr(DataAccessor, "get_validators", mock_get_validators)
         m.setattr("planetmint.abci.rpc.ABCI_RPC.write_transaction", mock_write)
-        
-        # patch the validator set. We now have one validator with power 10
-        #b.models.get_validators = mock_get_validators
-        #abci_rpc.write_transaction = mock_write
-
-        # our voters is a list of length 1, populated from our mocked validator
-        voters = b.get_recipients_list()
-        # and our voter is the public key from the voter list
-        voter = node_key.public_key
-        valid_election = ValidatorElection.generate([voter], voters, new_validator, None).sign([node_key.private_key])
-
-        # patch in an election with a vote issued to the user
-        election_id = valid_election.id
-        b.models.store_bulk_transactions([valid_election])
-        
+        b, election_id = call_election_internal( b, new_validator, node_key )
         m.undo()
         return b, election_id

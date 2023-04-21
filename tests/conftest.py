@@ -310,33 +310,42 @@ def b():
     validator.models.connection.connect()
     return validator
     
+@pytest.fixture
+def b_flushed(_setup_database):
+    from planetmint.application import Validator
+    from transactions.common.memoize import to_dict, from_dict
+    from transactions.common.transaction import Transaction
+    from .utils import flush_db
+    from planetmint.config import Config
+
+    old_validator_instance = Validator()
+    del old_validator_instance.models
+    del old_validator_instance
+    
+    
+
+    conn = Connection()
+    conn.close()
+    conn.connect()
+
+    dbname = Config().get()["database"]["name"]
+    flush_db(conn, dbname)
+
+    to_dict.cache_clear()
+    from_dict.cache_clear()
+    Transaction._input_valid.cache_clear()    
+
+    validator = Validator()
+    validator.models.connection.close()
+    validator.models.connection.connect()
+    return validator
+
 
 @pytest.fixture
 def eventqueue_fixture():
     from multiprocessing import Queue
 
     return Queue()
-
-
-@pytest.fixture
-def b_mock(b, network_validators):
-    b.models.get_validators = mock_get_validators(network_validators)
-    return b
-
-
-def mock_get_validators(network_validators):
-    def validator_set(height):
-        validators = []
-        for public_key, power in network_validators.items():
-            validators.append(
-                {
-                    "public_key": {"type": "ed25519-base64", "value": public_key},
-                    "voting_power": power,
-                }
-            )
-        return validators
-
-    return validator_set
 
 
 @pytest.fixture
@@ -544,6 +553,7 @@ def utxo_collection(tarantool_client, _setup_database):
     return tarantool_client.get_space("utxos")
 
 
+@pytest.fixture
 def network_validators(node_keys):
     validator_pub_power = {}
     voting_power = [8, 10, 7, 9]
@@ -692,16 +702,8 @@ def new_validator():
 
 
 @pytest.fixture
-def valid_upsert_validator_election(b_mock, node_key, new_validator):
-    voters = b_mock.get_recipients_list()
-    return ValidatorElection.generate(
-        [node_key.public_key], voters, new_validator, None
-    ).sign([node_key.private_key])
-
-
-@pytest.fixture
-def valid_upsert_validator_election_2(b_mock, node_key, new_validator):
-    voters = b_mock.get_recipients_list()
+def valid_upsert_validator_election(b, node_key, new_validator):
+    voters = b.get_recipients_list()
     return ValidatorElection.generate(
         [node_key.public_key], voters, new_validator, None
     ).sign([node_key.private_key])
@@ -721,45 +723,6 @@ def ongoing_validator_election(b, valid_upsert_validator_election, ed25519_node_
     )
     b.models.store_block(block_1._asdict())
     return valid_upsert_validator_election
-
-
-@pytest.fixture
-def ongoing_validator_election_2(
-    b, valid_upsert_validator_election_2, ed25519_node_keys
-):
-    validators = b.models.get_validators(height=1)
-    genesis_validators = {"validators": validators, "height": 0, "election_id": None}
-    query.store_validator_set(b.models.connection, genesis_validators)
-
-    b.models.store_bulk_transactions([valid_upsert_validator_election_2])
-    block_1 = Block(
-        app_hash="hash_2", height=1, transactions=[valid_upsert_validator_election_2.id]
-    )
-    b.models.store_block(block_1._asdict())
-    return valid_upsert_validator_election_2
-
-
-@pytest.fixture
-def validator_election_votes(b_mock, ongoing_validator_election, ed25519_node_keys):
-    voters = b_mock.get_recipients_list()
-    votes = generate_votes(ongoing_validator_election, voters, ed25519_node_keys)
-    return votes
-
-
-@pytest.fixture
-def validator_election_votes_2(b_mock, ongoing_validator_election_2, ed25519_node_keys):
-    voters = b_mock.get_recipients_list()
-    votes = generate_votes(ongoing_validator_election_2, voters, ed25519_node_keys)
-    return votes
-
-
-def generate_votes(election, voters, keys):
-    votes = []
-    for voter, _ in enumerate(voters):
-        v = gen_vote(election, voter, keys)
-        votes.append(v)
-    return votes
-
 
 @pytest.fixture
 def signed_2_0_create_tx():

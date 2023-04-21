@@ -492,7 +492,7 @@ class Validator():
             self.migrate_abci_chain()
         if election.operation == VALIDATOR_ELECTION:
             validator_updates = [election.assets[0].data]
-            curr_validator_set = self.models.get_validators(new_height)
+            curr_validator_set = self.models.get_validators(height=new_height)
             updated_validator_set = new_validator_set(curr_validator_set, validator_updates)
 
             updated_validator_set = [v for v in updated_validator_set if v["voting_power"] > 0]
