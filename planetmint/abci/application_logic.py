@@ -239,7 +239,6 @@ class ApplicationLogic(BaseApplication):
             block = self.validator.models.get_latest_block()
 
             logger.debug("BLOCK: ", block)
-
             if self.block_txn_ids:
                 self.block_txn_hash = calculate_hash([block["app_hash"], block_txn_hash])
             else:
@@ -249,6 +248,8 @@ class ApplicationLogic(BaseApplication):
         except DBConcurrencyError:
             sys.exit(1)
         except ValueError:
+            sys.exit(1)
+        except TypeError:
             sys.exit(1)
 
         return ResponseEndBlock(validator_updates=validator_update)
