@@ -61,9 +61,7 @@ class Validator:
         if tx.operation != Transaction.COMPOSE:
             asset_id = tx.get_asset_id(input_txs)
             if asset_id != Transaction.read_out_asset_id(tx):
-                raise AssetIdMismatch(
-                    ("The asset id of the input does not match the asset id of the transaction")
-                )
+                raise AssetIdMismatch(("The asset id of the input does not match the asset id of the transaction"))
         else:
             asset_ids = Transaction.get_asset_ids(input_txs)
             if Transaction.read_out_asset_id(tx) in asset_ids:
@@ -105,7 +103,9 @@ class Validator:
 
         if output_amount != input_amount:
             raise AmountError(
-                "The amount used in the inputs `{}` needs to be same as the amount used in the outputs `{}`".format(input_amount, output_amount)
+                "The amount used in the inputs `{}` needs to be same as the amount used in the outputs `{}`".format(
+                    input_amount, output_amount
+                )
             )
 
         return True
@@ -207,7 +207,7 @@ class Validator:
             self.validate_validator_election(transaction)
 
         return transaction
-    
+
     @staticmethod
     def is_same_topology(current_topology, election_topology):
         voters = {}

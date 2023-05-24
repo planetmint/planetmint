@@ -112,7 +112,7 @@ def run_election(args):
 
     b = Validator()
     abci_rpc = ABCI_RPC()
-    
+
     if args.action == "show":
         run_election_show(args, b)
     else:
@@ -190,7 +190,7 @@ def run_election_new_chain_migration(args, planet, abci_rpc):
     return create_new_election(args.sk, planet, ChainMigrationElection, [{"data": {}}], abci_rpc)
 
 
-def run_election_approve(args, validator: Validator, abci_rpc : ABCI_RPC):
+def run_election_approve(args, validator: Validator, abci_rpc: ABCI_RPC):
     """Approve an election
 
     :param args: dict

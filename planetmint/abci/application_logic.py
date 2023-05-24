@@ -81,9 +81,7 @@ class ApplicationLogic(BaseApplication):
                 chain_id = known_chain["chain_id"]
 
                 if known_chain["is_synced"]:
-                    msg = (
-                        f"Got invalid InitChain ABCI request ({genesis}) - the chain {chain_id} is already synced."
-                    )
+                    msg = f"Got invalid InitChain ABCI request ({genesis}) - the chain {chain_id} is already synced."
                     logger.error(msg)
                     sys.exit(1)
                 if chain_id != genesis.chain_id:
