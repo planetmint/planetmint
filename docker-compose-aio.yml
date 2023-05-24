@@ -1,3 +1,4 @@
+---
 # Copyright © 2020 Interplanetary Database Association e.V.,
 # Planetmint and IPDB software contributors.
 # SPDX-License-Identifier: (Apache-2.0 AND CC-BY-4.0)
@@ -35,6 +36,3 @@ services:
       - ./integration/scripts:/scripts
       - ./integration/cli:/tests
       - shared:/shared
-
-volumes:
-  shared:

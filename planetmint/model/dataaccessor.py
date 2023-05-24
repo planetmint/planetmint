@@ -337,7 +337,6 @@ class DataAccessor(metaclass=Singleton):
             str: Merkle root in hexadecimal form.
         """
         utxoset = backend.query.get_unspent_outputs(self.connection)
-        # TODO Once ready, use the already pre-computed utxo_hash field.
         # See common/transactions.py for details.
 
         hashes = [
@@ -346,5 +345,4 @@ class DataAccessor(metaclass=Singleton):
 
         print(sorted(hashes))
 
-        # TODO Notice the sorted call!
         return merkleroot(sorted(hashes))

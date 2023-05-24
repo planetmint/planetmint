@@ -73,7 +73,7 @@ class LocalMongoDBConnection(DBConnection):
             try:
                 return query.run(self.connect())
             except pymongo.errors.AutoReconnect:
-                logger.warning("Lost connection to the database, " "retrying query.")
+                logger.warning("Lost connection to the database, retrying query.")
                 return query.run(self.connect())
         except pymongo.errors.AutoReconnect as exc:
             raise ConnectionError from exc

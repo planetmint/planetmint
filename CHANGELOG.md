@@ -25,6 +25,11 @@ For reference, the possible headings are:
 * **Known Issues**
 * **Notes**
 
+## [2.4.6] - 2023-2-05
+* **Fixed** Missing ABCI_RPC object initiailization for CLI voting commands.
+* **Fixed** TypeError in EndBlock procedure that occured rarely within the network.
+* **Security** moved to a more secure requests version
+
 ## [2.4.5] - 2023-21-04
 * **Fixed** Integration of DataAccessor Singleton class to reduce potentially multiple DB driver initializations.
 

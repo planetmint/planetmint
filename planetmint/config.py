@@ -117,8 +117,8 @@ class Config(metaclass=Singleton):
     def set(self, config):
         self._private_real_config = config
 
-    def get_db_key_map(sefl, db):
-        return sefl.__private_database_keys_map[db]
+    def get_db_key_map(self, db):
+        return self.__private_database_keys_map[db]
 
     def get_db_map(sefl, db):
         return sefl.__private_database_map[db]
@@ -131,16 +131,12 @@ DEFAULT_LOGGING_CONFIG = {
     "formatters": {
         "console": {
             "class": "logging.Formatter",
-            "format": (
-                "[%(asctime)s] [%(levelname)s] (%(name)s) " "%(message)s (%(processName)-10s - pid: %(process)d)"
-            ),
+            "format": ("[%(asctime)s] [%(levelname)s] (%(name)s) %(message)s (%(processName)-10s - pid: %(process)d)"),
             "datefmt": "%Y-%m-%d %H:%M:%S",
         },
         "file": {
             "class": "logging.Formatter",
-            "format": (
-                "[%(asctime)s] [%(levelname)s] (%(name)s) " "%(message)s (%(processName)-10s - pid: %(process)d)"
-            ),
+            "format": ("[%(asctime)s] [%(levelname)s] (%(name)s) %(message)s (%(processName)-10s - pid: %(process)d)"),
             "datefmt": "%Y-%m-%d %H:%M:%S",
         },
     },

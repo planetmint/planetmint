@@ -29,7 +29,7 @@ from planetmint.backend import schema
 from planetmint.commands import utils
 from planetmint.commands.utils import configure_planetmint, input_on_stderr
 from planetmint.config_utils import setup_logging
-from planetmint.abci.rpc import MODE_COMMIT, MODE_LIST
+from planetmint.abci.rpc import ABCI_RPC, MODE_COMMIT, MODE_LIST
 from planetmint.abci.utils import load_node_key, public_key_from_base64
 from planetmint.commands.election_types import elections
 from planetmint.version import __tm_supported_versions__
@@ -111,14 +111,18 @@ def run_election(args):
     """Initiate and manage elections"""
 
     b = Validator()
+    abci_rpc = ABCI_RPC()
 
-    # Call the function specified by args.action, as defined above
-    globals()[f"run_election_{args.action}"](args, b)
+    if args.action == "show":
+        run_election_show(args, b)
+    else:
+        # Call the function specified by args.action, as defined above
+        globals()[f"run_election_{args.action}"](args, b, abci_rpc)
 
 
-def run_election_new(args, planet):
+def run_election_new(args, planet, abci_rpc):
     election_type = args.election_type.replace("-", "_")
-    globals()[f"run_election_new_{election_type}"](args, planet)
+    globals()[f"run_election_new_{election_type}"](args, planet, abci_rpc)
 
 
 def create_new_election(sk, planet, election_class, data, abci_rpc):
@@ -186,7 +190,7 @@ def run_election_new_chain_migration(args, planet, abci_rpc):
     return create_new_election(args.sk, planet, ChainMigrationElection, [{"data": {}}], abci_rpc)
 
 
-def run_election_approve(args, validator: Validator, abci_rpc):
+def run_election_approve(args, validator: Validator, abci_rpc: ABCI_RPC):
     """Approve an election
 
     :param args: dict

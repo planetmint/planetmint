@@ -68,12 +68,14 @@ class Output:
 
     @staticmethod
     def outputs_dict(output: dict, transaction_id: str = "") -> Output:
-        out_dict: Output
-        if output["condition"]["details"].get("subconditions") is None:
-            out_dict = Output.output_with_public_key(output, transaction_id)
-        else:
-            out_dict = Output.output_with_sub_conditions(output, transaction_id)
-        return out_dict
+        return Output(
+            transaction_id=transaction_id,
+            public_keys=output["public_keys"],
+            amount=output["amount"],
+            condition=Condition(
+                uri=output["condition"]["uri"], details=ConditionDetails.from_dict(output["condition"]["details"])
+            ),
+        )
 
     @staticmethod
     def from_tuple(output: tuple) -> Output:
@@ -110,25 +112,3 @@ class Output:
     @staticmethod
     def list_to_dict(output_list: list[Output]) -> list[dict]:
         return [output.to_dict() for output in output_list or []]
-
-    @staticmethod
-    def output_with_public_key(output, transaction_id) -> Output:
-        return Output(
-            transaction_id=transaction_id,
-            public_keys=output["public_keys"],
-            amount=output["amount"],
-            condition=Condition(
-                uri=output["condition"]["uri"], details=ConditionDetails.from_dict(output["condition"]["details"])
-            ),
-        )
-
-    @staticmethod
-    def output_with_sub_conditions(output, transaction_id) -> Output:
-        return Output(
-            transaction_id=transaction_id,
-            public_keys=output["public_keys"],
-            amount=output["amount"],
-            condition=Condition(
-                uri=output["condition"]["uri"], details=ConditionDetails.from_dict(output["condition"]["details"])
-            ),
-        )
