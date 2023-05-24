@@ -120,11 +120,8 @@ def test_env_config(monkeypatch):
     assert result == expected
 
 
-@pytest.mark.skip
-def test_autoconfigure_read_both_from_file_and_env(
-    monkeypatch, request
-):  # TODO Disabled until we create a better config format
-    return
+@pytest.mark.skip(reason="Disabled until we create a better config format")
+def test_autoconfigure_read_both_from_file_and_env(monkeypatch, request):
     # constants
     DATABASE_HOST = "test-host"
     DATABASE_NAME = "test-dbname"

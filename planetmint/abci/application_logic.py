@@ -82,7 +82,7 @@ class ApplicationLogic(BaseApplication):
 
                 if known_chain["is_synced"]:
                     msg = (
-                        f"Got invalid InitChain ABCI request ({genesis}) - " f"the chain {chain_id} is already synced."
+                        f"Got invalid InitChain ABCI request ({genesis}) - the chain {chain_id} is already synced."
                     )
                     logger.error(msg)
                     sys.exit(1)
@@ -238,7 +238,7 @@ class ApplicationLogic(BaseApplication):
             block_txn_hash = calculate_hash(self.block_txn_ids)
             block = self.validator.models.get_latest_block()
 
-            logger.debug("BLOCK: ", block)
+            logger.debug(f"BLOCK: {block}")
             if self.block_txn_ids:
                 self.block_txn_hash = calculate_hash([block["app_hash"], block_txn_hash])
             else:
@@ -279,7 +279,7 @@ class ApplicationLogic(BaseApplication):
             sys.exit(1)
 
         logger.debug(
-            "Commit-ing new block with hash: apphash=%s ," "height=%s, txn ids=%s",
+            "Commit-ing new block with hash: apphash=%s, height=%s, txn ids=%s",
             data,
             self.new_height,
             self.block_txn_ids,

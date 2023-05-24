@@ -62,7 +62,7 @@ class Validator:
             asset_id = tx.get_asset_id(input_txs)
             if asset_id != Transaction.read_out_asset_id(tx):
                 raise AssetIdMismatch(
-                    ("The asset id of the input does not" " match the asset id of the" " transaction")
+                    ("The asset id of the input does not match the asset id of the transaction")
                 )
         else:
             asset_ids = Transaction.get_asset_ids(input_txs)
@@ -105,9 +105,7 @@ class Validator:
 
         if output_amount != input_amount:
             raise AmountError(
-                (
-                    "The amount used in the inputs `{}`" " needs to be same as the amount used" " in the outputs `{}`"
-                ).format(input_amount, output_amount)
+                "The amount used in the inputs `{}` needs to be same as the amount used in the outputs `{}`".format(input_amount, output_amount)
             )
 
         return True
@@ -202,15 +200,16 @@ class Validator:
             raise InvalidProposer("Public key is not a part of the validator set")
 
         # NOTE: Check if all validators have been assigned votes equal to their voting power
-        if not self.is_same_topology(current_validators, transaction.outputs):
+        if not Validator.is_same_topology(current_validators, transaction.outputs):
             raise UnequalValidatorSet("Validator set much be exactly same to the outputs of election")
 
         if transaction.operation == VALIDATOR_ELECTION:
             self.validate_validator_election(transaction)
 
         return transaction
-
-    def is_same_topology(cls, current_topology, election_topology):
+    
+    @staticmethod
+    def is_same_topology(current_topology, election_topology):
         voters = {}
         for voter in election_topology:
             if len(voter.public_keys) > 1:

@@ -79,7 +79,6 @@ def new_validator_set(validators, updates):
 
 def get_public_key_decoder(pk):
     encoding = pk["type"]
-    decoder = base64.b64decode
 
     if encoding == "ed25519-base16":
         decoder = base64.b16decode

@@ -189,7 +189,6 @@ def main():
     ctx["public_keys_transfer"] = tx_transfer.outputs[0].public_keys[0]
     ctx["tx_transfer_id"] = tx_transfer.id
 
-    # privkey_transfer_last = 'sG3jWDtdTXUidBJK53ucSTrosktG616U3tQHBk81eQe'
     pubkey_transfer_last = "3Af3fhhjU6d9WecEM9Uw5hfom9kNEwE7YuDWdqAUssqm"
 
     cid = 0

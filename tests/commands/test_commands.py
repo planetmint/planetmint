@@ -26,6 +26,9 @@ from planetmint.backend.connection import Connection
 from tests.utils import generate_election, generate_validators
 
 
+rpc_write_transaction_string = "planetmint.abci.rpc.ABCI_RPC.write_transaction"
+
+
 def mock_get_validators(self, height):
     return [
         {
@@ -57,7 +60,7 @@ def test_chain_migration_election_show_shows_inconclusive(b_flushed, test_abci_r
     b = b_flushed
 
     validators = generate_validators([1] * 4)
-    output = b.models.store_validator_set(1, [v["storage"] for v in validators])
+    _ = b.models.store_validator_set(1, [v["storage"] for v in validators])
 
     public_key = validators[0]["public_key"]
     private_key = validators[0]["private_key"]
@@ -465,7 +468,7 @@ def test_election_new_upsert_validator_without_tendermint(
         from planetmint.model.dataaccessor import DataAccessor
 
         m.setattr(DataAccessor, "get_validators", mock_get_validators)
-        m.setattr("planetmint.abci.rpc.ABCI_RPC.write_transaction", mock_write)
+        m.setattr(rpc_write_transaction_string, mock_write)
 
         args = Namespace(
             action="new",
@@ -505,7 +508,7 @@ def test_election_new_chain_migration_without_tendermint(
         from planetmint.model.dataaccessor import DataAccessor
 
         m.setattr(DataAccessor, "get_validators", mock_get_validators)
-        m.setattr("planetmint.abci.rpc.ABCI_RPC.write_transaction", mock_write)
+        m.setattr(rpc_write_transaction_string, mock_write)
 
         args = Namespace(action="new", election_type="migration", sk=priv_validator_path, config={})
 
@@ -546,7 +549,7 @@ def test_election_new_upsert_validator_invalid_power(
         from planetmint.model.dataaccessor import DataAccessor
 
         m.setattr(DataAccessor, "get_validators", mock_get_validators)
-        m.setattr("planetmint.abci.rpc.ABCI_RPC.write_transaction", mock_write)
+        m.setattr(rpc_write_transaction_string, mock_write)
 
         args = Namespace(
             action="new",
@@ -600,7 +603,7 @@ def test_election_approve_without_tendermint(
         from planetmint.model.dataaccessor import DataAccessor
 
         m.setattr(DataAccessor, "get_validators", mock_get_validators)
-        m.setattr("planetmint.abci.rpc.ABCI_RPC.write_transaction", mock_write)
+        m.setattr(rpc_write_transaction_string, mock_write)
 
         b, election_id = call_election_internal(b, new_validator, node_key)
 
@@ -674,7 +677,7 @@ def call_election(monkeypatch, b, new_validator, node_key, abci_rpc):
         from planetmint.model.dataaccessor import DataAccessor
 
         m.setattr(DataAccessor, "get_validators", mock_get_validators)
-        m.setattr("planetmint.abci.rpc.ABCI_RPC.write_transaction", mock_write)
+        m.setattr(rpc_write_transaction_string, mock_write)
         b, election_id = call_election_internal(b, new_validator, node_key)
         m.undo()
         return b, election_id
