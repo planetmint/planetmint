@@ -97,7 +97,7 @@ class TransactionListApi(Resource):
                     500, "Invalid transaction ({}): {} : {}".format(type(e).__name__, e, tx), level="error"
                 )
             else:
-                if tx_obj.version != Transaction.VERSION:
+                if tx_obj.version != Transaction.__VERSION__:
                     return make_error(
                         401,
                         "Invalid transaction version: The transaction is valid, \
