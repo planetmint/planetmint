@@ -118,7 +118,7 @@ class Config(metaclass=Singleton):
         self._private_real_config = config
 
     def get_db_key_map(self, db):
-        return sefl.__private_database_keys_map[db]
+        return self.__private_database_keys_map[db]
 
     def get_db_map(sefl, db):
         return sefl.__private_database_map[db]

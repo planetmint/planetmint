@@ -112,9 +112,12 @@ def run_election(args):
 
     b = Validator()
     abci_rpc = ABCI_RPC()
-
-    # Call the function specified by args.action, as defined above
-    globals()[f"run_election_{args.action}"](args, b, abci_rpc)
+    
+    if args.action == "show":
+        run_election_show(args, b)
+    else:
+        # Call the function specified by args.action, as defined above
+        globals()[f"run_election_{args.action}"](args, b, abci_rpc)
 
 
 def run_election_new(args, planet, abci_rpc):
@@ -187,7 +190,7 @@ def run_election_new_chain_migration(args, planet, abci_rpc):
     return create_new_election(args.sk, planet, ChainMigrationElection, [{"data": {}}], abci_rpc)
 
 
-def run_election_approve(args, validator: Validator, abci_rpc):
+def run_election_approve(args, validator: Validator, abci_rpc : ABCI_RPC):
     """Approve an election
 
     :param args: dict
@@ -226,7 +229,7 @@ def run_election_approve(args, validator: Validator, abci_rpc):
         return False
 
 
-def run_election_show(args, validator: Validator, abci_rpc: ABCI_RPC):
+def run_election_show(args, validator: Validator):
     """Retrieves information about an election
 
     :param args: dict
