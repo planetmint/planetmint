@@ -25,7 +25,7 @@ jobs:
         run: pip install --upgrade pip
 
       - name: Setup poetry
-        uses: Gr1N/setup-poetry@v7
+        uses: Gr1N/setup-poetry@v8
 
       - name: Install dependencies
         run: poetry install

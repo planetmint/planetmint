@@ -47,7 +47,7 @@ jobs:
         run: pip install --upgrade pip pip-audit 
 
       - name: Setup poetry
-        uses: Gr1N/setup-poetry@v7
+        uses: Gr1N/setup-poetry@v8
 
       - name: Install dependencies
         run: poetry install
@@ -87,7 +87,7 @@ jobs:
         run: wget https://github.com/tendermint/tendermint/releases/download/v0.34.15/tendermint_0.34.15_linux_amd64.tar.gz && tar zxf tendermint_0.34.15_linux_amd64.tar.gz
 
       - name: Setup poetry
-        uses: Gr1N/setup-poetry@v7
+        uses: Gr1N/setup-poetry@v8
 
       - name: Install Planetmint
         run: poetry install --with dev
@@ -110,7 +110,7 @@ jobs:
           python-version: 3.9
 
       - name: Setup poetry
-        uses: Gr1N/setup-poetry@v7
+        uses: Gr1N/setup-poetry@v8
 
       - name: Install dependencies
         run: poetry install --with dev
