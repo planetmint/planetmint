@@ -107,6 +107,7 @@ pytest-xdist = "^3.1.0"
 pytest-flask = "^1.2.0"
 pytest-aiohttp = "^1.0.4"
 pytest-asyncio = "^0.20.3"
+pip-audit = "^2.5.6"
 
 [build-system]
 requires = ["poetry-core"]
