@@ -21,9 +21,6 @@ jobs:
         with:
           python-version: 3.9
 
-      - name: Install pip-audit
-        run: pip install --upgrade pip
-
       - name: Setup poetry
         uses: Gr1N/setup-poetry@v8
 
