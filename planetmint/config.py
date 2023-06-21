@@ -86,7 +86,7 @@ class Config(metaclass=Singleton):
             "tendermint": {
                 "host": "localhost",
                 "port": 26657,
-                "version": "v0.34.15",  # look for __tm_supported_versions__
+                "version": "v0.34.24",  # look for __tm_supported_versions__
             },
             "database": self.__private_database_map,
             "log": {

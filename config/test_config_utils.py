@@ -207,7 +207,7 @@ def test_autoconfigure_read_both_from_file_and_env(monkeypatch, request):
             "advertised_port": WSSERVER_ADVERTISED_PORT,
         },
         "database": database_mongodb,
-        "tendermint": {"host": "localhost", "port": 26657, "version": "v0.34.15"},
+        "tendermint": {"host": "localhost", "port": 26657, "version": "v0.34.24"},
         "log": {
             "file": LOG_FILE,
             "level_console": "debug",

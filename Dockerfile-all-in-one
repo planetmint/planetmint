@@ -1,7 +1,7 @@
 FROM python:3.9-slim
 LABEL maintainer "contact@ipdb.global"
 
-ARG TM_VERSION=0.34.15
+ARG TM_VERSION=0.34.24
 RUN mkdir -p /usr/src/app
 ENV HOME /root
 COPY . /usr/src/app/
