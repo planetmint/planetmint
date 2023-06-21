@@ -25,6 +25,9 @@ For reference, the possible headings are:
 * **Known Issues**
 * **Notes**
 
+## [2.5.0] - 2023-21-06
+* **Changed** Upgraded ABCI compatbility to Tendermint v0.34.24 and CometBFT v0.34.29
+
 ## [2.4.7] - 2023-24-05
 * **Fixed** wrong referencing of planetmint-transactions object and variable
 
