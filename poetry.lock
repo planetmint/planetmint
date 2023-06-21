@@ -13,25 +13,6 @@ files = [
 ]
 
 [[package]]
-name = "abci"
-version = "0.8.3"
-description = "Python based ABCI Server for Tendermint"
-category = "main"
-optional = false
-python-versions = ">=3.9"
-files = [
-    {file = "abci-0.8.3-py3-none-any.whl", hash = "sha256:9f6b9d9a28ccb90bc158572fd05d7a196e09cbe774c72053a18a7b5f602e406f"},
-    {file = "abci-0.8.3.tar.gz", hash = "sha256:2c85c7aa78b7a1785b72e6af789ca9f132088b2ba63d90e85af114d65b609fb3"},
-]
-
-[package.dependencies]
-colorlog = ">=3.1.4"
-protobuf = ">=3.6.1"
-
-[package.extras]
-dev = ["black", "build", "pytest", "pytest-cov", "twine"]
-
-[[package]]
 name = "aiohttp"
 version = "3.8.4"
 description = "Async http client/server framework (asyncio)"
@@ -1922,6 +1903,25 @@ files = [
 testing = ["pytest", "pytest-cov"]
 
 [[package]]
+name = "planetmint-abci"
+version = "0.8.4"
+description = "Python based ABCI Server for Tendermint"
+category = "main"
+optional = false
+python-versions = ">=3.9"
+files = [
+    {file = "planetmint-abci-0.8.4.tar.gz", hash = "sha256:1e969da0a10d0e5ceb82993645d0cd92076c2a7df03b701fd17837c63ace1f57"},
+]
+
+[package.dependencies]
+certifi = ">=2022.12.7"
+colorlog = ">=3.1.4"
+protobuf = ">=3.18.3"
+
+[package.extras]
+dev = ["black", "build", "pytest", "pytest-cov", "twine"]
+
+[[package]]
 name = "planetmint-cryptoconditions"
 version = "1.2.2"
 description = "Multi-algorithm, multi-level, multi-signature format for expressing conditions and fulfillments according to the Interledger Protocol (ILP)."
@@ -3568,4 +3568,4 @@ testing = ["func-timeout", "jaraco.itertools", "pytest (>=6)", "pytest-black (>=
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9"
-content-hash = "98c4577730a35fdda7b853c1921860cd298abcead332e443fed8497544022429"
+content-hash = "561ce2e416ff69aaf64732fcffe4870f6bef2317c881c1e595a49c824c65fa27"

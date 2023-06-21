@@ -65,7 +65,7 @@ services:
     restart: always
   
   tendermint:
-    image: tendermint/tendermint:v0.34.15
+    image: tendermint/tendermint:v0.34.24
     # volumes:
     #   - ./tmdata:/tendermint
     entrypoint: ''

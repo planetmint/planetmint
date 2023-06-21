@@ -60,7 +60,7 @@ you can do this:
 .. code::
 
    $ mkdir $(pwd)/tmdata
-   $ docker run --rm -v $(pwd)/tmdata:/tendermint/config tendermint/tendermint:v0.34.15 init
+   $ docker run --rm -v $(pwd)/tmdata:/tendermint/config tendermint/tendermint:v0.34.24 init
    $ cat $(pwd)/tmdata/genesis.json
 
 You should see something that looks like:

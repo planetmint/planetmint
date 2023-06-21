@@ -1,4 +1,4 @@
-ARG tm_version=v0.31.5
+ARG tm_version=v0.34.24
 FROM tendermint/tendermint:${tm_version}
 LABEL maintainer "contact@ipdb.global"
 WORKDIR /
