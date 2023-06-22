@@ -25,6 +25,9 @@ For reference, the possible headings are:
 * **Known Issues**
 * **Notes**
 
+## [2.5.1] - 2023-22-06
+* **Fixed** docker image incompatibility with tarantool installer, switched to ubuntu-container for AIO image
+
 ## [2.5.0] - 2023-21-06
 * **Changed** Upgraded ABCI compatbility to Tendermint v0.34.24 and CometBFT v0.34.29
 
