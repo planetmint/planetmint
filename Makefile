@@ -65,8 +65,8 @@ test: check-deps test-unit  ## Run unit
 
 test-unit: check-deps ## Run all tests once or specify a file/test with TEST=tests/file.py::Class::test
 	@$(DC) up -d tarantool
-	#wget https://github.com/tendermint/tendermint/releases/download/v0.34.15/tendermint_0.34.15_linux_amd64.tar.gz
-	#tar zxf tendermint_0.34.15_linux_amd64.tar.gz
+	#wget https://github.com/tendermint/tendermint/releases/download/v0.34.24/tendermint_0.34.24_linux_amd64.tar.gz
+	#tar zxf tendermint_0.34.24_linux_amd64.tar.gz
 	poetry run pytest -m "not abci"
 	rm -rf ~/.tendermint && ./tendermint init && ./tendermint node --consensus.create_empty_blocks=false --rpc.laddr=tcp://0.0.0.0:26657 --proxy_app=tcp://localhost:26658&
 	poetry run pytest -m abci

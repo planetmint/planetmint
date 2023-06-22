@@ -1,4 +1,4 @@
-FROM python:3.9-slim
+FROM ubuntu:22.04
 LABEL maintainer "contact@ipdb.global"
 
 ARG TM_VERSION=0.34.24
@@ -11,13 +11,15 @@ RUN apt-get update \
     && apt-get install -y openssl ca-certificates git \
     && apt-get install -y vim build-essential cmake jq zsh wget \
     && apt-get install -y libstdc++6 \
-    && apt-get install -y openssh-client openssh-server \
-    && pip install --upgrade pip cffi \
+    && apt-get install -y openssh-client openssh-server
+RUN apt-get install -y python3 python3-pip cython3
+RUN pip install --upgrade pip cffi \
     && pip install -e . \
     && apt-get autoremove
 
 # Install tarantool and monit
 RUN apt-get install -y dirmngr gnupg apt-transport-https software-properties-common ca-certificates curl
+RUN ln -fs /usr/share/zoneinfo/Etc/UTC /etc/localtime
 RUN apt-get update
 RUN curl -L https://tarantool.io/wrATeGF/release/2/installer.sh | bash 
 RUN apt-get install -y tarantool monit

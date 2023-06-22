@@ -59,8 +59,8 @@ $ sudo apt install mongodb
 ```
 Tendermint can be installed and started as follows
 ```
-$ wget https://github.com/tendermint/tendermint/releases/download/v0.34.15/tendermint_0.34.15_linux_amd64.tar.gz
-$ tar zxf tendermint_0.34.15_linux_amd64.tar.gz
+$ wget https://github.com/tendermint/tendermint/releases/download/v0.34.24/tendermint_0.34.24_linux_amd64.tar.gz
+$ tar zxf tendermint_0.34.24_linux_amd64.tar.gz
 $ ./tendermint init
 $ ./tendermint node --proxy_app=tcp://localhost:26658
 ```
