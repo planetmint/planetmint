@@ -11,16 +11,18 @@ import pytest
 import random
 import time
 
-#from unittest.mock import patch
+# from unittest.mock import patch
 from transactions.types.assets.create import Create
 from transactions.types.assets.transfer import Transfer
 from transactions.common import crypto
 from transactions.common.crypto import generate_key_pair
-#from planetmint import processes
-from planetmint.ipc import events #, POISON_PILL
+
+# from planetmint import processes
+from planetmint.ipc import events  # , POISON_PILL
 from planetmint.web.websocket_server import init_app, EVENTS_ENDPOINT, EVENTS_ENDPOINT_BLOCKS
 from ipld import multihash, marshal
 from planetmint.web.websocket_dispatcher import Dispatcher
+
 
 def test_eventify_block_works_with_any_transaction():
     alice = generate_key_pair()
@@ -160,15 +162,12 @@ def test_integration_from_webapi_to_websocket(monkeypatchonkeypatch, client, loo
     # plugin explicitely.
     monkeypatch.setattr("asyncio.get_event_loop", lambda: loop)
 
-
     # TODO processes does not exist anymore, when reactivating this test it
     # will fail because of this
     # Start Planetmint
     processes.start()
 
     loop = asyncio.get_event_loop()
-
-
 
     time.sleep(1)
 

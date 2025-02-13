@@ -31,6 +31,7 @@ metadata = {"units": 300, "type": "KG"}
 
 SCRIPT_OUTPUTS = ["ok"]
 
+
 @pytest.mark.skip(reason="new zenroom adjusteds have to be made")
 def test_zenroom_validation(b):
     biolabs = generate_key_pair()
