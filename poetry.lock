@@ -1960,7 +1960,7 @@ planetmint-ipld = ">=0.0.3,<0.0.4"
 planetmint-py-cid = ">=0.4.2,<0.5.0"
 python-rapidjson = ">=1.8,<2.0"
 PyYAML = ">=6.0,<7.0"
-zenroom = ">=2.20.4,<3.0.0"
+zenroom = ">=4.0.0"
 
 [[package]]
 name = "platformdirs"
@@ -3358,32 +3358,11 @@ multidict = ">=4.0"
 
 [[package]]
 name = "zenroom"
-version = "2.22.1"
+version = "4.0.0"
 description = "Zenroom for Python: Bindings of Zenroom library for Python."
 optional = false
 python-versions = ">=3.8, <4"
 files = [
-    {file = "zenroom-2.22.1-cp310-cp310-linux_armv7l.whl", hash = "sha256:003b452f62b019ba62fe5c891f876c2380acd72d0a0fa1cfd0622429774097bb"},
-    {file = "zenroom-2.22.1-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:b3390aac03489db48e79c5e0f88f9be9672de2519374c402d7ba47669c446b62"},
-    {file = "zenroom-2.22.1-cp310-cp310-manylinux_2_17_aarch64.manylinux2014_aarch64.manylinux_2_24_aarch64.whl", hash = "sha256:2bc7ee4df20d17a5b578de8b274e978c4c0511be16377a9b4b743c855c377b14"},
-    {file = "zenroom-2.22.1-cp310-cp310-manylinux_2_17_i686.manylinux2014_i686.manylinux_2_24_i686.whl", hash = "sha256:d0ebc165708c5e2eb6c079e0b280cccc9f5a5e6eaafd47f9bdf6832a64ae75a7"},
-    {file = "zenroom-2.22.1-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.manylinux_2_24_x86_64.whl", hash = "sha256:0be0fa8680ea663134046323df17959a3e8b7d8b9cba0402af9d750e53611f7a"},
-    {file = "zenroom-2.22.1-cp311-cp311-linux_armv7l.whl", hash = "sha256:035b193fbdeec9c61dac9d0fe1413e730626fe81ae54671b411617abb8999dcb"},
-    {file = "zenroom-2.22.1-cp311-cp311-macosx_10_9_x86_64.whl", hash = "sha256:7011e5ab756869b5285541b673a2c7ea270251249c7f1394aa802ee2d11e7f38"},
-    {file = "zenroom-2.22.1-cp311-cp311-manylinux_2_17_aarch64.manylinux2014_aarch64.manylinux_2_24_aarch64.whl", hash = "sha256:d1c24c7a5a8e9ead352019ca53f6de827c1b28bfd8346acc1db3b636fd95ad75"},
-    {file = "zenroom-2.22.1-cp311-cp311-manylinux_2_17_i686.manylinux2014_i686.manylinux_2_24_i686.whl", hash = "sha256:f7b01471ac80ab31452e1de516fc3e35003fe47c21bd36cc6c6bdeace5e2a1d1"},
-    {file = "zenroom-2.22.1-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.manylinux_2_24_x86_64.whl", hash = "sha256:599e628c0258b08a46eb14ffa215ff1557e1c51fa3f916ca33645912f15d4476"},
-    {file = "zenroom-2.22.1-cp38-cp38-linux_armv7l.whl", hash = "sha256:d6a9466e1dc89dff6396f94284641f33aac456a2e14dfcc42baf3084b9371e7c"},
-    {file = "zenroom-2.22.1-cp38-cp38-macosx_10_9_x86_64.whl", hash = "sha256:5c4c0c4109c342957bed6131e4250a50abc0f6cb123cce55c5a71dc67cd4bad3"},
-    {file = "zenroom-2.22.1-cp38-cp38-manylinux_2_17_aarch64.manylinux2014_aarch64.manylinux_2_24_aarch64.whl", hash = "sha256:043bbe48242a509fd8507c2114cc1e48b05d429068bd2f55003a1fbb4a16b36f"},
-    {file = "zenroom-2.22.1-cp38-cp38-manylinux_2_17_i686.manylinux2014_i686.manylinux_2_24_i686.whl", hash = "sha256:e30be4336c6f62bfd015e625ec3f3bb4c929e8942658349e80f3dc5dc73b7857"},
-    {file = "zenroom-2.22.1-cp38-cp38-manylinux_2_17_x86_64.manylinux2014_x86_64.manylinux_2_24_x86_64.whl", hash = "sha256:f5cc001793240cf1a79e4d57bffe94309c2adff60ced77f28112710b398f0834"},
-    {file = "zenroom-2.22.1-cp39-cp39-linux_armv7l.whl", hash = "sha256:7e39cbf8b66cad5f1b62e29808a8343a23ef792a78f266cc4c5fb27a19f265e8"},
-    {file = "zenroom-2.22.1-cp39-cp39-macosx_10_9_x86_64.whl", hash = "sha256:023752fe4204ba4e19c8a6fd0f64b70a87038c762b67735e34557469b0eb5a7d"},
-    {file = "zenroom-2.22.1-cp39-cp39-manylinux_2_17_aarch64.manylinux2014_aarch64.manylinux_2_24_aarch64.whl", hash = "sha256:3cb42769a475cbd08efd83d632339acf094c66436d6342aed18ca6bbe99bdbfe"},
-    {file = "zenroom-2.22.1-cp39-cp39-manylinux_2_17_i686.manylinux2014_i686.manylinux_2_24_i686.whl", hash = "sha256:e30e01b531434108eeceb35d3a13fd84c0be570d399c7479b6a9e7e3ea1fdf6e"},
-    {file = "zenroom-2.22.1-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.manylinux_2_24_x86_64.whl", hash = "sha256:f759fed4e088e00f249ba4fce03e792f3503b2bb8004fb2566a4410cd9724e95"},
-    {file = "zenroom-2.22.1.tar.gz", hash = "sha256:b206378b89d9799402747be7a64624d8b6a77bddac913310c7796560fcc07914"},
 ]
 
 [package.extras]
