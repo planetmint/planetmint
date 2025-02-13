@@ -8,29 +8,23 @@ import json
 import queue
 import threading
 import pytest
+import random
+import time
 
 # from unittest.mock import patch
 from transactions.types.assets.create import Create
 from transactions.types.assets.transfer import Transfer
 from transactions.common import crypto
-from planetmint.ipc import events
+from transactions.common.crypto import generate_key_pair
+
+# from planetmint import processes
+from planetmint.ipc import events  # , POISON_PILL
 from planetmint.web.websocket_server import init_app, EVENTS_ENDPOINT, EVENTS_ENDPOINT_BLOCKS
 from ipld import multihash, marshal
 from planetmint.web.websocket_dispatcher import Dispatcher
 
 
-class MockWebSocket:
-    def __init__(self):
-        self.received = []
-
-    def send_str(self, s):
-        self.received.append(s)
-
-
 def test_eventify_block_works_with_any_transaction():
-    from planetmint.web.websocket_dispatcher import Dispatcher
-    from transactions.common.crypto import generate_key_pair
-
     alice = generate_key_pair()
 
     tx = Create.generate([alice.public_key], [([alice.public_key], 1)]).sign([alice.private_key])
@@ -50,9 +44,6 @@ def test_eventify_block_works_with_any_transaction():
 
 
 def test_simplified_block_works():
-    from planetmint.web.websocket_dispatcher import Dispatcher
-    from transactions.common.crypto import generate_key_pair
-
     alice = generate_key_pair()
 
     tx = Create.generate([alice.public_key], [([alice.public_key], 1)]).sign([alice.private_key])
@@ -112,12 +103,12 @@ async def test_websocket_transaction_event(aiohttp_client):
     tx = Create.generate([user_pub], [([user_pub], 1)])
     tx = tx.sign([user_priv])
 
-    app = init_app(None)
-    client = await aiohttp_client(app)
+    myapp = init_app(None)
+    client = await aiohttp_client(myapp)
     ws = await client.ws_connect(EVENTS_ENDPOINT)
     block = {"height": 1, "transactions": [tx]}
-    blk_source = Dispatcher.get_queue_on_demand(app, "blk_source")
-    tx_source = Dispatcher.get_queue_on_demand(app, "tx_source")
+    blk_source = Dispatcher.get_queue_on_demand(myapp, "blk_source")
+    tx_source = Dispatcher.get_queue_on_demand(myapp, "tx_source")
     block_event = events.Event(events.EventTypes.BLOCK_VALID, block)
 
     await tx_source.put(block_event)
@@ -136,15 +127,12 @@ async def test_websocket_transaction_event(aiohttp_client):
 
 @pytest.mark.asyncio
 async def test_websocket_string_event(aiohttp_client):
-    from planetmint.ipc.events import POISON_PILL
-    from planetmint.web.websocket_server import init_app, EVENTS_ENDPOINT
-
-    app = init_app(None)
-    client = await aiohttp_client(app)
+    myapp = init_app(None)
+    client = await aiohttp_client(myapp)
     ws = await client.ws_connect(EVENTS_ENDPOINT)
 
-    blk_source = Dispatcher.get_queue_on_demand(app, "blk_source")
-    tx_source = Dispatcher.get_queue_on_demand(app, "tx_source")
+    blk_source = Dispatcher.get_queue_on_demand(myapp, "blk_source")
+    tx_source = Dispatcher.get_queue_on_demand(myapp, "tx_source")
 
     await tx_source.put("hack")
     await tx_source.put("the")
@@ -164,7 +152,7 @@ async def test_websocket_string_event(aiohttp_client):
 
 
 @pytest.mark.skip("Processes are not stopping properly, and the whole test suite would hang")
-def test_integration_from_webapi_to_websocket(monkeypatch, client, loop):
+def test_integration_from_webapi_to_websocket(monkeypatchonkeypatch, client, loop):
     # XXX: I think that the `pytest-aiohttp` plugin is sparkling too much
     # magic in the `asyncio` module: running this test without monkey-patching
     # `asycio.get_event_loop` (and without the `loop` fixture) raises a:
@@ -174,20 +162,12 @@ def test_integration_from_webapi_to_websocket(monkeypatch, client, loop):
     # plugin explicitely.
     monkeypatch.setattr("asyncio.get_event_loop", lambda: loop)
 
-    import json
-    import random
-    import aiohttp
-
     # TODO processes does not exist anymore, when reactivating this test it
     # will fail because of this
-    from planetmint import processes
-
     # Start Planetmint
     processes.start()
 
     loop = asyncio.get_event_loop()
-
-    import time
 
     time.sleep(1)
 
