@@ -9,12 +9,6 @@ version: '2.2'
 services:
   # Build: docker-compose build -d planetmint
   # Run: docker-compose run -d bdb
-  mongodb:
-    image: mongo:3.6
-    ports:
-      - "27017:27017"
-    command: mongod
-    restart: always
   tarantool:
     image: tarantool/tarantool:2.10.4
     ports:
@@ -28,12 +22,9 @@ services:
     restart: always
   planetmint:
     depends_on:
-      - mongodb
       - tendermint
       - tarantool
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: ghcr.io/planetmint/planetmint:latest
     volumes:
       - ./planetmint:/usr/src/app/planetmint
       - ./tests:/usr/src/app/tests
@@ -61,7 +52,8 @@ services:
       interval: 3s
       timeout: 5s
       retries: 5
-    command: 'planetmint -l DEBUG start'
+    #command: 'planetmint -l DEBUG start'
+    command: 'poetry run planetmint -l DEBUG start'
     restart: always
   
   tendermint:
@@ -87,30 +79,3 @@ services:
     image: appropriate/curl
     command: /bin/sh -c "curl -s http://planetmint:9984/ > /dev/null && curl -s http://tendermint:26657/ > /dev/null"
 
-  # Build docs only
-  # docker-compose build bdocs
-  # docker-compose up -d bdocs
-  bdocs:
-    depends_on:
-      - vdocs
-    build:
-      context: .
-      dockerfile: Dockerfile
-      args:
-        backend: tarantool_db
-    volumes:
-      - .:/usr/src/app/
-    command: make -C docs/root html
-  vdocs:
-    image: nginx
-    ports:
-      - '33333:80'
-    volumes:
-      - ./docs/root/build/html:/usr/share/nginx/html
-
-  # Remove all build, test, coverage and Python artifacts
-  clean:
-    image: alpine
-    command: /bin/sh -c "./planetmint/scripts/clean.sh"
-    volumes:
-      - $PWD:/planetmint
